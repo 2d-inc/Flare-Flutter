@@ -13,6 +13,16 @@ class ActorPath extends ActorNode
 	bool _isClosed;
 	List<PathPoint> _points;
 
+	List<PathPoint> get points
+	{
+		return _points;
+	}
+
+	bool get isClosed
+	{
+		return _isClosed;
+	}
+
 	static ActorPath read(Actor actor, BinaryReader reader, ActorPath component)
 	{
 		if(component == null)

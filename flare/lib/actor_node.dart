@@ -5,6 +5,12 @@ import "math/vec2d.dart";
 import "actor_component.dart";
 import "actor_constraint.dart";
 
+class ActorClip
+{
+	int clipIdx;
+	ActorNode node;
+}
+
 class ActorNode extends ActorComponent
 {
 	List<ActorNode> _children;
@@ -22,6 +28,7 @@ class ActorNode extends ActorComponent
 	bool _isCollapsedVisibility = false;
 
 	bool _renderCollapsed = false;
+	List<ActorClip> _clip;
 
 	List<ActorConstraint> _constraints;
 
@@ -250,12 +257,18 @@ class ActorNode extends ActorComponent
 		node._rotation = reader.readFloat32();
 		reader.readFloat32Array(node._scale.values, 2, 0);
 		node._opacity = reader.readFloat32();
-
-		if(actor.version >= 13)
+		node._isCollapsedVisibility = reader.readUint8() == 1;
+		int clipCount = reader.readUint8();
+		if(clipCount > 0)
 		{
-			node._isCollapsedVisibility = reader.readUint8() == 1;
+			node._clip = new List<ActorClip>(clipCount);
+			for(int i = 0; i < clipCount; i++)
+			{
+				ActorClip clip = new ActorClip();
+				clip.clipIdx = reader.readUint16();
+				node._clip[i] = clip;
+			}
 		}
-
 		return node;
 	}
 

@@ -127,4 +127,11 @@ class Vec2D
 	{
 		return a[0] * b[0] + a[1] * b[1];
 	}
+
+	static Vec2D scaleAndAdd(Vec2D result, Vec2D a, Vec2D b, double scale)
+	{
+		result[0] = a[0] + (b[0] * scale);
+    	result[1] = a[1] + (b[1] * scale);
+		return result;
+	}
 }

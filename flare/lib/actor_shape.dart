@@ -13,6 +13,16 @@ class ActorShape extends ActorDrawable
 {
 	bool _isHidden;
 
+	bool get isHidden
+	{
+		return _isHidden;
+	}
+
+	bool get doesDraw
+	{
+		return !_isHidden && !this.renderCollapsed;
+	}
+
 	static ActorShape read(Actor actor, BinaryReader reader, ActorShape component)
 	{
 		if(component == null)

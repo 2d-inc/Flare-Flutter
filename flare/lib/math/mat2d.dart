@@ -17,6 +17,21 @@ class Mat2D
 		return _buffer;
 	}
 
+	Float64List get mat4
+	{
+		// new Float64List.fromList([
+		// 							1.0, 0.0, 0.0, 0.0,
+		// 							0.0, 1.0, 0.0, 0.0,
+		// 							0.0, 0.0, 1.0, 0.0,
+		// 							0.0, 0.0, 0.0, 1.0]);
+
+		return new Float64List.fromList([
+									_buffer[0], _buffer[2], 0.0, _buffer[4],
+									_buffer[1], _buffer[3], 0.0, _buffer[5],
+									0.0, 0.0, 1.0, 0.0,
+									0.0, 0.0, 0.0, 1.0]);
+	}
+
 	double operator[](int index)
 	{
 		return _buffer[index];

@@ -1,6 +1,7 @@
-import "./math/vec2d.dart";
+import "math/vec2d.dart";
 import "dart:collection";
 import "binary_reader.dart";
+import "math/mat2d.dart";
 
 enum PointType
 {
@@ -10,7 +11,7 @@ enum PointType
 	Asymmetric
 }
 
-HashMap<int,PointType> pointTypeLookup = new HashMap<int,PointType>.fromIterables([0,1,2], [PointType.Straight, PointType.Mirror, PointType.Disconnected, PointType.Asymmetric]);
+HashMap<int,PointType> pointTypeLookup = new HashMap<int,PointType>.fromIterables([0,1,2,3], [PointType.Straight, PointType.Mirror, PointType.Disconnected, PointType.Asymmetric]);
 
 abstract class PathPoint
 {
@@ -43,6 +44,13 @@ abstract class PathPoint
 	void read(BinaryReader reader)
 	{
 		reader.readFloat32Array(_translation.values, 2, 0);
+	}
+
+	PathPoint transformed(Mat2D transform)
+	{
+		PathPoint result = makeInstance();
+		Vec2D.transformMat2D(result.translation, result.translation, transform);
+		return result;
 	}
 }
 
@@ -93,6 +101,13 @@ class CubicPathPoint extends PathPoint
 	{
 		return _out;
 	}
+
+	CubicPathPoint.fromValues(Vec2D translation, Vec2D inPoint, Vec2D outPoint) : super(PointType.Disconnected)
+	{
+		_translation = translation;
+		_in = inPoint;
+		_out = outPoint;
+	}
 	
 	PathPoint makeInstance()
 	{
@@ -113,5 +128,13 @@ class CubicPathPoint extends PathPoint
 		super.read(reader);
 		reader.readFloat32Array(_in.values, 2, 0);
 		reader.readFloat32Array(_out.values, 2, 0);
+	}
+	
+	PathPoint transformed(Mat2D transform)
+	{
+		CubicPathPoint result = super.transformed(transform) as CubicPathPoint;
+		Vec2D.transformMat2D(result.inPoint, result.inPoint, transform);
+		Vec2D.transformMat2D(result.outPoint, result.outPoint, transform);
+		return result;
 	}
 }

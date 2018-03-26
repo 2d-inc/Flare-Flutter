@@ -13,6 +13,7 @@ import "dependency_sorter.dart";
 import "actor_image.dart";
 import "actor_shape.dart";
 import "actor_path.dart";
+import "actor_color.dart";
 import "actor_drawable.dart";
 import "animation/actor_animation.dart";
 import "block_reader.dart";
@@ -171,7 +172,7 @@ class Actor
 		return _animations;
 	}
 
-	List<ActorDrawable> get imageNodes
+	List<ActorDrawable> get drawableNodes
 	{
 		return _drawableNodes;
 	}
@@ -335,6 +336,30 @@ class Actor
 	{
 		return new ActorShape();
 	}
+	ColorFill makeColorFill()
+	{
+		return new ColorFill();
+	}
+	ColorStroke makeColorStroke()
+	{
+		return new ColorStroke();
+	}
+	GradientFill makeGradientFill()
+	{
+		return new GradientFill();
+	}
+	GradientStroke makeGradientStroke()
+	{
+		return new GradientStroke();
+	}
+	RadialGradientFill makeRadialFill()
+	{
+		return new RadialGradientFill();
+	}
+	RadialGradientStroke makeRadialStroke()
+	{
+		return new RadialGradientStroke();
+	}
 
 	void advance(double seconds)
 	{
@@ -385,11 +410,11 @@ class Actor
 			_flags &= ~ActorFlags.IsVertexDeformDirty;
 			for(int i = 0; i < _drawableNodeCount; i++)
 			{
-				ActorImage imageNode = _drawableNodes[i];
-				if(imageNode != null && imageNode.isVertexDeformDirty)
+				ActorDrawable drawable = _drawableNodes[i];
+				if(drawable is ActorImage && drawable.isVertexDeformDirty)
 				{
-					imageNode.isVertexDeformDirty = false;
-					updateVertexDeform(imageNode);
+					drawable.isVertexDeformDirty = false;
+					updateVertexDeform(drawable);
 				}
 			}
 		}
@@ -452,14 +477,12 @@ class Actor
 					break;
 
 				case BlockTypes.ActorImageSequence:
-					_drawableNodeCount++;
 					component = ActorImage.readSequence(this, nodeBlock, makeImageNode());
 					ActorImage ai = component as ActorImage;
 					_maxTextureIndex = ai.sequenceFrames.last.atlasIndex; // Last atlasIndex is the biggest
 					break;
 
 				case BlockTypes.ActorImage:
-					_drawableNodeCount++;
 					component = ActorImage.read(this, nodeBlock, makeImageNode());
 					if((component as ActorImage).textureIndex > _maxTextureIndex)
 					{
@@ -554,6 +577,34 @@ class Actor
 				case BlockTypes.ActorPath:
 					component = ActorPath.read(this, nodeBlock, makePathNode());
 					break;
+
+				case BlockTypes.ColorFill:
+					component = ColorFill.read(this, nodeBlock, makeColorFill());
+					break;
+					
+				case BlockTypes.ColorStroke:
+					component = ColorStroke.read(this, nodeBlock, makeColorStroke());
+					break;
+					
+				case BlockTypes.GradientFill:
+					component = GradientFill.read(this, nodeBlock, makeGradientFill());
+					break;
+					
+				case BlockTypes.GradientStroke:
+					component = GradientStroke.read(this, nodeBlock, makeGradientStroke());
+					break;
+					
+				case BlockTypes.RadialGradientFill:
+					component = RadialGradientFill.read(this, nodeBlock, makeRadialFill());
+					break;
+					
+				case BlockTypes.RadialGradientStroke:
+					component = RadialGradientStroke.read(this, nodeBlock, makeRadialStroke());
+					break;
+			}
+			if(component is ActorDrawable)
+			{
+				_drawableNodeCount++;
 			}
 
 			if(component is ActorNode)
@@ -569,7 +620,7 @@ class Actor
 			componentIndex++;
 		}
 
-		_drawableNodes = new List<ActorImage>(_drawableNodeCount);
+		_drawableNodes = new List<ActorDrawable>(_drawableNodeCount);
 		_nodes = new List<ActorNode>(_nodeCount);
 		_nodes[0] = _root;
 

@@ -44,7 +44,7 @@ void beginFrame(Duration timeStamp)
 	//         |
 	//         |
 	//        -1
-	canvas.scale(0.55, 0.55);
+	canvas.scale(0.35, 0.35);
 
 	actor.draw(canvas);
 
@@ -74,7 +74,7 @@ void beginFrame(Duration timeStamp)
 void main() 
 {
 	actor = new FlutterActor();
-	actor.loadFromBundle("assets/Hulk").then(
+	actor.loadFromBundle("assets/E").then(
 		(bool success)
 		{
 			print("HERE?");

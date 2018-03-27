@@ -232,7 +232,9 @@ class FlutterColorFill extends ColorFill implements FlutterFill
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
 	{
-		ui.Paint paint = new ui.Paint()..color = new ui.Color.fromARGB((color[3]*opacity*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round());
+		ui.Paint paint = new ui.Paint()
+									..color = new ui.Color.fromARGB((color[3]*opacity*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round())
+									..style = ui.PaintingStyle.fill;
 		return paint;
 	}
 
@@ -252,7 +254,10 @@ class FlutterColorStroke extends ColorStroke implements FlutterStroke
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
 	{
-		ui.Paint paint = new ui.Paint()..color = new ui.Color.fromARGB((color[3]*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round())..strokeWidth = width;
+		ui.Paint paint = new ui.Paint()
+									..color = new ui.Color.fromARGB((color[3]*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round())
+									..strokeWidth = width
+									..style = ui.PaintingStyle.stroke;
 		return paint;
 	}
 
@@ -272,7 +277,25 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
 	{
-		return new ui.Paint();
+		List<ui.Color> colors = new List<ui.Color>();
+    	List<double> stops = new List<double>();
+		int numStops = (colorStops.length/5).round();
+
+		int idx = 0;
+		for(int i = 0; i < numStops; i++)
+		{
+			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			colors.add(color);
+			stops.add(colorStops[idx+4]);
+			idx += 5;
+		}
+		Vec2D gstart = startWorld;
+		Vec2D gend = endWorld;
+		ui.Paint paint = new ui.Paint()
+								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
+								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)
+								..style = ui.PaintingStyle.fill;
+		return paint;
 	}
 
 	void completeResolve()
@@ -291,7 +314,27 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
 	{
-		return new ui.Paint();
+		List<ui.Color> colors = new List<ui.Color>();
+    	List<double> stops = new List<double>();
+		int numStops = (colorStops.length/5).round();
+
+		int idx = 0;
+		for(int i = 0; i < numStops; i++)
+		{
+			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			colors.add(color);
+			stops.add(colorStops[idx+4]);
+			idx += 5;
+		}
+
+		Vec2D gstart = startWorld;
+		Vec2D gend = endWorld;
+		ui.Paint paint = new ui.Paint()
+								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
+								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)
+								..strokeWidth = width
+								..style = ui.PaintingStyle.stroke;
+		return paint;
 	}
 
 	void completeResolve()
@@ -310,7 +353,48 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
 	{
-		return new ui.Paint();
+		/*let {_Start:start, _End:end, _ColorStops:stops, _SecondaryRadiusScale:secondaryRadiusScale} = this;
+		var gradient = ctx.createRadialGradient(0.0, 0.0, 0.0, 0.0, 0.0, vec2.distance(start, end));
+
+		const numStops = stops.length/5;
+		let idx = 0;
+		for(let i = 0; i < numStops; i++)
+		{
+			const style = "rgba(" + Math.round(stops[idx++]*255) + ", " + Math.round(stops[idx++]*255) + ", " + Math.round(stops[idx++]*255) + ", " + stops[idx++] + ")";
+			const value = stops[idx++];
+			gradient.addColorStop(value, style);
+		}
+		
+		ctx.fillStyle = gradient;
+
+		const squash = Math.max(0.00001, secondaryRadiusScale);
+
+		let angle = vec2.getAngle(vec2.subtract(vec2.create(), end, start));
+		ctx.save();
+		ctx.translate(start[0], start[1]);
+		ctx.rotate(angle);
+		ctx.scale(1.0, squash);*/
+		double radius = Vec2D.distance(start, end);
+		List<ui.Color> colors = new List<ui.Color>();
+    	List<double> stops = new List<double>();
+		int numStops = (colorStops.length/5).round();
+
+		int idx = 0;
+		for(int i = 0; i < numStops; i++)
+		{
+			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			colors.add(color);
+			stops.add(colorStops[idx+4]);
+			idx += 5;
+		}
+		Vec2D center = start;
+		//print("RADIUS ${center[0]} ${center[1]} ${colors.length} $numStops ${colors} ${stops}");
+		ui.Paint paint = new ui.Paint()
+								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
+								..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
+								..style = ui.PaintingStyle.fill;
+
+		return paint;
 	}
 
 	void completeResolve()
@@ -329,7 +413,25 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
 	{
-		return new ui.Paint();
+		double radius = Vec2D.distance(start, end);
+		List<ui.Color> colors = new List<ui.Color>();
+    	List<double> stops = new List<double>();
+		int numStops = (colorStops.length/5).round();
+
+		int idx = 0;
+		for(int i = 0; i < numStops; i++)
+		{
+			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			colors.add(color);
+			stops.add(colorStops[idx+4]);
+			idx += 5;
+		}
+		Vec2D center = start;
+		return new ui.Paint()
+								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
+								..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
+								..strokeWidth = width
+								..style = ui.PaintingStyle.stroke;
 	}
 
 	void completeResolve()

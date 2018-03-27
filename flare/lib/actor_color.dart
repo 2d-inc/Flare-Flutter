@@ -114,6 +114,31 @@ abstract class GradientColor extends ActorComponent
 	Vec2D _start = new Vec2D();
 	Vec2D _end = new Vec2D();
 
+	Vec2D get start
+	{
+		return _start;
+	}
+
+	Vec2D get end
+	{
+		return _end;
+	}
+
+	Vec2D get startWorld
+	{
+		return Vec2D.transformMat2D(new Vec2D(), _start, parent.worldTransform);
+	}
+
+	Vec2D get endWorld
+	{
+		return Vec2D.transformMat2D(new Vec2D(), _end, parent.worldTransform);
+	}
+
+	Float32List get colorStops
+	{
+		return _colorStops;
+	}
+
 	void copyGradient(GradientColor node, Actor resetActor)
 	{
 		copyComponent(node, resetActor);
@@ -175,6 +200,11 @@ class GradientStroke extends GradientColor
 {
 	double _width = 1.0;
 
+	double get width
+	{
+		return _width;
+	}
+	
 	ActorComponent makeInstance(Actor resetActor)
 	{
 		GradientStroke instanceEvent = new GradientStroke();
@@ -253,7 +283,11 @@ class RadialGradientFill extends RadialGradientColor
 class RadialGradientStroke extends RadialGradientColor
 {
 	double _width = 1.0;
-
+	double get width
+	{
+		return _width;
+	}
+	
 	ActorComponent makeInstance(Actor resetActor)
 	{
 		RadialGradientStroke instanceEvent = new RadialGradientStroke();

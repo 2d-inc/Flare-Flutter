@@ -122,8 +122,4 @@ class ActorShape extends ActorDrawable
 
 		return new Float32List.fromList([minX, minY, maxX, maxY]);
 	}
-
-  	void completeResolve() {}
-	void onDirty(int dirt) {}
-	void update(int dirt) {}
 }

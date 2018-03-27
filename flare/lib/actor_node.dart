@@ -5,10 +5,17 @@ import "math/vec2d.dart";
 import "actor_component.dart";
 import "actor_constraint.dart";
 
+typedef bool NodeWalkCallback(ActorNode node);
+
 class ActorClip
 {
 	int clipIdx;
 	ActorNode node;
+
+	ActorClip(int idx)
+	{
+		clipIdx = idx;
+	}
 }
 
 class ActorNode extends ActorComponent
@@ -28,7 +35,7 @@ class ActorNode extends ActorComponent
 	bool _isCollapsedVisibility = false;
 
 	bool _renderCollapsed = false;
-	List<ActorClip> _clip;
+	List<ActorClip> _clips;
 
 	List<ActorConstraint> _constraints;
 
@@ -41,6 +48,11 @@ class ActorNode extends ActorComponent
 	Mat2D get transform
 	{
 		return _transform;
+	}
+
+	List<ActorClip> get clips
+	{
+		return _clips;
 	}
 
 	Mat2D get worldTransformOverride
@@ -261,12 +273,10 @@ class ActorNode extends ActorComponent
 		int clipCount = reader.readUint8();
 		if(clipCount > 0)
 		{
-			node._clip = new List<ActorClip>(clipCount);
+			node._clips = new List<ActorClip>(clipCount);
 			for(int i = 0; i < clipCount; i++)
 			{
-				ActorClip clip = new ActorClip();
-				clip.clipIdx = reader.readUint16();
-				node._clip[i] = clip;
+				node._clips[i] = new ActorClip(reader.readUint16());
 			}
 		}
 		return node;
@@ -309,6 +319,19 @@ class ActorNode extends ActorComponent
 		_opacity = node._opacity;
 		_renderOpacity = node._renderOpacity;
 		_overrideWorldTransform = node._overrideWorldTransform;
+
+		if(node._clips != null)
+		{
+			_clips = new List<ActorClip>(node._clips.length);
+			for(int i = 0, l = node._clips.length; i < l; i++)
+			{
+				_clips[i] = new ActorClip(node._clips[i].clipIdx);
+			}
+		}
+		else
+		{
+			_clips = null;
+		}
 	}
 
 	void onDirty(int dirt)
@@ -352,8 +375,63 @@ class ActorNode extends ActorComponent
 		}
 	}
 
+	void resolveComponentIndices(List<ActorComponent> components)
+	{
+		super.resolveComponentIndices(components);
+
+		if(_clips == null)
+		{
+			return;
+		}
+
+		for(ActorClip clip in _clips)
+		{
+			clip.node = components[clip.clipIdx];
+		}
+	}
+
 	void completeResolve()
 	{
 		// Nothing to complete for actornode.
+	}
+
+	bool eachChildRecursive(NodeWalkCallback cb)
+	{
+		if(_children != null)
+		{
+			for(ActorNode child in _children)
+			{
+				if(cb(child) == false)
+				{
+					return false;
+				}
+
+				if(child.eachChildRecursive(cb) == false)
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	bool all(NodeWalkCallback cb)
+	{
+		if(cb(this) == false)
+		{
+			return false;
+		}
+
+		for(ActorNode child in _children)
+		{
+			if(cb(child) == false)
+			{
+				return false;
+			}
+
+			child.eachChildRecursive(cb);
+		}
+
+		return true;
 	}
 }

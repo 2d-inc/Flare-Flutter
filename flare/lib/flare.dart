@@ -81,6 +81,22 @@ class FlutterActorShape extends ActorShape
 		Float64List paintTransform = worldTransform.mat4;
 		canvas.transform(paintTransform);
 		double opacity = this.renderOpacity;
+
+		// Get Clips
+		if(clips != null)
+		{
+			for(ActorClip clip in clips)
+			{
+				clip.node.all((ActorNode childNode)
+				{
+					if(childNode is FlutterActorShape)
+					{
+						ui.Path path = childNode.updatePath();
+						canvas.clipPath(path);
+					}
+				});
+			}
+		}
 		if(_fills != null)
 		{
 			for(FlutterFill fill in _fills)
@@ -216,7 +232,7 @@ class FlutterColorFill extends ColorFill implements FlutterFill
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
 	{
-		ui.Paint paint = new ui.Paint()..color = new ui.Color.fromARGB((color[3]*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round());
+		ui.Paint paint = new ui.Paint()..color = new ui.Color.fromARGB((color[3]*opacity*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round());
 		return paint;
 	}
 

@@ -59,3 +59,4 @@ flutter:
   # see https://flutter.io/custom-fonts/#from-packages
   assets:
     - assets/Dots.flr
+    - assets/Hulk.flr

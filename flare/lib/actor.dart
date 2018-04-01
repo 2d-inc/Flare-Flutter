@@ -693,7 +693,7 @@ class Actor
 			// This is the axis aligned bounding box in the space of the parent (this case our shape).
 			Float32List pathAABB = drawable.computeAABB();
 
-			if(aabb = null)
+			if(aabb == null)
 			{
 				aabb = pathAABB;
 			}

@@ -64,7 +64,7 @@ class ActorShape extends ActorDrawable
 			// This is the axis aligned bounding box in the space of the parent (this case our shape).
 			Float32List pathAABB = path.getPathAABB();
 
-			if(aabb = null)
+			if(aabb == null)
 			{
 				aabb = pathAABB;
 			}

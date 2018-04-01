@@ -235,6 +235,11 @@ abstract class RadialGradientColor extends GradientColor
 {
 	double _secondaryRadiusScale = 1.0;
 
+	double get secondaryRadiusScale
+	{
+		return _secondaryRadiusScale;
+	}
+
 	void copyRadialGradient(RadialGradientColor node, Actor resetActor)
 	{
 		copyGradient(node, resetActor);

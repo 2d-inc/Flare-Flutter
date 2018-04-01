@@ -349,6 +349,7 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 	}
 }
 
+double R = 0.0;
 class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
@@ -374,6 +375,36 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 		ctx.translate(start[0], start[1]);
 		ctx.rotate(angle);
 		ctx.scale(1.0, squash);*/
+		double squash = max(0.00001, secondaryRadiusScale);
+		Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
+		double angle = atan2(diff[1], diff[0]);
+		Mat2D transform = new Mat2D();
+
+		Mat2D translate = new Mat2D();
+		translate[4] = start[0];
+		translate[5] = start[1];
+
+		Mat2D rotation = new Mat2D();
+		Mat2D.fromRotation(rotation, angle+R);
+		R += 0.01;
+
+		transform[4] = start[0];
+		transform[5] = start[1];
+
+		Mat2D scaling = new Mat2D();
+		scaling[0] = 1.0;
+		scaling[3] = squash;
+
+		Mat2D.multiply(transform, translate, rotation);
+		Mat2D.multiply(transform, transform, scaling);
+		//Mat2D.scale(transform, transform, new Vec2D.fromValues(1.0, squash));
+		/*Vec2D.normalize(diff, diff);
+		Mat2D transform = new Mat2D();
+		transform[0] = diff[0];
+		transform[1] = diff[1];
+		transform[2] = diff[1] * squash;
+		transform[3] = -diff[0] * squash;*/
+
 		double radius = Vec2D.distance(start, end);
 		List<ui.Color> colors = new List<ui.Color>();
     	List<double> stops = new List<double>();
@@ -388,10 +419,11 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 			idx += 5;
 		}
 		Vec2D center = start;
+		ui.Gradient radial = new ui.Gradient.radial(new ui.Offset(0.0, 0.0), radius, colors, stops, ui.TileMode.clamp, transform.mat4);
 		//print("RADIUS ${center[0]} ${center[1]} ${colors.length} $numStops ${colors} ${stops}");
 		ui.Paint paint = new ui.Paint()
 								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
-								..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
+								..shader = radial
 								..style = ui.PaintingStyle.fill;
 
 		return paint;

@@ -17,6 +17,7 @@ import "actor_color.dart";
 import "actor_drawable.dart";
 import "animation/actor_animation.dart";
 import "block_reader.dart";
+import "dart:math";
 
 class BlockTypes
 {
@@ -682,5 +683,31 @@ class Actor
 					break;
 			}
 		}
+	}
+
+	Float32List computeAABB()
+	{
+		Float32List aabb;
+		for(ActorDrawable drawable in _drawableNodes)
+		{
+			// This is the axis aligned bounding box in the space of the parent (this case our shape).
+			Float32List pathAABB = drawable.computeAABB();
+
+			if(aabb = null)
+			{
+				aabb = pathAABB;
+			}
+			else
+			{
+				// Combine.
+				aabb[0] = min(aabb[0], pathAABB[0]);
+				aabb[1] = min(aabb[1], pathAABB[1]);
+
+				aabb[2] = max(aabb[2], pathAABB[2]);
+				aabb[3] = max(aabb[3], pathAABB[3]);
+			}
+		}
+
+		return aabb;
 	}
 }

@@ -569,4 +569,11 @@ class ActorImage extends ActorDrawable
 			}
 		}
 	}
+
+	Float32List computeAABB()
+	{
+		// Todo: implement for image.
+		Mat2D worldTransform = this.worldTransform;
+		return new Float32List.fromList([worldTransform[4], worldTransform[5], worldTransform[4], worldTransform[5]]);
+	}
 }

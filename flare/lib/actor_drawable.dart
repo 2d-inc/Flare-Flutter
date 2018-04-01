@@ -1,5 +1,6 @@
 import "actor.dart";
 import "actor_node.dart";
+import "dart:typed_data";
 
 enum BlendModes
 {
@@ -9,13 +10,15 @@ enum BlendModes
 	Additive
 }
 
-class ActorDrawable extends ActorNode
+abstract class ActorDrawable extends ActorNode
 {
 	// Editor set draw index.
 	int drawOrder = 0;
 	// Computed draw index in the image list.
 	int drawIndex = 0;
 	BlendModes blendMode;
+
+	Float32List computeAABB();
 
 	void copyDrawable(ActorDrawable node, Actor resetActor)
 	{

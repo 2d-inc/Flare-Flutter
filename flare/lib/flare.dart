@@ -289,8 +289,9 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 			stops.add(colorStops[idx+4]);
 			idx += 5;
 		}
-		Vec2D gstart = startWorld;
-		Vec2D gend = endWorld;
+		Vec2D gstart = start;
+		Vec2D gend = end;
+
 		ui.Paint paint = new ui.Paint()
 								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
 								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)
@@ -327,8 +328,8 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 			idx += 5;
 		}
 
-		Vec2D gstart = startWorld;
-		Vec2D gend = endWorld;
+		Vec2D gstart = start;
+		Vec2D gend = end;
 		ui.Paint paint = new ui.Paint()
 								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
 								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)

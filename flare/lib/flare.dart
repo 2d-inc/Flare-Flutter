@@ -79,7 +79,7 @@ class FlutterActorShape extends ActorShape
 
 		ui.Path path = updatePath();
 		Float64List paintTransform = worldTransform.mat4;
-		canvas.transform(paintTransform);
+		
 		double opacity = this.renderOpacity;
 
 		// Get Clips
@@ -92,11 +92,13 @@ class FlutterActorShape extends ActorShape
 					if(childNode is FlutterActorShape)
 					{
 						ui.Path path = childNode.updatePath();
-						canvas.clipPath(path);
+
+						canvas.clipPath(path.transform(childNode.worldTransform.mat4));
 					}
 				});
 			}
 		}
+		canvas.transform(paintTransform);
 		if(_fills != null)
 		{
 			for(FlutterFill fill in _fills)

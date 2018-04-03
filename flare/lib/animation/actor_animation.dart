@@ -99,6 +99,9 @@ class PropertyAnimation
 				case PropertyTypes.Sequence:
 					keyFrameReader = KeyFrameSequence.read;
 					break;
+				case PropertyTypes.PathVertices:
+					keyFrameReader = KeyFramePathVertices.read;
+					break;
 			}
 
 			if(keyFrameReader == null)

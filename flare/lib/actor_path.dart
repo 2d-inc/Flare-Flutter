@@ -12,6 +12,9 @@ class ActorPath extends ActorNode
 	bool _isHidden;
 	bool _isClosed;
 	List<PathPoint> _points;
+	Float32List vertexDeform;
+
+	static const int VertexDeformDirty = 1<<1;
 
 	List<PathPoint> get points
 	{
@@ -21,6 +24,44 @@ class ActorPath extends ActorNode
 	bool get isClosed
 	{
 		return _isClosed;
+	}
+
+	void markVertexDeformDirty()
+	{
+		if(actor == null)
+		{
+			return;
+		}
+		actor.addDirt(this, VertexDeformDirty, false);
+	}
+
+	void update(int dirt)
+	{
+		if(vertexDeform != null && (dirt & VertexDeformDirty) == VertexDeformDirty)
+		{
+			print("UPDATING VD");
+			int readIdx = 0;
+			for(PathPoint point in _points)
+			{
+				point.translation[0] = vertexDeform[readIdx++];
+				point.translation[1] = vertexDeform[readIdx++];
+				switch(point.pointType)
+				{
+					case PointType.Straight:
+						(point as StraightPathPoint).radius = vertexDeform[readIdx++];
+						break;
+					
+					default:
+						CubicPathPoint cubicPoint = point as CubicPathPoint;
+						cubicPoint.inPoint[0] = vertexDeform[readIdx++];
+						cubicPoint.inPoint[1] = vertexDeform[readIdx++];
+						cubicPoint.outPoint[0] = vertexDeform[readIdx++];
+						cubicPoint.outPoint[1] = vertexDeform[readIdx++];
+						break;
+				}
+			}
+		}
+		super.update(dirt);
 	}
 
 	static ActorPath read(Actor actor, BinaryReader reader, ActorPath component)
@@ -87,14 +128,19 @@ class ActorPath extends ActorNode
 		{
 			_points[i] = node._points[i].makeInstance();
 		}
+
+		if(node.vertexDeform != null)
+		{
+			vertexDeform = new Float32List.fromList(vertexDeform);
+		}
 	}
 
 	Float32List getPathOBB()
 	{
-		double minX = double.MAX_FINITE;
-		double minY = double.MAX_FINITE;
-		double maxX = -double.MAX_FINITE;
-		double maxY = -double.MAX_FINITE;
+		double minX = double.maxFinite;
+		double minY = double.maxFinite;
+		double maxX = -double.maxFinite;
+		double maxY = -double.maxFinite;
 
 		for(PathPoint point in _points)
 		{
@@ -167,10 +213,10 @@ class ActorPath extends ActorNode
 
 	Float32List getPathAABB()
 	{
-		double minX = double.MAX_FINITE;
-		double minY = double.MAX_FINITE;
-		double maxX = -double.MAX_FINITE;
-		double maxY = -double.MAX_FINITE;
+		double minX = double.maxFinite;
+		double minY = double.maxFinite;
+		double maxX = -double.maxFinite;
+		double maxY = -double.maxFinite;
 
 		Float32List obb = getPathOBB();
 

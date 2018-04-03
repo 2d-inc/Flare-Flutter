@@ -14,6 +14,8 @@ import "math/vec2d.dart";
 import "path_point.dart";
 import "dart:math";
 
+export "animation/actor_animation.dart";
+
 //import "dart:ui" as ui;
 import "package:flutter/services.dart" show rootBundle;
 

@@ -21,4 +21,12 @@ class PropertyTypes
 	static const int CollisionEnabled = 16;
 	static const int Sequence = 17;
 	static const int ActiveChildIndex = 18;
+	static const int PathVertices = 19;
+	static const int FillColor = 20;
+	static const int FillGradient = 21;
+	static const int FillRadial = 22;
+	static const int StrokeColor = 23;
+	static const int StrokeGradient = 24;
+	static const int StrokeRadial = 25;
+	static const int StrokeWidth = 26;
 }

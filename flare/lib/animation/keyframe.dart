@@ -13,7 +13,8 @@ import "./interpolation/linear.dart";
 import "./interpolation/cubic.dart";
 import "dart:collection";
 import "dart:typed_data";
-
+import "../actor_path.dart";
+import "../path_point.dart";
 
 enum InterpolationTypes
 {
@@ -719,5 +720,114 @@ class KeyFrameSequence extends KeyFrameNumeric
 				frameIndex += node.sequenceFrames.length;
 		 }
 		 node.sequenceFrame = frameIndex;
+	}
+}
+
+
+class KeyFramePathVertices extends KeyFrameWithInterpolation
+{
+	Float32List _vertices;
+
+	Float32List get vertices
+	{
+		return _vertices;
+	}
+
+	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	{
+		KeyFramePathVertices frame = new KeyFramePathVertices();
+		if(!KeyFrameWithInterpolation.read(reader, frame))
+		{
+			return null;
+		}
+
+
+		ActorPath pathNode = component as ActorPath;
+
+		int length = pathNode.points.fold<int>(0, (int previous, PathPoint point)
+		{
+			return previous + 2 + (point.pointType == PointType.Straight ? 1 : 4);
+		});
+		frame._vertices = new Float32List(length);
+		int readIdx = 0;
+		for(PathPoint point in pathNode.points)
+		{
+			reader.readFloat32Array(frame._vertices, 2, readIdx);
+			if(point.pointType == PointType.Straight)
+			{
+				// radius
+				reader.readFloat32Array(frame._vertices, 1, readIdx+2);
+
+				readIdx += 3;
+			}
+			else
+			{
+				// in/out
+				reader.readFloat32Array(frame._vertices, 4, readIdx+2);
+				readIdx += 6;
+			}
+		}
+
+		pathNode.vertexDeform = new Float32List.fromList(frame._vertices);
+		return frame;
+	}
+
+	void setNext(KeyFrame frame)
+	{
+		// Do nothing.
+	}
+
+	void applyInterpolation(ActorComponent component, double time, KeyFrame toFrame, double mix)
+	{
+		ActorPath path = component as ActorPath;
+		Float32List wr = path.vertexDeform;
+		Float32List to = (toFrame as KeyFramePathVertices)._vertices;
+		int l = _vertices.length;
+
+		double f = (time - _time)/(toFrame.time-_time);
+		double fi = 1.0 - f;
+		if(mix == 1.0)
+		{
+			for(int i = 0; i < l; i++)
+			{
+				wr[i] = _vertices[i] * fi + to[i] * f;
+			}
+		}
+		else
+		{
+			double mixi = 1.0 - mix;
+			for(int i = 0; i < l; i++)
+			{
+				double v = _vertices[i] * fi + to[i] * f;
+
+				wr[i] = wr[i] * mixi + v * mix;
+			}
+		}
+
+		path.markVertexDeformDirty();
+	}
+	
+	void apply(ActorComponent component, double mix)
+	{
+		ActorPath path = component as ActorPath;
+		int l = _vertices.length;
+		Float32List wr = path.vertexDeform;
+		if(mix == 1.0)
+		{
+			for(int i = 0; i < l; i++)
+			{
+				wr[i] = _vertices[i];
+			}
+		}
+		else
+		{
+			double mixi = 1.0 - mix;
+			for(int i = 0; i < l; i++)
+			{
+				wr[i] = wr[i] * mixi + _vertices[i] * mix;
+			}
+		}
+
+		path.markVertexDeformDirty();
 	}
 }

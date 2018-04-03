@@ -56,12 +56,7 @@ abstract class PathPoint
 
 class StraightPathPoint extends PathPoint
 {
-	double _radius = 0.0;
-
-	double get radius
-	{
-		return _radius;
-	}
+	double radius = 0.0;
 
 	StraightPathPoint() : super(PointType.Straight);
 	
@@ -75,13 +70,13 @@ class StraightPathPoint extends PathPoint
 	copyStraight(StraightPathPoint from)
 	{
 		super.copy(from);
-		_radius = from._radius;
+		radius = from.radius;
 	}
 
 	void read(BinaryReader reader)
 	{
 		super.read(reader);
-		_radius = reader.readFloat32();
+		radius = reader.readFloat32();
 	}
 }
 

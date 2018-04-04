@@ -33,10 +33,21 @@ class FlutterActorShape extends ActorShape
 {
 	List<FlutterFill> _fills;
 	List<FlutterStroke> _strokes;
-	ui.Path _path = new ui.Path();
+	ui.Path _path;
+
+	void invalidatePath()
+	{
+		_path = null;
+	}
 
 	ui.Path updatePath()
 	{
+		if(_path != null)
+		{
+			return _path;
+		}
+		_path = new ui.Path();
+		_path.fillType = ui.PathFillType.nonZero;
 		_path.reset();
 
 		for(FlutterActorPath path in children)
@@ -106,6 +117,10 @@ class FlutterActorShape extends ActorShape
 			for(FlutterFill fill in _fills)
 			{
 				ui.Paint paint = fill.getPaint(paintTransform, opacity);
+				if(paint == null)
+				{
+					continue;
+				}
 				canvas.drawPath(path, paint);
 			}
 		}
@@ -114,6 +129,10 @@ class FlutterActorShape extends ActorShape
 			for(FlutterStroke stroke in _strokes)
 			{
 				ui.Paint paint = stroke.getPaint(paintTransform, opacity);
+				if(paint == null)
+				{
+					continue;
+				}
 				canvas.drawPath(path, paint);
 			}
 		}
@@ -124,6 +143,12 @@ class FlutterActorShape extends ActorShape
 
 class FlutterActorPath extends ActorPath
 {
+	@override
+	void onPathInvalid()
+	{
+		(parent as FlutterActorShape).invalidatePath();
+	}
+
 	void updatePath(ui.Path path)
 	{
 		if(points == null || points.length == 0)
@@ -258,6 +283,10 @@ class FlutterColorStroke extends ColorStroke implements FlutterStroke
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
 	{
+		if(width == 0)
+		{
+			return null;
+		}
 		ui.Paint paint = new ui.Paint()
 									..color = new ui.Color.fromARGB((color[3]*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round())
 									..strokeWidth = width

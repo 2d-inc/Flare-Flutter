@@ -35,11 +35,12 @@ class ActorPath extends ActorNode
 		actor.addDirt(this, VertexDeformDirty, false);
 	}
 
+	void onPathInvalid(){}
+
 	void update(int dirt)
 	{
 		if(vertexDeform != null && (dirt & VertexDeformDirty) == VertexDeformDirty)
 		{
-			print("UPDATING VD");
 			int readIdx = 0;
 			for(PathPoint point in _points)
 			{
@@ -60,6 +61,10 @@ class ActorPath extends ActorNode
 						break;
 				}
 			}
+		}
+		if(dirt != 0)
+		{
+			onPathInvalid();
 		}
 		super.update(dirt);
 	}

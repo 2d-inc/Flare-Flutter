@@ -46,9 +46,3 @@ dev_dependencies:
   #
   # For details regarding fonts in packages, see
   # https://flutter.io/custom-fonts/#from-packages
-
-dependency_overrides:
-  sky_engine:
-    path: /Users/luigirosso/Projects/engine/src/out/ios_debug_sim_unopt/gen/dart-pkg/sky_engine
-  sky_services:
-    path: /Users/luigirosso/Projects/engine/src/out/ios_debug_sim_unopt/gen/dart-pkg/sky_services

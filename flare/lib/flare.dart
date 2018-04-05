@@ -288,7 +288,7 @@ class FlutterColorStroke extends ColorStroke implements FlutterStroke
 			return null;
 		}
 		ui.Paint paint = new ui.Paint()
-									..color = new ui.Color.fromARGB((color[3]*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round())
+									..color = new ui.Color.fromARGB((color[3]*opacity*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round())
 									..strokeWidth = width
 									..style = ui.PaintingStyle.stroke;
 		return paint;
@@ -317,7 +317,7 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 		int idx = 0;
 		for(int i = 0; i < numStops; i++)
 		{
-			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*opacity*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
 			colors.add(color);
 			stops.add(colorStops[idx+4]);
 			idx += 5;
@@ -355,7 +355,7 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 		int idx = 0;
 		for(int i = 0; i < numStops; i++)
 		{
-			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*opacity*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
 			colors.add(color);
 			stops.add(colorStops[idx+4]);
 			idx += 5;

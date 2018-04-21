@@ -163,7 +163,7 @@ class JellyComponent extends ActorComponent
 
 	void completeResolve()
 	{
-		super.completeResolve();
+		//super.completeResolve();
 		ActorBone bone = parent as ActorBone;
 		bone.jelly = this;
 

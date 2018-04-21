@@ -355,7 +355,7 @@ packages:
       name: vector_math
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.5"
+    version: "2.0.6"
   watcher:
     dependency: transitive
     description:

@@ -15,6 +15,7 @@ import "dart:collection";
 import "dart:typed_data";
 import "../actor_path.dart";
 import "../path_point.dart";
+import "../actor_color.dart";
 
 enum InterpolationTypes
 {
@@ -723,6 +724,85 @@ class KeyFrameSequence extends KeyFrameNumeric
 	}
 }
 
+class KeyFrameFillColor extends KeyFrameWithInterpolation
+{
+	Float32List _value;
+
+	Float32List get value
+	{
+		return _value;
+	}
+
+	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	{
+		KeyFrameFillColor frame = new KeyFrameFillColor();
+		if(!KeyFrameWithInterpolation.read(reader, frame))
+		{
+			return null;
+		}
+
+		frame._value = new Float32List(4);
+		reader.readFloat32Array(frame._value, 4, 0);
+		return frame;
+	}
+
+	void setNext(KeyFrame frame)
+	{
+		// Do nothing.
+	}
+
+	void applyInterpolation(ActorComponent component, double time, KeyFrame toFrame, double mix)
+	{
+		ActorColor ac = component as ActorColor;
+		Float32List wr = ac.color;
+		Float32List to = (toFrame as KeyFrameFillColor)._value;
+		int l = _value.length;
+
+		double f = (time - _time)/(toFrame.time-_time);
+		double fi = 1.0 - f;
+		if(mix == 1.0)
+		{
+			for(int i = 0; i < l; i++)
+			{
+				wr[i] = _value[i] * fi + to[i] * f;
+			}
+		}
+		else
+		{
+			double mixi = 1.0 - mix;
+			for(int i = 0; i < l; i++)
+			{
+				double v = _value[i] * fi + to[i] * f;
+
+				wr[i] = wr[i] * mixi + v * mix;
+			}
+		}
+
+		//path.markVertexDeformDirty();
+	}
+	
+	void apply(ActorComponent component, double mix)
+	{
+		ActorColor ac = component as ActorColor;
+		int l = _value.length;
+		Float32List wr = ac.color;
+		if(mix == 1.0)
+		{
+			for(int i = 0; i < l; i++)
+			{
+				wr[i] = _value[i];
+			}
+		}
+		else
+		{
+			double mixi = 1.0 - mix;
+			for(int i = 0; i < l; i++)
+			{
+				wr[i] = wr[i] * mixi + _value[i] * mix;
+			}
+		}
+	}
+}
 
 class KeyFramePathVertices extends KeyFrameWithInterpolation
 {

@@ -102,6 +102,9 @@ class PropertyAnimation
 				case PropertyTypes.PathVertices:
 					keyFrameReader = KeyFramePathVertices.read;
 					break;
+				case PropertyTypes.FillColor:
+					keyFrameReader = KeyFrameFillColor.read;
+					break;
 			}
 
 			if(keyFrameReader == null)

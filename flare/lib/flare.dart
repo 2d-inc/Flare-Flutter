@@ -15,6 +15,7 @@ import "path_point.dart";
 import "dart:math";
 
 export "animation/actor_animation.dart";
+export "actor_node.dart";
 
 //import "dart:ui" as ui;
 import "package:flutter/services.dart" show rootBundle;

@@ -393,7 +393,7 @@ class ActorIKConstraint extends ActorTargetedConstraint
 
 	void copyIKConstraint(ActorIKConstraint node, Actor resetActor)
 	{
-		copyComponent(node, resetActor);
+		copyTargetedConstraint(node, resetActor);
 
 		_invertDirection = node._invertDirection;
 		if(node._influencedBones != null)

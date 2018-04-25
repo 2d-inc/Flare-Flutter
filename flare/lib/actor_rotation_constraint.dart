@@ -190,7 +190,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint
 
 	void copyRotationConstraint(ActorRotationConstraint node, Actor resetActor)
 	{
-		copyComponent(node, resetActor);
+		copyTargetedConstraint(node, resetActor);
 
 		_copy = node._copy;
 		_scale = node._scale;

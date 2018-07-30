@@ -10,7 +10,7 @@ import "transform_space.dart";
 
 class ActorRotationConstraint extends ActorTargetedConstraint
 {
-	static const double PI2 = PI*2.0;
+	static const double PI2 = pi*2.0;
 	
 	bool _copy = false;
 	double _scale = 1.0;
@@ -163,11 +163,11 @@ class ActorRotationConstraint extends ActorTargetedConstraint
 		double angleB = _componentsB.rotation%PI2;
 		double diff = angleB - angleA;
 		
-		if(diff > PI)
+		if(diff > pi)
 		{
 			diff -= PI2;
 		}
-		else if(diff < -PI)
+		else if(diff < -pi)
 		{
 			diff += PI2;
 		}

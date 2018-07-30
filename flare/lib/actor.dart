@@ -427,7 +427,7 @@ class Actor
 
 		if(reader.readUint8() != 70 || reader.readUint8() != 76 || reader.readUint8() != 65 || reader.readUint8() != 82 || reader.readUint8() != 69)
 		{
-			return throw new UnsupportedError("Not a valid Flare file.");
+			throw new UnsupportedError("Not a valid Flare file.");
 		}
 		
 		_version = reader.readUint32();

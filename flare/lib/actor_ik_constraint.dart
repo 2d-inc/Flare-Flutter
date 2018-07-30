@@ -27,7 +27,7 @@ class BoneChain
 
 class ActorIKConstraint extends ActorTargetedConstraint
 {
-	static const double PI2 = PI*2.0;
+	static const double PI2 = pi*2.0;
 	bool _invertDirection = false;
 	List<InfluencedBone> _influencedBones;
 	List<BoneChain> _fkChain;
@@ -236,11 +236,11 @@ class ActorIKConstraint extends ActorTargetedConstraint
 				double fromAngle = fk.transformComponents.rotation%PI2;
 				double toAngle = fk.angle%PI2;
 				double diff = toAngle - fromAngle;
-				if(diff > PI)
+				if(diff > pi)
 				{
 					diff -= PI2;
 				}
-				else if(diff < -PI)
+				else if(diff < -pi)
 				{
 					diff += PI2;
 				}
@@ -352,23 +352,23 @@ class ActorIKConstraint extends ActorTargetedConstraint
 			if(_invertDirection)
 			{
 				r1 = atan2(cv[1],cv[0]) - A;
-				r2 = -C+PI + angleCorrection;
+				r2 = -C+pi + angleCorrection;
 			}
 			else
 			{
 				r1 = A + atan2(cv[1],cv[0]);
-				r2 = C-PI + angleCorrection;
+				r2 = C-pi + angleCorrection;
 			}
 		}
 		else if(_invertDirection)
 		{
 			r1 = atan2(cv[1],cv[0]) - A;
-			r2 = -C+PI;
+			r2 = -C+pi;
 		}
 		else
 		{
 			r1 = A + atan2(cv[1],cv[0]);
-			r2 = C-PI;
+			r2 = C-pi;
 		}
 
 		constrainRotation(fk1, r1);

@@ -9,7 +9,7 @@ double lastFrameTime = 0.0;
 
 void beginFrame(Duration timeStamp) 
 {
-	final double t = timeStamp.inMicroseconds / Duration.MICROSECONDS_PER_MILLISECOND / 1000.0;
+	final double t = timeStamp.inMicroseconds / Duration.microsecondsPerMillisecond / 1000.0;
 	double elapsed = t - lastFrameTime;
 	lastFrameTime = t;
 	if(lastFrameTime == 0)
@@ -74,7 +74,7 @@ void beginFrame(Duration timeStamp)
 void main() 
 {
 	actor = new FlutterActor();
-	actor.loadFromBundle("assets/E").then(
+	actor.loadFromBundle("assets/Dots.flr").then(
 		(bool success)
 		{
 			print("HERE?");

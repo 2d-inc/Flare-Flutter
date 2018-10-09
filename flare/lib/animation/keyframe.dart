@@ -1,4 +1,4 @@
-import "../binary_reader.dart";
+import "../stream_reader.dart";
 import "../actor_component.dart";
 import "../actor_node.dart";
 import "../actor_bone_base.dart";
@@ -35,9 +35,9 @@ abstract class KeyFrame
 		return _time;
 	}
 
-	static bool read(BinaryReader reader, KeyFrame frame)
+	static bool read(StreamReader reader, KeyFrame frame)
 	{
-		frame._time = reader.readFloat64();
+		frame._time = reader.readFloat64("time");
 
 		return true;
 	}
@@ -56,13 +56,13 @@ abstract class KeyFrameWithInterpolation extends KeyFrame
 		return _interpolator;
 	}
 
-	static bool read(BinaryReader reader, KeyFrameWithInterpolation frame)
+	static bool read(StreamReader reader, KeyFrameWithInterpolation frame)
 	{
 		if(!KeyFrame.read(reader, frame))
 		{
 			return false;
 		}
-		int type = reader.readUint8();
+		int type = reader.readUint8("interpolatorType");
 		
 		InterpolationTypes actualType = interpolationTypesLookup[type];
 		if(actualType == null)
@@ -112,13 +112,13 @@ abstract class KeyFrameNumeric extends KeyFrameWithInterpolation
 		return _value;
 	}
 
-	static bool read(BinaryReader reader, KeyFrameNumeric frame)
+	static bool read(StreamReader reader, KeyFrameNumeric frame)
 	{
 		if(!KeyFrameWithInterpolation.read(reader, frame))
 		{
 			return false;
 		}
-		frame._value = reader.readFloat32();
+		frame._value = reader.readFloat32("value");
 		/*if(frame._interpolator != null)
 		{
 			// TODO: in the future, this could also be a progression curve.
@@ -159,13 +159,13 @@ abstract class KeyFrameInt extends KeyFrameWithInterpolation
 		return _value;
 	}
 
-	static bool read(BinaryReader reader, KeyFrameInt frame)
+	static bool read(StreamReader reader, KeyFrameInt frame)
 	{
 		if(!KeyFrameWithInterpolation.read(reader, frame))
 		{
 			return false;
 		}
-		frame._value = reader.readInt32().toDouble();
+		frame._value = reader.readInt32("value").toDouble();
 		return true;
 	}
 
@@ -190,7 +190,7 @@ abstract class KeyFrameInt extends KeyFrameWithInterpolation
 
 class KeyFrameIntProperty extends KeyFrameInt
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameIntProperty frame = new KeyFrameIntProperty();
 		if(KeyFrameInt.read(reader, frame))
@@ -210,7 +210,7 @@ class KeyFrameIntProperty extends KeyFrameInt
 
 class KeyFrameFloatProperty extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameFloatProperty frame = new KeyFrameFloatProperty();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -231,14 +231,14 @@ class KeyFrameFloatProperty extends KeyFrameNumeric
 class KeyFrameStringProperty extends KeyFrame
 {
 	String _value;
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameStringProperty frame = new KeyFrameStringProperty();
 		if(!KeyFrame.read(reader, frame))
 		{
 			return null;
 		}
-		frame._value = reader.readString();
+		frame._value = reader.readString("value");
 		return frame;
 	}
 
@@ -262,14 +262,14 @@ class KeyFrameStringProperty extends KeyFrame
 class KeyFrameBooleanProperty extends KeyFrame
 {
 	bool _value;
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameBooleanProperty frame = new KeyFrameBooleanProperty();
 		if(!KeyFrame.read(reader, frame))
 		{
 			return null;
 		}
-		frame._value = reader.readUint8() == 1;
+		frame._value = reader.readBool("value");
 		return frame;
 	}
 
@@ -293,14 +293,14 @@ class KeyFrameBooleanProperty extends KeyFrame
 class KeyFrameCollisionEnabledProperty extends KeyFrame
 {
 	bool _value;
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameCollisionEnabledProperty frame = new KeyFrameCollisionEnabledProperty();
 		if(!KeyFrame.read(reader, frame))
 		{
 			return null;
 		}
-		frame._value = reader.readUint8() == 1;
+		frame._value = reader.readBool("value");
 		return frame;
 	}
 
@@ -324,7 +324,7 @@ class KeyFrameCollisionEnabledProperty extends KeyFrame
 
 class KeyFramePosX extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFramePosX frame = new KeyFramePosX();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -343,7 +343,7 @@ class KeyFramePosX extends KeyFrameNumeric
 
 class KeyFramePosY extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFramePosY frame = new KeyFramePosY();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -362,7 +362,7 @@ class KeyFramePosY extends KeyFrameNumeric
 
 class KeyFrameScaleX extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameScaleX frame = new KeyFrameScaleX();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -381,7 +381,7 @@ class KeyFrameScaleX extends KeyFrameNumeric
 
 class KeyFrameScaleY extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameScaleY frame = new KeyFrameScaleY();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -400,7 +400,7 @@ class KeyFrameScaleY extends KeyFrameNumeric
 
 class KeyFrameRotation extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameRotation frame = new KeyFrameRotation();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -419,7 +419,7 @@ class KeyFrameRotation extends KeyFrameNumeric
 
 class KeyFrameOpacity extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameOpacity frame = new KeyFrameOpacity();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -438,7 +438,7 @@ class KeyFrameOpacity extends KeyFrameNumeric
 
 class KeyFrameLength extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameLength frame = new KeyFrameLength();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -461,7 +461,7 @@ class KeyFrameLength extends KeyFrameNumeric
 
 class KeyFrameConstraintStrength extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameConstraintStrength frame = new KeyFrameConstraintStrength();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -488,22 +488,26 @@ class KeyFrameDrawOrder extends KeyFrame
 {
 	List<DrawOrderIndex> _orderedNodes;
 
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameDrawOrder frame = new KeyFrameDrawOrder();
 		if(!KeyFrame.read(reader, frame))
 		{
 			return null;
 		}
-		int numOrderedNodes = reader.readUint16();
+        reader.openArray("drawOrder");
+		int numOrderedNodes = reader.readUint16Length();
 		frame._orderedNodes = new List<DrawOrderIndex>(numOrderedNodes);
 		for(int i = 0; i < numOrderedNodes; i++)
 		{
+            reader.openObject("order");
 			DrawOrderIndex drawOrder = new DrawOrderIndex();
-			drawOrder.nodeIdx = reader.readUint16();
-			drawOrder.order = reader.readUint16();
+			drawOrder.nodeIdx = reader.readId("nodeIndex");
+			drawOrder.order = reader.readUint16("order");
+            reader.closeObject();
 			frame._orderedNodes[i] = drawOrder;
 		}
+        reader.closeArray();
 		return frame;
 	}
 
@@ -541,7 +545,7 @@ class KeyFrameVertexDeform extends KeyFrameWithInterpolation
 		return _vertices;
 	}
 
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameVertexDeform frame = new KeyFrameVertexDeform();
 		if(!KeyFrameWithInterpolation.read(reader, frame))
@@ -551,7 +555,7 @@ class KeyFrameVertexDeform extends KeyFrameWithInterpolation
 
 		ActorImage imageNode = component as ActorImage;
 		frame._vertices = new Float32List(imageNode.vertexCount * 2);
-		reader.readFloat32Array(frame._vertices, frame._vertices.length, 0);
+		reader.readFloat32ArrayOffset(frame._vertices, frame._vertices.length, 0, "value");
 		
 		imageNode.doesAnimationVertexDeform = true;
 
@@ -643,7 +647,7 @@ class KeyFrameVertexDeform extends KeyFrameWithInterpolation
 
 class KeyFrameTrigger extends KeyFrame
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameTrigger frame = new KeyFrameTrigger();
 		if(!KeyFrame.read(reader, frame))
@@ -672,14 +676,14 @@ class KeyFrameActiveChild extends KeyFrame
 {
 	int _value;
 
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameActiveChild frame = new KeyFrameActiveChild();
 		if (!KeyFrame.read(reader, frame))
 		{
 			return null;
 		}
-		frame._value = reader.readFloat32().toInt();
+		frame._value = reader.readFloat32("value").toInt();
 		return frame;
 	}
 
@@ -702,7 +706,7 @@ class KeyFrameActiveChild extends KeyFrame
 
 class KeyFrameSequence extends KeyFrameNumeric
 {
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameSequence frame = new KeyFrameSequence();
 		if(KeyFrameNumeric.read(reader, frame))
@@ -733,7 +737,7 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation
 		return _value;
 	}
 
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameFillColor frame = new KeyFrameFillColor();
 		if(!KeyFrameWithInterpolation.read(reader, frame))
@@ -742,7 +746,7 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation
 		}
 
 		frame._value = new Float32List(4);
-		reader.readFloat32Array(frame._value, 4, 0);
+		reader.readFloat32ArrayOffset(frame._value, 4, 0, "value");
 		return frame;
 	}
 
@@ -813,7 +817,7 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation
 		return _vertices;
 	}
 
-	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFramePathVertices frame = new KeyFramePathVertices();
 		if(!KeyFrameWithInterpolation.read(reader, frame))
@@ -832,18 +836,19 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation
 		int readIdx = 0;
 		for(PathPoint point in pathNode.points)
 		{
-			reader.readFloat32Array(frame._vertices, 2, readIdx);
+			reader.readFloat32ArrayOffset(frame._vertices, 2, readIdx, "translation");
 			if(point.pointType == PointType.Straight)
 			{
 				// radius
-				reader.readFloat32Array(frame._vertices, 1, readIdx+2);
+				reader.readFloat32ArrayOffset(frame._vertices, 1, readIdx+2, "radius");
 
 				readIdx += 3;
 			}
 			else
 			{
 				// in/out
-				reader.readFloat32Array(frame._vertices, 4, readIdx+2);
+				reader.readFloat32ArrayOffset(frame._vertices, 2, readIdx+2, "inValue");
+				reader.readFloat32ArrayOffset(frame._vertices, 2, readIdx+4, "outValue");
 				readIdx += 6;
 			}
 		}

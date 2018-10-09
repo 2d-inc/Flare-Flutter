@@ -1,12 +1,12 @@
 import "../block_reader.dart";
-import "../binary_reader.dart";
+import "../stream_reader.dart";
 import "../actor_component.dart";
 import "../actor_event.dart";
 import "../actor.dart";
 import "property_types.dart";
 import "keyframe.dart";
 
-typedef KeyFrame KeyFrameReader(BinaryReader reader, ActorComponent component);
+typedef KeyFrame KeyFrameReader(StreamReader reader, ActorComponent component);
 
 class PropertyAnimation
 {
@@ -25,7 +25,7 @@ class PropertyAnimation
 	
 	static PropertyAnimation read(BlockReader reader, ActorComponent component)
 	{
-		BlockReader propertyBlock = reader.readNextBlock();
+		BlockReader propertyBlock = reader.readNextBlock(PropertyTypesMap);
 		if(propertyBlock == null)
 		{
 			return null;

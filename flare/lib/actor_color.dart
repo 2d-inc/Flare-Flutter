@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:flare/actor.dart';
 import "actor_component.dart";
 import "dart:collection";
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "math/vec2d.dart";
 
 enum FillRule
@@ -31,11 +31,11 @@ abstract class ActorColor extends ActorComponent
 		_color[3] = node._color[3];
 	}
 
-	static ActorColor read(Actor actor, BinaryReader reader, ActorColor component)
+	static ActorColor read(Actor actor, StreamReader reader, ActorColor component)
 	{
 		ActorComponent.read(actor, reader, component);
 
-		reader.readFloat32Array(component._color, 4, 0);
+		reader.readFloat32ArrayOffset(component._color, 4, 0, "color");
 		
 		return component;
 	}
@@ -62,14 +62,14 @@ class ColorFill extends ActorColor
 		_fillRule = node._fillRule;
 	}
 
-	static ColorFill read(Actor actor, BinaryReader reader, ColorFill component)
+	static ColorFill read(Actor actor, StreamReader reader, ColorFill component)
 	{
 		if(component == null)
 		{
 			component = new ColorFill();
 		}
 		ActorColor.read(actor, reader, component);
-		component._fillRule = fillRuleLookup[reader.readUint8()];	
+		component._fillRule = fillRuleLookup[reader.readUint8("fillRule")];	
 		return component;
 	}
 }
@@ -96,14 +96,14 @@ class ColorStroke extends ActorColor
 		_width = node._width;
 	}
 
-	static ColorStroke read(Actor actor, BinaryReader reader, ColorStroke component)
+	static ColorStroke read(Actor actor, StreamReader reader, ColorStroke component)
 	{
 		if(component == null)
 		{
 			component = new ColorStroke();
 		}
 		ActorColor.read(actor, reader, component);
-		component._width = reader.readFloat32();
+		component._width = reader.readFloat32("width");
 		return component;
 	}
 }
@@ -147,17 +147,17 @@ abstract class GradientColor extends ActorComponent
 		Vec2D.copy(_end, node._end);
 	}
 
-	static GradientColor read(Actor actor, BinaryReader reader, GradientColor component)
+	static GradientColor read(Actor actor, StreamReader reader, GradientColor component)
 	{
 		ActorComponent.read(actor, reader, component);
 
-		int numStops = reader.readUint8();
+		int numStops = reader.readUint8("numColorStops");
 		Float32List stops = new Float32List(numStops*5);
-		reader.readFloat32Array(stops, numStops*5, 0);
+		reader.readFloat32ArrayOffset(stops, numStops*5, 0, "colorStops");
 		component._colorStops = stops;
 
-		reader.readFloat32Array(component._start.values, 2, 0);
-		reader.readFloat32Array(component._end.values, 2, 0);
+		reader.readFloat32ArrayOffset(component._start.values, 2, 0, "start");
+		reader.readFloat32ArrayOffset(component._end.values, 2, 0, "end");
 		
 		return component;
 	}
@@ -184,14 +184,14 @@ class GradientFill extends GradientColor
 		_fillRule = node._fillRule;
 	}
 
-	static GradientFill read(Actor actor, BinaryReader reader, GradientFill component)
+	static GradientFill read(Actor actor, StreamReader reader, GradientFill component)
 	{
 		if(component == null)
 		{
 			component = new GradientFill();
 		}
 		GradientColor.read(actor, reader, component);
-		component._fillRule = fillRuleLookup[reader.readUint8()];	
+		component._fillRule = fillRuleLookup[reader.readUint8("fillRule")];	
 		return component;
 	}
 }
@@ -218,14 +218,14 @@ class GradientStroke extends GradientColor
 		_width = node._width;
 	}
 
-	static GradientStroke read(Actor actor, BinaryReader reader, GradientStroke component)
+	static GradientStroke read(Actor actor, StreamReader reader, GradientStroke component)
 	{
 		if(component == null)
 		{
 			component = new GradientStroke();
 		}
 		GradientColor.read(actor, reader, component);
-		component._width = reader.readFloat32();
+		component._width = reader.readFloat32("width");
 		return component;
 	}
 }
@@ -246,11 +246,11 @@ abstract class RadialGradientColor extends GradientColor
 		_secondaryRadiusScale = node._secondaryRadiusScale;
 	}
 
-	static RadialGradientColor read(Actor actor, BinaryReader reader, RadialGradientColor component)
+	static RadialGradientColor read(Actor actor, StreamReader reader, RadialGradientColor component)
 	{
 		GradientColor.read(actor, reader, component);
 
-		component._secondaryRadiusScale = reader.readFloat32();
+		component._secondaryRadiusScale = reader.readFloat32("secondaryRadiusScale");
 		
 		return component;
 	}
@@ -273,14 +273,14 @@ class RadialGradientFill extends RadialGradientColor
 		_fillRule = node._fillRule;
 	}
 
-	static RadialGradientFill read(Actor actor, BinaryReader reader, RadialGradientFill component)
+	static RadialGradientFill read(Actor actor, StreamReader reader, RadialGradientFill component)
 	{
 		if(component == null)
 		{
 			component = new RadialGradientFill();
 		}
 		RadialGradientColor.read(actor, reader, component);
-		component._fillRule = fillRuleLookup[reader.readUint8()];	
+		component._fillRule = fillRuleLookup[reader.readUint8("fillRule")];	
 		return component;
 	}
 }
@@ -306,14 +306,14 @@ class RadialGradientStroke extends RadialGradientColor
 		_width = node._width;
 	}
 
-	static RadialGradientStroke read(Actor actor, BinaryReader reader, RadialGradientStroke component)
+	static RadialGradientStroke read(Actor actor, StreamReader reader, RadialGradientStroke component)
 	{
 		if(component == null)
 		{
 			component = new RadialGradientStroke();
 		}
 		RadialGradientColor.read(actor, reader, component);
-		component._width = reader.readFloat32();
+		component._width = reader.readFloat32("width");
 		return component;
 	}
 }

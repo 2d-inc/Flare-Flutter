@@ -1,6 +1,6 @@
 import "math/vec2d.dart";
 import "dart:collection";
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "math/mat2d.dart";
 
 enum PointType
@@ -41,9 +41,9 @@ abstract class PathPoint
 		Vec2D.copy(_translation, from._translation);
 	}
 
-	void read(BinaryReader reader)
+	void read(StreamReader reader)
 	{
-		reader.readFloat32Array(_translation.values, 2, 0);
+		reader.readFloat32ArrayOffset(_translation.values, 2, 0, "translation");
 	}
 
 	PathPoint transformed(Mat2D transform)
@@ -73,10 +73,10 @@ class StraightPathPoint extends PathPoint
 		radius = from.radius;
 	}
 
-	void read(BinaryReader reader)
+	void read(StreamReader reader)
 	{
 		super.read(reader);
-		radius = reader.readFloat32();
+		radius = reader.readFloat32("radius");
 	}
 }
 
@@ -118,11 +118,11 @@ class CubicPathPoint extends PathPoint
 		Vec2D.copy(_out, from._out);
 	}
 
-	void read(BinaryReader reader)
+	void read(StreamReader reader)
 	{
 		super.read(reader);
-		reader.readFloat32Array(_in.values, 2, 0);
-		reader.readFloat32Array(_out.values, 2, 0);
+		reader.readFloat32ArrayOffset(_in.values, 2, 0, "rigIn");
+		reader.readFloat32ArrayOffset(_out.values, 2, 0, "rigOut");
 	}
 	
 	PathPoint transformed(Mat2D transform)

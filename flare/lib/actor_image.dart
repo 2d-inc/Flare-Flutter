@@ -7,7 +7,7 @@ import "actor.dart";
 import "actor_component.dart";
 import "actor_bone_base.dart";
 import "actor_drawable.dart";
-
+import "package:flare/math/aabb.dart";
 
 class BoneConnection
 {
@@ -584,10 +584,10 @@ class ActorImage extends ActorDrawable
 		}
 	}
 
-	Float32List computeAABB()
+	AABB computeAABB()
 	{
 		// Todo: implement for image.
 		Mat2D worldTransform = this.worldTransform;
-		return new Float32List.fromList([worldTransform[4], worldTransform[5], worldTransform[4], worldTransform[5]]);
+		return new AABB.fromValues(worldTransform[4], worldTransform[5], worldTransform[4], worldTransform[5]);
 	}
 }

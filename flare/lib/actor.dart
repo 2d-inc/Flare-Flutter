@@ -1,5 +1,6 @@
 import "dart:typed_data";
 import "dart:convert";
+
 import "actor_component.dart";
 import "actor_event.dart";
 import "actor_node.dart";
@@ -13,6 +14,7 @@ import "actor_rotation_constraint.dart";
 import "dependency_sorter.dart";
 import "actor_image.dart";
 import "actor_shape.dart";
+import "actor_ellipse.dart";
 import "actor_path.dart";
 import "actor_color.dart";
 import "actor_drawable.dart";
@@ -20,10 +22,12 @@ import "animation/actor_animation.dart";
 import "stream_reader.dart";
 import "dart:math";
 
+import "package:flare/math/aabb.dart";
+
 const Map<String, int> BlockTypesMap =
 {
 	"Unknown": BlockTypes.Unknown,
-	"Components": BlockTypes.Components,
+	"Nodes": BlockTypes.Components,
 	"ActorNode": BlockTypes.ActorNode,
 	"ActorBone": BlockTypes.ActorBone,
 	"ActorRootBone": BlockTypes.ActorRootBone,
@@ -62,6 +66,7 @@ const Map<String, int> BlockTypesMap =
 	"GradientStroke": BlockTypes.GradientStroke,
 	"RadialGradientFill": BlockTypes.RadialGradientFill,
 	"RadialGradientStroke": BlockTypes.RadialGradientStroke,
+    "ActorEllipse": BlockTypes.ActorEllipse
 };
 
 class BlockTypes
@@ -106,6 +111,7 @@ class BlockTypes
 	static const int GradientStroke = 105;
 	static const int RadialGradientFill = 106;
 	static const int RadialGradientStroke = 107;
+    static const int ActorEllipse = 108;
 }
 
 class ActorFlags
@@ -382,6 +388,10 @@ class Actor
 	{
 		return new ActorShape();
 	}
+    ActorEllipse makeEllipse()
+    {
+        return new ActorEllipse();
+    }
 	ColorFill makeColorFill()
 	{
 		return new ColorFill();
@@ -660,6 +670,10 @@ class Actor
 				case BlockTypes.RadialGradientStroke:
 					component = RadialGradientStroke.read(this, nodeBlock, makeRadialStroke());
 					break;
+
+                case BlockTypes.ActorEllipse:
+                    component = ActorEllipse.read(this, nodeBlock, makeEllipse());
+                    break; 
 			}
 			if(component is ActorDrawable)
 			{
@@ -743,13 +757,13 @@ class Actor
 		}
 	}
 
-	Float32List computeAABB()
+	AABB computeAABB()
 	{
-		Float32List aabb;
+		AABB aabb;
 		for(ActorDrawable drawable in _drawableNodes)
 		{
 			// This is the axis aligned bounding box in the space of the parent (this case our shape).
-			Float32List pathAABB = drawable.computeAABB();
+			AABB pathAABB = drawable.computeAABB();
 
 			if(aabb == null)
 			{

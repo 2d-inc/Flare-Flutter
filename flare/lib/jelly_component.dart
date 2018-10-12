@@ -1,4 +1,4 @@
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "actor.dart";
 import "actor_jelly_bone.dart";
 import "actor_component.dart";
@@ -184,7 +184,7 @@ class JellyComponent extends ActorComponent
 		}    
 	}
 
-	static JellyComponent read(Actor actor, BinaryReader reader, JellyComponent node)
+	static JellyComponent read(Actor actor, StreamReader reader, JellyComponent node)
 	{
 		if(node == null)
 		{
@@ -192,12 +192,12 @@ class JellyComponent extends ActorComponent
 		}
 		ActorComponent.read(actor, reader, node);
 			
-		node._easeIn = reader.readFloat32();
-		node._easeOut = reader.readFloat32();
-		node._scaleIn = reader.readFloat32();
-		node._scaleOut = reader.readFloat32();
-		node._inTargetIdx = reader.readUint16();
-		node._outTargetIdx = reader.readUint16();
+		node._easeIn = reader.readFloat32("easeIn");
+		node._easeOut = reader.readFloat32("easeOut");
+		node._scaleIn = reader.readFloat32("scaleIn");
+		node._scaleOut = reader.readFloat32("scaleOut");
+		node._inTargetIdx = reader.readId("inTargetId");
+		node._outTargetIdx = reader.readId("outTargetId");
 		
 		return node;
 	}

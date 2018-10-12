@@ -2,9 +2,11 @@ library flare;
 
 import "dart:async";
 import "dart:typed_data";
+
 import "actor.dart";
 import "actor_shape.dart";
 import "actor_path.dart";
+import "actor_ellipse.dart";
 import "actor_color.dart";
 import "actor_node.dart";
 import "actor_drawable.dart";
@@ -17,7 +19,6 @@ import "dart:math";
 export "animation/actor_animation.dart";
 export "actor_node.dart";
 
-//import "dart:ui" as ui;
 import "package:flutter/services.dart" show rootBundle;
 
 abstract class FlutterFill
@@ -51,13 +52,12 @@ class FlutterActorShape extends ActorShape
 		_path.fillType = ui.PathFillType.nonZero;
 		_path.reset();
 
-		for(FlutterActorPath path in children)
+		for(ActorBasePath path in children)
 		{
 			if(path == null)
 			{
 				continue;
 			}
-
 			path.updatePath(_path);
 		}
 		return _path;
@@ -139,122 +139,6 @@ class FlutterActorShape extends ActorShape
 		}
 
 		canvas.restore();
-	}
-}
-
-class FlutterActorPath extends ActorPath
-{
-	@override
-	void onPathInvalid()
-	{
-		(parent as FlutterActorShape).invalidatePath();
-	}
-
-	void updatePath(ui.Path path)
-	{
-		if(points == null || points.length == 0)
-		{
-			return;
-		}
-		Mat2D xform = this.transform;
-
-		List<PathPoint> renderPoints = new List<PathPoint>();
-		int pl = points.length;
-		
-		const double arcConstant = 0.55;
-		const double iarcConstant = 1.0-arcConstant;
-		PathPoint previous = isClosed ? points[pl-1].transformed(xform) : null;
-		for(int i = 0; i < pl; i++)
-		{
-			PathPoint point = points[i].transformed(xform);
-			switch(point.pointType)
-			{
-				case PointType.Straight:
-				{
-					StraightPathPoint straightPoint = point as StraightPathPoint;
-					double radius = straightPoint.radius;
-					if(radius > 0)
-					{
-						if(!isClosed && (i == 0 || i == pl-1))
-						{
-							renderPoints.add(point);
-							previous = point;
-						}
-						else
-						{
-							PathPoint next = points[(i+1)%pl].transformed(xform);
-							Vec2D prevPoint = previous is CubicPathPoint ? previous.outPoint : previous.translation;
-							Vec2D nextPoint = next is CubicPathPoint ? next.inPoint : next.translation;
-							Vec2D pos = point.translation;
-
-							Vec2D toPrev = Vec2D.subtract(new Vec2D(), prevPoint, pos);
-							double toPrevLength = Vec2D.length(toPrev);
-							toPrev[0] /= toPrevLength;
-							toPrev[1] /= toPrevLength;
-
-							Vec2D toNext = Vec2D.subtract(new Vec2D(), nextPoint, pos);
-							double toNextLength = Vec2D.length(toNext);
-							toNext[0] /= toNextLength;
-							toNext[1] /= toNextLength;
-
-							double renderRadius = min(toPrevLength, min(toNextLength, radius));
-
-							Vec2D translation = Vec2D.scaleAndAdd(new Vec2D(), pos, toPrev, renderRadius);
-							renderPoints.add(new CubicPathPoint.fromValues(translation, translation, Vec2D.scaleAndAdd(new Vec2D(), pos, toPrev, iarcConstant*renderRadius)));
-							translation = Vec2D.scaleAndAdd(new Vec2D(), pos, toNext, renderRadius);
-							previous = new CubicPathPoint.fromValues(translation, Vec2D.scaleAndAdd(new Vec2D(), pos, toNext, iarcConstant*renderRadius), translation);
-							renderPoints.add(previous);
-						}
-					}
-					else
-					{
-						renderPoints.add(point);
-						previous = point;
-					}
-					break;
-				}
-				default:
-					renderPoints.add(point);
-					previous = point;
-					break;
-			}
-		}
-
-		PathPoint firstPoint = renderPoints[0];
-		path.moveTo(firstPoint.translation[0], firstPoint.translation[1]);
-		for(int i = 0, l = isClosed ? renderPoints.length : renderPoints.length-1, pl = renderPoints.length; i < l; i++)
-		{
-			PathPoint point = renderPoints[i];
-			PathPoint nextPoint = renderPoints[(i+1)%pl];
-			Vec2D cin = nextPoint is CubicPathPoint ? nextPoint.inPoint : null, cout = point is CubicPathPoint ? point.outPoint : null;
-			if(cin == null && cout == null)
-			{
-				path.lineTo(nextPoint.translation[0], nextPoint.translation[1]);	
-			}
-			else
-			{
-				if(cout == null)
-				{
-					cout = point.translation;
-				}
-				if(cin == null)
-				{
-					cin = nextPoint.translation;
-				}
-
-				path.cubicTo(
-					cout[0], cout[1],
-
-					cin[0], cin[1],
-
-					nextPoint.translation[0], nextPoint.translation[1]);
-			}
-		}
-
-		if(isClosed)
-		{
-			path.close();
-		}
 	}
 }
 
@@ -515,16 +399,19 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 
 class FlutterActor extends Actor
 {
+    bool _isInstance = false;
+    List<ui.Image> _images;
+
+    List<ui.Image> get images
+    {
+        return _images;
+    }
+
 	ActorShape makeShapeNode()
 	{
 		return new FlutterActorShape();
 	}
-
-	ActorPath makePathNode()
-	{
-		return new FlutterActorPath();
-	}
-
+    
 	ColorFill makeColorFill()
 	{
 		return new FlutterColorFill();
@@ -594,6 +481,23 @@ class FlutterActor extends Actor
 
 		return true;
 	}
+
+    Actor makeInstance()
+    {
+        FlutterActor actorInstance = new FlutterActor();
+        actorInstance.copyActor(this);
+        actorInstance._isInstance = true;
+        // TODO: copy Images
+        return actorInstance;
+    }
+
+    void advance(double seconds)
+    {
+        super.advance(seconds);
+    }
+
+    dispose()
+    {}
 
 	void draw(ui.Canvas canvas)
 	{

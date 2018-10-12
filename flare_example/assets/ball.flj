@@ -1,0 +1,156 @@
+{
+	"version": 15,
+	"Nodes": [
+		{
+			"name": "Ellipse",
+			"translation": [
+				387,
+				219.5
+			],
+			"rotation": 0,
+			"scale": [
+				1,
+				1
+			],
+			"opacity": 1,
+			"isCollapsedVisibility": false,
+			"Clips": [],
+			"isVisible": true,
+			"blendMode": 0,
+			"drawOrder": 1,
+			"type": "ActorShape"
+		},
+		{
+			"name": "Ellipse Path",
+			"parentId": 0,
+			"translation": [
+				0,
+				0
+			],
+			"rotation": 0,
+			"scale": [
+				1,
+				1
+			],
+			"opacity": 1,
+			"isCollapsedVisibility": false,
+			"Clips": [],
+			"width": 150,
+			"height": 150,
+			"type": "ActorEllipse"
+		},
+		{
+			"name": "Color",
+			"parentId": 0,
+			"color": [
+				0,
+				0,
+				0,
+				1
+			],
+			"width": 2,
+			"type": "ColorStroke"
+		},
+		{
+			"name": "Color",
+			"parentId": 0,
+			"color": [
+				1,
+				0.6599999666213989,
+				0,
+				1
+			],
+			"fillRule": 0,
+			"type": "ColorFill"
+		}
+	],
+	"Animations": [
+		{
+			"name": "Untitled",
+			"fps": 60,
+			"duration": 3,
+			"isLooping": true,
+			"KeyedNodes": [
+				{
+					"nodeIndex": 0,
+					"Properties": [
+						{
+							"KeyFrames": [
+								{
+									"time": 0,
+									"interpolatorType": 2,
+									"cubicX1": 0,
+									"cubicY1": 0.5201612903225806,
+									"cubicX2": 0.4424778761061947,
+									"cubicY2": 0.9905913978494624,
+									"value": 387
+								},
+								{
+									"time": 0.6833333333333333,
+									"interpolatorType": 1,
+									"value": 665.5
+								}
+							],
+							"type": "PosX"
+						},
+						{
+							"KeyFrames": [
+								{
+									"time": 0,
+									"interpolatorType": 2,
+									"cubicX1": 0,
+									"cubicY1": 0.4193548387096774,
+									"cubicX2": 0.58,
+									"cubicY2": 1,
+									"value": 300
+								},
+								{
+									"time": 0.2,
+									"interpolatorType": 2,
+									"cubicX1": 0.42,
+									"cubicY1": 0,
+									"cubicX2": 0.3495575221238938,
+									"cubicY2": 0.2647849462365591,
+									"value": 140
+								},
+								{
+									"time": 0.6833333333333333,
+									"interpolatorType": 0,
+									"value": 300
+								}
+							],
+							"type": "PosY"
+						},
+						{
+							"KeyFrames": [
+								{
+									"time": 0,
+									"interpolatorType": 1,
+									"value": 0.7
+								},
+								{
+									"time": 0.2,
+									"interpolatorType": 2,
+									"cubicX1": 1,
+									"cubicY1": -1.193548387096774,
+									"cubicX2": 1,
+									"cubicY2": 1.0040322580645162,
+									"value": 1
+								},
+								{
+									"time": 0.6833333333333333,
+									"interpolatorType": 1,
+									"value": 0.7
+								}
+							],
+							"type": "ScaleY"
+						}
+					]
+				}
+			],
+			"animationStart": 0,
+			"animationEnd": 0.6833333333333333,
+			"type": "Animation"
+		}
+	]
+}

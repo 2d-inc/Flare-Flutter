@@ -1,4 +1,4 @@
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "actor.dart";
 import "actor_bone_base.dart";
 import "actor_component.dart";
@@ -39,7 +39,7 @@ class ActorBone extends ActorBoneBase
 		}
 	}
 
-	static ActorBone read(Actor actor, BinaryReader reader, ActorBone node)
+	static ActorBone read(Actor actor, StreamReader reader, ActorBone node)
 	{
 		if(node == null)
 		{

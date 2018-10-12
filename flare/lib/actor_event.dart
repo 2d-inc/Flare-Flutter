@@ -1,11 +1,11 @@
 
 import "actor_component.dart";
 import "actor.dart";
-import "binary_reader.dart";
+import "stream_reader.dart";
 
 class ActorEvent extends ActorComponent
 {
-	static ActorComponent read(Actor actor, BinaryReader reader, ActorEvent component)
+	static ActorComponent read(Actor actor, StreamReader reader, ActorEvent component)
 	{
 		if(component == null)
 		{

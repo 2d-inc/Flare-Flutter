@@ -1,5 +1,5 @@
 import "./interpolator.dart";
-import "../../binary_reader.dart";
+import "../../stream_reader.dart";
 import "package:flutter/animation.dart";
 
 
@@ -11,9 +11,14 @@ class CubicInterpolator extends Interpolator
 		return _cubic.transform(mix);
 	}
 
-	bool read(BinaryReader reader)
+	bool read(StreamReader reader)
 	{
-		_cubic = new Cubic(reader.readFloat32(), reader.readFloat32(), reader.readFloat32(), reader.readFloat32());
+		_cubic = new Cubic(
+            reader.readFloat32("cubicX1"),
+            reader.readFloat32("cubicY1"),
+            reader.readFloat32("cubicX2"), 
+            reader.readFloat32("cubicY2")
+        );
 		return true;
 	}
 }

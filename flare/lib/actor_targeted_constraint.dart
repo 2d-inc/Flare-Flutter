@@ -1,7 +1,7 @@
 import "actor_component.dart";
 import "actor_constraint.dart";
 import "actor.dart";
-import "binary_reader.dart";
+import "stream_reader.dart";
 
 abstract class ActorTargetedConstraint extends ActorConstraint
 {
@@ -26,10 +26,10 @@ abstract class ActorTargetedConstraint extends ActorConstraint
 		}
 	}
 
-	static ActorTargetedConstraint read(Actor actor, BinaryReader reader, ActorTargetedConstraint component)
+	static ActorTargetedConstraint read(Actor actor, StreamReader reader, ActorTargetedConstraint component)
 	{
 		ActorConstraint.read(actor, reader, component);
-		component._targetIdx = reader.readUint16();
+		component._targetIdx = reader.readId("targetId");
 
 		return component;
 	}

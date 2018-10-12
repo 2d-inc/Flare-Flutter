@@ -2,12 +2,12 @@ import "actor_component.dart";
 import "actor_node.dart";
 import "actor_drawable.dart";
 import "actor.dart";
-import "binary_reader.dart";
-import "dart:typed_data";
+import "stream_reader.dart";
 import "actor_path.dart";
 import "dart:math";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
+import "package:flare/math/aabb.dart";
 
 class ActorShape extends ActorDrawable
 {
@@ -23,7 +23,7 @@ class ActorShape extends ActorDrawable
 		return !_isHidden && !this.renderCollapsed;
 	}
 
-	static ActorShape read(Actor actor, BinaryReader reader, ActorShape component)
+	static ActorShape read(Actor actor, StreamReader reader, ActorShape component)
 	{
 		if(component == null)
 		{
@@ -32,9 +32,9 @@ class ActorShape extends ActorDrawable
 
 		ActorNode.read(actor, reader, component);
 
-		component._isHidden = reader.readUint8() == 0;
-		/*blendMode*/ reader.readUint8();
-		component.drawOrder = reader.readUint16();
+		component._isHidden = !reader.readBool("isVisible");
+		/*blendMode*/ reader.readUint8("blendMode");
+		component.drawOrder = reader.readUint16("drawOrder");
 		return component;
 	}
 
@@ -51,18 +51,14 @@ class ActorShape extends ActorDrawable
 		_isHidden = node._isHidden;
 	}
 
-	Float32List computeAABB()
+	AABB computeAABB()
 	{
-		Float32List aabb;
-		for(ActorPath path in children)
-		{
-			// if(path.constructor !== ActorPath)
-			// {
-			// 	continue;
-			// }
+		AABB aabb;
 
+		for(ActorBasePath path in children)
+		{
 			// This is the axis aligned bounding box in the space of the parent (this case our shape).
-			Float32List pathAABB = path.getPathAABB();
+			AABB pathAABB = path.getPathAABB();
 
 			if(aabb == null)
 			{
@@ -86,7 +82,7 @@ class ActorShape extends ActorDrawable
 
 		if(aabb == null)
 		{
-			return new Float32List.fromList([minX, minY, maxX, maxY]);
+			return new AABB.fromValues(minX, minY, maxX, maxY);
 		}
 		Mat2D world = worldTransform;
 
@@ -119,7 +115,6 @@ class ActorShape extends ActorDrawable
 				maxY = wp[1];
 			}
 		}
-
-		return new Float32List.fromList([minX, minY, maxX, maxY]);
+		return new AABB.fromValues(minX, minY, maxX, maxY);
 	}
 }

@@ -104,6 +104,42 @@ class PropertyAnimation
 				case PropertyTypes.FillColor:
 					keyFrameReader = KeyFrameFillColor.read;
 					break;
+				case PropertyTypes.FillGradient:
+					keyFrameReader = KeyFrameGradientFill.read;
+					break;
+				case PropertyTypes.FillRadial:
+					// TODO:
+					break;
+				case PropertyTypes.StrokeColor:
+					keyFrameReader = KeyFrameStrokeColor.read;
+					break;
+				case PropertyTypes.StrokeGradient:
+					// TODO:
+					break;
+				case PropertyTypes.StrokeRadial:
+					// TODO:
+					break;
+				case PropertyTypes.StrokeWidth:
+					// TODO:
+					break;
+				case PropertyTypes.StrokeOpacity:
+					// TODO:
+					break;
+				case PropertyTypes.FillOpacity:
+					keyFrameReader = KeyFrameFillOpacity.read;
+					break;
+				case PropertyTypes.ShapeWidth:
+					// TODO:
+					break;
+				case PropertyTypes.ShapeHeight:
+					// TODO:
+					break;
+				case PropertyTypes.CornerRadius:
+					keyFrameReader = KeyFrameCornerRadius.read;
+					break;
+				case PropertyTypes.InnerRadius:
+					// TODO:
+					break;
 			}
 
 			if(keyFrameReader == null)
@@ -294,6 +330,7 @@ class ActorAnimation
 	bool _isLooping;
 	List<ComponentAnimation> _components;
 	List<ComponentAnimation> _triggerComponents;
+    double start, end;
 
 	String get name
 	{
@@ -458,6 +495,11 @@ class ActorAnimation
 			}
 		}
         reader.closeArray();
+        if(numKeyedComponents > 0)
+        {
+            animation.start = reader.readFloat32("animationStart");
+		    animation.end = reader.readFloat32("animationEnd");
+        }
 
 		animation._components = new List<ComponentAnimation>(animatedComponentCount);
 		animation._triggerComponents = new List<ComponentAnimation>(triggerComponentCount);

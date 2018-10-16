@@ -13,6 +13,8 @@ import "package:flare/math/aabb.dart";
 
 abstract class ActorBasePath extends ActorNode
 {
+    static const int PathDirty = 1<<3;
+
     AABB getPathAABB();
     copyPath(ActorBasePath node, Actor resetActor);
     ActorComponent makeInstance(Actor resetActor);
@@ -23,8 +25,14 @@ abstract class ActorBasePath extends ActorNode
         (parent as FlutterActorShape).invalidatePath();
     }
 
+    markPathDirty()
+    {
+        actor.addDirt(this, PathDirty, false);
+        this.onPathInvalid();
+    }
+
     bool get isClosed;
-    List<PathPoint> get points;
+    List<PathPoint> get _points;
 }
 
 abstract class ActorProceduralPath extends ActorBasePath

@@ -33,7 +33,7 @@ class ActorEllipse extends ActorProceduralPath
     }
 
     @override
-    List<PathPoint> get points
+    List<PathPoint> get _points
     {
         List<PathPoint> _ellipsePathPoints = <PathPoint>[];
         _ellipsePathPoints.add(
@@ -71,7 +71,7 @@ class ActorEllipse extends ActorProceduralPath
     @override
     updatePath(ui.Path path)
     {
-        List<PathPoint> points = this.points;
+        List<PathPoint> points = this._points;
         Mat2D xform = this.transform;
 
         for(CubicPathPoint p in points)
@@ -81,7 +81,6 @@ class ActorEllipse extends ActorProceduralPath
 
         double x = points[0].translation[0],
             y = points[0].translation[1];
-            print("START FROM:$x, $y");
         path.moveTo(x, y);
         
         for(int i = 0; i < points.length; i++)

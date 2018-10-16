@@ -15,6 +15,7 @@ import "dependency_sorter.dart";
 import "actor_image.dart";
 import "actor_shape.dart";
 import "actor_ellipse.dart";
+import "actor_rectangle.dart";
 import "actor_path.dart";
 import "actor_color.dart";
 import "actor_drawable.dart";
@@ -66,7 +67,8 @@ const Map<String, int> BlockTypesMap =
 	"GradientStroke": BlockTypes.GradientStroke,
 	"RadialGradientFill": BlockTypes.RadialGradientFill,
 	"RadialGradientStroke": BlockTypes.RadialGradientStroke,
-    "ActorEllipse": BlockTypes.ActorEllipse
+    "ActorEllipse": BlockTypes.ActorEllipse,
+    "ActorRectangle": BlockTypes.ActorRectangle
 };
 
 class BlockTypes
@@ -112,6 +114,7 @@ class BlockTypes
 	static const int RadialGradientFill = 106;
 	static const int RadialGradientStroke = 107;
     static const int ActorEllipse = 108;
+    static const int ActorRectangle = 109;
 }
 
 class ActorFlags
@@ -388,6 +391,10 @@ class Actor
 	{
 		return new ActorShape();
 	}
+    ActorRectangle makeRectangle()
+    {
+        return new ActorRectangle();
+    }
     ActorEllipse makeEllipse()
     {
         return new ActorEllipse();
@@ -673,6 +680,10 @@ class Actor
 
                 case BlockTypes.ActorEllipse:
                     component = ActorEllipse.read(this, nodeBlock, makeEllipse());
+                    break; 
+
+                case BlockTypes.ActorRectangle:
+                    component = ActorRectangle.read(this, nodeBlock, makeRectangle());
                     break; 
 			}
 			if(component is ActorDrawable)

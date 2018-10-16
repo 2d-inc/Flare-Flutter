@@ -1,5 +1,3 @@
-import "dart:collection";
-
 class PropertyTypes 
 {
 	static const int Unknown = 0;
@@ -29,6 +27,12 @@ class PropertyTypes
 	static const int StrokeGradient = 24;
 	static const int StrokeRadial = 25;
 	static const int StrokeWidth = 26;
+	static const int StrokeOpacity = 27;
+	static const int FillOpacity = 28;
+	static const int ShapeWidth = 29;
+	static const int ShapeHeight = 30;
+	static const int CornerRadius = 31;
+	static const int InnerRadius = 32;
 }
 
 const Map<String, int> PropertyTypesMap = 
@@ -60,4 +64,10 @@ const Map<String, int> PropertyTypesMap =
 	"StrokeGradient": PropertyTypes.StrokeGradient,
 	"StrokeRadial": PropertyTypes.StrokeRadial,
 	"StrokeWidth": PropertyTypes.StrokeWidth,
+    "StrokeOpacity": PropertyTypes.StrokeOpacity,
+	"FillOpacity": PropertyTypes.FillOpacity,
+	"ShapeWidth": PropertyTypes.ShapeWidth,
+	"ShapeHeight": PropertyTypes.ShapeHeight,
+	"CornerRadius": PropertyTypes.CornerRadius,
+	"InnerRadius": PropertyTypes.InnerRadius,
 };

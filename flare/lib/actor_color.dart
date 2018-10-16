@@ -113,6 +113,7 @@ abstract class GradientColor extends ActorComponent
 	Float32List _colorStops = new Float32List(10);
 	Vec2D _start = new Vec2D();
 	Vec2D _end = new Vec2D();
+    double opacity = 1.0;
 
 	Vec2D get start
 	{
@@ -145,6 +146,7 @@ abstract class GradientColor extends ActorComponent
 		_colorStops = new Float32List.fromList(node._colorStops);
 		Vec2D.copy(_start, node._start);
 		Vec2D.copy(_end, node._end);
+        opacity = node.opacity;
 	}
 
 	static GradientColor read(Actor actor, StreamReader reader, GradientColor component)

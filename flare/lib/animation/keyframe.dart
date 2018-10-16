@@ -1,3 +1,4 @@
+import "../math/vec2d.dart";
 import "../stream_reader.dart";
 import "../actor_component.dart";
 import "../actor_node.dart";
@@ -6,6 +7,7 @@ import "../actor_constraint.dart";
 import "../actor_image.dart";
 import "../actor.dart";
 import "../actor_node_solo.dart";
+import "../actor_rectangle.dart";
 import "../math/mat2d.dart";
 import "./interpolation/interpolator.dart";
 import "./interpolation/hold.dart";
@@ -916,3 +918,226 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation
 		path.markVertexDeformDirty();
 	}
 }
+
+class KeyFrameFillOpacity extends KeyFrameNumeric
+{
+	static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameFillOpacity frame = new KeyFrameFillOpacity();
+		if(KeyFrameNumeric.read(reader, frame))
+		{
+			return frame;
+		}
+		return null;
+	}
+
+	void setValue(ActorComponent component, double value, double mix)
+	{
+		GradientFill node = component as GradientFill;
+		node.opacity = node.opacity * (1.0 - mix) + value * mix;
+	}
+}
+
+class KeyFrameStrokeColor extends KeyFrameWithInterpolation
+{
+    Float32List _value;
+
+	Float32List get value
+	{
+		return _value;
+	}
+
+	static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameStrokeColor frame = new KeyFrameStrokeColor();
+		if(!KeyFrameWithInterpolation.read(reader, frame))
+		{
+			return null;
+		}
+		frame._value = new Float32List(4);
+		reader.readFloat32ArrayOffset(frame._value, 4, 0, "value");
+		return frame;
+	}
+
+    @override
+    applyInterpolation(ActorComponent component, double time, KeyFrame toFrame, double mix)
+    {
+        ColorStroke cs = component as ColorStroke;
+        Float32List wr = cs.color;
+        Float32List to = (toFrame as KeyFrameStrokeColor)._value;
+        int len = _value.length;
+
+        double f = (time - _time)/(toFrame.time - _time);
+        double fi = 1.0 - f;
+        if(mix == 1.0)
+        {
+            for(int i = 0; i < len; i++)
+            {
+                wr[i] = _value[i] * fi + to[i] * f;
+            }
+        }
+        else
+		{
+			double mixi = 1.0 - mix;
+			for(int i = 0; i < len; i++)
+			{
+				double v = _value[i] * fi + to[i] * f;
+
+				wr[i] = wr[i] * mixi + v * mix;
+			}
+		}
+    }
+
+    @override
+    apply(ActorComponent component, double mix)
+    {
+        ColorStroke node = component as ColorStroke;
+        Float32List wr = node.color;
+        int len = wr.length;
+        if(mix == 1.0)
+        {
+            for(int i = 0; i < len; i++)
+            {
+                wr[i] = _value[i];
+            }
+        }
+        else
+        {
+            double mixi = 1.0 - mix;
+            for(int i = 0; i < len; i++)
+            {
+				wr[i] = wr[i] * mixi + _value[i] * mix;
+            }
+        }
+    }
+}
+
+class KeyFrameCornerRadius extends KeyFrameNumeric
+{
+    static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameCornerRadius frame = new KeyFrameCornerRadius();
+		if(KeyFrameNumeric.read(reader, frame))
+		{
+			return frame;
+		}
+		return null;
+	}
+
+	void setValue(ActorComponent component, double value, double mix)
+	{
+		ActorRectangle node = component as ActorRectangle;
+		node.radius = node.radius * (1.0 - mix) + value * mix;
+	}
+}
+
+class KeyFrameGradientFill extends KeyFrameWithInterpolation
+{
+    Float32List _value;
+    get value => _value;
+
+    static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameGradientFill frame = new KeyFrameGradientFill();
+		if(!KeyFrameWithInterpolation.read(reader, frame))
+		{
+			return null;
+		}
+        int len = reader.readUint16("length");
+        frame._value = new Float32List(len);
+		reader.readFloat32Array(frame._value, "value");
+		return frame;
+	}
+
+	@override
+    applyInterpolation(ActorComponent component, double time, KeyFrame toFrame, double mix)
+    {
+        GradientFill gf = component as GradientFill;
+        Float32List v = (toFrame as KeyFrameGradientFill)._value;
+        
+        double f = (time - _time)/(toFrame.time - _time);
+        if(_interpolator != null)
+        {
+            f = _interpolator.getEasedMix(f);
+        }
+        double fi = 1.0 - f;
+
+        int ridx = 0;
+        int wi = 0;
+
+        if(mix == 1.0)
+        {
+            gf.start[0] = _value[ridx] * fi + v[ridx++] * f;
+            gf.start[1] = _value[ridx] * fi + v[ridx++] * f;
+            gf.end[0] = _value[ridx] * fi + v[ridx++] * f;
+            gf.end[1] = _value[ridx] * fi + v[ridx++] * f;
+
+            while(ridx < v.length && wi < gf.colorStops.length)
+            {
+                gf.colorStops[wi++] = _value[ridx] * fi + v[ridx++] * f;
+            }
+        }
+        else
+		{
+			double imix = 1.0 - mix;
+
+            // Perform a double mixing: first interpolate the KeyFrames, and then mix on top of the current value.
+            double val = _value[ridx]*fi + v[ridx]*f;
+            gf.start[0] = _value[ridx++]*imix + val*mix;
+            val = _value[ridx]*fi + v[ridx]*f;
+            gf.start[1] = _value[ridx++]*imix + val*mix;
+            val = _value[ridx]*fi + v[ridx]*f;
+            gf.end[0] = _value[ridx++]*imix + val*mix;
+            val = _value[ridx]*fi + v[ridx]*f;
+            gf.end[1] = _value[ridx++]*imix + val*mix;
+
+			while(ridx < v.length && wi < gf.colorStops.length)
+            {
+                val = _value[ridx]*fi + v[ridx]*f;
+                gf.colorStops[wi] = gf.colorStops[wi]*imix + val*mix;
+                
+                ridx++; 
+                wi++;
+            }
+		}
+    }
+
+
+
+    @override
+    apply(ActorComponent component, double mix)
+    {
+        GradientFill gf = component as GradientFill;
+        
+        int ridx = 0;
+        int wi = 0;
+
+        if(mix == 1.0)
+        {
+            gf.start[0] = _value[ridx++];
+            gf.start[1] = _value[ridx++];
+            gf.end[0] = _value[ridx++];
+            gf.end[1] = _value[ridx++];
+
+            while(ridx < _value.length && wi < gf.colorStops.length)
+            {
+                gf.colorStops[wi++] = _value[ridx++];
+            }
+        }
+        else
+        {
+            double imix = 1.0 - mix;
+            gf.start[0] = gf.start[0] * imix + _value[ridx++] * mix;
+            gf.start[1] = gf.start[1] * imix + _value[ridx++] * mix;
+            gf.end[0] = gf.end[0] * imix + _value[ridx++] * mix;
+            gf.end[1] = gf.end[1] * imix + _value[ridx++] * mix;
+
+            while(ridx < _value.length && wi < gf.colorStops.length)
+            {
+                gf.colorStops[wi] = gf.colorStops[wi] * imix + _value[ridx++];
+                wi++;
+            }
+        }
+    }
+}
+

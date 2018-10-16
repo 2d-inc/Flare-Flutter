@@ -72,7 +72,8 @@ abstract class JSONReader implements StreamReader
 		List array = this.readProp(label);
 		for (int i = 0; i < ar.length; i++)
 		{
-			ar[i] = array[i];
+            num val = array[i];
+			ar[i] = ar.first is double ? val.toDouble() : val.toInt();
 		}
 	}
 

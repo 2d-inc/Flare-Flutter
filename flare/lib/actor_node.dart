@@ -278,7 +278,7 @@ class ActorNode extends ActorComponent
 			node._clips = new List<ActorClip>(clipCount);
 			for(int i = 0; i < clipCount; i++)
 			{
-				node._clips[i] = new ActorClip(reader.readUint16("clipId"));
+				node._clips[i] = new ActorClip(reader.readId("clipId"));
 			}
 		}
         reader.closeArray();

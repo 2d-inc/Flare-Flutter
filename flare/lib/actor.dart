@@ -16,6 +16,7 @@ import "actor_image.dart";
 import "actor_shape.dart";
 import "actor_ellipse.dart";
 import "actor_rectangle.dart";
+import "actor_star.dart";
 import "actor_triangle.dart";
 import "actor_path.dart";
 import "actor_color.dart";
@@ -70,7 +71,8 @@ const Map<String, int> BlockTypesMap =
 	"RadialGradientStroke": BlockTypes.RadialGradientStroke,
     "ActorEllipse": BlockTypes.ActorEllipse,
     "ActorRectangle": BlockTypes.ActorRectangle,
-    "ActorTriangle": BlockTypes.ActorTriangle
+    "ActorTriangle": BlockTypes.ActorTriangle,
+    "ActorStar": BlockTypes.ActorStar
 };
 
 class BlockTypes
@@ -118,6 +120,7 @@ class BlockTypes
     static const int ActorEllipse = 108;
     static const int ActorRectangle = 109;
     static const int ActorTriangle = 110;
+    static const int ActorStar = 111;
 }
 
 class ActorFlags
@@ -401,6 +404,10 @@ class Actor
     ActorTriangle makeTriangle()
     {
         return new ActorTriangle();
+    }
+    ActorStar makeStar()
+    {
+        return new ActorStar();
     }
     ActorEllipse makeEllipse()
     {
@@ -695,6 +702,10 @@ class Actor
                     
                 case BlockTypes.ActorTriangle:
                     component = ActorTriangle.read(this, nodeBlock, makeTriangle());
+                    break; 
+                    
+                case BlockTypes.ActorStar:
+                    component = ActorStar.read(this, nodeBlock, makeStar());
                     break; 
 			}
 			if(component is ActorDrawable)

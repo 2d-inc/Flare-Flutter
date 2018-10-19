@@ -6,6 +6,7 @@ import "../actor_constraint.dart";
 import "../actor_image.dart";
 import "../actor.dart";
 import "../actor_node_solo.dart";
+import "../actor_star.dart";
 import "../actor_rectangle.dart";
 import "../math/mat2d.dart";
 import "./interpolation/interpolator.dart";
@@ -1315,5 +1316,26 @@ class KeyFrameStrokeOpacity extends KeyFrameNumeric
         {
             component.opacity = component.opacity * (1.0 - mix) + value * mix;
         }
+	}
+}
+
+class KeyFrameInnerRadius extends KeyFrameNumeric
+{
+	static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameInnerRadius frame = new KeyFrameInnerRadius();
+		if(KeyFrameNumeric.read(reader, frame))
+		{
+			return frame;
+		}
+		return null;
+	}
+
+	void setValue(ActorComponent component, double value, double mix)
+	{
+		if(component == null) return;
+
+        ActorStar star = component as ActorStar;
+        star.innerRadius = star.innerRadius * (1.0-mix) + value*mix;
 	}
 }

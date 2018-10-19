@@ -92,6 +92,8 @@ abstract class ActorProceduralPath extends ActorBasePath
         }
         return AABB.fromValues(minX, minY, maxX, maxY);
     }
+
+    List<PathPoint> get _points;
 }
 
 class ActorPath extends ActorBasePath

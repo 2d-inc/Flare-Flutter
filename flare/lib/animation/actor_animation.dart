@@ -138,7 +138,7 @@ class PropertyAnimation
 					keyFrameReader = KeyFrameCornerRadius.read;
 					break;
 				case PropertyTypes.InnerRadius:
-					// TODO:
+                    keyFrameReader = KeyFrameInnerRadius.read;
 					break;
 			}
 

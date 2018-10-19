@@ -120,10 +120,10 @@ class PropertyAnimation
 					keyFrameReader = KeyFrameStrokeColor.read;
 					break;
 				case PropertyTypes.StrokeWidth:
-					// TODO:
+					keyFrameReader = KeyFrameStrokeWidth.read;
 					break;
 				case PropertyTypes.StrokeOpacity:
-					// TODO:
+					keyFrameReader = KeyFrameStrokeOpacity.read;
 					break;
 				case PropertyTypes.FillOpacity:
 					keyFrameReader = KeyFrameFillOpacity.read;

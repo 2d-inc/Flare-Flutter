@@ -76,12 +76,14 @@ class ColorFill extends ActorColor
 
 class ColorStroke extends ActorColor
 {
-	double _width = 1.0;
+	double width = 1.0;
 
-	double get width
-	{
-		return _width;
-	}
+    get opacity => _color[3];
+
+    set opacity(double val)
+    {
+        this.color[3] = val;
+    }
 	
 	ActorComponent makeInstance(Actor resetActor)
 	{
@@ -93,7 +95,7 @@ class ColorStroke extends ActorColor
 	void copyColorStroke(ColorStroke node, Actor resetActor)
 	{
 		copyColor(node, resetActor);
-		_width = node._width;
+		width = node.width;
 	}
 
 	static ColorStroke read(Actor actor, StreamReader reader, ColorStroke component)
@@ -103,7 +105,7 @@ class ColorStroke extends ActorColor
 			component = new ColorStroke();
 		}
 		ActorColor.read(actor, reader, component);
-		component._width = reader.readFloat32("width");
+		component.width = reader.readFloat32("width");
 		return component;
 	}
 }
@@ -200,13 +202,8 @@ class GradientFill extends GradientColor
 
 class GradientStroke extends GradientColor
 {
-	double _width = 1.0;
+	double width = 1.0;
 
-	double get width
-	{
-		return _width;
-	}
-	
 	ActorComponent makeInstance(Actor resetActor)
 	{
 		GradientStroke instanceEvent = new GradientStroke();
@@ -217,7 +214,7 @@ class GradientStroke extends GradientColor
 	void copyGradientStroke(GradientStroke node, Actor resetActor)
 	{
 		copyGradient(node, resetActor);
-		_width = node._width;
+		width = node.width;
 	}
 
 	static GradientStroke read(Actor actor, StreamReader reader, GradientStroke component)
@@ -227,7 +224,7 @@ class GradientStroke extends GradientColor
 			component = new GradientStroke();
 		}
 		GradientColor.read(actor, reader, component);
-		component._width = reader.readFloat32("width");
+		component.width = reader.readFloat32("width");
 		return component;
 	}
 }
@@ -284,11 +281,7 @@ class RadialGradientFill extends RadialGradientColor
 
 class RadialGradientStroke extends RadialGradientColor
 {
-	double _width = 1.0;
-	double get width
-	{
-		return _width;
-	}
+	double width = 1.0;
 	
 	ActorComponent makeInstance(Actor resetActor)
 	{
@@ -300,7 +293,7 @@ class RadialGradientStroke extends RadialGradientColor
 	void copyRadialStroke(RadialGradientStroke node, Actor resetActor)
 	{
 		copyRadialGradient(node, resetActor);
-		_width = node._width;
+		width = node.width;
 	}
 
 	static RadialGradientStroke read(Actor actor, StreamReader reader, RadialGradientStroke component)
@@ -310,7 +303,7 @@ class RadialGradientStroke extends RadialGradientColor
 			component = new RadialGradientStroke();
 		}
 		RadialGradientColor.read(actor, reader, component);
-		component._width = reader.readFloat32("width");
+		component.width = reader.readFloat32("width");
 		return component;
 	}
 }

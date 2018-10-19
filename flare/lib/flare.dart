@@ -208,7 +208,7 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 		}
 		Vec2D gstart = start;
 		Vec2D gend = end;
-
+        opacity *= this.opacity;
 		ui.Paint paint = new ui.Paint()
 								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
 								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)
@@ -247,6 +247,7 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 
 		Vec2D gstart = start;
 		Vec2D gend = end;
+        opacity *= this.opacity;
 		ui.Paint paint = new ui.Paint()
 								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
 								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)
@@ -338,6 +339,7 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 		}
 		Vec2D center = start;
 		ui.Gradient radial = new ui.Gradient.radial(new ui.Offset(0.0, 0.0), radius, colors, stops, ui.TileMode.clamp, transform.mat4);
+        opacity *= this.opacity;
 		//print("RADIUS ${center[0]} ${center[1]} ${colors.length} $numStops ${colors} ${stops}");
 		ui.Paint paint = new ui.Paint()
 								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
@@ -399,7 +401,7 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 			stops.add(colorStops[idx+4]);
 			idx += 5;
 		}
-		Vec2D center = start;
+        opacity *= this.opacity;
 		return new ui.Paint()
 								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
 								..shader = new ui.Gradient.radial(new ui.Offset(0.0, 0.0), radius, colors, stops, ui.TileMode.clamp, transform.mat4)

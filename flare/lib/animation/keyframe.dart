@@ -1162,7 +1162,6 @@ class KeyFrameRadial extends KeyFrameWithInterpolation
         int len = reader.readUint16("length");
         frame._value = new Float32List(len);
 		reader.readFloat32Array(frame._value, "value");
-        print("JUST READ THESE: ${frame._value}");
 		return frame;
 	}
 
@@ -1261,3 +1260,60 @@ class KeyFrameRadial extends KeyFrameWithInterpolation
     }
 }
 
+class KeyFrameStrokeWidth extends KeyFrameNumeric
+{
+	static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameStrokeWidth frame = new KeyFrameStrokeWidth();
+		if(KeyFrameNumeric.read(reader, frame))
+		{
+			return frame;
+		}
+		return null;
+	}
+
+	void setValue(ActorComponent component, double value, double mix)
+	{
+		if(component == null) return;
+
+        if(component is GradientStroke)
+        {
+            component.width = component.width * (1.0 - mix) + value * mix;
+        }
+        else if(component is RadialGradientStroke)
+        {
+            component.width = component.width * (1.0 - mix) + value * mix;
+        }
+        else if(component is ColorStroke)
+        {
+            component.width = component.width * (1.0 - mix) + value * mix;
+        }
+	}
+}
+
+class KeyFrameStrokeOpacity extends KeyFrameNumeric
+{
+	static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameStrokeOpacity frame = new KeyFrameStrokeOpacity();
+		if(KeyFrameNumeric.read(reader, frame))
+		{
+			return frame;
+		}
+		return null;
+	}
+
+	void setValue(ActorComponent component, double value, double mix)
+	{
+		if(component == null) return;
+
+        if(component is GradientColor)
+        {
+            component.opacity = component.opacity * (1.0 - mix) + value * mix;
+        }
+        else if(component is ColorStroke)
+        {
+            component.opacity = component.opacity * (1.0 - mix) + value * mix;
+        }
+	}
+}

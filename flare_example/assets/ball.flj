@@ -487,6 +487,36 @@
 								}
 							],
 							"type": "StrokeRadial"
+						},
+						{
+							"KeyFrames": [
+								{
+									"time": 0,
+									"interpolatorType": 1,
+									"value": 25
+								},
+								{
+									"time": 0.65,
+									"interpolatorType": 1,
+									"value": 0
+								}
+							],
+							"type": "StrokeWidth"
+						},
+						{
+							"KeyFrames": [
+								{
+									"time": 0,
+									"interpolatorType": 1,
+									"value": 0.1
+								},
+								{
+									"time": 0.65,
+									"interpolatorType": 1,
+									"value": 1
+								}
+							],
+							"type": "StrokeOpacity"
 						}
 					]
 				}

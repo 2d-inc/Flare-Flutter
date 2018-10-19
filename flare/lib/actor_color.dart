@@ -235,24 +235,19 @@ class GradientStroke extends GradientColor
 
 abstract class RadialGradientColor extends GradientColor
 {
-	double _secondaryRadiusScale = 1.0;
-
-	double get secondaryRadiusScale
-	{
-		return _secondaryRadiusScale;
-	}
+	double secondaryRadiusScale = 1.0;
 
 	void copyRadialGradient(RadialGradientColor node, Actor resetActor)
 	{
 		copyGradient(node, resetActor);
-		_secondaryRadiusScale = node._secondaryRadiusScale;
+		secondaryRadiusScale = node.secondaryRadiusScale;
 	}
 
 	static RadialGradientColor read(Actor actor, StreamReader reader, RadialGradientColor component)
 	{
 		GradientColor.read(actor, reader, component);
 
-		component._secondaryRadiusScale = reader.readFloat32("secondaryRadiusScale");
+		component.secondaryRadiusScale = reader.readFloat32("secondaryRadiusScale");
 		
 		return component;
 	}

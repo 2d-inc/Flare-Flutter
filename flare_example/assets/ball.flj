@@ -83,26 +83,6 @@
 			"type": "ActorShape"
 		},
 		{
-			"name": "Rectangle Path",
-			"parentId": 4,
-			"translation": [
-				0,
-				0
-			],
-			"rotation": 0,
-			"scale": [
-				1,
-				1
-			],
-			"opacity": 1,
-			"isCollapsedVisibility": false,
-			"Clips": [],
-			"width": 150,
-			"height": 133,
-			"cornerRadius": 10,
-			"type": "ActorRectangle"
-		},
-		{
 			"name": "Color",
 			"parentId": 4,
 			"color": [
@@ -140,33 +120,202 @@
 			],
 			"fillRule": 0,
 			"type": "GradientFill"
+		},
+		{
+			"name": "Rectangle Path",
+			"parentId": 4,
+			"translation": [
+				0,
+				0
+			],
+			"rotation": 0,
+			"scale": [
+				1,
+				1
+			],
+			"opacity": 1,
+			"isCollapsedVisibility": false,
+			"Clips": [],
+			"isVisible": true,
+			"isClosed": true,
+			"Points": [
+				{
+					"pointType": 0,
+					"translation": [
+						-75,
+						-66.5
+					],
+					"radius": 10
+				},
+				{
+					"pointType": 0,
+					"translation": [
+						75,
+						-66.5
+					],
+					"radius": 10
+				},
+				{
+					"pointType": 0,
+					"translation": [
+						75,
+						66.5
+					],
+					"radius": 10
+				},
+				{
+					"pointType": 0,
+					"translation": [
+						-75,
+						66.5
+					],
+					"radius": 10
+				}
+			],
+			"type": "ActorPath"
+		},
+		{
+			"name": "Triangle",
+			"translation": [
+				668,
+				346.5
+			],
+			"rotation": 0.7853981633974483,
+			"scale": [
+				1,
+				1
+			],
+			"opacity": 0.5,
+			"isCollapsedVisibility": false,
+			"Clips": [],
+			"isVisible": true,
+			"blendMode": 0,
+			"drawOrder": 3,
+			"type": "ActorShape"
+		},
+		{
+			"name": "Radial Gradient Color",
+			"parentId": 8,
+			"numColorStops": 2,
+			"colorStops": [
+				1,
+				1,
+				1,
+				1,
+				0,
+				0.9238095283508301,
+				0,
+				0,
+				0.20000000298023224,
+				0.8411154747009277
+			],
+			"start": [
+				-2.1136474609375,
+				13.577850341796875
+			],
+			"end": [
+				-0.00018310546875,
+				124.86297607421875
+			],
+			"secondaryRadiusScale": 0.8655094061383085,
+			"fillRule": 0,
+			"type": "RadialGradientFill"
+		},
+		{
+			"name": "Radial Gradient Color",
+			"parentId": 8,
+			"numColorStops": 2,
+			"colorStops": [
+				0.283214271068573,
+				0.8184893131256104,
+				0.8714285492897034,
+				1,
+				0,
+				1,
+				1,
+				1,
+				1,
+				1
+			],
+			"start": [
+				41.983707427978516,
+				60.971981048583984
+			],
+			"end": [
+				-81.86444091796875,
+				-0.8327282071113586
+			],
+			"secondaryRadiusScale": 1,
+			"width": 10,
+			"type": "RadialGradientStroke"
+		},
+		{
+			"name": "Triangle Path",
+			"parentId": 8,
+			"translation": [
+				0,
+				0
+			],
+			"rotation": 0,
+			"scale": [
+				1,
+				1
+			],
+			"opacity": 1,
+			"isCollapsedVisibility": false,
+			"Clips": [],
+			"isVisible": true,
+			"isClosed": true,
+			"Points": [
+				{
+					"pointType": 0,
+					"translation": [
+						0,
+						-100
+					],
+					"radius": 0
+				},
+				{
+					"pointType": 0,
+					"translation": [
+						100,
+						100
+					],
+					"radius": 0
+				},
+				{
+					"pointType": 0,
+					"translation": [
+						-100,
+						100
+					],
+					"radius": 0
+				}
+			],
+			"type": "ActorPath"
 		}
 	],
 	"Animations": [
 		{
-			"name": "Untitled",
+			"name": "Triangling",
 			"fps": 60,
 			"duration": 3,
 			"isLooping": true,
 			"KeyedNodes": [
 				{
-					"nodeIndex": 0,
+					"nodeIndex": 8,
 					"Properties": [
 						{
 							"KeyFrames": [
 								{
 									"time": 0,
-									"interpolatorType": 2,
-									"cubicX1": 0,
-									"cubicY1": 0.5201612903225806,
-									"cubicX2": 0.4424778761061947,
-									"cubicY2": 0.9905913978494624,
-									"value": 387
+									"interpolatorType": 1,
+									"value": 668
 								},
 								{
-									"time": 0.6833333333333333,
+									"time": 0.65,
 									"interpolatorType": 1,
-									"value": 665.5
+									"value": 777
 								}
 							],
 							"type": "PosX"
@@ -175,26 +324,13 @@
 							"KeyFrames": [
 								{
 									"time": 0,
-									"interpolatorType": 2,
-									"cubicX1": 0,
-									"cubicY1": 0.4193548387096774,
-									"cubicX2": 0.58,
-									"cubicY2": 1,
-									"value": 300
+									"interpolatorType": 1,
+									"value": 346.5
 								},
 								{
-									"time": 0.2,
-									"interpolatorType": 2,
-									"cubicX1": 0.42,
-									"cubicY1": 0,
-									"cubicX2": 0.3495575221238938,
-									"cubicY2": 0.2647849462365591,
-									"value": 140
-								},
-								{
-									"time": 0.6833333333333333,
-									"interpolatorType": 0,
-									"value": 300
+									"time": 0.65,
+									"interpolatorType": 1,
+									"value": 364.5
 								}
 							],
 							"type": "PosY"
@@ -204,21 +340,42 @@
 								{
 									"time": 0,
 									"interpolatorType": 1,
-									"value": 0.7
+									"value": 0.7853981633974483
 								},
 								{
-									"time": 0.2,
-									"interpolatorType": 2,
-									"cubicX1": 1,
-									"cubicY1": -1.193548387096774,
-									"cubicX2": 1,
-									"cubicY2": 1.0040322580645162,
+									"time": 0.65,
+									"interpolatorType": 1,
+									"value": 3.141592653589793
+								}
+							],
+							"type": "Rotation"
+						},
+						{
+							"KeyFrames": [
+								{
+									"time": 0,
+									"interpolatorType": 1,
 									"value": 1
 								},
 								{
-									"time": 0.6833333333333333,
+									"time": 0.65,
 									"interpolatorType": 1,
-									"value": 0.7
+									"value": 0.4
+								}
+							],
+							"type": "ScaleX"
+						},
+						{
+							"KeyFrames": [
+								{
+									"time": 0,
+									"interpolatorType": 1,
+									"value": 1
+								},
+								{
+									"time": 0.65,
+									"interpolatorType": 1,
+									"value": 0.4
 								}
 							],
 							"type": "ScaleY"
@@ -226,192 +383,116 @@
 					]
 				},
 				{
-					"nodeIndex": 4,
+					"nodeIndex": 9,
 					"Properties": [
 						{
 							"KeyFrames": [
 								{
 									"time": 0,
-									"interpolatorType": 2,
-									"cubicX1": 0.1902654867256637,
-									"cubicY1": 0.385752688172043,
-									"cubicX2": 0.58,
-									"cubicY2": 1,
-									"value": 190
-								},
-								{
-									"time": 0.2,
-									"interpolatorType": 2,
-									"cubicX1": 0.035398230088495575,
-									"cubicY1": 0.33870967741935487,
-									"cubicX2": 1,
-									"cubicY2": 0.31182795698924737,
-									"value": 305
-								},
-								{
-									"time": 0.6833333333333333,
 									"interpolatorType": 1,
-									"value": 400
+									"length": 15,
+									"value": [
+										0.8655093908309937,
+										-2.1136474609375,
+										13.577850341796875,
+										-0.00018310546875,
+										124.86297607421875,
+										1,
+										1,
+										1,
+										1,
+										0,
+										0.9238095283508301,
+										0,
+										0,
+										0.20000000298023224,
+										0.8411154747009277
+									]
+								},
+								{
+									"time": 0.65,
+									"interpolatorType": 1,
+									"length": 15,
+									"value": [
+										0.8655093908309937,
+										-2.1136474609375,
+										13.577850341796875,
+										-0.00018310546875,
+										124.86297607421875,
+										0.7523809671401978,
+										0.011285703629255295,
+										0.011285703629255295,
+										1,
+										0,
+										0,
+										0.8476190567016602,
+										0.3390476405620575,
+										0.20000000298023224,
+										0.8411154747009277
+									]
 								}
 							],
-							"type": "PosX"
-						},
-						{
-							"KeyFrames": [
-								{
-									"time": 0,
-									"interpolatorType": 2,
-									"cubicX1": 0,
-									"cubicY1": 0.9771505376344086,
-									"cubicX2": 0.58,
-									"cubicY2": 1,
-									"value": 306.5
-								}
-							],
-							"type": "PosY"
-						},
-						{
-							"KeyFrames": [
-								{
-									"time": 0,
-									"interpolatorType": 1,
-									"value": 0.9773843811168246
-								},
-								{
-									"time": 0.2,
-									"interpolatorType": 1,
-									"value": 2.548180707911721
-								},
-								{
-									"time": 0.6833333333333333,
-									"interpolatorType": 1,
-									"value": 4.118977034706617
-								}
-							],
-							"type": "Rotation"
+							"type": "FillRadial"
 						}
 					]
 				},
 				{
-					"nodeIndex": 7,
+					"nodeIndex": 10,
 					"Properties": [
 						{
 							"KeyFrames": [
 								{
 									"time": 0,
 									"interpolatorType": 1,
-									"length": 14,
+									"length": 15,
 									"value": [
-										-3.184943437576294,
-										9.752464294433594,
-										72.68946838378906,
-										62.45435333251953,
-										0.05076190456748009,
-										0.25521522760391235,
-										0.7809523940086365,
+										1,
+										15.332008361816406,
+										-3.95463228225708,
+										0,
+										100,
+										0,
+										0.03999984264373779,
+										1,
 										1,
 										0,
-										0.018761886283755302,
-										0.63471519947052,
-										0.938095211982727,
 										1,
-										0.6975104212760925
-									]
-								},
-								{
-									"time": 0.2,
-									"interpolatorType": 1,
-									"length": 14,
-									"value": [
-										0,
-										-66.5,
-										0,
-										66.5,
-										0.05076190456748009,
-										0.25521522760391235,
-										0.7809523940086365,
 										1,
-										0,
-										0.018761886283755302,
-										0.63471519947052,
-										0.938095211982727,
 										1,
-										0.6975104212760925
-									]
-								}
-							],
-							"type": "FillGradient"
-						},
-						{
-							"KeyFrames": [
-								{
-									"time": 0,
-									"interpolatorType": 1,
-									"value": 1
-								},
-								{
-									"time": 0.6833333333333333,
-									"interpolatorType": 1,
-									"value": 0
-								}
-							],
-							"type": "FillOpacity"
-						}
-					]
-				},
-				{
-					"nodeIndex": 6,
-					"Properties": [
-						{
-							"KeyFrames": [
-								{
-									"time": 0,
-									"interpolatorType": 1,
-									"value": [
-										0,
-										0,
-										0,
+										1,
 										1
 									]
 								},
 								{
-									"time": 0.6833333333333333,
+									"time": 0.65,
 									"interpolatorType": 1,
+									"length": 15,
 									"value": [
 										1,
-										0.9603999853134155,
-										0.009999990463256836,
+										-93.08334350585938,
+										93.31207275390625,
+										-81.86444091796875,
+										-0.8327282071113586,
+										1,
+										1,
+										1,
+										1,
+										0,
+										1,
+										0,
+										0.6600000858306885,
+										1,
 										1
 									]
 								}
 							],
-							"type": "StrokeColor"
-						}
-					]
-				},
-				{
-					"nodeIndex": 5,
-					"Properties": [
-						{
-							"KeyFrames": [
-								{
-									"time": 0,
-									"interpolatorType": 1,
-									"value": 10
-								},
-								{
-									"time": 0.6833333333333333,
-									"interpolatorType": 1,
-									"value": 1
-								}
-							],
-							"type": "CornerRadius"
+							"type": "StrokeRadial"
 						}
 					]
 				}
 			],
 			"animationStart": 0,
-			"animationEnd": 0.6833333333333333,
+			"animationEnd": 0.65,
 			"type": "Animation"
 		}
 	]

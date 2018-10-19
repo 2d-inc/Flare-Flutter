@@ -59,6 +59,11 @@ class StraightPathPoint extends PathPoint
 	double radius = 0.0;
 
 	StraightPathPoint() : super(PointType.Straight);
+	
+    StraightPathPoint.fromTranslation(Vec2D translation) : super(PointType.Straight)
+    {
+        this._translation = translation;
+    }
 
 	StraightPathPoint.fromValues(Vec2D translation, double r) : super(PointType.Straight)
     {

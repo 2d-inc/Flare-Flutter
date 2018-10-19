@@ -51,7 +51,6 @@ abstract class JSONReader implements StreamReader
     @override
 	readFloat32ArrayOffset(Float32List ar, int length, int offset, String label)
 	{
-		// this.readFloat32Array(ar, label);
 		this._readArrayOffset(ar, length, offset, label);
 	}
 

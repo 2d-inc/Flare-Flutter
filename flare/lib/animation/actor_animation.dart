@@ -105,19 +105,19 @@ class PropertyAnimation
 					keyFrameReader = KeyFrameFillColor.read;
 					break;
 				case PropertyTypes.FillGradient:
-					keyFrameReader = KeyFrameGradientFill.read;
+					keyFrameReader = KeyFrameGradient.read;
+					break;
+				case PropertyTypes.StrokeGradient:
+					keyFrameReader = KeyFrameGradient.read;
 					break;
 				case PropertyTypes.FillRadial:
-					// TODO:
+					keyFrameReader = KeyFrameRadial.read;
+					break;
+				case PropertyTypes.StrokeRadial:
+					keyFrameReader = KeyFrameRadial.read;
 					break;
 				case PropertyTypes.StrokeColor:
 					keyFrameReader = KeyFrameStrokeColor.read;
-					break;
-				case PropertyTypes.StrokeGradient:
-					// TODO:
-					break;
-				case PropertyTypes.StrokeRadial:
-					// TODO:
 					break;
 				case PropertyTypes.StrokeWidth:
 					// TODO:

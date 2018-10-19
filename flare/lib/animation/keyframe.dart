@@ -1,4 +1,3 @@
-import "../math/vec2d.dart";
 import "../stream_reader.dart";
 import "../actor_component.dart";
 import "../actor_node.dart";
@@ -1031,14 +1030,14 @@ class KeyFrameCornerRadius extends KeyFrameNumeric
 	}
 }
 
-class KeyFrameGradientFill extends KeyFrameWithInterpolation
+class KeyFrameGradient extends KeyFrameWithInterpolation
 {
     Float32List _value;
     get value => _value;
 
     static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
-		KeyFrameGradientFill frame = new KeyFrameGradientFill();
+		KeyFrameGradient frame = new KeyFrameGradient();
 		if(!KeyFrameWithInterpolation.read(reader, frame))
 		{
 			return null;
@@ -1052,8 +1051,8 @@ class KeyFrameGradientFill extends KeyFrameWithInterpolation
 	@override
     applyInterpolation(ActorComponent component, double time, KeyFrame toFrame, double mix)
     {
-        GradientFill gf = component as GradientFill;
-        Float32List v = (toFrame as KeyFrameGradientFill)._value;
+        GradientColor gradient = component as GradientColor;
+        Float32List v = (toFrame as KeyFrameGradient)._value;
         
         double f = (time - _time)/(toFrame.time - _time);
         if(_interpolator != null)
@@ -1067,34 +1066,41 @@ class KeyFrameGradientFill extends KeyFrameWithInterpolation
 
         if(mix == 1.0)
         {
-            gf.start[0] = _value[ridx] * fi + v[ridx++] * f;
-            gf.start[1] = _value[ridx] * fi + v[ridx++] * f;
-            gf.end[0] = _value[ridx] * fi + v[ridx++] * f;
-            gf.end[1] = _value[ridx] * fi + v[ridx++] * f;
+            gradient.start[0] = _value[ridx] * fi + v[ridx++] * f;
+            gradient.start[1] = _value[ridx] * fi + v[ridx++] * f;
+            gradient.end[0] = _value[ridx] * fi + v[ridx++] * f;
+            gradient.end[1] = _value[ridx] * fi + v[ridx++] * f;
 
-            while(ridx < v.length && wi < gf.colorStops.length)
+            while(ridx < v.length && wi < gradient.colorStops.length)
             {
-                gf.colorStops[wi++] = _value[ridx] * fi + v[ridx++] * f;
+                gradient.colorStops[wi++] = _value[ridx] * fi + v[ridx++] * f;
             }
         }
         else
 		{
 			double imix = 1.0 - mix;
 
-            // Perform a double mixing: first interpolate the KeyFrames, and then mix on top of the current value.
+            // Mix : first interpolate the KeyFrames, and then mix on top of the current value.
             double val = _value[ridx]*fi + v[ridx]*f;
-            gf.start[0] = _value[ridx++]*imix + val*mix;
-            val = _value[ridx]*fi + v[ridx]*f;
-            gf.start[1] = _value[ridx++]*imix + val*mix;
-            val = _value[ridx]*fi + v[ridx]*f;
-            gf.end[0] = _value[ridx++]*imix + val*mix;
-            val = _value[ridx]*fi + v[ridx]*f;
-            gf.end[1] = _value[ridx++]*imix + val*mix;
+            gradient.start[0] = gradient.start[0]*imix + val*mix;
+            ridx++;
 
-			while(ridx < v.length && wi < gf.colorStops.length)
+            val = _value[ridx]*fi + v[ridx]*f;
+            gradient.start[1] = gradient.start[1]*imix + val*mix;
+            ridx++;
+            
+            val = _value[ridx]*fi + v[ridx]*f;
+            gradient.end[0] = gradient.end[0]*imix + val*mix;
+            ridx++;
+            
+            val = _value[ridx]*fi + v[ridx]*f;
+            gradient.end[1] = gradient.end[1]*imix + val*mix;
+            ridx++;
+
+			while(ridx < v.length && wi < gradient.colorStops.length)
             {
                 val = _value[ridx]*fi + v[ridx]*f;
-                gf.colorStops[wi] = gf.colorStops[wi]*imix + val*mix;
+                gradient.colorStops[wi] = gradient.colorStops[wi]*imix + val*mix;
                 
                 ridx++; 
                 wi++;
@@ -1107,34 +1113,148 @@ class KeyFrameGradientFill extends KeyFrameWithInterpolation
     @override
     apply(ActorComponent component, double mix)
     {
-        GradientFill gf = component as GradientFill;
+        GradientColor gradient = component as GradientColor;
         
         int ridx = 0;
         int wi = 0;
 
         if(mix == 1.0)
         {
-            gf.start[0] = _value[ridx++];
-            gf.start[1] = _value[ridx++];
-            gf.end[0] = _value[ridx++];
-            gf.end[1] = _value[ridx++];
+            gradient.start[0] = _value[ridx++];
+            gradient.start[1] = _value[ridx++];
+            gradient.end[0] = _value[ridx++];
+            gradient.end[1] = _value[ridx++];
 
-            while(ridx < _value.length && wi < gf.colorStops.length)
+            while(ridx < _value.length && wi < gradient.colorStops.length)
             {
-                gf.colorStops[wi++] = _value[ridx++];
+                gradient.colorStops[wi++] = _value[ridx++];
             }
         }
         else
         {
             double imix = 1.0 - mix;
-            gf.start[0] = gf.start[0] * imix + _value[ridx++] * mix;
-            gf.start[1] = gf.start[1] * imix + _value[ridx++] * mix;
-            gf.end[0] = gf.end[0] * imix + _value[ridx++] * mix;
-            gf.end[1] = gf.end[1] * imix + _value[ridx++] * mix;
+            gradient.start[0] = gradient.start[0]*imix + _value[ridx++]*mix;
+            gradient.start[1] = gradient.start[1]*imix + _value[ridx++]*mix;
+            gradient.end[0] = gradient.end[0]*imix + _value[ridx++]*mix;
+            gradient.end[1] = gradient.end[1]*imix + _value[ridx++]*mix;
 
-            while(ridx < _value.length && wi < gf.colorStops.length)
+            while(ridx < _value.length && wi < gradient.colorStops.length)
             {
-                gf.colorStops[wi] = gf.colorStops[wi] * imix + _value[ridx++];
+                gradient.colorStops[wi] = gradient.colorStops[wi]*imix + _value[ridx++];
+                wi++;
+            }
+        }
+    }
+}
+
+class KeyFrameRadial extends KeyFrameWithInterpolation
+{
+    Float32List _value;
+    get value => _value;
+
+    static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameRadial frame = new KeyFrameRadial();
+		if(!KeyFrameWithInterpolation.read(reader, frame))
+		{
+			return null;
+		}
+        int len = reader.readUint16("length");
+        frame._value = new Float32List(len);
+		reader.readFloat32Array(frame._value, "value");
+        print("JUST READ THESE: ${frame._value}");
+		return frame;
+	}
+
+	@override
+    applyInterpolation(ActorComponent component, double time, KeyFrame toFrame, double mix)
+    {
+        RadialGradientColor radial = component as RadialGradientColor;
+        Float32List v = (toFrame as KeyFrameRadial)._value;
+        
+        double f = (time - _time)/(toFrame.time - _time);
+        if(_interpolator != null)
+        {
+            f = _interpolator.getEasedMix(f);
+        }
+        double fi = 1.0 - f;
+
+        int ridx = 0;
+        int wi = 0;
+
+        if(mix == 1.0)
+        {
+            radial.secondaryRadiusScale = _value[ridx] * fi + v[ridx++] * f;
+            radial.start[0] = _value[ridx] * fi + v[ridx++] * f;
+            radial.start[1] = _value[ridx] * fi + v[ridx++] * f;
+            radial.end[0] = _value[ridx] * fi + v[ridx++] * f;
+            radial.end[1] = _value[ridx] * fi + v[ridx++] * f;
+
+            while(ridx < v.length && wi < radial.colorStops.length)
+            {
+                radial.colorStops[wi++] = _value[ridx] * fi + v[ridx++] * f;
+            }
+        }
+        else
+		{
+			double imix = 1.0 - mix;
+
+            // Mix : first interpolate the KeyFrames, and then mix on top of the current value.
+            double val = _value[ridx]*fi + v[ridx]*f;
+            radial.secondaryRadiusScale = _value[ridx] * fi + v[ridx++] * f;
+            val = _value[ridx]*fi + v[ridx]*f;
+            radial.start[0] = _value[ridx++]*imix + val*mix;
+            val = _value[ridx]*fi + v[ridx]*f;
+            radial.start[1] = _value[ridx++]*imix + val*mix;
+            val = _value[ridx]*fi + v[ridx]*f;
+            radial.end[0] = _value[ridx++]*imix + val*mix;
+            val = _value[ridx]*fi + v[ridx]*f;
+            radial.end[1] = _value[ridx++]*imix + val*mix;
+
+			while(ridx < v.length && wi < radial.colorStops.length)
+            {
+                val = _value[ridx]*fi + v[ridx]*f;
+                radial.colorStops[wi] = radial.colorStops[wi]*imix + val*mix;
+                
+                ridx++; 
+                wi++;
+            }
+		}
+    }
+
+    @override
+    apply(ActorComponent component, double mix)
+    {
+        RadialGradientColor radial = component as RadialGradientColor;
+        
+        int ridx = 0;
+        int wi = 0;
+
+        if(mix == 1.0)
+        {
+            radial.secondaryRadiusScale = value[ridx++];
+            radial.start[0] = _value[ridx++];
+            radial.start[1] = _value[ridx++];
+            radial.end[0] = _value[ridx++];
+            radial.end[1] = _value[ridx++];
+
+            while(ridx < _value.length && wi < radial.colorStops.length)
+            {
+                radial.colorStops[wi++] = _value[ridx++];
+            }
+        }
+        else
+        {
+            double imix = 1.0 - mix;
+            radial.secondaryRadiusScale = radial.secondaryRadiusScale*imix + value[ridx++]*mix;
+            radial.start[0] = radial.start[0]*imix + _value[ridx++]*mix;
+            radial.start[1] = radial.start[1]*imix + _value[ridx++]*mix;
+            radial.end[0] = radial.end[0]*imix + _value[ridx++]*mix;
+            radial.end[1] = radial.end[1]*imix + _value[ridx++]*mix;
+
+            while(ridx < _value.length && wi < radial.colorStops.length)
+            {
+                radial.colorStops[wi] = radial.colorStops[wi]*imix + _value[ridx++];
                 wi++;
             }
         }

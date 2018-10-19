@@ -13,7 +13,6 @@ import "actor_drawable.dart";
 import "dart:ui" as ui;
 import "math/mat2d.dart";
 import "math/vec2d.dart";
-import "path_point.dart";
 import "dart:math";
 
 export "animation/actor_animation.dart";
@@ -364,6 +363,29 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
 	{
+        double squash = max(0.00001, secondaryRadiusScale);
+		Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
+		double angle = atan2(diff[1], diff[0]);
+		Mat2D transform = new Mat2D();
+
+		Mat2D translate = new Mat2D();
+		translate[4] = start[0];
+		translate[5] = start[1];
+
+		Mat2D rotation = new Mat2D();
+		Mat2D.fromRotation(rotation, angle+R);
+		R += 0.01;
+
+		transform[4] = start[0];
+		transform[5] = start[1];
+
+		Mat2D scaling = new Mat2D();
+		scaling[0] = 1.0;
+		scaling[3] = squash;
+
+		Mat2D.multiply(transform, translate, rotation);
+		Mat2D.multiply(transform, transform, scaling);
+
 		double radius = Vec2D.distance(start, end);
 		List<ui.Color> colors = new List<ui.Color>();
     	List<double> stops = new List<double>();
@@ -380,7 +402,8 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 		Vec2D center = start;
 		return new ui.Paint()
 								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
-								..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
+								..shader = new ui.Gradient.radial(new ui.Offset(0.0, 0.0), radius, colors, stops, ui.TileMode.clamp, transform.mat4)
+								// ..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
 								..strokeWidth = width
 								..style = ui.PaintingStyle.stroke;
 	}

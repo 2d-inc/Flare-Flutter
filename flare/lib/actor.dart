@@ -15,6 +15,7 @@ import "dependency_sorter.dart";
 import "actor_image.dart";
 import "actor_shape.dart";
 import "actor_ellipse.dart";
+import "actor_polygon.dart";
 import "actor_rectangle.dart";
 import "actor_star.dart";
 import "actor_triangle.dart";
@@ -72,7 +73,8 @@ const Map<String, int> BlockTypesMap =
     "ActorEllipse": BlockTypes.ActorEllipse,
     "ActorRectangle": BlockTypes.ActorRectangle,
     "ActorTriangle": BlockTypes.ActorTriangle,
-    "ActorStar": BlockTypes.ActorStar
+    "ActorStar": BlockTypes.ActorStar,
+    "ActorPolygon": BlockTypes.ActorPolygon
 };
 
 class BlockTypes
@@ -121,6 +123,7 @@ class BlockTypes
     static const int ActorRectangle = 109;
     static const int ActorTriangle = 110;
     static const int ActorStar = 111;
+    static const int ActorPolygon = 112;
 }
 
 class ActorFlags
@@ -408,6 +411,10 @@ class Actor
     ActorStar makeStar()
     {
         return new ActorStar();
+    }
+    ActorPolygon makePolygon()
+    {
+        return new ActorPolygon();
     }
     ActorEllipse makeEllipse()
     {
@@ -707,6 +714,11 @@ class Actor
                 case BlockTypes.ActorStar:
                     component = ActorStar.read(this, nodeBlock, makeStar());
                     break; 
+                    
+                case BlockTypes.ActorPolygon:
+                    component = ActorPolygon.read(this, nodeBlock, makePolygon());
+                    print("NEED TO MAKE A POLYGON HERE!");
+                    break;
 			}
 			if(component is ActorDrawable)
 			{

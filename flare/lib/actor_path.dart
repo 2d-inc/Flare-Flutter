@@ -7,15 +7,13 @@ import "actor_node.dart";
 import "actor.dart";
 import "stream_reader.dart";
 import "path_point.dart";
-import "./math/vec2d.dart";
-import "./math/mat2d.dart";
-import "package:flare/math/aabb.dart";
+import "math/vec2d.dart";
+import "math/mat2d.dart";
+import "math/aabb.dart";
 
 abstract class ActorBasePath extends ActorNode
 {
     static const int PathDirty = 1<<3;
-
-    AABB getPathAABB();
     copyPath(ActorBasePath node, Actor resetActor);
     ActorComponent makeInstance(Actor resetActor);
     void updatePath(ui.Path path);
@@ -31,8 +29,126 @@ abstract class ActorBasePath extends ActorNode
         this.onPathInvalid();
     }
 
+    AABB getPathAABB()
+    {
+        double minX = double.maxFinite;
+        double minY = double.maxFinite;
+        double maxX = -double.maxFinite;
+        double maxY = -double.maxFinite;
+
+        AABB obb = getPathOBB();
+
+        List<Vec2D> pts = [
+            new Vec2D.fromValues(obb[0], obb[1]),
+			new Vec2D.fromValues(obb[2], obb[1]),
+			new Vec2D.fromValues(obb[2], obb[3]),
+			new Vec2D.fromValues(obb[0], obb[3])
+        ];
+
+        Mat2D transform = this.transform;
+
+        for(Vec2D p in pts)
+        {
+            Vec2D wp = Vec2D.transformMat2D(p, p, transform);
+            if(wp[0] < minX)
+			{
+				minX = wp[0];
+			}
+			if(wp[1] < minY)
+			{
+				minY = wp[1];
+			}
+
+			if(wp[0] > maxX)
+			{
+				maxX = wp[0];
+			}
+			if(wp[1] > maxY)
+			{
+				maxY = wp[1];
+			}
+        }
+        return AABB.fromValues(minX, minY, maxX, maxY);
+    }
+
+    AABB getPathOBB()
+	{
+		double minX = double.maxFinite;
+		double minY = double.maxFinite;
+		double maxX = -double.maxFinite;
+		double maxY = -double.maxFinite;
+
+		for(PathPoint point in points)
+		{
+			Vec2D t = point.translation;
+			double x = t[0];
+			double y = t[1];
+			if(x < minX)
+			{
+				minX = x;
+			}
+			if(y < minY)
+			{
+				minY = y;
+			}
+			if(x > maxX)
+			{
+				maxX = x;
+			}
+			if(y > maxY)
+			{
+				maxY = y;
+			}
+
+			if(point is CubicPathPoint)
+			{
+				Vec2D t = point.inPoint;
+				x = t[0];
+				y = t[1];
+				if(x < minX)
+				{
+					minX = x;
+				}
+				if(y < minY)
+				{
+					minY = y;
+				}
+				if(x > maxX)
+				{
+					maxX = x;
+				}
+				if(y > maxY)
+				{
+					maxY = y;
+				}
+
+				t = point.outPoint;
+				x = t[0];
+				y = t[1];
+				if(x < minX)
+				{
+					minX = x;
+				}
+				if(y < minY)
+				{
+					minY = y;
+				}
+				if(x > maxX)
+				{
+					maxX = x;
+				}
+				if(y > maxY)
+				{
+					maxY = y;
+				}
+			}
+		}
+
+		return new AABB.fromValues(minX, minY, maxX, maxY);
+	}
+
     bool get isClosed;
-    List<PathPoint> get _points;
+    List<PathPoint> get points;
 }
 
 abstract class ActorProceduralPath extends ActorBasePath
@@ -232,82 +348,6 @@ class ActorPath extends ActorBasePath
 		{
 			vertexDeform = new Float32List.fromList(vertexDeform);
 		}
-	}
-
-	AABB getPathOBB()
-	{
-		double minX = double.maxFinite;
-		double minY = double.maxFinite;
-		double maxX = -double.maxFinite;
-		double maxY = -double.maxFinite;
-
-		for(PathPoint point in _points)
-		{
-			Vec2D t = point.translation;
-			double x = t[0];
-			double y = t[1];
-			if(x < minX)
-			{
-				minX = x;
-			}
-			if(y < minY)
-			{
-				minY = y;
-			}
-			if(x > maxX)
-			{
-				maxX = x;
-			}
-			if(y > maxY)
-			{
-				maxY = y;
-			}
-
-			if(point is CubicPathPoint)
-			{
-				Vec2D t = point.inPoint;
-				x = t[0];
-				y = t[1];
-				if(x < minX)
-				{
-					minX = x;
-				}
-				if(y < minY)
-				{
-					minY = y;
-				}
-				if(x > maxX)
-				{
-					maxX = x;
-				}
-				if(y > maxY)
-				{
-					maxY = y;
-				}
-
-				t = point.outPoint;
-				x = t[0];
-				y = t[1];
-				if(x < minX)
-				{
-					minX = x;
-				}
-				if(y < minY)
-				{
-					minY = y;
-				}
-				if(x > maxX)
-				{
-					maxX = x;
-				}
-				if(y > maxY)
-				{
-					maxY = y;
-				}
-			}
-		}
-
-		return new AABB.fromValues(minX, minY, maxX, maxY);
 	}
 
 	AABB getPathAABB()

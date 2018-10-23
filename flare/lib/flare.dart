@@ -6,13 +6,14 @@ import "dart:typed_data";
 import "actor.dart";
 import "actor_shape.dart";
 import "actor_path.dart";
-import "actor_ellipse.dart";
+import "actor_triangle.dart";
 import "actor_color.dart";
 import "actor_node.dart";
 import "actor_drawable.dart";
 import "dart:ui" as ui;
 import "math/mat2d.dart";
 import "math/vec2d.dart";
+import "math/aabb.dart";
 import "dart:math";
 
 export "animation/actor_animation.dart";

@@ -330,7 +330,7 @@ class ActorAnimation
 	bool _isLooping;
 	List<ComponentAnimation> _components;
 	List<ComponentAnimation> _triggerComponents;
-    double start, end;
+    double start = 0.0, end = 0.0;
 
 	String get name
 	{

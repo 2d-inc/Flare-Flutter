@@ -1,9 +1,9 @@
 import "dart:ui" as ui;
-import "package:flare/actor.dart";
-import "package:flare/actor_node.dart";
-import "package:flare/math/vec2d.dart";
-import "package:flare/math/mat2d.dart";
-import "package:flare/stream_reader.dart";
+import "actor.dart";
+import "actor_node.dart";
+import "math/vec2d.dart";
+import "math/mat2d.dart";
+import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
 
@@ -37,7 +37,7 @@ class ActorRectangle extends ActorProceduralPath
     }
 
     @override
-    List<PathPoint> get _points
+    List<PathPoint> get points
     {
         List<PathPoint> _rectanglePathPoints = <PathPoint>[];
         _rectanglePathPoints.add(

@@ -1,11 +1,12 @@
-import 'dart:math';
+import "dart:math";
+import "dart:ui" as ui;
 
-import "package:flare/flare.dart";
-import "package:flare/math/mat2d.dart";
-import 'package:flare/math/vec2d.dart';
-import "package:flare/math/aabb.dart";
-import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import "flare.dart";
+import "math/mat2d.dart";
+import "math/vec2d.dart";
+import "math/aabb.dart";
+import "package:flutter/material.dart";
+import "package:flutter/scheduler.dart";
 
 typedef void FlareCompletedCallback(String name);
 
@@ -148,7 +149,7 @@ class FlareActorRenderObject extends RenderBox
                         _actor = actor;
                         _actor.advance(0.0);
                         _setupAABB = _actor.computeAABB();
-                        print("ACTOR BOUNDS: $_setupAABB");
+
                         if(_controller != null)
                         {
                             _controller.initialize(_actor);

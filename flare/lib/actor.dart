@@ -26,7 +26,7 @@ import "animation/actor_animation.dart";
 import "stream_reader.dart";
 import "dart:math";
 
-import "package:flare/math/aabb.dart";
+import "math/aabb.dart";
 
 const Map<String, int> BlockTypesMap =
 {
@@ -717,7 +717,6 @@ class Actor
                     
                 case BlockTypes.ActorPolygon:
                     component = ActorPolygon.read(this, nodeBlock, makePolygon());
-                    print("NEED TO MAKE A POLYGON HERE!");
                     break;
 			}
 			if(component is ActorDrawable)

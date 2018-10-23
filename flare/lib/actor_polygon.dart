@@ -1,10 +1,10 @@
 import "dart:ui" as ui;
 import "dart:math";
-import "package:flare/actor.dart";
-import "package:flare/actor_node.dart";
-import "package:flare/math/vec2d.dart";
-import "package:flare/math/mat2d.dart";
-import "package:flare/stream_reader.dart";
+import "actor.dart";
+import "actor_node.dart";
+import "math/vec2d.dart";
+import "math/mat2d.dart";
+import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
 
@@ -36,7 +36,7 @@ class ActorPolygon extends ActorProceduralPath
     }
 
     @override
-    List<PathPoint> get _points
+    List<PathPoint> get points
     {
         List<PathPoint> _polygonPoints = <PathPoint>[];
         double angle = -pi/2.0;
@@ -59,7 +59,7 @@ class ActorPolygon extends ActorProceduralPath
     updatePath(ui.Path path)
     {
         Mat2D xform = this.transform;
-        List<PathPoint> pts = this._points;
+        List<PathPoint> pts = points;
         for(PathPoint p in pts)
         {
             p = p.transformed(xform);

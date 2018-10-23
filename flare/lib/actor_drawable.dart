@@ -1,6 +1,6 @@
 import "actor.dart";
 import "actor_node.dart";
-import "package:flare/math/aabb.dart";
+import "math/aabb.dart";
 
 enum BlendModes
 {

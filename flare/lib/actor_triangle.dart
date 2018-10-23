@@ -1,9 +1,9 @@
 import "dart:ui" as ui;
-import "package:flare/actor.dart";
-import "package:flare/actor_node.dart";
-import "package:flare/math/vec2d.dart";
-import "package:flare/math/mat2d.dart";
-import "package:flare/stream_reader.dart";
+import "actor.dart";
+import "actor_node.dart";
+import "math/vec2d.dart";
+import "math/aabb.dart";
+import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
 
@@ -31,22 +31,22 @@ class ActorTriangle extends ActorProceduralPath
     }
 
     @override
-    List<PathPoint> get _points
+    List<PathPoint> get points
     {
         List<PathPoint> _trianglePoints = <PathPoint>[];
         _trianglePoints.add(
             new StraightPathPoint.fromTranslation(
-                Vec2D.fromValues(-radiusX, -radiusY)
-            )
-        );
-        _trianglePoints.add(
-            new StraightPathPoint.fromTranslation(
-                Vec2D.fromValues(radiusX, -radiusY)
+                Vec2D.fromValues(0.0, -radiusY)
             )
         );
         _trianglePoints.add(
             new StraightPathPoint.fromTranslation(
                 Vec2D.fromValues(radiusX, radiusY)
+            )
+        );
+        _trianglePoints.add(
+            new StraightPathPoint.fromTranslation(
+                Vec2D.fromValues(-radiusX, radiusY)
             )
         );
 
@@ -56,17 +56,7 @@ class ActorTriangle extends ActorProceduralPath
     @override
     updatePath(ui.Path path)
     {
-        List<PathPoint> pts = this._points;
-        Mat2D xform = this.transform;
-        for(PathPoint p in pts)
-        {
-            p = p.transformed(xform);
-        }
-
-        double x = pts[0].translation[0];
-        double y = pts[0].translation[1];
-
-        path.moveTo(x, y);
+        path.moveTo(0.0, -radiusY);
         path.lineTo(radiusX, radiusY);
         path.lineTo(-radiusX, radiusY);
         path.close();

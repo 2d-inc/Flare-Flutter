@@ -7,7 +7,7 @@ import "actor.dart";
 import "actor_component.dart";
 import "actor_bone_base.dart";
 import "actor_drawable.dart";
-import "package:flare/math/aabb.dart";
+import "math/aabb.dart";
 
 class BoneConnection
 {

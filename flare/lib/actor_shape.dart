@@ -7,7 +7,7 @@ import "actor_path.dart";
 import "dart:math";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
-import "package:flare/math/aabb.dart";
+import "math/aabb.dart";
 
 class ActorShape extends ActorDrawable
 {
@@ -58,7 +58,7 @@ class ActorShape extends ActorDrawable
 		for(ActorBasePath path in children)
 		{
 			// This is the axis aligned bounding box in the space of the parent (this case our shape).
-			AABB pathAABB = path.getPathAABB();
+			AABB pathAABB = path.getPathOBB();
 
 			if(aabb == null)
 			{

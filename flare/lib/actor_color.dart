@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:flare/actor.dart';
+import 'actor.dart';
 import "actor_component.dart";
 import "dart:collection";
 import "stream_reader.dart";

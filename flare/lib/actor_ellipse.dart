@@ -1,8 +1,6 @@
-import "dart:ui" as ui;
 import "actor.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
-import "math/mat2d.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
@@ -66,29 +64,6 @@ class ActorEllipse extends ActorProceduralPath
         );
 
         return _ellipsePathPoints;
-    }
-
-    @override
-    updatePath(ui.Path path)
-    {
-        List<PathPoint> pts = points;
-        int len = pts.length;
-        path.moveTo(0.0, -radiusY);
-        
-        for(int i = 0; i < len; i++)
-        {
-            CubicPathPoint point = pts[i];
-            CubicPathPoint nextPoint = pts[(i+1)%len];
-            Vec2D t = nextPoint.translation;
-            Vec2D cin = nextPoint.inPoint;
-            Vec2D cout = point.outPoint;
-            path.cubicTo(
-                cout[0], cout[1],
-                cin[0], cin[1],
-                t[0], t[1]
-            );
-        }
-        path.close();
     }
 
     bool get isClosed => true;

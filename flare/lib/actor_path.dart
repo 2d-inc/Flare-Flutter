@@ -1,6 +1,4 @@
 import "dart:typed_data";
-import "dart:ui" as ui;
-import "dart:math";
 import "flare.dart";
 import "actor_component.dart";
 import "actor_node.dart";
@@ -14,21 +12,15 @@ import "math/aabb.dart";
 abstract class ActorBasePath extends ActorNode
 {
     static const int PathDirty = 1<<3;
+    markPathDirty(){}
+    onPathInvalid(){}
+
     copyPath(ActorBasePath node, Actor resetActor);
     ActorComponent makeInstance(Actor resetActor);
-    void updatePath(ui.Path path);
+
+    bool get isClosed;
+    List<PathPoint> get points;
 	
-    void onPathInvalid()
-    {
-        (parent as FlutterActorShape).invalidatePath();
-    }
-
-    markPathDirty()
-    {
-        actor.addDirt(this, PathDirty, false);
-        this.onPathInvalid();
-    }
-
     AABB getPathAABB()
     {
         double minX = double.maxFinite;
@@ -146,9 +138,6 @@ abstract class ActorBasePath extends ActorNode
 
 		return new AABB.fromValues(minX, minY, maxX, maxY);
 	}
-
-    bool get isClosed;
-    List<PathPoint> get points;
 }
 
 abstract class ActorProceduralPath extends ActorBasePath
@@ -164,52 +153,7 @@ abstract class ActorProceduralPath extends ActorBasePath
         height = nodePath.height;
     }
 
-    @override
-    AABB getPathAABB() 
-    {
-        double minX = double.maxFinite;
-        double minY = double.maxFinite;
-        double maxX = -double.maxFinite;
-        double maxY = -double.maxFinite;
-
-        Mat2D world = worldTransform;
-
-        double radiusX = this.width/2;
-        double radiusY = this.height/2;
-
-        List<Vec2D> points = 
-        [
-            new Vec2D.fromValues(-radiusX, -radiusY),
-            new Vec2D.fromValues(radiusX, -radiusY),
-            new Vec2D.fromValues(-radiusX, radiusY),
-            new Vec2D.fromValues(radiusX, radiusY)
-        ];
-
-        for(Vec2D p in points)
-        {
-            Vec2D wp = Vec2D.transformMat2D(p, p, world);
-            if(wp[0] < minX)
-			{
-				minX = wp[0];
-			}
-			if(wp[1] < minY)
-			{
-				minY = wp[1];
-			}
-
-			if(wp[0] > maxX)
-			{
-				maxX = wp[0];
-			}
-			if(wp[1] > maxY)
-			{
-				maxY = wp[1];
-			}
-        }
-        return AABB.fromValues(minX, minY, maxX, maxY);
-    }
-
-    List<PathPoint> get _points;
+    List<PathPoint> get points;
 }
 
 class ActorPath extends ActorBasePath
@@ -393,111 +337,4 @@ class ActorPath extends ActorBasePath
 		return new AABB.fromValues(minX, minY, maxX, maxY);
 	}
 
-    void updatePath(ui.Path path)
-	{
-		if(points == null || points.length == 0)
-		{
-			return;
-		}
-		Mat2D xform = this.transform;
-
-		List<PathPoint> renderPoints = new List<PathPoint>();
-		int pl = points.length;
-		
-		const double arcConstant = 0.55;
-		const double iarcConstant = 1.0-arcConstant;
-		PathPoint previous = isClosed ? points[pl-1].transformed(xform) : null;
-		for(int i = 0; i < pl; i++)
-		{
-			PathPoint point = points[i].transformed(xform);
-			switch(point.pointType)
-			{
-				case PointType.Straight:
-				{
-					StraightPathPoint straightPoint = point as StraightPathPoint;
-					double radius = straightPoint.radius;
-					if(radius > 0)
-					{
-						if(!isClosed && (i == 0 || i == pl-1))
-						{
-							renderPoints.add(point);
-							previous = point;
-						}
-						else
-						{
-							PathPoint next = points[(i+1)%pl].transformed(xform);
-							Vec2D prevPoint = previous is CubicPathPoint ? previous.outPoint : previous.translation;
-							Vec2D nextPoint = next is CubicPathPoint ? next.inPoint : next.translation;
-							Vec2D pos = point.translation;
-
-							Vec2D toPrev = Vec2D.subtract(new Vec2D(), prevPoint, pos);
-							double toPrevLength = Vec2D.length(toPrev);
-							toPrev[0] /= toPrevLength;
-							toPrev[1] /= toPrevLength;
-
-							Vec2D toNext = Vec2D.subtract(new Vec2D(), nextPoint, pos);
-							double toNextLength = Vec2D.length(toNext);
-							toNext[0] /= toNextLength;
-							toNext[1] /= toNextLength;
-
-							double renderRadius = min(toPrevLength, min(toNextLength, radius));
-
-							Vec2D translation = Vec2D.scaleAndAdd(new Vec2D(), pos, toPrev, renderRadius);
-							renderPoints.add(new CubicPathPoint.fromValues(translation, translation, Vec2D.scaleAndAdd(new Vec2D(), pos, toPrev, iarcConstant*renderRadius)));
-							translation = Vec2D.scaleAndAdd(new Vec2D(), pos, toNext, renderRadius);
-							previous = new CubicPathPoint.fromValues(translation, Vec2D.scaleAndAdd(new Vec2D(), pos, toNext, iarcConstant*renderRadius), translation);
-							renderPoints.add(previous);
-						}
-					}
-					else
-					{
-						renderPoints.add(point);
-						previous = point;
-					}
-					break;
-				}
-				default:
-					renderPoints.add(point);
-					previous = point;
-					break;
-			}
-		}
-
-		PathPoint firstPoint = renderPoints[0];
-		path.moveTo(firstPoint.translation[0], firstPoint.translation[1]);
-		for(int i = 0, l = isClosed ? renderPoints.length : renderPoints.length-1, pl = renderPoints.length; i < l; i++)
-		{
-			PathPoint point = renderPoints[i];
-			PathPoint nextPoint = renderPoints[(i+1)%pl];
-			Vec2D cin = nextPoint is CubicPathPoint ? nextPoint.inPoint : null;
-            Vec2D cout = point is CubicPathPoint ? point.outPoint : null;
-			if(cin == null && cout == null)
-			{
-				path.lineTo(nextPoint.translation[0], nextPoint.translation[1]);	
-			}
-			else
-			{
-				if(cout == null)
-				{
-					cout = point.translation;
-				}
-				if(cin == null)
-				{
-					cin = nextPoint.translation;
-				}
-
-				path.cubicTo(
-					cout[0], cout[1],
-
-					cin[0], cin[1],
-
-					nextPoint.translation[0], nextPoint.translation[1]);
-			}
-		}
-
-		if(isClosed)
-		{
-			path.close();
-		}
-	}
 }

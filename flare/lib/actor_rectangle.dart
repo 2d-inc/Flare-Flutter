@@ -1,8 +1,6 @@
-import "dart:ui" as ui;
 import "actor.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
-import "math/mat2d.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
@@ -66,29 +64,6 @@ class ActorRectangle extends ActorProceduralPath
         );
 
         return _rectanglePathPoints;
-    }
-
-    @override
-    updatePath(ui.Path path)
-    {
-        Mat2D xform = this.transform;
-        Vec2D topLeft = Vec2D.fromValues(-halfWidth, halfHeight);
-        Vec2D.transformMat2D(topLeft, topLeft, xform);
-        
-        Vec2D bottomRight = Vec2D.fromValues(halfWidth, -halfHeight);
-        Vec2D.transformMat2D(bottomRight, bottomRight, xform);
-        
-        path.moveTo(x, y);
-
-        path.addRRect(
-            new ui.RRect.fromLTRBR(
-                topLeft[0],
-                topLeft[1],
-                bottomRight[0],
-                bottomRight[1],
-                ui.Radius.circular(_radius)
-            )
-        );
     }
 
     set radius(double rd)

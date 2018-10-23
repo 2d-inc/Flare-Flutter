@@ -1,8 +1,6 @@
-import "dart:ui" as ui;
 import "actor.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
-import "math/aabb.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
@@ -51,15 +49,6 @@ class ActorTriangle extends ActorProceduralPath
         );
 
         return _trianglePoints;
-    }
-
-    @override
-    updatePath(ui.Path path)
-    {
-        path.moveTo(0.0, -radiusY);
-        path.lineTo(radiusX, radiusY);
-        path.lineTo(-radiusX, radiusY);
-        path.close();
     }
 
     bool get isClosed => true;

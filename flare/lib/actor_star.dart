@@ -1,10 +1,7 @@
 import 'dart:math';
-import "dart:ui" as ui;
 import "actor.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
-import "math/mat2d.dart";
-import "math/aabb.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
@@ -48,8 +45,8 @@ class ActorStar extends ActorProceduralPath
 
         double angle = pi/2.0;
         double inc = (pi*2.0)/sides;
-        Vec2D sx = Vec2D.fromValues(radiusX, radiusX*innerRadius);
-        Vec2D sy = Vec2D.fromValues(radiusY, radiusY*innerRadius);
+        Vec2D sx = Vec2D.fromValues(radiusX, radiusX*_innerRadius);
+        Vec2D sy = Vec2D.fromValues(radiusY, radiusY*_innerRadius);
 
         for(int i = 0; i < sides; i++)
         {
@@ -65,40 +62,7 @@ class ActorStar extends ActorProceduralPath
         }
         return _starPoints;
     }
-
-    @override
-    updatePath(ui.Path path)
-    {
-        path.moveTo(0.0, -radiusY);
-        double angle = -pi/2.0;
-        double inc = (pi*2.0)/sides;
-        Vec2D sx = Vec2D.fromValues(radiusX, radiusX*innerRadius);
-        Vec2D sy = Vec2D.fromValues(radiusY, radiusY*innerRadius);
-        
-        for(int i = 0; i < sides; i++)
-        {
-            path.lineTo(cos(angle)*sx[i%2], sin(angle)*sy[i%2]);
-            angle += inc;
-        }
-        path.close();
-    }
-
-    bool get isClosed => true;
-    bool get doesDraw => !this.renderCollapsed;
-    double get radiusX => this.width/2;
-    double get radiusY => this.height/2;
-    int get numPoints => _numPoints;
-    int get sides => _numPoints*2;
-    double get innerRadius => _innerRadius;
-
-    set sides(int val)
-    {
-        if(_numPoints != val)
-        {
-            _numPoints = val;
-            markPathDirty();
-        }
-    }
+    
 
     set innerRadius(double val)
     {
@@ -109,4 +73,12 @@ class ActorStar extends ActorProceduralPath
         }
     }
 
+    get innerRadius => _innerRadius;
+
+    bool get isClosed => true;
+    bool get doesDraw => !this.renderCollapsed;
+    double get radiusX => this.width/2;
+    double get radiusY => this.height/2;
+    int get numPoints => _numPoints;
+    int get sides => _numPoints*2;
 }

@@ -1,22 +1,20 @@
-import "dart:ui" as ui;
 import "dart:math";
 import "actor.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
-import "math/mat2d.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
 
 class ActorPolygon extends ActorProceduralPath
 {
-    int _sides = 5;
+    int sides = 5;
 
     ActorPolygon makeInstance(Actor resetActor)
     {
         ActorPolygon instance = new ActorPolygon();
         instance.copyPath(this, resetActor);
-        instance._sides = this._sides;
+        instance.sides = this.sides;
         return instance;
     }
 
@@ -31,7 +29,7 @@ class ActorPolygon extends ActorProceduralPath
 
         component.width = reader.readFloat32("width");
         component.height = reader.readFloat32("height");
-        component._sides = reader.readUint32("sides");
+        component.sides = reader.readUint32("sides");
         return component;
     }
 
@@ -40,9 +38,9 @@ class ActorPolygon extends ActorProceduralPath
     {
         List<PathPoint> _polygonPoints = <PathPoint>[];
         double angle = -pi/2.0;
-        double inc = (pi*2.0)/_sides;
+        double inc = (pi*2.0)/sides;
 
-        for(int i=0; i < _sides; i++)
+        for(int i=0; i < sides; i++)
         {
             _polygonPoints.add(
                 new StraightPathPoint.fromTranslation(
@@ -53,29 +51,6 @@ class ActorPolygon extends ActorProceduralPath
         }
         
         return _polygonPoints;
-    }
-
-    @override
-    updatePath(ui.Path path)
-    {
-        Mat2D xform = this.transform;
-        List<PathPoint> pts = points;
-        for(PathPoint p in pts)
-        {
-            p = p.transformed(xform);
-        }
-
-        path.moveTo(0.0, -radiusY);
-        double angle = -pi/2.0;
-        double inc = (pi*2.0)/_sides;
-
-        for(int i = 0; i < _sides; i++)
-        {
-            path.lineTo(cos(angle)*radiusX, sin(angle)*radiusY);
-            angle += inc;
-        }
-
-        path.close();
     }
 
     bool get isClosed => true;

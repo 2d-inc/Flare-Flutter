@@ -1,4 +1,4 @@
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "actor.dart";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
@@ -258,27 +258,30 @@ class ActorNode extends ActorComponent
 		}
 	}
 
-	static ActorNode read(Actor actor, BinaryReader reader, ActorNode node)
+	static ActorNode read(Actor actor, StreamReader reader, ActorNode node)
 	{
 		if(node == null)
 		{
 			node = new ActorNode();
 		}
 		ActorComponent.read(actor, reader, node);
-		reader.readFloat32Array(node._translation.values, 2, 0);
-		node._rotation = reader.readFloat32();
-		reader.readFloat32Array(node._scale.values, 2, 0);
-		node._opacity = reader.readFloat32();
-		node._isCollapsedVisibility = reader.readUint8() == 1;
-		int clipCount = reader.readUint8();
+		reader.readFloat32ArrayOffset(node._translation.values, 2, 0, "translation");
+		node._rotation = reader.readFloat32("rotation");
+		reader.readFloat32ArrayOffset(node._scale.values, 2, 0, "scale");
+		node._opacity = reader.readFloat32("opacity");
+		node._isCollapsedVisibility = reader.readBool("isCollapsedVisibility");
+
+        reader.openArray("Clips");
+		int clipCount = reader.readUint8Length();
 		if(clipCount > 0)
 		{
 			node._clips = new List<ActorClip>(clipCount);
 			for(int i = 0; i < clipCount; i++)
 			{
-				node._clips[i] = new ActorClip(reader.readUint16());
+				node._clips[i] = new ActorClip(reader.readId("clipId"));
 			}
 		}
+        reader.closeArray();
 		return node;
 	}
 

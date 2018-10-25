@@ -3,7 +3,7 @@ import "actor_node.dart";
 import "actor_bone.dart";
 import "actor_component.dart";
 import "actor.dart";
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "math/transform_components.dart";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
@@ -149,16 +149,17 @@ class ActorIKConstraint extends ActorTargetedConstraint
 		}
 	}
 
-	static ActorIKConstraint read(Actor actor, BinaryReader reader, ActorIKConstraint component)
+	static ActorIKConstraint read(Actor actor, StreamReader reader, ActorIKConstraint component)
 	{
 		if(component == null)
 		{
 			component = new ActorIKConstraint();
 		}
 		ActorTargetedConstraint.read(actor, reader, component);
-		component._invertDirection = reader.readUint8() == 1;
+		component._invertDirection = reader.readBool("isInverted");
 			
-		int numInfluencedBones = reader.readUint8();
+        reader.openArray("InfluencedBones");
+		int numInfluencedBones = reader.readUint8Length();
 		if(numInfluencedBones > 0)
 		{
 			component._influencedBones = new List<InfluencedBone>(numInfluencedBones);
@@ -166,10 +167,11 @@ class ActorIKConstraint extends ActorTargetedConstraint
 			for(int i = 0; i < numInfluencedBones; i++)
 			{
 				InfluencedBone ib = new InfluencedBone();
-				ib.boneIdx = reader.readUint16();
+				ib.boneIdx = reader.readId("");// No label here, we're just clearing the elements from the array.
 				component._influencedBones[i] = ib;
 			}
 		}
+        reader.closeArray();
 		return component;
 	}
 

@@ -1,6 +1,6 @@
 import "actor.dart";
 import "actor_node.dart";
-import "dart:typed_data";
+import "math/aabb.dart";
 
 enum BlendModes
 {
@@ -18,13 +18,12 @@ abstract class ActorDrawable extends ActorNode
 	int drawIndex = 0;
 	BlendModes blendMode;
 
-	Float32List computeAABB();
-
-	void copyDrawable(ActorDrawable node, Actor resetActor)
+	AABB computeAABB();
+	
+    copyDrawable(ActorDrawable node, Actor resetActor)
 	{
-		copyNode(node, resetActor);
-
-		drawOrder = node.drawOrder;
-		blendMode = node.blendMode;
+        copyNode(node, resetActor);
+        drawOrder = node.drawOrder;
+        blendMode = node.blendMode;
 	}
 }

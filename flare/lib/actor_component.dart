@@ -1,4 +1,4 @@
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "actor.dart";
 import "actor_node.dart";
 
@@ -50,11 +50,11 @@ abstract class ActorComponent
 	void onDirty(int dirt);
 	void update(int dirt);
 
-	static ActorComponent read(Actor actor, BinaryReader reader, ActorComponent component)
+	static ActorComponent read(Actor actor, StreamReader reader, ActorComponent component)
 	{
 		component.actor = actor;
-		component._name = reader.readString();
-		component._parentIdx = reader.readUint16();
+		component._name = reader.readString("name");
+		component._parentIdx = reader.readId("parentId");
 
 		return component;
 	}

@@ -1,7 +1,7 @@
 import "actor_component.dart";
 import "actor_node.dart";
 import "actor.dart";
-import "binary_reader.dart";
+import "stream_reader.dart";
 
 abstract class ActorConstraint extends ActorComponent
 {
@@ -60,11 +60,11 @@ abstract class ActorConstraint extends ActorComponent
 		}
 	}
 
-	static ActorConstraint read(Actor actor, BinaryReader reader, ActorConstraint component)
+	static ActorConstraint read(Actor actor, StreamReader reader, ActorConstraint component)
 	{
 		ActorComponent.read(actor, reader, component);
-		component._strength = reader.readFloat32();
-		component._isEnabled = reader.readUint8() == 1;
+		component._strength = reader.readFloat32("strength");
+		component._isEnabled = reader.readBool("isEnabled");
 
 		return component;
 	}

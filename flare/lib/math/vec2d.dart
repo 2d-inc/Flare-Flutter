@@ -134,4 +134,11 @@ class Vec2D
     	result[1] = a[1] + (b[1] * scale);
 		return result;
 	}
+
+    @override
+    String toString() 
+    {
+        String v = _buffer[0].toString() + ", ";
+        return v + _buffer[1].toString();
+    }
 }

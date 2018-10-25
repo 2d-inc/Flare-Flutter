@@ -183,4 +183,10 @@ class Mat2D
 			m[3] = m[1] * sk + m[3];
 		}
 	}
+
+    @override
+    String toString()
+    {
+        return _buffer.toString();
+    }
 }

@@ -1,4 +1,4 @@
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "actor.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
@@ -46,11 +46,11 @@ class ActorBoneBase extends ActorNode
 		return vec;
 	}
 
-	static ActorBoneBase read(Actor actor, BinaryReader reader, ActorBoneBase node)
+	static ActorBoneBase read(Actor actor, StreamReader reader, ActorBoneBase node)
 	{
 		ActorNode.read(actor, reader, node);
 
-		node._length = reader.readFloat32();
+		node._length = reader.readFloat32("length");
 
 		return node;
 	}

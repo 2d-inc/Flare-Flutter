@@ -1,7 +1,7 @@
 import "actor.dart";
 import "actor_component.dart";
 import "actor_node.dart";
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "dart:math";
 
 class ActorNodeSolo extends ActorNode
@@ -49,7 +49,7 @@ class ActorNodeSolo extends ActorNode
 	}
 
 
-	static ActorNodeSolo read(Actor actor, BinaryReader reader, ActorNodeSolo node)
+	static ActorNodeSolo read(Actor actor, StreamReader reader, ActorNodeSolo node)
 	{
 		if(node == null)
 		{
@@ -57,7 +57,7 @@ class ActorNodeSolo extends ActorNode
 		}
 
 		ActorNode.read(actor, reader, node);
-		node._activeChildIndex = reader.readUint32();
+		node._activeChildIndex = reader.readUint32("activeChild");
 		return node;
 	}
 

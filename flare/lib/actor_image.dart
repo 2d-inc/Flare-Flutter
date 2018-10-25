@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "actor_node.dart";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
@@ -7,7 +7,7 @@ import "actor.dart";
 import "actor_component.dart";
 import "actor_bone_base.dart";
 import "actor_drawable.dart";
-
+import "math/aabb.dart";
 
 class BoneConnection
 {
@@ -250,7 +250,7 @@ class ActorImage extends ActorDrawable
 		return _boneMatrices;
 	}
 
-	static ActorImage read(Actor actor, BinaryReader reader, ActorImage node)
+	static ActorImage read(Actor actor, StreamReader reader, ActorImage node)
 	{
 		if(node == null)
 		{
@@ -259,10 +259,10 @@ class ActorImage extends ActorDrawable
 		
 		ActorNode.read(actor, reader, node);
 
-		bool isVisible = reader.readUint8() != 0;
+		bool isVisible = reader.readBool("isVisible");
 		if(isVisible)
 		{
-			int blendModeId = reader.readUint8();
+			int blendModeId = reader.readUint8("blendMode");
 			BlendModes blendMode = BlendModes.Normal;
 			switch(blendModeId)
 			{
@@ -280,10 +280,11 @@ class ActorImage extends ActorDrawable
 					break;
 			}
 			node.blendMode = blendMode;
-			node.drawOrder = reader.readUint16();
-			node._textureIndex = reader.readUint8();
+			node.drawOrder = reader.readUint16("drawOrder");
+			node._textureIndex = reader.readUint8("atlas");
 
-			int numConnectedBones = reader.readUint8();
+            reader.openArray("ConnectedBones");
+			int numConnectedBones = reader.readUint8Length();
 			if(numConnectedBones != 0)
 			{
 				node._boneConnections = new List<BoneConnection>(numConnectedBones);
@@ -291,39 +292,46 @@ class ActorImage extends ActorDrawable
 				for(int i = 0; i < numConnectedBones; i++)
 				{
 					BoneConnection bc = new BoneConnection();
-					bc.boneIdx = reader.readUint16();
-					reader.readFloat32Array(bc.bind.values, 6, 0);
+                    reader.openObject("bone");
+					bc.boneIdx = reader.readId("id");
+					reader.readFloat32ArrayOffset(bc.bind.values, 6, 0, "bind");
+                    reader.closeObject();
 					Mat2D.invert(bc.inverseBind, bc.bind);
 					node._boneConnections[i] = bc;
 				}
-
+                reader.closeArray();
 				Mat2D worldOverride = new Mat2D();
-				reader.readFloat32Array(worldOverride.values, 6, 0);
+				reader.readFloat32ArrayOffset(worldOverride.values, 6, 0, "worldTransform");
 				node.worldTransformOverride = worldOverride;
 			}
+            else
+            {
+                reader.closeArray();
+            }
 
-			int numVertices = reader.readUint32();
+			int numVertices = reader.readUint32("numVertices");
 			int vertexStride = numConnectedBones > 0 ? 12 : 4;
 			node._vertexCount = numVertices;
 			node._vertices = new Float32List(numVertices * vertexStride);
-			reader.readFloat32Array(node._vertices, node._vertices.length, 0);
+			reader.readFloat32ArrayOffset(node._vertices, node._vertices.length, 0, "vertices");
 			
-			int numTris = reader.readUint32();
+			int numTris = reader.readUint32("numTriangles");
 			node._triangles = new Uint16List(numTris*3);
 			node._triangleCount = numTris;
-			reader.readUint16Array(node._triangles, node._triangles.length, 0);
+			reader.readUint16Array(node._triangles, node._triangles.length, 0, "triangles");
 		}
 
 		return node;
 	}
 
-	static ActorImage readSequence(Actor actor, BinaryReader reader, ActorImage node)
+	static ActorImage readSequence(Actor actor, StreamReader reader, ActorImage node)
 	{
 		ActorImage.read(actor, reader, node);
 
 		if(node._textureIndex != -1)
 		{
-			int frameAssetCount = reader.readUint16();
+            reader.openArray("FrameAssets");
+			int frameAssetCount = reader.readUint16Length();
 			// node._sequenceFrames = [];
 			Float32List uvs = new Float32List(node._vertexCount*2*frameAssetCount);
 			int uvStride = node._vertexCount * 2;
@@ -348,11 +356,17 @@ class ActorImage extends ActorDrawable
 			int offset = uvStride;
 			for(int i = 1; i < frameAssetCount; i++)
 			{
-				SequenceFrame frame = new SequenceFrame(reader.readUint8(), offset*4);
+                reader.openObject("frameAsset");
+				
+                SequenceFrame frame = new SequenceFrame(reader.readUint8("atlasId"), offset*4);
 				node._sequenceFrames.add(frame);
-				reader.readFloat32Array(uvs, uvStride, offset);
+				reader.readFloat32ArrayOffset(uvs, uvStride, offset, "frameUV");
 				offset += uvStride;
+
+                reader.closeObject();
 			}
+            
+            reader.closeArray();
 		}
 
 		return node;
@@ -570,10 +584,10 @@ class ActorImage extends ActorDrawable
 		}
 	}
 
-	Float32List computeAABB()
+	AABB computeAABB()
 	{
 		// Todo: implement for image.
 		Mat2D worldTransform = this.worldTransform;
-		return new Float32List.fromList([worldTransform[4], worldTransform[5], worldTransform[4], worldTransform[5]]);
+		return new AABB.fromValues(worldTransform[4], worldTransform[5], worldTransform[4], worldTransform[5]);
 	}
 }

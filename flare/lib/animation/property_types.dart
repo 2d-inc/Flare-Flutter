@@ -1,5 +1,3 @@
-import "dart:collection";
-
 class PropertyTypes 
 {
 	static const int Unknown = 0;
@@ -29,4 +27,47 @@ class PropertyTypes
 	static const int StrokeGradient = 24;
 	static const int StrokeRadial = 25;
 	static const int StrokeWidth = 26;
+	static const int StrokeOpacity = 27;
+	static const int FillOpacity = 28;
+	static const int ShapeWidth = 29;
+	static const int ShapeHeight = 30;
+	static const int CornerRadius = 31;
+	static const int InnerRadius = 32;
 }
+
+const Map<String, int> PropertyTypesMap = 
+{
+	"Unknown": PropertyTypes.Unknown,
+	"PosX": PropertyTypes.PosX,
+	"PosY": PropertyTypes.PosY,
+	"ScaleX": PropertyTypes.ScaleX,
+	"ScaleY": PropertyTypes.ScaleY,
+	"Rotation": PropertyTypes.Rotation,
+	"Opacity": PropertyTypes.Opacity,
+	"DrawOrder": PropertyTypes.DrawOrder,
+	"Length": PropertyTypes.Length,
+	"VertexDeform": PropertyTypes.VertexDeform,
+	"ConstraintStrength": PropertyTypes.ConstraintStrength,
+	"Trigger": PropertyTypes.Trigger,
+	"IntProperty": PropertyTypes.IntProperty,
+	"FloatProperty": PropertyTypes.FloatProperty,
+	"StringProperty": PropertyTypes.StringProperty,
+	"BooleanProperty": PropertyTypes.BooleanProperty,
+	"CollisionEnabled": PropertyTypes.CollisionEnabled,
+	"Sequence": PropertyTypes.Sequence,
+	"ActiveChildIndex": PropertyTypes.ActiveChildIndex,
+	"PathVertices": PropertyTypes.PathVertices,
+	"FillColor": PropertyTypes.FillColor,
+	"FillGradient": PropertyTypes.FillGradient,
+	"FillRadial": PropertyTypes.FillRadial,
+	"StrokeColor": PropertyTypes.StrokeColor,
+	"StrokeGradient": PropertyTypes.StrokeGradient,
+	"StrokeRadial": PropertyTypes.StrokeRadial,
+	"StrokeWidth": PropertyTypes.StrokeWidth,
+    "StrokeOpacity": PropertyTypes.StrokeOpacity,
+	"FillOpacity": PropertyTypes.FillOpacity,
+	"ShapeWidth": PropertyTypes.ShapeWidth,
+	"ShapeHeight": PropertyTypes.ShapeHeight,
+	"CornerRadius": PropertyTypes.CornerRadius,
+	"InnerRadius": PropertyTypes.InnerRadius,
+};

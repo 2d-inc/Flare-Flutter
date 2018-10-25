@@ -1,12 +1,11 @@
-import "../block_reader.dart";
-import "../binary_reader.dart";
+import "../stream_reader.dart";
 import "../actor_component.dart";
 import "../actor_event.dart";
 import "../actor.dart";
 import "property_types.dart";
 import "keyframe.dart";
 
-typedef KeyFrame KeyFrameReader(BinaryReader reader, ActorComponent component);
+typedef KeyFrame KeyFrameReader(StreamReader reader, ActorComponent component);
 
 class PropertyAnimation
 {
@@ -23,9 +22,9 @@ class PropertyAnimation
 		return _keyFrames;
 	}
 	
-	static PropertyAnimation read(BlockReader reader, ActorComponent component)
+	static PropertyAnimation read(StreamReader reader, ActorComponent component)
 	{
-		BlockReader propertyBlock = reader.readNextBlock();
+		StreamReader propertyBlock = reader.readNextBlock(PropertyTypesMap);
 		if(propertyBlock == null)
 		{
 			return null;
@@ -105,17 +104,56 @@ class PropertyAnimation
 				case PropertyTypes.FillColor:
 					keyFrameReader = KeyFrameFillColor.read;
 					break;
+				case PropertyTypes.FillGradient:
+					keyFrameReader = KeyFrameGradient.read;
+					break;
+				case PropertyTypes.StrokeGradient:
+					keyFrameReader = KeyFrameGradient.read;
+					break;
+				case PropertyTypes.FillRadial:
+					keyFrameReader = KeyFrameRadial.read;
+					break;
+				case PropertyTypes.StrokeRadial:
+					keyFrameReader = KeyFrameRadial.read;
+					break;
+				case PropertyTypes.StrokeColor:
+					keyFrameReader = KeyFrameStrokeColor.read;
+					break;
+				case PropertyTypes.StrokeWidth:
+					keyFrameReader = KeyFrameStrokeWidth.read;
+					break;
+				case PropertyTypes.StrokeOpacity:
+					keyFrameReader = KeyFrameStrokeOpacity.read;
+					break;
+				case PropertyTypes.FillOpacity:
+					keyFrameReader = KeyFrameFillOpacity.read;
+					break;
+				case PropertyTypes.ShapeWidth:
+					// TODO:
+					break;
+				case PropertyTypes.ShapeHeight:
+					// TODO:
+					break;
+				case PropertyTypes.CornerRadius:
+					keyFrameReader = KeyFrameCornerRadius.read;
+					break;
+				case PropertyTypes.InnerRadius:
+                    keyFrameReader = KeyFrameInnerRadius.read;
+					break;
 			}
 
 			if(keyFrameReader == null)
 			{
 				return null;
 			}
-			int keyFrameCount = propertyBlock.readUint16();
+
+            propertyBlock.openArray("KeyFrames");
+			int keyFrameCount = propertyBlock.readUint16Length();
 			propertyAnimation._keyFrames = new List<KeyFrame>(keyFrameCount);
 			KeyFrame lastKeyFrame;
 			for(int i = 0; i < keyFrameCount; i++)
 			{
+                propertyBlock.openObject("KeyFrame");
 				KeyFrame frame = keyFrameReader(propertyBlock, component);
 				propertyAnimation._keyFrames[i] = frame;
 				if(lastKeyFrame != null)
@@ -123,7 +161,9 @@ class PropertyAnimation
 					lastKeyFrame.setNext(frame);
 				}
 				lastKeyFrame = frame;
+                propertyBlock.closeObject();
 			}
+            propertyBlock.closeArray();
 		//}
 
 		return propertyAnimation;
@@ -208,18 +248,21 @@ class ComponentAnimation
 		return _properties;
 	}
 
-	static ComponentAnimation read(BlockReader reader, List<ActorComponent> components)
+	static ComponentAnimation read(StreamReader reader, List<ActorComponent> components)
 	{
+        reader.openObject("node");
 		ComponentAnimation componentAnimation = new ComponentAnimation();
 
-		componentAnimation._componentIndex = reader.readUint16();
-		int numProperties = reader.readUint16();
-
+		componentAnimation._componentIndex = reader.readId("nodeIndex");
+        reader.openArray("Properties");
+		int numProperties = reader.readUint16Length();
 		componentAnimation._properties = new List<PropertyAnimation>(numProperties);
 		for(int i = 0; i < numProperties; i++)
 		{
 			componentAnimation._properties[i] = PropertyAnimation.read(reader, components[componentAnimation._componentIndex]);
 		}
+        reader.closeArray();
+        reader.closeObject();
 
 		return componentAnimation;
 	}
@@ -287,6 +330,7 @@ class ActorAnimation
 	bool _isLooping;
 	List<ComponentAnimation> _components;
 	List<ComponentAnimation> _triggerComponents;
+    double start = 0.0, end = 0.0;
 
 	String get name
 	{
@@ -412,15 +456,16 @@ class ActorAnimation
 		}
 	}
 
-	static ActorAnimation read(BlockReader reader, List<ActorComponent> components)
+	static ActorAnimation read(StreamReader reader, List<ActorComponent> components)
 	{
 		ActorAnimation animation = new ActorAnimation();
-		animation._name = reader.readString();
-		animation._fps = reader.readUint8();
-		animation._duration = reader.readFloat32();
-		animation._isLooping = reader.readUint8() != 0;
+		animation._name = reader.readString("name");
+		animation._fps = reader.readUint8("fps");
+		animation._duration = reader.readFloat32("duration");
+		animation._isLooping = reader.readBool("isLooping");
 
-		int numKeyedComponents = reader.readUint16();
+        reader.openArray("KeyedNodes");
+		int numKeyedComponents = reader.readUint16Length();
 		//animation._components = new ComponentAnimation[numKeyedComponents];
 
 		// We distinguish between animated and triggered components as ActorEvents are currently only used to trigger events and don't need
@@ -449,6 +494,12 @@ class ActorAnimation
 				}
 			}
 		}
+        reader.closeArray();
+        if(numKeyedComponents > 0)
+        {
+            animation.start = reader.readFloat32("animationStart");
+		    animation.end = reader.readFloat32("animationEnd");
+        }
 
 		animation._components = new List<ComponentAnimation>(animatedComponentCount);
 		animation._triggerComponents = new List<ComponentAnimation>(triggerComponentCount);

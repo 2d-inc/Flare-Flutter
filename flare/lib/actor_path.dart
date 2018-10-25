@@ -1,153 +1,76 @@
+import "dart:typed_data";
+import "flare.dart";
 import "actor_component.dart";
 import "actor_node.dart";
 import "actor.dart";
-import "binary_reader.dart";
+import "stream_reader.dart";
 import "path_point.dart";
-import "./math/vec2d.dart";
-import "./math/mat2d.dart";
-import "dart:typed_data";
+import "math/vec2d.dart";
+import "math/mat2d.dart";
+import "math/aabb.dart";
 
-class ActorPath extends ActorNode
+abstract class ActorBasePath extends ActorNode
 {
-	bool _isHidden;
-	bool _isClosed;
-	List<PathPoint> _points;
-	Float32List vertexDeform;
+    static const int PathDirty = 1<<3;
+    markPathDirty(){}
+    onPathInvalid(){}
 
-	static const int VertexDeformDirty = 1<<1;
+    copyPath(ActorBasePath node, Actor resetActor);
+    ActorComponent makeInstance(Actor resetActor);
 
-	List<PathPoint> get points
-	{
-		return _points;
-	}
+    bool get isClosed;
+    List<PathPoint> get points;
+	
+    AABB getPathAABB()
+    {
+        double minX = double.maxFinite;
+        double minY = double.maxFinite;
+        double maxX = -double.maxFinite;
+        double maxY = -double.maxFinite;
 
-	bool get isClosed
-	{
-		return _isClosed;
-	}
+        AABB obb = getPathOBB();
 
-	void markVertexDeformDirty()
-	{
-		if(actor == null)
-		{
-			return;
-		}
-		actor.addDirt(this, VertexDeformDirty, false);
-	}
+        List<Vec2D> pts = [
+            new Vec2D.fromValues(obb[0], obb[1]),
+			new Vec2D.fromValues(obb[2], obb[1]),
+			new Vec2D.fromValues(obb[2], obb[3]),
+			new Vec2D.fromValues(obb[0], obb[3])
+        ];
 
-	void onPathInvalid(){}
+        Mat2D transform = this.transform;
 
-	void update(int dirt)
-	{
-		if(vertexDeform != null && (dirt & VertexDeformDirty) == VertexDeformDirty)
-		{
-			int readIdx = 0;
-			for(PathPoint point in _points)
+        for(Vec2D p in pts)
+        {
+            Vec2D wp = Vec2D.transformMat2D(p, p, transform);
+            if(wp[0] < minX)
 			{
-				point.translation[0] = vertexDeform[readIdx++];
-				point.translation[1] = vertexDeform[readIdx++];
-				switch(point.pointType)
-				{
-					case PointType.Straight:
-						(point as StraightPathPoint).radius = vertexDeform[readIdx++];
-						break;
-					
-					default:
-						CubicPathPoint cubicPoint = point as CubicPathPoint;
-						cubicPoint.inPoint[0] = vertexDeform[readIdx++];
-						cubicPoint.inPoint[1] = vertexDeform[readIdx++];
-						cubicPoint.outPoint[0] = vertexDeform[readIdx++];
-						cubicPoint.outPoint[1] = vertexDeform[readIdx++];
-						break;
-				}
+				minX = wp[0];
 			}
-		}
-		if(dirt != 0)
-		{
-			onPathInvalid();
-		}
-		super.update(dirt);
-	}
-
-	static ActorPath read(Actor actor, BinaryReader reader, ActorPath component)
-	{
-		if(component == null)
-		{
-			component = new ActorPath();
-		}
-
-		ActorNode.read(actor, reader, component);
-
-		component._isHidden = reader.readUint8() == 0;
-		component._isClosed = reader.readUint8() == 1;
-
-		int pointCount = reader.readUint16();
-		component._points = new List<PathPoint>(pointCount);
-		for(int i = 0; i < pointCount; i++)
-		{
-			PathPoint point;
-			PointType type = pointTypeLookup[reader.readUint8()];
-			switch(type)
+			if(wp[1] < minY)
 			{
-				case PointType.Straight:
-				{
-					point = new StraightPathPoint();
-					break;
-				}
-				default:
-				{
-					point = new CubicPathPoint(type);
-					break;
-				}
+				minY = wp[1];
 			}
-			if(point == null)
+
+			if(wp[0] > maxX)
 			{
-				throw new UnsupportedError("Invalid point type " + type.toString());
+				maxX = wp[0];
 			}
-			else
+			if(wp[1] > maxY)
 			{
-				point.read(reader);
+				maxY = wp[1];
 			}
-			
-			component._points[i] = point;
-		}
-		return component;
-	}
+        }
+        return AABB.fromValues(minX, minY, maxX, maxY);
+    }
 
-	ActorComponent makeInstance(Actor resetActor)
-	{
-		ActorPath instanceEvent = new ActorPath();
-		instanceEvent.copyPath(this, resetActor);
-		return instanceEvent;
-	}
-
-	void copyPath(ActorPath node, Actor resetActor)
-	{
-		copyNode(node, resetActor);
-		_isHidden = node._isHidden;
-		_isClosed = node._isClosed;
-		
-		int pointCount = node._points.length;
-		_points = new List<PathPoint>(pointCount);
-		for(int i = 0; i < pointCount; i++)
-		{
-			_points[i] = node._points[i].makeInstance();
-		}
-
-		if(node.vertexDeform != null)
-		{
-			vertexDeform = new Float32List.fromList(vertexDeform);
-		}
-	}
-
-	Float32List getPathOBB()
+    AABB getPathOBB()
 	{
 		double minX = double.maxFinite;
 		double minY = double.maxFinite;
 		double maxX = -double.maxFinite;
 		double maxY = -double.maxFinite;
 
-		for(PathPoint point in _points)
+		for(PathPoint point in points)
 		{
 			Vec2D t = point.translation;
 			double x = t[0];
@@ -213,17 +136,172 @@ class ActorPath extends ActorNode
 			}
 		}
 
-		return new Float32List.fromList([minX, minY, maxX, maxY]);
+		return new AABB.fromValues(minX, minY, maxX, maxY);
+	}
+}
+
+abstract class ActorProceduralPath extends ActorBasePath
+{
+    double width = 0.0;
+    double height = 0.0;
+    
+    void copyPath(ActorBasePath node, Actor resetActor)
+    {
+        ActorProceduralPath nodePath = node as ActorProceduralPath;
+        copyNode(nodePath, resetActor);
+        width = nodePath.width;
+        height = nodePath.height;
+    }
+
+    List<PathPoint> get points;
+}
+
+class ActorPath extends ActorBasePath
+{
+	bool _isHidden;
+	bool _isClosed;
+    List<PathPoint> _points;
+	Float32List vertexDeform;
+
+	static const int VertexDeformDirty = 1<<1;
+
+	List<PathPoint> get points
+	{
+		return _points;
 	}
 
-	Float32List getPathAABB()
+	bool get isClosed
+	{
+		return _isClosed;
+	}
+
+	void markVertexDeformDirty()
+	{
+		if(actor == null)
+		{
+			return;
+		}
+		actor.addDirt(this, VertexDeformDirty, false);
+	}
+
+	void onPathInvalid(){}
+
+	void update(int dirt)
+	{
+		if(vertexDeform != null && (dirt & VertexDeformDirty) == VertexDeformDirty)
+		{
+			int readIdx = 0;
+			for(PathPoint point in _points)
+			{
+				point.translation[0] = vertexDeform[readIdx++];
+				point.translation[1] = vertexDeform[readIdx++];
+				switch(point.pointType)
+				{
+					case PointType.Straight:
+						(point as StraightPathPoint).radius = vertexDeform[readIdx++];
+						break;
+					
+					default:
+						CubicPathPoint cubicPoint = point as CubicPathPoint;
+						cubicPoint.inPoint[0] = vertexDeform[readIdx++];
+						cubicPoint.inPoint[1] = vertexDeform[readIdx++];
+						cubicPoint.outPoint[0] = vertexDeform[readIdx++];
+						cubicPoint.outPoint[1] = vertexDeform[readIdx++];
+						break;
+				}
+			}
+		}
+		if(dirt != 0)
+		{
+			onPathInvalid();
+		}
+		super.update(dirt);
+	}
+
+	static ActorPath read(Actor actor, StreamReader reader, ActorPath component)
+	{
+		if(component == null)
+		{
+			component = new ActorPath();
+		}
+
+		ActorNode.read(actor, reader, component);
+
+		component._isHidden = !reader.readBool("isVisible");
+		component._isClosed = reader.readBool("isClosed");
+
+        reader.openArray("Points");
+		int pointCount = reader.readUint16Length();
+		component._points = new List<PathPoint>(pointCount);
+		for(int i = 0; i < pointCount; i++)
+		{
+            reader.openObject("Point");
+			PathPoint point;
+			PointType type = pointTypeLookup[reader.readUint8("pointType")];
+			switch(type)
+			{
+				case PointType.Straight:
+				{
+					point = new StraightPathPoint();
+					break;
+				}
+				default:
+				{
+					point = new CubicPathPoint(type);
+					break;
+				}
+			}
+			if(point == null)
+			{
+				throw new UnsupportedError("Invalid point type " + type.toString());
+			}
+			else
+			{
+				point.read(reader);
+			}
+            reader.closeObject();
+			
+			component._points[i] = point;
+		}
+        reader.closeArray();
+		return component;
+	}
+
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		ActorPath instanceEvent = new ActorPath();
+		instanceEvent.copyPath(this, resetActor);
+		return instanceEvent;
+	}
+
+	void copyPath(ActorBasePath node, Actor resetActor)
+	{
+        ActorPath nodePath = node as ActorPath;
+		copyNode(nodePath, resetActor);
+		_isHidden = nodePath._isHidden;
+		_isClosed = nodePath._isClosed;
+		
+		int pointCount = nodePath._points.length;
+		_points = new List<PathPoint>(pointCount);
+		for(int i = 0; i < pointCount; i++)
+		{
+			_points[i] = nodePath._points[i].makeInstance();
+		}
+
+		if(nodePath.vertexDeform != null)
+		{
+			vertexDeform = new Float32List.fromList(vertexDeform);
+		}
+	}
+
+	AABB getPathAABB()
 	{
 		double minX = double.maxFinite;
 		double minY = double.maxFinite;
 		double maxX = -double.maxFinite;
 		double maxY = -double.maxFinite;
 
-		Float32List obb = getPathOBB();
+		AABB obb = getPathOBB();
 
 		List<Vec2D> points = [
 			new Vec2D.fromValues(obb[0], obb[1]),
@@ -256,6 +334,7 @@ class ActorPath extends ActorNode
 			}
 		}
 
-		return new Float32List.fromList([minX, minY, maxX, maxY]);
+		return new AABB.fromValues(minX, minY, maxX, maxY);
 	}
+
 }

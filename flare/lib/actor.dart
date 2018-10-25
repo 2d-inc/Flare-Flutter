@@ -1,4 +1,6 @@
 import "dart:typed_data";
+import "dart:convert";
+
 import "actor_component.dart";
 import "actor_event.dart";
 import "actor_node.dart";
@@ -12,12 +14,68 @@ import "actor_rotation_constraint.dart";
 import "dependency_sorter.dart";
 import "actor_image.dart";
 import "actor_shape.dart";
+import "actor_ellipse.dart";
+import "actor_polygon.dart";
+import "actor_rectangle.dart";
+import "actor_star.dart";
+import "actor_triangle.dart";
 import "actor_path.dart";
 import "actor_color.dart";
 import "actor_drawable.dart";
 import "animation/actor_animation.dart";
-import "block_reader.dart";
+import "stream_reader.dart";
 import "dart:math";
+
+import "math/aabb.dart";
+
+const Map<String, int> BlockTypesMap =
+{
+	"Unknown": BlockTypes.Unknown,
+	"Nodes": BlockTypes.Components,
+	"ActorNode": BlockTypes.ActorNode,
+	"ActorBone": BlockTypes.ActorBone,
+	"ActorRootBone": BlockTypes.ActorRootBone,
+	"ActorImage": BlockTypes.ActorImage,
+	"View": BlockTypes.View,
+	"Animation": BlockTypes.Animation,
+	"Animations": BlockTypes.Animations,
+	"Atlases": BlockTypes.Atlases,
+	"Atlas": BlockTypes.Atlas,
+	"ActorIKTarget": BlockTypes.ActorIKTarget,
+	"ActorEvent": BlockTypes.ActorEvent,
+	"CustomIntProperty": BlockTypes.CustomIntProperty,
+	"CustomFloatProperty": BlockTypes.CustomFloatProperty,
+	"CustomStringProperty": BlockTypes.CustomStringProperty,
+	"CustomBooleanProperty": BlockTypes.CustomBooleanProperty,
+	"ActorColliderRectangle": BlockTypes.ActorColliderRectangle,
+	"ActorColliderTriangle": BlockTypes.ActorColliderTriangle,
+	"ActorColliderCircle": BlockTypes.ActorColliderCircle,
+	"ActorColliderPolygon": BlockTypes.ActorColliderPolygon,
+	"ActorColliderLine": BlockTypes.ActorColliderLine,
+	"ActorImageSequence": BlockTypes.ActorImageSequence,
+	"ActorNodeSolo": BlockTypes.ActorNodeSolo,
+	"JellyComponent": BlockTypes.JellyComponent,
+	"ActorJellyBone": BlockTypes.ActorJellyBone,
+	"ActorIKConstraint": BlockTypes.ActorIKConstraint,
+	"ActorDistanceConstraint": BlockTypes.ActorDistanceConstraint,
+	"ActorTranslationConstraint": BlockTypes.ActorTranslationConstraint,
+	"ActorRotationConstraint": BlockTypes.ActorRotationConstraint,
+	"ActorScaleConstraint": BlockTypes.ActorScaleConstraint,
+	"ActorTransformConstraint": BlockTypes.ActorTransformConstraint,
+	"ActorShape": BlockTypes.ActorShape,
+	"ActorPath": BlockTypes.ActorPath,
+	"ColorFill": BlockTypes.ColorFill,
+	"ColorStroke": BlockTypes.ColorStroke,
+	"GradientFill": BlockTypes.GradientFill,
+	"GradientStroke": BlockTypes.GradientStroke,
+	"RadialGradientFill": BlockTypes.RadialGradientFill,
+	"RadialGradientStroke": BlockTypes.RadialGradientStroke,
+    "ActorEllipse": BlockTypes.ActorEllipse,
+    "ActorRectangle": BlockTypes.ActorRectangle,
+    "ActorTriangle": BlockTypes.ActorTriangle,
+    "ActorStar": BlockTypes.ActorStar,
+    "ActorPolygon": BlockTypes.ActorPolygon
+};
 
 class BlockTypes
 {
@@ -61,6 +119,11 @@ class BlockTypes
 	static const int GradientStroke = 105;
 	static const int RadialGradientFill = 106;
 	static const int RadialGradientStroke = 107;
+    static const int ActorEllipse = 108;
+    static const int ActorRectangle = 109;
+    static const int ActorTriangle = 110;
+    static const int ActorStar = 111;
+    static const int ActorPolygon = 112;
 }
 
 class ActorFlags
@@ -337,6 +400,26 @@ class Actor
 	{
 		return new ActorShape();
 	}
+    ActorRectangle makeRectangle()
+    {
+        return new ActorRectangle();
+    }
+    ActorTriangle makeTriangle()
+    {
+        return new ActorTriangle();
+    }
+    ActorStar makeStar()
+    {
+        return new ActorStar();
+    }
+    ActorPolygon makePolygon()
+    {
+        return new ActorPolygon();
+    }
+    ActorEllipse makeEllipse()
+    {
+        return new ActorEllipse();
+    }
 	ColorFill makeColorFill()
 	{
 		return new ColorFill();
@@ -423,19 +506,32 @@ class Actor
 
 	void load(ByteData data)
 	{
-		BlockReader reader = new BlockReader(data);
+        int F = data.getUint8(0);
+        int L = data.getUint8(1);
+        int A = data.getUint8(2);
+        int R = data.getUint8(3);
+        int E = data.getUint8(4);
 
-		if(reader.readUint8() != 70 || reader.readUint8() != 76 || reader.readUint8() != 65 || reader.readUint8() != 82 || reader.readUint8() != 69)
+		dynamic inputData = data;
+
+		if(F != 70 || L != 76 || A != 65 || R != 82 || E != 69)
 		{
-			throw new UnsupportedError("Not a valid Flare file.");
+			// throw new UnsupportedError("Not a valid Flare file.");
+            Uint8List charCodes = data.buffer.asUint8List();
+            String stringData = String.fromCharCodes(charCodes);
+            var jsonActor = jsonDecode(stringData);
+            Map jsonObject = new Map();
+            jsonObject["container"] = jsonActor;
+            inputData = jsonObject;
 		}
-		
-		_version = reader.readUint32();
+
+        StreamReader reader = new StreamReader(inputData);
+		_version = reader.readVersion();
 		
 		_root = new ActorNode.withActor(this);
 
-		BlockReader block;
-		while((block=reader.readNextBlock()) != null)
+		StreamReader block;
+		while((block=reader.readNextBlock(BlockTypesMap)) != null)
 		{
 			switch(block.blockType)
 			{
@@ -449,18 +545,18 @@ class Actor
 		}
 	}
 
-	void readComponentsBlock(BlockReader block)
+	void readComponentsBlock(StreamReader block)
 	{
-		int componentCount = block.readUint16();
+		int componentCount = block.readUint16Length();
 		_components = new List<ActorComponent>(componentCount+1);
 		_components[0] = _root;
 
 		// Guaranteed from the exporter to be in index order.
-		BlockReader nodeBlock;
+		StreamReader nodeBlock;
 
 		int componentIndex = 1;
 		_nodeCount = 1;
-		while((nodeBlock=block.readNextBlock()) != null)
+		while((nodeBlock=block.readNextBlock(BlockTypesMap)) != null)
 		{
 			ActorComponent component;
 			switch(nodeBlock.blockType)
@@ -602,6 +698,26 @@ class Actor
 				case BlockTypes.RadialGradientStroke:
 					component = RadialGradientStroke.read(this, nodeBlock, makeRadialStroke());
 					break;
+
+                case BlockTypes.ActorEllipse:
+                    component = ActorEllipse.read(this, nodeBlock, makeEllipse());
+                    break; 
+
+                case BlockTypes.ActorRectangle:
+                    component = ActorRectangle.read(this, nodeBlock, makeRectangle());
+                    break;
+                    
+                case BlockTypes.ActorTriangle:
+                    component = ActorTriangle.read(this, nodeBlock, makeTriangle());
+                    break; 
+                    
+                case BlockTypes.ActorStar:
+                    component = ActorStar.read(this, nodeBlock, makeStar());
+                    break; 
+                    
+                case BlockTypes.ActorPolygon:
+                    component = ActorPolygon.read(this, nodeBlock, makePolygon());
+                    break;
 			}
 			if(component is ActorDrawable)
 			{
@@ -665,15 +781,15 @@ class Actor
 		sortDependencies();
 	}
 
-	void readAnimationsBlock(BlockReader block)
+	void readAnimationsBlock(StreamReader block)
 	{
 		// Read animations.
-		int animationCount = block.readUint16();
+		int animationCount = block.readUint16Length();
 		_animations = new List<ActorAnimation>(animationCount);
-		BlockReader animationBlock;
+		StreamReader animationBlock;
 		int animationIndex = 0;
 		
-		while((animationBlock=block.readNextBlock()) != null)
+		while((animationBlock=block.readNextBlock(BlockTypesMap)) != null)
 		{
 			switch(animationBlock.blockType)
 			{
@@ -685,13 +801,13 @@ class Actor
 		}
 	}
 
-	Float32List computeAABB()
+	AABB computeAABB()
 	{
-		Float32List aabb;
+		AABB aabb;
 		for(ActorDrawable drawable in _drawableNodes)
 		{
 			// This is the axis aligned bounding box in the space of the parent (this case our shape).
-			Float32List pathAABB = drawable.computeAABB();
+			AABB pathAABB = drawable.computeAABB();
 
 			if(aabb == null)
 			{

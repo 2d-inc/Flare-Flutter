@@ -506,6 +506,10 @@ class Actor
 
 	void load(ByteData data)
 	{
+		if(data.lengthInBytes < 5)
+		{
+			throw new UnsupportedError("Not a valid Flare file.");
+		}
         int F = data.getUint8(0);
         int L = data.getUint8(1);
         int A = data.getUint8(2);
@@ -516,7 +520,6 @@ class Actor
 
 		if(F != 70 || L != 76 || A != 65 || R != 82 || E != 69)
 		{
-			// throw new UnsupportedError("Not a valid Flare file.");
             Uint8List charCodes = data.buffer.asUint8List();
             String stringData = String.fromCharCodes(charCodes);
             var jsonActor = jsonDecode(stringData);
@@ -527,7 +530,7 @@ class Actor
 
         StreamReader reader = new StreamReader(inputData);
 		_version = reader.readVersion();
-		
+	
 		_root = new ActorNode.withActor(this);
 
 		StreamReader block;

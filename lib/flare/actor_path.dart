@@ -1,5 +1,5 @@
 import "dart:typed_data";
-import "flare.dart";
+import "actor_shape.dart";
 import "actor_component.dart";
 import "actor_node.dart";
 import "actor.dart";
@@ -11,10 +11,6 @@ import "math/aabb.dart";
 
 abstract class ActorBasePath extends ActorNode
 {
-    static const int PathDirty = 1<<3;
-    markPathDirty(){}
-    onPathInvalid(){}
-
     copyPath(ActorBasePath node, Actor resetActor);
     ActorComponent makeInstance(Actor resetActor);
 
@@ -62,6 +58,17 @@ abstract class ActorBasePath extends ActorNode
         }
         return AABB.fromValues(minX, minY, maxX, maxY);
     }
+
+	markPathDirty()
+	{
+		invalidatePath();
+		if(parent is ActorShape)
+		{
+			parent.invalidateShape();
+		}
+	}
+
+	void invalidatePath() {}
 
     AABB getPathOBB()
 	{
@@ -142,18 +149,37 @@ abstract class ActorBasePath extends ActorNode
 
 abstract class ActorProceduralPath extends ActorBasePath
 {
-    double width = 0.0;
-    double height = 0.0;
+    double _width;
+    double _height;
+
+	double get width => _width;
+	double get height => _height;
+
+	set width(double w)
+	{
+		if(w != _width)
+		{
+			_width = w;
+            markPathDirty();
+		}
+	}
+
+	set height(double w)
+	{
+		if(w != _height)
+		{
+			_height = w;
+            markPathDirty();
+		}
+	}
     
     void copyPath(ActorBasePath node, Actor resetActor)
     {
         ActorProceduralPath nodePath = node as ActorProceduralPath;
         copyNode(nodePath, resetActor);
-        width = nodePath.width;
-        height = nodePath.height;
+        _width = nodePath.width;
+        _height = nodePath.height;
     }
-
-    List<PathPoint> get points;
 }
 
 class ActorPath extends ActorBasePath
@@ -184,8 +210,6 @@ class ActorPath extends ActorBasePath
 		actor.addDirt(this, VertexDeformDirty, false);
 	}
 
-	void onPathInvalid(){}
-
 	void update(int dirt)
 	{
 		if(vertexDeform != null && (dirt & VertexDeformDirty) == VertexDeformDirty)
@@ -210,11 +234,9 @@ class ActorPath extends ActorBasePath
 						break;
 				}
 			}
+			markPathDirty();
 		}
-		if(dirt != 0)
-		{
-			onPathInvalid();
-		}
+
 		super.update(dirt);
 	}
 

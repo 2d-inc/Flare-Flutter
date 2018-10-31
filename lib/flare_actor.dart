@@ -1,10 +1,8 @@
 import "dart:math";
-import "dart:ui" as ui;
-
 import "flare.dart";
-import "math/mat2d.dart";
-import "math/vec2d.dart";
-import "math/aabb.dart";
+import "flare/math/mat2d.dart";
+import "flare/math/vec2d.dart";
+import "flare/math/aabb.dart";
 import "package:flutter/material.dart";
 import "package:flutter/scheduler.dart";
 
@@ -27,7 +25,7 @@ class FlareActor extends LeafRenderObjectWidget
     final FlareController controller;
     final FlareCompletedCallback callback;
 
-    FlareActor(this.filename, {this.animation, this.fit, this.alignment, this.isPaused = false, this.controller, this.callback});
+    FlareActor(this.filename, {this.animation, this.fit = BoxFit.contain, this.alignment = Alignment.center, this.isPaused = false, this.controller, this.callback});
 
     @override
     RenderObject createRenderObject(BuildContext context)
@@ -147,9 +145,11 @@ class FlareActorRenderObject extends RenderBox
                     if(success)
                     {
                         _actor = actor;
-                        _actor.advance(0.0);
-                        _setupAABB = _actor.computeAABB();
-
+						if(_actor != null)
+						{
+                        	_actor.advance(0.0);
+                        	_setupAABB = _actor.computeAABB();
+						}
                         if(_controller != null)
                         {
                             _controller.initialize(_actor);
@@ -266,7 +266,10 @@ class FlareActorRenderObject extends RenderBox
             SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
         }
 
-        _actor.advance(elapsedSeconds);
+		if(_actor != null)
+		{
+        	_actor.advance(elapsedSeconds);
+		}
 
         markNeedsPaint();
     }
@@ -337,6 +340,7 @@ class FlareActorRenderObject extends RenderBox
                 offset.dx + size.width/2.0 + (_alignment.x * size.width/2.0), 
                 offset.dy + size.height/2.0 + (_alignment.y * size.height/2.0), 
             );
+			
             canvas.scale(scaleX, scaleY);
             canvas.translate(x,y);
             _actor.draw(canvas);

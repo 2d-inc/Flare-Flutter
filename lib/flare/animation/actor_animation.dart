@@ -129,10 +129,10 @@ class PropertyAnimation
 					keyFrameReader = KeyFrameFillOpacity.read;
 					break;
 				case PropertyTypes.ShapeWidth:
-					// TODO:
+					keyFrameReader = KeyFrameShapeWidth.read;
 					break;
 				case PropertyTypes.ShapeHeight:
-					// TODO:
+					keyFrameReader = KeyFrameShapeHeight.read;
 					break;
 				case PropertyTypes.CornerRadius:
 					keyFrameReader = KeyFrameCornerRadius.read;

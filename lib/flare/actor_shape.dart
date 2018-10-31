@@ -1,3 +1,5 @@
+import 'package:flare/flare/actor_color.dart';
+
 import "actor_component.dart";
 import "actor_node.dart";
 import "actor_drawable.dart";
@@ -12,6 +14,7 @@ import "math/aabb.dart";
 class ActorShape extends ActorDrawable
 {
 	bool _isHidden;
+	List<ActorStroke> _strokes;
 
 	bool get isHidden
 	{
@@ -86,6 +89,22 @@ class ActorShape extends ActorDrawable
 		}
 		Mat2D world = worldTransform;
 
+		if(_strokes != null)
+		{
+			double maxStroke = 0;
+			for(ActorStroke stroke in _strokes)
+			{
+				if(stroke.width > maxStroke)
+				{
+					maxStroke = stroke.width;
+				}
+			}
+			double padStroke = maxStroke/2.0;
+			aabb[0] -= padStroke;
+			aabb[2] += padStroke;
+			aabb[1] -= padStroke;
+			aabb[3] += padStroke;
+		}
 
 		List<Vec2D> points = [
 			new Vec2D.fromValues(aabb[0], aabb[1]),
@@ -116,5 +135,14 @@ class ActorShape extends ActorDrawable
 			}
 		}
 		return new AABB.fromValues(minX, minY, maxX, maxY);
+	}
+
+	void addStroke(ActorStroke stroke) 
+	{
+		if(_strokes == null)
+		{
+			_strokes = new List<ActorStroke>();
+		}
+		_strokes.add(stroke);
 	}
 }

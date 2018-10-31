@@ -1,5 +1,8 @@
-import 'dart:typed_data';
-import 'actor.dart';
+import "dart:typed_data";
+import "package:flare/flare/actor_node.dart";
+import "package:flare/flare/actor_shape.dart";
+
+import "actor.dart";
 import "actor_component.dart";
 import "dart:collection";
 import "stream_reader.dart";
@@ -74,11 +77,16 @@ class ColorFill extends ActorColor
 	}
 }
 
-class ColorStroke extends ActorColor
+abstract class ActorStroke
+{
+	double get width;
+}
+
+class ColorStroke extends ActorColor implements ActorStroke
 {
 	double width = 1.0;
 
-    get opacity => _color[3];
+    double get opacity => _color[3];
 
     set opacity(double val)
     {
@@ -107,6 +115,17 @@ class ColorStroke extends ActorColor
 		ActorColor.read(actor, reader, component);
 		component.width = reader.readFloat32("width");
 		return component;
+	}
+
+	void completeResolve()
+	{
+		super.completeResolve();
+
+		ActorNode parentNode = parent;
+		if(parentNode is ActorShape)
+		{
+			parentNode.addStroke(this);
+		}
 	}
 }
 
@@ -200,7 +219,7 @@ class GradientFill extends GradientColor
 	}
 }
 
-class GradientStroke extends GradientColor
+class GradientStroke extends GradientColor implements ActorStroke
 {
 	double width = 1.0;
 
@@ -226,6 +245,17 @@ class GradientStroke extends GradientColor
 		GradientColor.read(actor, reader, component);
 		component.width = reader.readFloat32("width");
 		return component;
+	}
+
+	void completeResolve()
+	{
+		super.completeResolve();
+
+		ActorNode parentNode = parent;
+		if(parentNode is ActorShape)
+		{
+			parentNode.addStroke(this);
+		}
 	}
 }
 
@@ -279,7 +309,7 @@ class RadialGradientFill extends RadialGradientColor
 	}
 }
 
-class RadialGradientStroke extends RadialGradientColor
+class RadialGradientStroke extends RadialGradientColor implements ActorStroke
 {
 	double width = 1.0;
 	
@@ -305,5 +335,16 @@ class RadialGradientStroke extends RadialGradientColor
 		RadialGradientColor.read(actor, reader, component);
 		component.width = reader.readFloat32("width");
 		return component;
+	}
+
+	void completeResolve()
+	{
+		super.completeResolve();
+
+		ActorNode parentNode = parent;
+		if(parentNode is ActorShape)
+		{
+			parentNode.addStroke(this);
+		}
 	}
 }

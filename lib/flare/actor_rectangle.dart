@@ -37,6 +37,8 @@ class ActorRectangle extends ActorProceduralPath
     @override
     List<PathPoint> get points
     {
+		double halfWidth = width/2.0;
+		double halfHeight = height/2.0;
         List<PathPoint> _rectanglePathPoints = <PathPoint>[];
         _rectanglePathPoints.add(
             new StraightPathPoint.fromValues(
@@ -79,11 +81,8 @@ class ActorRectangle extends ActorProceduralPath
     
     bool get doesDraw
     {
-        return !this.renderCollapsed;
+        return !renderCollapsed;
     }
-
-    double get halfWidth => this.width/2;
-    double get halfHeight => this.height/2;
 
     double get radius => _radius;
 }

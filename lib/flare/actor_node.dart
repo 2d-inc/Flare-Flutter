@@ -437,4 +437,6 @@ class ActorNode extends ActorComponent
 
 		return true;
 	}
+	
+	void invalidateShape() {}
 }

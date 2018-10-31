@@ -19,6 +19,7 @@ abstract class StreamReader
             reader.readUint8();
             reader.readUint8();
             reader.readUint8();
+            reader.readUint8();
         }
         else if(data is Map)
         {

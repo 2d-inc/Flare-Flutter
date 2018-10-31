@@ -2,25 +2,25 @@ library flare;
 
 import "dart:async";
 import "dart:typed_data";
-import "actor.dart";
-import "actor_shape.dart";
-import "actor_path.dart";
-import "actor_ellipse.dart";
-import "actor_polygon.dart";
-import "actor_rectangle.dart";
-import "actor_star.dart";
-import "actor_triangle.dart";
-import "actor_color.dart";
-import "actor_node.dart";
-import "actor_drawable.dart";
+import "flare/actor.dart";
+import "flare/actor_shape.dart";
+import "flare/actor_path.dart";
+import "flare/actor_ellipse.dart";
+import "flare/actor_polygon.dart";
+import "flare/actor_rectangle.dart";
+import "flare/actor_star.dart";
+import "flare/actor_triangle.dart";
+import "flare/actor_color.dart";
+import "flare/actor_node.dart";
+import "flare/actor_drawable.dart";
 import "dart:ui" as ui;
-import "math/mat2d.dart";
-import "math/vec2d.dart";
+import "flare/math/mat2d.dart";
+import "flare/math/vec2d.dart";
 import "dart:math";
-import "path_point.dart";
+import "flare/path_point.dart";
 
-export "animation/actor_animation.dart";
-export "actor_node.dart";
+export "flare/animation/actor_animation.dart";
+export "flare/actor_node.dart";
 
 import "package:flutter/services.dart" show rootBundle;
 
@@ -37,15 +37,15 @@ abstract class FlutterStroke
 class FlutterActorShape extends ActorShape
 {
 	List<FlutterFill> _fills;
-	List<FlutterStroke> _strokes;
+	List<FlutterStroke> _flutterStrokes;
 	ui.Path _path;
 
-	void invalidatePath()
+	void invalidateShape()
 	{
 		_path = null;
 	}
 
-	ui.Path updatePath()
+	ui.Path get path
 	{
 		if(_path != null)
 		{
@@ -55,28 +55,32 @@ class FlutterActorShape extends ActorShape
 		_path.fillType = ui.PathFillType.nonZero;
 		_path.reset();
 
-		for(ActorBasePath path in children)
+		for(ActorBasePath actorPath in children)
 		{
-			if(path == null)
+			if(actorPath == null)
 			{
 				continue;
 			}
-            if(path is FlutterPathMixin)
-            {
-			    (path as FlutterPathMixin).updatePath(_path);
-            }
+			if(actorPath is FlutterPath)
+			{
+				_path.addPath((actorPath as FlutterPath).path, ui.Offset.zero, matrix4:actorPath.transform.mat4);
+			}
+            // if(path is FlutterPathMixin)
+            // {
+			//     (path as FlutterPathMixin).updatePath(_path);
+            // }
 		}
 		return _path;
 		
 	}
 
-	void addStroke(FlutterStroke stroke)
+	void addFlutterStroke(FlutterStroke stroke)
 	{
-		if(_strokes == null)
+		if(_flutterStrokes == null)
 		{
-			_strokes = new List<FlutterStroke>();
+			_flutterStrokes = new List<FlutterStroke>();
 		}
-		_strokes.add(stroke);
+		_flutterStrokes.add(stroke);
 	}
 
 	void addFill(FlutterFill fill)
@@ -97,7 +101,7 @@ class FlutterActorShape extends ActorShape
 
 		canvas.save();
 
-		ui.Path path = updatePath();
+		ui.Path renderPath = path;
 		Float64List paintTransform = worldTransform.mat4;
 		
 		double opacity = this.renderOpacity;
@@ -111,9 +115,8 @@ class FlutterActorShape extends ActorShape
 				{
 					if(childNode is FlutterActorShape)
 					{
-						ui.Path path = childNode.updatePath();
-
-						canvas.clipPath(path.transform(childNode.worldTransform.mat4));
+						ui.Path clippingPath = childNode.path;
+						canvas.clipPath(clippingPath.transform(childNode.worldTransform.mat4));
 					}
 				});
 			}
@@ -128,19 +131,19 @@ class FlutterActorShape extends ActorShape
 				{
 					continue;
 				}
-				canvas.drawPath(path, paint);
+				canvas.drawPath(renderPath, paint);
 			}
 		}
-		if(_strokes != null)
+		if(_flutterStrokes != null)
 		{
-			for(FlutterStroke stroke in _strokes)
+			for(FlutterStroke stroke in _flutterStrokes)
 			{
 				ui.Paint paint = stroke.getPaint(paintTransform, opacity);
 				if(paint == null)
 				{
 					continue;
 				}
-				canvas.drawPath(path, paint);
+				canvas.drawPath(renderPath, paint);
 			}
 		}
 
@@ -192,7 +195,7 @@ class FlutterColorStroke extends ColorStroke implements FlutterStroke
 		ActorNode parentNode = parent;
 		if(parentNode is FlutterActorShape)
 		{
-			parentNode.addStroke(this);
+			parentNode.addFlutterStroke(this);
 		}
 	}
 }
@@ -270,7 +273,7 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 		ActorNode parentNode = parent;
 		if(parentNode is FlutterActorShape)
 		{
-			parentNode.addStroke(this);
+			parentNode.addFlutterStroke(this);
 		}
 	}
 }
@@ -424,7 +427,7 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 		ActorNode parentNode = parent;
 		if(parentNode is FlutterActorShape)
 		{
-			parentNode.addStroke(this);
+			parentNode.addFlutterStroke(this);
 		}
 	}
 }
@@ -509,7 +512,6 @@ class FlutterActor extends Actor
 		print("Loading actor filename $filename");
 		ByteData data = await rootBundle.load(filename);
 		super.load(data);
-
 		// List<Future<ui.Codec>> waitList = new List<Future<ui.Codec>>();
 		// _images = new List<ui.Image>(texturesUsed);
 
@@ -573,36 +575,194 @@ class FlutterActor extends Actor
 	}
 }
 
-class FlutterActorPath extends ActorPath with FlutterPathMixin
+class FlutterActorPath extends ActorPath with FlutterPathPointsPath
 {
-    onPathInvalid()
-    {
-        (parent as FlutterActorShape).invalidatePath();
-    }
+	
+}
 
-    markPathDirty()
-    {
-        actor.addDirt(this, ActorBasePath.PathDirty, false);
-        this.onPathInvalid();
-    }
+class FlutterActorEllipse extends ActorEllipse with FlutterPathPointsPath
+{
+    // updatePath(ui.Path path)
+    // {
+    //     List<PathPoint> pts = points;
+    //     int len = pts.length;
+    //     path.moveTo(0.0, -radiusY);
+        
+    //     for(int i = 0; i < len; i++)
+    //     {
+    //         CubicPathPoint point = pts[i];
+    //         CubicPathPoint nextPoint = pts[(i+1)%len];
+    //         Vec2D t = nextPoint.translation;
+    //         Vec2D cin = nextPoint.inPoint;
+    //         Vec2D cout = point.outPoint;
+    //         path.cubicTo(
+    //             cout[0], cout[1],
+    //             cin[0], cin[1],
+    //             t[0], t[1]
+    //         );
+    //     }
+    //     path.close();
+    // }
 
-    void updatePath(ui.Path path)
+}
+
+class FlutterActorPolygon extends ActorPolygon with FlutterPathPointsPath
+{
+    // updatePath(ui.Path path)
+    // {
+    //     Mat2D xform = this.transform;
+    //     List<PathPoint> pts = points;
+    //     for(PathPoint p in pts)
+    //     {
+    //         p = p.transformed(xform);
+    //     }
+
+    //     path.moveTo(0.0, -radiusY);
+    //     double angle = -pi/2.0;
+    //     double inc = (pi*2.0)/sides;
+
+    //     for(int i = 0; i < sides; i++)
+    //     {
+    //         path.lineTo(cos(angle)*radiusX, sin(angle)*radiusY);
+    //         angle += inc;
+    //     }
+
+    //     path.close();
+    // }
+}
+
+class FlutterActorStar extends ActorStar with FlutterPathPointsPath
+{
+    // onPathInvalid()
+    // {
+    //     (parent as FlutterActorShape).invalidatePath();
+    // }
+
+    // markPathDirty()
+    // {
+    //     actor.addDirt(this, ActorBasePath.PathDirty, false);
+    //     this.onPathInvalid();
+    // }
+
+    // updatePath(ui.Path path)
+    // {
+    //     path.moveTo(0.0, -radiusY);
+    //     double angle = -pi/2.0;
+    //     double inc = (pi*2.0)/sides;
+    //     Vec2D sx = Vec2D.fromValues(radiusX, radiusX*innerRadius);
+    //     Vec2D sy = Vec2D.fromValues(radiusY, radiusY*innerRadius);
+        
+    //     for(int i = 0; i < sides; i++)
+    //     {
+    //         path.lineTo(cos(angle)*sx[i%2], sin(angle)*sy[i%2]);
+    //         angle += inc;
+    //     }
+    //     path.close();
+    // }
+}
+
+// Example of how to directly use a base FlutterPath and do drawing directly with SKIA high level paths
+// This is more efficient, particularly when using a lot of procedural shapes.
+class FlutterActorRectangle extends ActorRectangle with FlutterPath
+{
+	ui.Path _path;
+
+    ui.Path get path
 	{
-		if(points == null || points.length == 0)
+		if(_path != null)
 		{
-			return;
+			return _path;
 		}
-		Mat2D xform = this.transform;
+		return (_path = _makePath());
+	}
+	
+	void invalidatePath()
+    {
+        _path = null;
+    }
 
+	ui.Path _makePath()
+	{
+		ui.Path p = new ui.Path();
+		double halfWidth = width/2.0;
+		double halfHeight = height/2.0;
+        Vec2D topLeft = Vec2D.fromValues(-halfWidth, halfHeight);       
+        Vec2D bottomRight = Vec2D.fromValues(halfWidth, -halfHeight);
+        p.moveTo(x, y);
+
+        p.addRRect(
+            new ui.RRect.fromLTRBR(
+                topLeft[0],
+                topLeft[1],
+                bottomRight[0],
+                bottomRight[1],
+                ui.Radius.circular(radius)
+            )
+        );
+
+		return p;
+    }
+}
+
+class FlutterActorTriangle extends ActorTriangle with FlutterPathPointsPath
+{
+    // updatePath(ui.Path path)
+    // {
+    //     path.moveTo(0.0, -radiusY);
+    //     path.lineTo(radiusX, radiusY);
+    //     path.lineTo(-radiusX, radiusY);
+    //     path.close();
+    // }
+}
+
+// Abstract base path that can be invalidated and somehow regenerates, no concrete logic
+abstract class FlutterPath
+{
+    ui.Path get path;
+}
+
+// Abstract path that uses Actor PathPoints, slightly higher level that FlutterPath.
+// Most shapes can use this, but if they want to use a different procedural backing call,
+// they should implement FlutterPath and generate the path another way.
+abstract class FlutterPathPointsPath implements FlutterPath
+{
+	ui.Path _path;
+	List<PathPoint> get points;
+	bool get isClosed;   
+
+    ui.Path get path
+	{
+		if(_path != null)
+		{
+			return _path;
+		}
+		return (_path = _makePath());
+	}
+	
+	void invalidatePath()
+    {
+        _path = null;
+    }
+
+	ui.Path _makePath()
+	{
+		ui.Path p = new ui.Path();
+
+		List<PathPoint> pts = this.points;
+		if(pts == null || pts.length == 0)
+		{
+			return p;
+		}
+		
 		List<PathPoint> renderPoints = new List<PathPoint>();
-		int pl = points.length;
+		int pl = pts.length;
 		
 		const double arcConstant = 0.55;
 		const double iarcConstant = 1.0-arcConstant;
-		PathPoint previous = isClosed ? points[pl-1].transformed(xform) : null;
+		PathPoint previous = isClosed ? pts[pl-1] : null;
 		for(int i = 0; i < pl; i++)
 		{
-			PathPoint point = points[i].transformed(xform);
+			PathPoint point = pts[i];
 			switch(point.pointType)
 			{
 				case PointType.Straight:
@@ -618,7 +778,7 @@ class FlutterActorPath extends ActorPath with FlutterPathMixin
 						}
 						else
 						{
-							PathPoint next = points[(i+1)%pl].transformed(xform);
+							PathPoint next = pts[(i+1)%pl];
 							Vec2D prevPoint = previous is CubicPathPoint ? previous.outPoint : previous.translation;
 							Vec2D nextPoint = next is CubicPathPoint ? next.inPoint : next.translation;
 							Vec2D pos = point.translation;
@@ -657,7 +817,7 @@ class FlutterActorPath extends ActorPath with FlutterPathMixin
 		}
 
 		PathPoint firstPoint = renderPoints[0];
-		path.moveTo(firstPoint.translation[0], firstPoint.translation[1]);
+		p.moveTo(firstPoint.translation[0], firstPoint.translation[1]);
 		for(int i = 0, l = isClosed ? renderPoints.length : renderPoints.length-1, pl = renderPoints.length; i < l; i++)
 		{
 			PathPoint point = renderPoints[i];
@@ -666,7 +826,7 @@ class FlutterActorPath extends ActorPath with FlutterPathMixin
             Vec2D cout = point is CubicPathPoint ? point.outPoint : null;
 			if(cin == null && cout == null)
 			{
-				path.lineTo(nextPoint.translation[0], nextPoint.translation[1]);	
+				p.lineTo(nextPoint.translation[0], nextPoint.translation[1]);	
 			}
 			else
 			{
@@ -679,7 +839,7 @@ class FlutterActorPath extends ActorPath with FlutterPathMixin
 					cin = nextPoint.translation;
 				}
 
-				path.cubicTo(
+				p.cubicTo(
 					cout[0], cout[1],
 
 					cin[0], cin[1],
@@ -690,140 +850,9 @@ class FlutterActorPath extends ActorPath with FlutterPathMixin
 
 		if(isClosed)
 		{
-			path.close();
+			p.close();
 		}
+
+		return p;
 	}
-}
-
-class FlutterActorEllipse extends ActorEllipse with FlutterPathMixin
-{
-    updatePath(ui.Path path)
-    {
-        List<PathPoint> pts = points;
-        int len = pts.length;
-        path.moveTo(0.0, -radiusY);
-        
-        for(int i = 0; i < len; i++)
-        {
-            CubicPathPoint point = pts[i];
-            CubicPathPoint nextPoint = pts[(i+1)%len];
-            Vec2D t = nextPoint.translation;
-            Vec2D cin = nextPoint.inPoint;
-            Vec2D cout = point.outPoint;
-            path.cubicTo(
-                cout[0], cout[1],
-                cin[0], cin[1],
-                t[0], t[1]
-            );
-        }
-        path.close();
-    }
-
-}
-
-class FlutterActorPolygon extends ActorPolygon with FlutterPathMixin
-{
-    updatePath(ui.Path path)
-    {
-        Mat2D xform = this.transform;
-        List<PathPoint> pts = points;
-        for(PathPoint p in pts)
-        {
-            p = p.transformed(xform);
-        }
-
-        path.moveTo(0.0, -radiusY);
-        double angle = -pi/2.0;
-        double inc = (pi*2.0)/sides;
-
-        for(int i = 0; i < sides; i++)
-        {
-            path.lineTo(cos(angle)*radiusX, sin(angle)*radiusY);
-            angle += inc;
-        }
-
-        path.close();
-    }
-}
-
-class FlutterActorStar extends ActorStar with FlutterPathMixin
-{
-    onPathInvalid()
-    {
-        (parent as FlutterActorShape).invalidatePath();
-    }
-
-    markPathDirty()
-    {
-        actor.addDirt(this, ActorBasePath.PathDirty, false);
-        this.onPathInvalid();
-    }
-
-    updatePath(ui.Path path)
-    {
-        path.moveTo(0.0, -radiusY);
-        double angle = -pi/2.0;
-        double inc = (pi*2.0)/sides;
-        Vec2D sx = Vec2D.fromValues(radiusX, radiusX*innerRadius);
-        Vec2D sy = Vec2D.fromValues(radiusY, radiusY*innerRadius);
-        
-        for(int i = 0; i < sides; i++)
-        {
-            path.lineTo(cos(angle)*sx[i%2], sin(angle)*sy[i%2]);
-            angle += inc;
-        }
-        path.close();
-    }
-}
-
-class FlutterActorRectangle extends ActorRectangle with FlutterPathMixin
-{
-    onPathInvalid()
-    {
-        (parent as FlutterActorShape).invalidatePath();
-    }
-
-    markPathDirty()
-    {
-        actor.addDirt(this, ActorBasePath.PathDirty, false);
-        this.onPathInvalid();
-    }
-
-    updatePath(ui.Path path)
-    {
-        Mat2D xform = this.transform;
-        Vec2D topLeft = Vec2D.fromValues(-halfWidth, halfHeight);
-        Vec2D.transformMat2D(topLeft, topLeft, xform);
-        
-        Vec2D bottomRight = Vec2D.fromValues(halfWidth, -halfHeight);
-        Vec2D.transformMat2D(bottomRight, bottomRight, xform);
-        
-        path.moveTo(x, y);
-
-        path.addRRect(
-            new ui.RRect.fromLTRBR(
-                topLeft[0],
-                topLeft[1],
-                bottomRight[0],
-                bottomRight[1],
-                ui.Radius.circular(radius)
-            )
-        );
-    }
-}
-
-class FlutterActorTriangle extends ActorTriangle with FlutterPathMixin
-{
-    updatePath(ui.Path path)
-    {
-        path.moveTo(0.0, -radiusY);
-        path.lineTo(radiusX, radiusY);
-        path.lineTo(-radiusX, radiusY);
-        path.close();
-    }
-}
-
-abstract class FlutterPathMixin
-{
-    updatePath(ui.Path path);
 }

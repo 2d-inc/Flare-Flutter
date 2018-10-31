@@ -1261,6 +1261,53 @@ class KeyFrameRadial extends KeyFrameWithInterpolation
     }
 }
 
+class KeyFrameShapeWidth extends KeyFrameNumeric
+{
+	static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameShapeWidth frame = new KeyFrameShapeWidth();
+		if(KeyFrameNumeric.read(reader, frame))
+		{
+			return frame;
+		}
+		return null;
+	}
+
+	void setValue(ActorComponent component, double value, double mix)
+	{
+		if(component == null) return;
+
+        if(component is ActorProceduralPath)
+        {
+            component.width = component.width * (1.0 - mix) + value * mix;
+        }
+	}
+}
+
+class KeyFrameShapeHeight extends KeyFrameNumeric
+{
+	static KeyFrame read(StreamReader reader, ActorComponent component)
+	{
+		KeyFrameShapeHeight frame = new KeyFrameShapeHeight();
+		if(KeyFrameNumeric.read(reader, frame))
+		{
+			return frame;
+		}
+		return null;
+	}
+
+	void setValue(ActorComponent component, double value, double mix)
+	{
+		if(component == null) return;
+
+        if(component is ActorProceduralPath)
+        {
+            component.height = component.height * (1.0 - mix) + value * mix;
+						//print("YEAHe ${component.name} ${component.height}");
+        }
+	}
+}
+
 class KeyFrameStrokeWidth extends KeyFrameNumeric
 {
 	static KeyFrame read(StreamReader reader, ActorComponent component)

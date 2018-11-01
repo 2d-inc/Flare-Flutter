@@ -4,6 +4,7 @@ import "math/vec2d.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
+import "actor_component.dart";
 
 const double CircleConstant = 0.55;
 
@@ -11,12 +12,17 @@ class ActorRectangle extends ActorProceduralPath
 {
     double _radius = 0.0;
 
-    ActorRectangle makeInstance(Actor resetActor)
+    ActorComponent makeInstance(Actor resetActor)
     {
         ActorRectangle instance = new ActorRectangle();
-        instance.copyPath(this, resetActor);
-        instance._radius = this._radius;
+        instance.copyRectangle(this, resetActor);
         return instance;
+    }
+
+    void copyRectangle(ActorRectangle node, Actor resetActor)
+    {
+		copyPath(node, resetActor);
+        _radius = node._radius;
     }
 
     static ActorRectangle read(Actor actor, StreamReader reader, ActorRectangle component)

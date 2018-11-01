@@ -317,8 +317,9 @@ class Actor
 
 	void copyActor(Actor actor)
 	{
+		print("COPYING ACTOR");
 		_animations = actor._animations;
-		_flags = actor._flags;
+		//_flags = actor._flags;
 		_maxTextureIndex = actor._maxTextureIndex;
 		_drawableNodeCount = actor._drawableNodeCount;
 		_nodeCount = actor._nodeCount;
@@ -351,10 +352,9 @@ class Actor
 				}
 				ActorComponent instanceComponent = component.makeInstance(this);
 				_components[idx++] = instanceComponent;
-				ActorNode nodeInstance = instanceComponent as ActorNode;
-				if(nodeInstance != null)
+				if(instanceComponent is ActorNode)
 				{
-					_nodes[ndIdx++] = nodeInstance;
+					_nodes[ndIdx++] = instanceComponent;
 				}
 
 				if(instanceComponent is ActorDrawable)
@@ -381,10 +381,20 @@ class Actor
 			{
 				continue;
 			}
+			print("COMPLETE RESOLVE IN INSTANCE");
 			component.completeResolve();
 		}
 
 		sortDependencies();
+
+		if (_drawableNodes != null)
+		{
+			_drawableNodes.sort((a,b) => a.drawOrder.compareTo(b.drawOrder));
+			for(int i = 0; i < _drawableNodes.length; i++)
+			{
+				_drawableNodes[i].drawIndex = i;
+			}
+		}
 	}
 
 	void updateVertexDeform(ActorImage image) {}

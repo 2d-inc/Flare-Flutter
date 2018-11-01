@@ -5,19 +5,25 @@ import "math/vec2d.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
+import "actor_component.dart";
 
 class ActorStar extends ActorProceduralPath
 {
     int _numPoints = 5;
     double _innerRadius = 0.0;
 
-    ActorStar makeInstance(Actor resetActor)
+    ActorComponent makeInstance(Actor resetActor)
     {
         ActorStar instance = new ActorStar();
-        instance.copyPath(this, resetActor);
-        instance._numPoints = this._numPoints;
-        instance._innerRadius = this._innerRadius;
+        instance.copyStar(this, resetActor);
         return instance;
+    }
+
+    void copyStar(ActorStar node, Actor resetActor)
+    {
+		copyPath(node, resetActor);
+        _numPoints = node._numPoints;
+		_innerRadius = node._innerRadius;
     }
 
     static ActorStar read(Actor actor, StreamReader reader, ActorStar component)

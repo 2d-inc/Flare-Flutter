@@ -2,6 +2,8 @@ library flare;
 
 import "dart:async";
 import "dart:typed_data";
+import "flare/actor_component.dart";
+
 import "flare/actor.dart";
 import "flare/actor_shape.dart";
 import "flare/actor_path.dart";
@@ -88,7 +90,7 @@ class FlutterActorShape extends ActorShape
 		_fills.add(fill);
 	}
 
-	void draw(ui.Canvas canvas, ui.Color overrideColor)
+	void draw(ui.Canvas canvas, double modulateOpacity, ui.Color overrideColor)
 	{
 		if(!this.doesDraw)
 		{
@@ -100,7 +102,8 @@ class FlutterActorShape extends ActorShape
 		ui.Path renderPath = path;
 		Float64List paintTransform = worldTransform.mat4;
 		
-		double opacity = this.renderOpacity;
+		double opacity = this.renderOpacity*modulateOpacity;
+		
 
 		// Get Clips
 		if(clips != null)
@@ -153,6 +156,13 @@ class FlutterActorShape extends ActorShape
 
 		canvas.restore();
 	}
+
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterActorShape instanceNode = new FlutterActorShape();
+		instanceNode.copyShape(this, resetActor);
+		return instanceNode;
+	}
 }
 
 class FlutterColorFill extends ColorFill implements FlutterFill
@@ -174,6 +184,13 @@ class FlutterColorFill extends ColorFill implements FlutterFill
 		{
 			parentNode.addFill(this);
 		}
+	}
+
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterColorFill instanceNode = new FlutterColorFill();
+		instanceNode.copyColorFill(this, resetActor);
+		return instanceNode;
 	}
 }
 
@@ -201,6 +218,13 @@ class FlutterColorStroke extends ColorStroke implements FlutterStroke
 		{
 			parentNode.addFlutterStroke(this);
 		}
+	}
+
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterColorStroke instanceNode = new FlutterColorStroke();
+		instanceNode.copyColorStroke(this, resetActor);
+		return instanceNode;
 	}
 }
 
@@ -239,6 +263,13 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 		{
 			parentNode.addFill(this);
 		}
+	}
+
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterGradientFill instanceNode = new FlutterGradientFill();
+		instanceNode.copyGradientFill(this, resetActor);
+		return instanceNode;
 	}
 }
 
@@ -280,9 +311,15 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 			parentNode.addFlutterStroke(this);
 		}
 	}
+
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterGradientStroke instanceNode = new FlutterGradientStroke();
+		instanceNode.copyGradientStroke(this, resetActor);
+		return instanceNode;
+	}
 }
 
-double R = 0.0;
 class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 {
 	ui.Paint getPaint(Float64List transform, double opacity)
@@ -318,8 +355,7 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 		translate[5] = start[1];
 
 		Mat2D rotation = new Mat2D();
-		Mat2D.fromRotation(rotation, angle+R);
-		R += 0.01;
+		Mat2D.fromRotation(rotation, angle);
 
 		transform[4] = start[0];
 		transform[5] = start[1];
@@ -354,9 +390,10 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 		Vec2D center = start;
 		ui.Gradient radial = new ui.Gradient.radial(new ui.Offset(0.0, 0.0), radius, colors, stops, ui.TileMode.clamp, transform.mat4);
         opacity *= this.opacity;
+		
 		//print("RADIUS ${center[0]} ${center[1]} ${colors.length} $numStops ${colors} ${stops}");
 		ui.Paint paint = new ui.Paint()
-								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
+								..color = new ui.Color.fromRGBO(255, 255, 255, opacity)
 								..shader = radial
 								..style = ui.PaintingStyle.fill;
 
@@ -372,6 +409,13 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 		{
 			parentNode.addFill(this);
 		}
+	}
+
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterRadialFill instanceNode = new FlutterRadialFill();
+		instanceNode.copyRadialFill(this, resetActor);
+		return instanceNode;
 	}
 }
 
@@ -389,8 +433,7 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 		translate[5] = start[1];
 
 		Mat2D rotation = new Mat2D();
-		Mat2D.fromRotation(rotation, angle+R);
-		R += 0.01;
+		Mat2D.fromRotation(rotation, angle);
 
 		transform[4] = start[0];
 		transform[5] = start[1];
@@ -433,6 +476,13 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 		{
 			parentNode.addFlutterStroke(this);
 		}
+	}
+
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterRadialStroke instanceNode = new FlutterRadialStroke();
+		instanceNode.copyRadialStroke(this, resetActor);
+		return instanceNode;
 	}
 }
 
@@ -555,7 +605,6 @@ class FlutterActor extends Actor
         FlutterActor actorInstance = new FlutterActor();
         actorInstance.copyActor(this);
         actorInstance._isInstance = true;
-        // TODO: copy Images
         return actorInstance;
     }
 
@@ -567,13 +616,13 @@ class FlutterActor extends Actor
     dispose()
     {}
 
-	void draw(ui.Canvas canvas, [ui.Color overrideColor])
+	void draw(ui.Canvas canvas, {ui.Color overrideColor, double opacity = 1.0})
 	{
 		for(ActorDrawable drawable in drawableNodes)
 		{
 			if(drawable is FlutterActorShape)
 			{
-				drawable.draw(canvas, overrideColor);
+				drawable.draw(canvas, opacity, overrideColor);
 			}
 		}
 	}
@@ -581,11 +630,22 @@ class FlutterActor extends Actor
 
 class FlutterActorPath extends ActorPath with FlutterPathPointsPath
 {
-	
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterActorPath instanceNode = new FlutterActorPath();
+		instanceNode.copyPath(this, resetActor);
+		return instanceNode;
+	}
 }
 
 class FlutterActorEllipse extends ActorEllipse with FlutterPathPointsPath
 {
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterActorEllipse instanceNode = new FlutterActorEllipse();
+		instanceNode.copyPath(this, resetActor);
+		return instanceNode;
+	}
     // updatePath(ui.Path path)
     // {
     //     List<PathPoint> pts = points;
@@ -612,6 +672,12 @@ class FlutterActorEllipse extends ActorEllipse with FlutterPathPointsPath
 
 class FlutterActorPolygon extends ActorPolygon with FlutterPathPointsPath
 {
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterActorPolygon instanceNode = new FlutterActorPolygon();
+		instanceNode.copyPolygon(this, resetActor);
+		return instanceNode;
+	}
     // updatePath(ui.Path path)
     // {
     //     Mat2D xform = this.transform;
@@ -637,6 +703,12 @@ class FlutterActorPolygon extends ActorPolygon with FlutterPathPointsPath
 
 class FlutterActorStar extends ActorStar with FlutterPathPointsPath
 {
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterActorStar instanceNode = new FlutterActorStar();
+		instanceNode.copyStar(this, resetActor);
+		return instanceNode;
+	}
     // onPathInvalid()
     // {
     //     (parent as FlutterActorShape).invalidatePath();
@@ -669,6 +741,13 @@ class FlutterActorStar extends ActorStar with FlutterPathPointsPath
 // This is more efficient, particularly when using a lot of procedural shapes.
 class FlutterActorRectangle extends ActorRectangle with FlutterPath
 {
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterActorRectangle instanceNode = new FlutterActorRectangle();
+		instanceNode.copyRectangle(this, resetActor);
+		return instanceNode;
+	}
+
 	ui.Path _path;
 
     ui.Path get path
@@ -710,6 +789,12 @@ class FlutterActorRectangle extends ActorRectangle with FlutterPath
 
 class FlutterActorTriangle extends ActorTriangle with FlutterPathPointsPath
 {
+	ActorComponent makeInstance(Actor resetActor)
+	{
+		FlutterActorTriangle instanceNode = new FlutterActorTriangle();
+		instanceNode.copyPath(this, resetActor);
+		return instanceNode;
+	}
     // updatePath(ui.Path path)
     // {
     //     path.moveTo(0.0, -radiusY);

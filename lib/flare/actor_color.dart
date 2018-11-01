@@ -197,11 +197,11 @@ class GradientFill extends GradientColor
 	ActorComponent makeInstance(Actor resetActor)
 	{
 		GradientFill instanceEvent = new GradientFill();
-		instanceEvent.copyColorFill(this, resetActor);
+		instanceEvent.copyGradientFill(this, resetActor);
 		return instanceEvent;
 	}
 
-	void copyColorFill(GradientFill node, Actor resetActor)
+	void copyGradientFill(GradientFill node, Actor resetActor)
 	{
 		copyGradient(node, resetActor);
 		_fillRule = node._fillRule;

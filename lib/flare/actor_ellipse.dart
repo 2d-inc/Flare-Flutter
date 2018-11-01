@@ -1,3 +1,4 @@
+import "actor_component.dart";
 import "actor.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
@@ -9,7 +10,7 @@ const double CircleConstant = 0.55;
 
 class ActorEllipse extends ActorProceduralPath
 {
-    ActorEllipse makeInstance(Actor resetActor)
+    ActorComponent makeInstance(Actor resetActor)
     {
         ActorEllipse instance = new ActorEllipse();
         instance.copyPath(this, resetActor);

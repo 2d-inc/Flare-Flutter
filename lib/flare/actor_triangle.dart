@@ -4,10 +4,11 @@ import "math/vec2d.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
+import "actor_component.dart";
 
 class ActorTriangle extends ActorProceduralPath
 {
-    ActorTriangle makeInstance(Actor resetActor)
+    ActorComponent makeInstance(Actor resetActor)
     {
         ActorTriangle instance = new ActorTriangle();
         instance.copyPath(this, resetActor);

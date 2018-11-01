@@ -5,17 +5,23 @@ import "math/vec2d.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "path_point.dart";
+import "actor_component.dart";
 
 class ActorPolygon extends ActorProceduralPath
 {
     int sides = 5;
 
-    ActorPolygon makeInstance(Actor resetActor)
+    ActorComponent makeInstance(Actor resetActor)
     {
         ActorPolygon instance = new ActorPolygon();
-        instance.copyPath(this, resetActor);
-        instance.sides = this.sides;
+        instance.copyPolygon(this, resetActor);
         return instance;
+    }
+
+    void copyPolygon(ActorPolygon node, Actor resetActor)
+    {
+		copyPath(node, resetActor);
+        sides = node.sides;
     }
 
     static ActorPolygon read(Actor actor, StreamReader reader, ActorPolygon component)

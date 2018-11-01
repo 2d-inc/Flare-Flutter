@@ -65,10 +65,6 @@ class FlutterActorShape extends ActorShape
 			{
 				_path.addPath((actorPath as FlutterPath).path, ui.Offset.zero, matrix4:actorPath.transform.mat4);
 			}
-            // if(path is FlutterPathMixin)
-            // {
-			//     (path as FlutterPathMixin).updatePath(_path);
-            // }
 		}
 		return _path;
 		
@@ -92,7 +88,7 @@ class FlutterActorShape extends ActorShape
 		_fills.add(fill);
 	}
 
-	void draw(ui.Canvas canvas)
+	void draw(ui.Canvas canvas, ui.Color overrideColor)
 	{
 		if(!this.doesDraw)
 		{
@@ -131,6 +127,10 @@ class FlutterActorShape extends ActorShape
 				{
 					continue;
 				}
+				if(overrideColor != null)
+				{
+					paint.color = overrideColor;
+				}
 				canvas.drawPath(renderPath, paint);
 			}
 		}
@@ -142,6 +142,10 @@ class FlutterActorShape extends ActorShape
 				if(paint == null)
 				{
 					continue;
+				}
+				if(overrideColor != null)
+				{
+					paint.color = overrideColor;
 				}
 				canvas.drawPath(renderPath, paint);
 			}
@@ -563,13 +567,13 @@ class FlutterActor extends Actor
     dispose()
     {}
 
-	void draw(ui.Canvas canvas)
+	void draw(ui.Canvas canvas, [ui.Color overrideColor])
 	{
 		for(ActorDrawable drawable in drawableNodes)
 		{
 			if(drawable is FlutterActorShape)
 			{
-				drawable.draw(canvas);
+				drawable.draw(canvas, overrideColor);
 			}
 		}
 	}

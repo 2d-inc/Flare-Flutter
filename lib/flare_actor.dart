@@ -24,8 +24,9 @@ class FlareActor extends LeafRenderObjectWidget
     final bool isPaused;
     final FlareController controller;
     final FlareCompletedCallback callback;
+	final Color color;
 
-    FlareActor(this.filename, {this.animation, this.fit = BoxFit.contain, this.alignment = Alignment.center, this.isPaused = false, this.controller, this.callback});
+    FlareActor(this.filename, {this.animation, this.fit = BoxFit.contain, this.alignment = Alignment.center, this.isPaused = false, this.controller, this.callback, this.color});
 
     @override
     RenderObject createRenderObject(BuildContext context)
@@ -37,7 +38,8 @@ class FlareActor extends LeafRenderObjectWidget
                         ..animationName = animation
                         ..isPlaying = !isPaused && animation != null
                         ..controller = controller
-                        ..completed = callback;
+                        ..completed = callback
+						..color = color;
     }
 
     @override
@@ -48,7 +50,8 @@ class FlareActor extends LeafRenderObjectWidget
             ..fit = fit
             ..alignment = alignment
             ..animationName = animation
-            ..isPlaying = !isPaused && animation != null;
+            ..isPlaying = !isPaused && animation != null
+			.. color = color;
     }
 }
 
@@ -76,6 +79,18 @@ class FlareActorRenderObject extends RenderBox
     FlutterActor _actor;
     AABB _setupAABB;
 
+	Color _color;
+
+    Color get color => _color;
+    set color(Color value)
+    {
+        if(value != _color)
+        {
+            _color = value;
+            markNeedsPaint();
+        }
+    }
+
     BoxFit get fit => _fit;
     set fit(BoxFit value)
     {
@@ -96,6 +111,10 @@ class FlareActorRenderObject extends RenderBox
             {
                 SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
             }
+			else
+			{
+				_lastFrameTime = 0;
+			}
         }
     }
 
@@ -206,6 +225,7 @@ class FlareActorRenderObject extends RenderBox
         {
             _lastFrameTime = t;
             SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
+			return;
         }
 
         double elapsedSeconds = t - _lastFrameTime;
@@ -260,6 +280,11 @@ class FlareActorRenderObject extends RenderBox
         {
             _controller.advance(_actor, elapsedSeconds);
         }
+
+		if(_animationLayers.length == 0)
+		{
+			isPlaying = false;
+		}
 
         if(isPlaying)
         {
@@ -343,7 +368,7 @@ class FlareActorRenderObject extends RenderBox
 			
             canvas.scale(scaleX, scaleY);
             canvas.translate(x,y);
-            _actor.draw(canvas);
+            _actor.draw(canvas, _color);
             canvas.restore();
         }
     }

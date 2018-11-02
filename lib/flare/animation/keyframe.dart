@@ -933,7 +933,8 @@ class KeyFrameFillOpacity extends KeyFrameNumeric
 
 	void setValue(ActorComponent component, double value, double mix)
 	{
-		GradientFill node = component as GradientFill;
+		// GradientFill node = component as GradientFill;
+		ActorPaint node = component as ActorPaint;
 		node.opacity = node.opacity * (1.0 - mix) + value * mix;
 	}
 }

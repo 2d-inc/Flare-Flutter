@@ -312,7 +312,7 @@ class ActorPath extends ActorBasePath
 
 		if(nodePath.vertexDeform != null)
 		{
-			vertexDeform = new Float32List.fromList(vertexDeform);
+			vertexDeform = new Float32List.fromList(nodePath.vertexDeform);
 		}
 	}
 

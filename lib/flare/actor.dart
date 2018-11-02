@@ -316,7 +316,6 @@ class Actor
 
 	void copyActor(Actor actor)
 	{
-		print("COPYING ACTOR");
 		_animations = actor._animations;
 		//_flags = actor._flags;
 		_maxTextureIndex = actor._maxTextureIndex;

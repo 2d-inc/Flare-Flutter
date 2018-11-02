@@ -562,7 +562,6 @@ class FlutterActor extends Actor
 
 	Future<bool> loadFromBundle(String filename) async
 	{
-		print("Loading actor filename.. $filename");
 		Completer<bool> completer = new Completer<bool>();
 		rootBundle.load(filename).then((ByteData data)
 		{	

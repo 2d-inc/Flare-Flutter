@@ -158,7 +158,7 @@ class ActorIKConstraint extends ActorTargetedConstraint
 		ActorTargetedConstraint.read(actor, reader, component);
 		component._invertDirection = reader.readBool("isInverted");
 			
-        reader.openArray("InfluencedBones");
+        reader.openArray("bones");
 		int numInfluencedBones = reader.readUint8Length();
 		if(numInfluencedBones > 0)
 		{

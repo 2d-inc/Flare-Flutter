@@ -16,7 +16,26 @@ enum FillRule
 
 HashMap<int,FillRule> fillRuleLookup = new HashMap<int,FillRule>.fromIterables([0,1], [FillRule.EvenOdd, FillRule.NonZero]);
 
-abstract class ActorColor extends ActorComponent
+abstract class ActorPaint extends ActorComponent
+{
+	double opacity = 1.0;
+
+	void copyPaint(ActorPaint component, Actor resetActor)
+	{
+		copyComponent(component, resetActor);
+		opacity = component.opacity;
+	}
+
+	static ActorPaint read(Actor actor, StreamReader reader, ActorPaint component)
+	{
+		ActorComponent.read(actor, reader, component);
+		component.opacity = reader.readFloat32("opacity");
+
+		return component;
+	}
+}
+
+abstract class ActorColor extends ActorPaint
 {
 	Float32List _color = new Float32List(4);
 
@@ -27,7 +46,7 @@ abstract class ActorColor extends ActorComponent
 
 	void copyColor(ActorColor node, Actor resetActor)
 	{
-		copyComponent(node, resetActor);
+		copyPaint(node, resetActor);
 		_color[0] = node._color[0];
 		_color[1] = node._color[1];
 		_color[2] = node._color[2];
@@ -36,7 +55,7 @@ abstract class ActorColor extends ActorComponent
 
 	static ActorColor read(Actor actor, StreamReader reader, ActorColor component)
 	{
-		ActorComponent.read(actor, reader, component);
+		ActorPaint.read(actor, reader, component);
 
 		reader.readFloat32ArrayOffset(component._color, 4, 0, "color");
 		
@@ -129,7 +148,7 @@ class ColorStroke extends ActorColor implements ActorStroke
 	}
 }
 
-abstract class GradientColor extends ActorComponent
+abstract class GradientColor extends ActorPaint
 {
 	Float32List _colorStops = new Float32List(10);
 	Vec2D _start = new Vec2D();
@@ -163,7 +182,7 @@ abstract class GradientColor extends ActorComponent
 
 	void copyGradient(GradientColor node, Actor resetActor)
 	{
-		copyComponent(node, resetActor);
+		copyPaint(node, resetActor);
 		_colorStops = new Float32List.fromList(node._colorStops);
 		Vec2D.copy(_start, node._start);
 		Vec2D.copy(_end, node._end);
@@ -172,7 +191,7 @@ abstract class GradientColor extends ActorComponent
 
 	static GradientColor read(Actor actor, StreamReader reader, GradientColor component)
 	{
-		ActorComponent.read(actor, reader, component);
+		ActorPaint.read(actor, reader, component);
 
 		int numStops = reader.readUint8("numColorStops");
 		Float32List stops = new Float32List(numStops*5);

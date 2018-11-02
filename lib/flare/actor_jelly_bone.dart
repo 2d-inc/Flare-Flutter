@@ -23,7 +23,7 @@ class ActorJellyBone extends ActorBoneBase
 		// of the Jelly Bone are controlled by the Jelly Controller and are unnecessary for serialization.
 		ActorComponent.read(actor, reader, node);
 		node.opacity = reader.readFloat32("opacity");
-		node.collapsedVisibility = reader.readBool("isCollapsedVisibility");
+		node.collapsedVisibility = reader.readBool("isCollapsed");
 		return node;
 	}
 }

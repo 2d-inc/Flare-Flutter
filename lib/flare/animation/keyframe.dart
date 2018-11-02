@@ -482,7 +482,7 @@ class KeyFrameConstraintStrength extends KeyFrameNumeric
 
 class DrawOrderIndex
 {
-	int nodeIdx;
+	int componentIndex;
 	int order;
 }
 
@@ -504,7 +504,7 @@ class KeyFrameDrawOrder extends KeyFrame
 		{
             reader.openObject("order");
 			DrawOrderIndex drawOrder = new DrawOrderIndex();
-			drawOrder.nodeIdx = reader.readId("nodeIndex");
+			drawOrder.componentIndex = reader.readId("component");
 			drawOrder.order = reader.readUint16("order");
             reader.closeObject();
 			frame._orderedNodes[i] = drawOrder;
@@ -529,7 +529,7 @@ class KeyFrameDrawOrder extends KeyFrame
 
 		for(DrawOrderIndex doi in _orderedNodes)
 		{
-			ActorImage actorImage = actor[doi.nodeIdx] as ActorImage;
+			ActorImage actorImage = actor[doi.componentIndex] as ActorImage;
 			if(actorImage != null)
 			{
 				actorImage.drawOrder = doi.order;

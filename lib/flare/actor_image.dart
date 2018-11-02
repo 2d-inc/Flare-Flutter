@@ -283,7 +283,7 @@ class ActorImage extends ActorDrawable
 			node.drawOrder = reader.readUint16("drawOrder");
 			node._textureIndex = reader.readUint8("atlas");
 
-            reader.openArray("ConnectedBones");
+            reader.openArray("bones");
 			int numConnectedBones = reader.readUint8Length();
 			if(numConnectedBones != 0)
 			{
@@ -293,7 +293,7 @@ class ActorImage extends ActorDrawable
 				{
 					BoneConnection bc = new BoneConnection();
                     reader.openObject("bone");
-					bc.boneIdx = reader.readId("id");
+					bc.boneIdx = reader.readId("component");
 					reader.readFloat32ArrayOffset(bc.bind.values, 6, 0, "bind");
                     reader.closeObject();
 					Mat2D.invert(bc.inverseBind, bc.bind);
@@ -330,7 +330,7 @@ class ActorImage extends ActorDrawable
 
 		if(node._textureIndex != -1)
 		{
-            reader.openArray("FrameAssets");
+            reader.openArray("frames");
 			int frameAssetCount = reader.readUint16Length();
 			// node._sequenceFrames = [];
 			Float32List uvs = new Float32List(node._vertexCount*2*frameAssetCount);
@@ -356,11 +356,11 @@ class ActorImage extends ActorDrawable
 			int offset = uvStride;
 			for(int i = 1; i < frameAssetCount; i++)
 			{
-                reader.openObject("frameAsset");
+                reader.openObject("frame");
 				
-                SequenceFrame frame = new SequenceFrame(reader.readUint8("atlasId"), offset*4);
+                SequenceFrame frame = new SequenceFrame(reader.readUint8("atlas"), offset*4);
 				node._sequenceFrames.add(frame);
-				reader.readFloat32ArrayOffset(uvs, uvStride, offset, "frameUV");
+				reader.readFloat32ArrayOffset(uvs, uvStride, offset, "uv");
 				offset += uvStride;
 
                 reader.closeObject();

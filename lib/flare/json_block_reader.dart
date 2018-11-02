@@ -43,7 +43,7 @@ class JSONBlockReader extends JSONReader
 		{
             var c = this.context.first;
             if(c is Map)
-            {
+            {		
                 bType = blockTypes[this.nextKey];
             }
             else if(c is List)

@@ -269,16 +269,16 @@ class ActorNode extends ActorComponent
 		node._rotation = reader.readFloat32("rotation");
 		reader.readFloat32ArrayOffset(node._scale.values, 2, 0, "scale");
 		node._opacity = reader.readFloat32("opacity");
-		node._isCollapsedVisibility = reader.readBool("isCollapsedVisibility");
+		node._isCollapsedVisibility = reader.readBool("isCollapsed");
 
-        reader.openArray("Clips");
+        reader.openArray("clips");
 		int clipCount = reader.readUint8Length();
 		if(clipCount > 0)
 		{
 			node._clips = new List<ActorClip>(clipCount);
 			for(int i = 0; i < clipCount; i++)
 			{
-				node._clips[i] = new ActorClip(reader.readId("clipId"));
+				node._clips[i] = new ActorClip(reader.readId("clip"));
 			}
 		}
         reader.closeArray();

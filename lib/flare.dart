@@ -2,6 +2,8 @@ library flare;
 
 import "dart:async";
 import "dart:typed_data";
+import "package:flutter/material.dart";
+
 import "flare/actor_component.dart";
 
 import "flare/actor.dart";
@@ -90,9 +92,10 @@ class FlutterActorShape extends ActorShape
 		_fills.add(fill);
 	}
 
-	void draw(ui.Canvas canvas, double modulateOpacity, ui.Color overrideColor)
+	void draw(ui.Canvas canvas, double opacity, ui.Color overrideColor)
 	{
-		if(!this.doesDraw)
+		opacity *= renderOpacity;
+		if(opacity <= 0 || !this.doesDraw)
 		{
 			return;
 		}
@@ -102,9 +105,6 @@ class FlutterActorShape extends ActorShape
 		ui.Path renderPath = path;
 		Float64List paintTransform = worldTransform.mat4;
 		
-		double opacity = this.renderOpacity*modulateOpacity;
-		
-
 		// Get Clips
 		if(clips != null)
 		{
@@ -167,10 +167,10 @@ class FlutterActorShape extends ActorShape
 
 class FlutterColorFill extends ColorFill implements FlutterFill
 {
-	ui.Paint getPaint(Float64List transform, double opacity)
+	ui.Paint getPaint(Float64List transform, double modulateOpacity)
 	{
 		ui.Paint paint = new ui.Paint()
-									..color = new ui.Color.fromARGB((color[3]*opacity*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round())
+									..color = new ui.Color.fromRGBO((color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round(), color[3]*modulateOpacity*opacity)
 									..style = ui.PaintingStyle.fill;
 		return paint;
 	}
@@ -196,14 +196,14 @@ class FlutterColorFill extends ColorFill implements FlutterFill
 
 class FlutterColorStroke extends ColorStroke implements FlutterStroke
 {
-	ui.Paint getPaint(Float64List transform, double opacity)
+	ui.Paint getPaint(Float64List transform, double modulateOpacity)
 	{
 		if(width == 0)
 		{
 			return null;
 		}
 		ui.Paint paint = new ui.Paint()
-									..color = new ui.Color.fromARGB((color[3]*opacity*255.0).round(), (color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round())
+									..color = new ui.Color.fromRGBO((color[0]*255.0).round(), (color[1]*255.0).round(), (color[2]*255.0).round(), color[3]*modulateOpacity*opacity)
 									..strokeWidth = width
 									..style = ui.PaintingStyle.stroke;
 		return paint;
@@ -230,7 +230,7 @@ class FlutterColorStroke extends ColorStroke implements FlutterStroke
 
 class FlutterGradientFill extends GradientFill implements FlutterFill
 {
-	ui.Paint getPaint(Float64List transform, double opacity)
+	ui.Paint getPaint(Float64List transform, double modulateOpacity)
 	{
 		List<ui.Color> colors = new List<ui.Color>();
     	List<double> stops = new List<double>();
@@ -239,7 +239,7 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 		int idx = 0;
 		for(int i = 0; i < numStops; i++)
 		{
-			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*opacity*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			ui.Color color = new ui.Color.fromRGBO((colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round(), colorStops[idx+3]);
 			colors.add(color);
 			stops.add(colorStops[idx+4]);
 			idx += 5;
@@ -248,7 +248,7 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 		Vec2D gend = end;
         opacity *= this.opacity;
 		ui.Paint paint = new ui.Paint()
-								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
+								..color = Colors.white.withOpacity(modulateOpacity*opacity)
 								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)
 								..style = ui.PaintingStyle.fill;
 		return paint;
@@ -275,7 +275,7 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 
 class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 {
-	ui.Paint getPaint(Float64List transform, double opacity)
+	ui.Paint getPaint(Float64List transform, double modulateOpacity)
 	{
 		List<ui.Color> colors = new List<ui.Color>();
     	List<double> stops = new List<double>();
@@ -284,7 +284,7 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 		int idx = 0;
 		for(int i = 0; i < numStops; i++)
 		{
-			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*opacity*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			ui.Color color = new ui.Color.fromRGBO((colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round(), colorStops[idx+3]);
 			colors.add(color);
 			stops.add(colorStops[idx+4]);
 			idx += 5;
@@ -294,7 +294,7 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 		Vec2D gend = end;
         opacity *= this.opacity;
 		ui.Paint paint = new ui.Paint()
-								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
+								..color = Colors.white.withOpacity(modulateOpacity*opacity)
 								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)
 								..strokeWidth = width
 								..style = ui.PaintingStyle.stroke;
@@ -322,7 +322,7 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 
 class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 {
-	ui.Paint getPaint(Float64List transform, double opacity)
+	ui.Paint getPaint(Float64List transform, double modulateOpacity)
 	{
 		/*let {_Start:start, _End:end, _ColorStops:stops, _SecondaryRadiusScale:secondaryRadiusScale} = this;
 		var gradient = ctx.createRadialGradient(0.0, 0.0, 0.0, 0.0, 0.0, vec2.distance(start, end));
@@ -382,18 +382,17 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 		int idx = 0;
 		for(int i = 0; i < numStops; i++)
 		{
-			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			ui.Color color = new ui.Color.fromRGBO((colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round(), colorStops[idx+3]);
 			colors.add(color);
 			stops.add(colorStops[idx+4]);
 			idx += 5;
 		}
 		Vec2D center = start;
 		ui.Gradient radial = new ui.Gradient.radial(new ui.Offset(0.0, 0.0), radius, colors, stops, ui.TileMode.clamp, transform.mat4);
-        opacity *= this.opacity;
-		
+        //opacity *= this.opacity;
 		//print("RADIUS ${center[0]} ${center[1]} ${colors.length} $numStops ${colors} ${stops}");
 		ui.Paint paint = new ui.Paint()
-								..color = new ui.Color.fromRGBO(255, 255, 255, opacity)
+								..color = Colors.white.withOpacity(modulateOpacity*opacity)
 								..shader = radial
 								..style = ui.PaintingStyle.fill;
 
@@ -421,7 +420,7 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 
 class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 {
-	ui.Paint getPaint(Float64List transform, double opacity)
+	ui.Paint getPaint(Float64List transform, double modulateOpacity)
 	{
         double squash = max(0.00001, secondaryRadiusScale);
 		Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
@@ -453,14 +452,14 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 		int idx = 0;
 		for(int i = 0; i < numStops; i++)
 		{
-			ui.Color color = new ui.Color.fromARGB((colorStops[idx+3]*255.0).round(), (colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round());
+			ui.Color color = new ui.Color.fromRGBO((colorStops[idx]*255.0).round(), (colorStops[idx+1]*255.0).round(), (colorStops[idx+2]*255.0).round(), colorStops[idx+3]);
 			colors.add(color);
 			stops.add(colorStops[idx+4]);
 			idx += 5;
 		}
         opacity *= this.opacity;
 		return new ui.Paint()
-								..color = new ui.Color.fromARGB((opacity*255.0).round(), 255, 255, 255)
+								..color = Colors.white.withOpacity(modulateOpacity*opacity)
 								..shader = new ui.Gradient.radial(new ui.Offset(0.0, 0.0), radius, colors, stops, ui.TileMode.clamp, transform.mat4)
 								// ..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
 								..strokeWidth = width

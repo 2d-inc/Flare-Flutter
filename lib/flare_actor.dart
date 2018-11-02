@@ -365,7 +365,7 @@ class FlareActorRenderObject extends RenderBox
                 offset.dx + size.width/2.0 + (_alignment.x * size.width/2.0), 
                 offset.dy + size.height/2.0 + (_alignment.y * size.height/2.0), 
             );
-			
+
             canvas.scale(scaleX, scaleY);
             canvas.translate(x,y);
             _actor.draw(canvas, overrideColor:_color);

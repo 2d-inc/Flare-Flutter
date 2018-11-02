@@ -562,9 +562,15 @@ class FlutterActor extends Actor
 
 	Future<bool> loadFromBundle(String filename) async
 	{
-		print("Loading actor filename $filename");
-		ByteData data = await rootBundle.load(filename);
-		super.load(data);
+		print("Loading actor filename.. $filename");
+		Completer<bool> completer = new Completer<bool>();
+		rootBundle.load(filename).then((ByteData data)
+		{	
+			super.load(data);
+			completer.complete(true);
+		});
+		//ByteData data = await rootBundle.load(filename);
+		return completer.future;
 		// List<Future<ui.Codec>> waitList = new List<Future<ui.Codec>>();
 		// _images = new List<ui.Image>(texturesUsed);
 
@@ -596,7 +602,7 @@ class FlutterActor extends Actor
 		// 	image.init();
 		// }
 
-		return true;
+		//return true;
 	}
 
     Actor makeInstance()

@@ -304,6 +304,7 @@ class ActorPath extends ActorBasePath
 		_isClosed = nodePath._isClosed;
 		
 		int pointCount = nodePath._points.length;
+		
 		_points = new List<PathPoint>(pointCount);
 		for(int i = 0; i < pointCount; i++)
 		{
@@ -312,7 +313,7 @@ class ActorPath extends ActorBasePath
 
 		if(nodePath.vertexDeform != null)
 		{
-			vertexDeform = new Float32List.fromList(vertexDeform);
+			vertexDeform = new Float32List.fromList(nodePath.vertexDeform);
 		}
 	}
 

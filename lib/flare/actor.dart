@@ -563,12 +563,14 @@ class Actor
 		_components[0] = _root;
 
 		// Guaranteed from the exporter to be in index order.
-		StreamReader nodeBlock;
-
-		int componentIndex = 1;
 		_nodeCount = 1;
-		while((nodeBlock=block.readNextBlock(BlockTypesMap)) != null)
+		for(int componentIndex = 1, end = componentCount+1; componentIndex < end; componentIndex++)
 		{
+			StreamReader nodeBlock = block.readNextBlock(BlockTypesMap);
+			if(nodeBlock == null)
+			{
+				break;
+			}
 			ActorComponent component;
 			switch(nodeBlock.blockType)
 			{
@@ -739,13 +741,11 @@ class Actor
 			{
 				_nodeCount++;
 			}
-
 			_components[componentIndex] = component;
 			if(component != null)
 			{
 				component.idx = componentIndex;
 			}
-			componentIndex++;
 		}
 
 		_drawableNodes = new List<ActorDrawable>(_drawableNodeCount);

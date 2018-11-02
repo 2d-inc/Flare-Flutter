@@ -22,11 +22,12 @@ class FlareActor extends LeafRenderObjectWidget
     final BoxFit fit;
     final Alignment alignment;
     final bool isPaused;
+    final bool shouldClip;
     final FlareController controller;
     final FlareCompletedCallback callback;
 	final Color color;
 
-    FlareActor(this.filename, {this.animation, this.fit = BoxFit.contain, this.alignment = Alignment.center, this.isPaused = false, this.controller, this.callback, this.color});
+    FlareActor(this.filename, {this.animation, this.fit = BoxFit.contain, this.alignment = Alignment.center, this.isPaused = false, this.controller, this.callback, this.color, this.shouldClip = true});
 
     @override
     RenderObject createRenderObject(BuildContext context)
@@ -39,7 +40,8 @@ class FlareActor extends LeafRenderObjectWidget
                         ..isPlaying = !isPaused && animation != null
                         ..controller = controller
                         ..completed = callback
-						..color = color;
+						..color = color
+                        ..shouldClip = shouldClip;
     }
 
     @override
@@ -51,7 +53,8 @@ class FlareActor extends LeafRenderObjectWidget
             ..alignment = alignment
             ..animationName = animation
             ..isPlaying = !isPaused && animation != null
-			.. color = color;
+			.. color = color
+            ..shouldClip = shouldClip;
     }
 }
 
@@ -75,6 +78,7 @@ class FlareActorRenderObject extends RenderBox
 
     List<FlareAnimationLayer> _animationLayers = [];
     bool _isPlaying;
+    bool shouldClip;
 
     FlutterActor _actor;
     AABB _setupAABB;
@@ -315,7 +319,10 @@ class FlareActorRenderObject extends RenderBox
             double scaleX = 1.0, scaleY = 1.0;
 
             canvas.save();
-            canvas.clipRect(offset & size);
+            if(this.shouldClip)
+            {
+                canvas.clipRect(offset & size);
+            }
 
             switch(_fit)
             {

@@ -132,7 +132,7 @@ class FlutterActorShape extends ActorShape
 				}
 				if(overrideColor != null)
 				{
-					paint.color = overrideColor;
+					paint.color = overrideColor.withOpacity(overrideColor.opacity*paint.color.opacity);
 				}
 				canvas.drawPath(renderPath, paint);
 			}
@@ -148,7 +148,7 @@ class FlutterActorShape extends ActorShape
 				}
 				if(overrideColor != null)
 				{
-					paint.color = overrideColor;
+					paint.color = overrideColor.withOpacity(overrideColor.opacity*paint.color.opacity);
 				}
 				canvas.drawPath(renderPath, paint);
 			}

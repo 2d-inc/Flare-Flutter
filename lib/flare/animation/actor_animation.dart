@@ -146,7 +146,7 @@ class PropertyAnimation
 				return null;
 			}
 
-            propertyBlock.openArray("frame");
+            propertyBlock.openArray("frames");
 			int keyFrameCount = propertyBlock.readUint16Length();
 			propertyAnimation._keyFrames = new List<KeyFrame>(keyFrameCount);
 			KeyFrame lastKeyFrame;

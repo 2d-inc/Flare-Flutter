@@ -57,12 +57,11 @@ abstract class JSONReader implements StreamReader
     _readArrayOffset(List ar, int length, int offset, String label)
     {
         List array = this.readProp(label);
-        int end = offset + length;
         num listElement = ar.first;
-        for(int i = offset; i < end; i++)
+        for(int i = 0; i < length; i++)
         {
             num val = array[i];
-            ar[i] = listElement is double ? val.toDouble() : val.toInt();
+            ar[offset + i] = listElement is double ? val.toDouble() : val.toInt();
         }
     }
 

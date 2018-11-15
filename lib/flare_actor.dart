@@ -375,7 +375,7 @@ class FlareActorRenderObject extends RenderBox
 
             canvas.scale(scaleX, scaleY);
             canvas.translate(x,y);
-            _actor.draw(canvas, overrideColor:_color);
+            _actor.draw(canvas, overrideColor : _color);
             canvas.restore();
         }
     }

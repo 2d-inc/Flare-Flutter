@@ -36,17 +36,18 @@ class ActorIKConstraint extends ActorTargetedConstraint
 	void resolveComponentIndices(List<ActorComponent> components)
 	{
 		super.resolveComponentIndices(components);
-		if(parent != null)
-		{
-			// This works because nodes are exported in hierarchy order, so we are assured constraints get added in order as we resolve indices.
-			parent.addConstraint(this);
-		}
 
 		if(_influencedBones != null)
 		{
 			for(InfluencedBone influenced in _influencedBones)
 			{
 				influenced.bone = components[influenced.boneIdx] as ActorBone;
+				// Mark peer constraints, N.B. that we're not adding it to the parent bone
+				// as we're constraining it anyway.
+				if(influenced.bone != parent)
+				{
+					influenced.bone.addPeerConstraint(this);
+				}
 			}
 		}
 	}

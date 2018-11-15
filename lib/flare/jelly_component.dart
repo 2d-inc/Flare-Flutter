@@ -7,6 +7,8 @@ import "actor_bone.dart";
 import "math/vec2d.dart";
 import "math/mat2d.dart";
 import "dart:math";
+import "actor_root_bone.dart";
+import "actor_constraint.dart";
 
 class JellyComponent extends ActorComponent
 {
@@ -112,6 +114,9 @@ class JellyComponent extends ActorComponent
 
 	List<Vec2D> _jellyPoints;
 
+	ActorNode get inTarget => _inTarget;
+	ActorNode get outTarget => _inTarget;
+
 	JellyComponent()
 	{
 		_inPoint = new Vec2D();
@@ -159,6 +164,56 @@ class JellyComponent extends ActorComponent
 		{
 			_outTarget = components[_outTargetIdx] as ActorNode;
 		}
+
+		List<ActorConstraint> dependencyConstraints = <ActorConstraint>[];
+		ActorBone bone = parent as ActorBone;
+		if(bone != null)
+		{
+			actor.addDependency(this, bone);
+			dependencyConstraints += bone.allConstraints;
+			ActorBone firstBone = bone.firstBone;
+			if(firstBone != null)
+			{
+				actor.addDependency(this, firstBone);
+				dependencyConstraints += firstBone.allConstraints;
+
+				// If we don't have an out target and the child jelly does have an in target
+				// we are dependent on that target's position.
+				if(_outTarget == null && firstBone.jelly != null && firstBone.jelly.inTarget != null)
+				{
+					actor.addDependency(this, firstBone.jelly.inTarget);
+					dependencyConstraints += firstBone.jelly.inTarget.allConstraints;
+				}
+			}
+			if(bone.parent is ActorBone)
+			{
+				ActorBone parentBone = bone.parent;
+				JellyComponent parentBoneJelly = parentBone.jelly;
+				if(parentBoneJelly != null && parentBoneJelly.outTarget != null)
+				{
+					actor.addDependency(this, parentBoneJelly.outTarget);
+					dependencyConstraints += parentBoneJelly.outTarget.allConstraints;
+				}
+			}
+		}
+
+		if(_inTarget != null)
+		{
+			actor.addDependency(this, _inTarget);
+			dependencyConstraints += _inTarget.allConstraints;
+		}
+		if(_outTarget != null)
+		{
+			actor.addDependency(this, _outTarget);
+			dependencyConstraints += _outTarget.allConstraints;
+		}
+
+		// We want to depend on any and all constraints that our dependents have.
+		Set<ActorConstraint> constraints = new Set<ActorConstraint>.from(dependencyConstraints);
+		for(ActorConstraint constraint in constraints)
+		{
+			actor.addDependency(this, constraint);
+		}
 	}
 
 	void completeResolve()
@@ -180,6 +235,8 @@ class JellyComponent extends ActorComponent
 			if(child is ActorJellyBone)
 			{
 				_bones.add(child);
+				// Make sure the jelly doesn't update until the jelly component has updated
+				actor.addDependency(child, this);
 			}
 		}    
 	}
@@ -263,8 +320,12 @@ class JellyComponent extends ActorComponent
 	void update(int dirt) 
 	{
 		ActorBone bone = parent as ActorBone;
-		ActorBone parentBone = bone.parent as ActorBone;
-		JellyComponent parentBoneJelly = parentBone == null ? null : parentBone.jelly;
+		ActorNode parentBone = bone.parent;
+		JellyComponent parentBoneJelly;
+		if(parentBone is ActorBone)
+		{
+			parentBoneJelly = parentBone.jelly;
+		}
 
 		Mat2D inverseWorld = new Mat2D();
 		if(!Mat2D.invert(inverseWorld, bone.worldTransform))
@@ -280,7 +341,16 @@ class JellyComponent extends ActorComponent
 		}
 		else if(parentBone != null)
 		{
-			if(parentBone.firstBone == bone && parentBoneJelly != null && parentBoneJelly._outTarget != null)
+			ActorBone firstBone;
+			if(parentBone is ActorBone)
+			{
+				firstBone = parentBone.firstBone;
+			}
+			else if(parentBone is ActorRootBone)
+			{
+				firstBone = parentBone.firstBone;
+			}
+			if(firstBone == bone && parentBoneJelly != null && parentBoneJelly._outTarget != null)
 			{
 				Vec2D translation = parentBoneJelly._outTarget.getWorldTranslation(new Vec2D());
 				Vec2D localParentOut = Vec2D.transformMat2D(new Vec2D(), translation, inverseWorld);

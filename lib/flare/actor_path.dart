@@ -252,12 +252,12 @@ class ActorPath extends ActorBasePath
 		component._isHidden = !reader.readBool("isVisible");
 		component._isClosed = reader.readBool("isClosed");
 
-        reader.openArray("Points");
+        reader.openArray("points");
 		int pointCount = reader.readUint16Length();
 		component._points = new List<PathPoint>(pointCount);
 		for(int i = 0; i < pointCount; i++)
 		{
-            reader.openObject("Point");
+            reader.openObject("point");
 			PathPoint point;
 			PointType type = pointTypeLookup[reader.readUint8("pointType")];
 			switch(type)

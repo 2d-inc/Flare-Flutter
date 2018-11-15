@@ -132,8 +132,8 @@ class CubicPathPoint extends PathPoint
 	void read(StreamReader reader)
 	{
 		super.read(reader);
-		reader.readFloat32ArrayOffset(_in.values, 2, 0, "rigIn");
-		reader.readFloat32ArrayOffset(_out.values, 2, 0, "rigOut");
+		reader.readFloat32ArrayOffset(_in.values, 2, 0, "in");
+		reader.readFloat32ArrayOffset(_out.values, 2, 0, "out");
 	}
 	
 	PathPoint transformed(Mat2D transform)

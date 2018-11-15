@@ -104,10 +104,12 @@ class Vec2D
 		return sqrt(x*x + y*y);
 	}
 
-	static void negate(Vec2D a, Vec2D b) 
+	static Vec2D negate(Vec2D result, Vec2D a) 
 	{
-		a[0] = -b[0];
-		a[1] = -b[1];
+		result[0] = -a[0];
+		result[1] = -a[1];
+
+		return result;
 	}
 
 	static void normalize(Vec2D result, Vec2D a)

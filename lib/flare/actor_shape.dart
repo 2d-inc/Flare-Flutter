@@ -1,5 +1,4 @@
-import 'package:flare/flare/actor_color.dart';
-
+import "actor_color.dart";
 import "actor_component.dart";
 import "actor_node.dart";
 import "actor_drawable.dart";
@@ -11,8 +10,14 @@ import "math/mat2d.dart";
 import "math/vec2d.dart";
 import "math/aabb.dart";
 
-class ActorShape extends ActorDrawable
+class ActorShape extends ActorNode implements ActorDrawable
 {
+	@override
+	int drawIndex;
+
+	@override
+	int drawOrder;
+
 	bool _isHidden;
 	List<ActorStroke> _strokes;
 
@@ -50,7 +55,8 @@ class ActorShape extends ActorDrawable
 
 	void copyShape(ActorShape node, Actor resetActor)
 	{
-		copyDrawable(node, resetActor);
+		copyNode(node, resetActor);
+		drawOrder = node.drawOrder;
 		_isHidden = node._isHidden;
 	}
 
@@ -58,8 +64,13 @@ class ActorShape extends ActorDrawable
 	{
 		AABB aabb;
 
-		for(ActorBasePath path in children)
+		for(ActorNode node in children)
 		{
+			ActorBasePath path = node as ActorBasePath;
+			if(path == null)
+			{
+				continue;
+			}
 			// This is the axis aligned bounding box in the space of the parent (this case our shape).
 			AABB pathAABB = path.getPathOBB();
 

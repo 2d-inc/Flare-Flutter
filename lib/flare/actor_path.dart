@@ -2,6 +2,7 @@ import "dart:typed_data";
 import "actor_shape.dart";
 import "actor_component.dart";
 import "actor_node.dart";
+import "actor_skinnable.dart";
 import "actor.dart";
 import "stream_reader.dart";
 import "path_point.dart";
@@ -9,14 +10,14 @@ import "math/vec2d.dart";
 import "math/mat2d.dart";
 import "math/aabb.dart";
 
-abstract class ActorBasePath extends ActorNode
+abstract class ActorBasePath
 {
-    copyPath(ActorBasePath node, Actor resetActor);
-    ActorComponent makeInstance(Actor resetActor);
-
-    bool get isClosed;
+    //bool get isClosed;
     List<PathPoint> get points;
-	
+	Mat2D get transform;
+	ActorNode get parent;
+	void invalidatePath();
+
     AABB getPathAABB()
     {
         double minX = double.maxFinite;
@@ -67,8 +68,6 @@ abstract class ActorBasePath extends ActorNode
 			parent.invalidateShape();
 		}
 	}
-
-	void invalidatePath() {}
 
     AABB getPathOBB()
 	{
@@ -147,7 +146,7 @@ abstract class ActorBasePath extends ActorNode
 	}
 }
 
-abstract class ActorProceduralPath extends ActorBasePath
+abstract class ActorProceduralPath extends ActorNode with ActorBasePath
 {
     double _width;
     double _height;
@@ -182,19 +181,23 @@ abstract class ActorProceduralPath extends ActorBasePath
     }
 }
 
-class ActorPath extends ActorBasePath
+class ActorPath extends ActorSkinnable with ActorBasePath
 {
 	bool _isHidden;
 	bool _isClosed;
     List<PathPoint> _points;
 	Float32List vertexDeform;
 
+	@override
+	void invalidatePath()
+	{
+		// Up to the implementation.
+	}
+
 	static const int VertexDeformDirty = 1<<1;
 
-	List<PathPoint> get points
-	{
-		return _points;
-	}
+	@override
+	List<PathPoint> get points => _points;
 
 	bool get isClosed
 	{
@@ -247,7 +250,7 @@ class ActorPath extends ActorBasePath
 			component = new ActorPath();
 		}
 
-		ActorNode.read(actor, reader, component);
+		ActorSkinnable.read(actor, reader, component);
 
 		component._isHidden = !reader.readBool("isVisible");
 		component._isClosed = reader.readBool("isClosed");
@@ -279,7 +282,7 @@ class ActorPath extends ActorBasePath
 			}
 			else
 			{
-				point.read(reader);
+				point.read(reader, component.isConnectedToBones);
 			}
             reader.closeObject();
 			
@@ -359,5 +362,4 @@ class ActorPath extends ActorBasePath
 
 		return new AABB.fromValues(minX, minY, maxX, maxY);
 	}
-
 }

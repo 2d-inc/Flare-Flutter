@@ -10,7 +10,12 @@ import "actor_component.dart";
 class ActorPolygon extends ActorProceduralPath
 {
     int sides = 5;
-
+	@override
+	void invalidatePath()
+	{
+	}
+	
+	
     ActorComponent makeInstance(Actor resetActor)
     {
         ActorPolygon instance = new ActorPolygon();

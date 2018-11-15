@@ -1,5 +1,3 @@
-import "actor.dart";
-import "actor_node.dart";
 import "math/aabb.dart";
 
 enum BlendModes
@@ -10,20 +8,13 @@ enum BlendModes
 	Additive
 }
 
-abstract class ActorDrawable extends ActorNode
+abstract class ActorDrawable
 {
 	// Editor set draw index.
-	int drawOrder = 0;
-	// Computed draw index in the image list.
-	int drawIndex = 0;
-	BlendModes blendMode;
-
-	AABB computeAABB();
+	int get drawOrder;
+	// Computed draw index in the draw list.
+	int get drawIndex;
+	set drawIndex(int value);
 	
-    copyDrawable(ActorDrawable node, Actor resetActor)
-	{
-        copyNode(node, resetActor);
-        drawOrder = node.drawOrder;
-        blendMode = node.blendMode;
-	}
+	AABB computeAABB();
 }

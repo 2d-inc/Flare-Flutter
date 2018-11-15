@@ -1,3 +1,4 @@
+import "dart:typed_data";
 import "math/vec2d.dart";
 import "dart:collection";
 import "stream_reader.dart";
@@ -17,6 +18,7 @@ abstract class PathPoint
 {
 	PointType _type;
 	Vec2D _translation = new Vec2D();
+	Float32List _weights;
 
 	PathPoint(PointType type)
 	{
@@ -41,10 +43,17 @@ abstract class PathPoint
 		Vec2D.copy(_translation, from._translation);
 	}
 
-	void read(StreamReader reader)
+	void read(StreamReader reader, bool isConnectedToBones)
 	{
 		reader.readFloat32ArrayOffset(_translation.values, 2, 0, "translation");
+		readPoint(reader, isConnectedToBones);
+		if(_weights != null)
+		{
+			reader.readFloat32Array(_weights, "weights");
+		}
 	}
+
+	void readPoint(StreamReader reader, bool isConnectedToBones);
 
 	PathPoint transformed(Mat2D transform)
 	{
@@ -84,10 +93,13 @@ class StraightPathPoint extends PathPoint
 		radius = from.radius;
 	}
 
-	void read(StreamReader reader)
+	void readPoint(StreamReader reader, bool isConnectedToBones)
 	{
-		super.read(reader);
 		radius = reader.readFloat32("radius");
+		if(isConnectedToBones)
+		{
+			_weights = new Float32List(8);
+		}
 	}
 }
 
@@ -129,11 +141,14 @@ class CubicPathPoint extends PathPoint
 		Vec2D.copy(_out, from._out);
 	}
 
-	void read(StreamReader reader)
+	void readPoint(StreamReader reader, bool isConnectedToBones)
 	{
-		super.read(reader);
 		reader.readFloat32ArrayOffset(_in.values, 2, 0, "in");
 		reader.readFloat32ArrayOffset(_out.values, 2, 0, "out");
+		if(isConnectedToBones)
+		{
+			_weights = new Float32List(24);
+		}
 	}
 	
 	PathPoint transformed(Mat2D transform)

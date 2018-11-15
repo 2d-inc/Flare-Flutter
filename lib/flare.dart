@@ -59,15 +59,11 @@ class FlutterActorShape extends ActorShape
 		_path.fillType = ui.PathFillType.nonZero;
 		_path.reset();
 
-		for(ActorBasePath actorPath in children)
+		for(ActorNode node in children)
 		{
-			if(actorPath == null)
+			if(node is FlutterPath)
 			{
-				continue;
-			}
-			if(actorPath is FlutterPath)
-			{
-				_path.addPath((actorPath as FlutterPath).path, ui.Offset.zero, matrix4:actorPath.transform.mat4);
+				_path.addPath((node as FlutterPath).path, ui.Offset.zero, matrix4:node.transform.mat4);
 			}
 		}
 		return _path;
@@ -763,6 +759,7 @@ class FlutterActorRectangle extends ActorRectangle with FlutterPath
 		return (_path = _makePath());
 	}
 	
+	@override
 	void invalidatePath()
     {
         _path = null;
@@ -832,6 +829,7 @@ abstract class FlutterPathPointsPath implements FlutterPath
 		return (_path = _makePath());
 	}
 	
+	@override
 	void invalidatePath()
     {
         _path = null;

@@ -8,6 +8,11 @@ import "actor_component.dart";
 
 class ActorTriangle extends ActorProceduralPath
 {
+	@override
+	void invalidatePath()
+	{
+	}
+	
     ActorComponent makeInstance(Actor resetActor)
     {
         ActorTriangle instance = new ActorTriangle();

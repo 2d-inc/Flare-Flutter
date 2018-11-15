@@ -5,7 +5,6 @@ import "math/mat2d.dart";
 import "math/vec2d.dart";
 import "actor.dart";
 import "actor_component.dart";
-import "actor_bone_base.dart";
 import "actor_drawable.dart";
 import "math/aabb.dart";
 
@@ -40,8 +39,15 @@ class SequenceFrame
 	}
 }
 
-class ActorImage extends ActorDrawable
+class ActorImage extends ActorNode implements ActorDrawable
 {
+	@override
+	int drawIndex;
+
+	@override
+	int drawOrder;
+	BlendModes blendMode;
+	
 	int _textureIndex = -1;
 	Float32List _vertices;
 	Uint16List _triangles;
@@ -381,8 +387,6 @@ class ActorImage extends ActorDrawable
 			{
 				BoneConnection bc = _boneConnections[i];
 				bc.node = components[bc.boneIdx] as ActorNode;
-				ActorBoneBase bone = bc.node as ActorBoneBase;
-				bone.isConnectedToImage = true;
 			}	
 		}
 	}
@@ -396,8 +400,8 @@ class ActorImage extends ActorDrawable
 
 	void copyImage(ActorImage node, Actor resetActor)
 	{
-		copyDrawable(node, resetActor);
-
+		drawOrder = node.drawOrder;
+		blendMode = node.blendMode;
 		_textureIndex = node._textureIndex;
 		_vertexCount = node._vertexCount;
 		_triangleCount = node._triangleCount;

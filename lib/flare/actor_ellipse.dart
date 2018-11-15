@@ -17,6 +17,11 @@ class ActorEllipse extends ActorProceduralPath
         return instance;
     }
 
+	@override
+	void invalidatePath()
+	{
+	}
+	
     static ActorEllipse read(Actor actor, StreamReader reader, ActorEllipse component)
     {
         if(component == null)

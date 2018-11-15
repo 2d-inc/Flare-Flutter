@@ -12,6 +12,12 @@ class ActorRectangle extends ActorProceduralPath
 {
     double _radius = 0.0;
 
+	@override
+	void invalidatePath()
+	{
+	}
+	
+	
     ActorComponent makeInstance(Actor resetActor)
     {
         ActorRectangle instance = new ActorRectangle();

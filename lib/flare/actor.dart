@@ -123,6 +123,7 @@ class BlockTypes
     static const int ActorTriangle = 110;
     static const int ActorStar = 111;
     static const int ActorPolygon = 112;
+    static const int ActorSkin = 113;
 }
 
 class ActorFlags
@@ -357,7 +358,7 @@ class Actor
 
 				if(instanceComponent is ActorDrawable)
 				{
-					_drawableNodes[drwIdx++] = instanceComponent;
+					_drawableNodes[drwIdx++] = instanceComponent as ActorDrawable;
 				}
 			}
 		}
@@ -766,7 +767,7 @@ class Actor
 
 			if(c is ActorDrawable)
 			{
-				_drawableNodes[drwIdx++] = c;
+				_drawableNodes[drwIdx++] = c as ActorDrawable;
 			}
 
 			if(c is ActorNode)

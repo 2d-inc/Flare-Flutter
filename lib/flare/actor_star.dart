@@ -12,6 +12,12 @@ class ActorStar extends ActorProceduralPath
     int _numPoints = 5;
     double _innerRadius = 0.0;
 
+	@override
+	void invalidatePath()
+	{
+	}
+	
+	
     ActorComponent makeInstance(Actor resetActor)
     {
         ActorStar instance = new ActorStar();

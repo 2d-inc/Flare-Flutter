@@ -7,7 +7,6 @@ import "math/mat2d.dart";
 class ActorBoneBase extends ActorNode
 {
 	double _length;
-	bool isConnectedToImage;
 
 	double get length
 	{
@@ -59,6 +58,5 @@ class ActorBoneBase extends ActorNode
 	{
 		super.copyNode(node, resetActor);
 		_length = node._length;
-		isConnectedToImage = node.isConnectedToImage;
 	}
 }

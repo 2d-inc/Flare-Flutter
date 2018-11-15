@@ -61,6 +61,8 @@ abstract class PathPoint
 		Vec2D.transformMat2D(result.translation, result.translation, transform);
 		return result;
 	}
+
+	PathPoint skin(Mat2D world, Float32List bones);
 }
 
 class StraightPathPoint extends PathPoint
@@ -100,6 +102,39 @@ class StraightPathPoint extends PathPoint
 		{
 			_weights = new Float32List(8);
 		}
+	}
+
+	PathPoint skin(Mat2D world, Float32List bones)
+	{
+		StraightPathPoint point = new StraightPathPoint()..radius = radius;
+
+		double px = world[0] * translation[0] + world[2] * translation[1] + world[4];
+		double py = world[1] * translation[0] + world[3] * translation[1] + world[5];
+		
+		double a, b, c, d, e, f;
+
+		for(int i = 0; i < 4; i++)
+		{
+			int boneIndex = _weights[i].floor();
+			double weight = _weights[i+4];
+			if(weight > 0)
+			{
+				int bb = boneIndex*6;
+
+				a = bones[bb] * weight;
+				b = bones[bb+1] * weight;
+				c = bones[bb+2] * weight;
+				d = bones[bb+3] * weight;
+				e = bones[bb+4] * weight;
+				f = bones[bb+5] * weight;
+			}
+		}
+
+		Vec2D pos = point.translation;
+		pos[0] = a * px + c * py + e;
+		pos[1] = b * px + d * py + f;
+		
+		return point;
 	}
 }
 
@@ -157,5 +192,95 @@ class CubicPathPoint extends PathPoint
 		Vec2D.transformMat2D(result.inPoint, result.inPoint, transform);
 		Vec2D.transformMat2D(result.outPoint, result.outPoint, transform);
 		return result;
+	}
+
+	PathPoint skin(Mat2D world, Float32List bones)
+	{
+		CubicPathPoint point = new CubicPathPoint(pointType);
+
+		double px = world[0] * translation[0] + world[2] * translation[1] + world[4];
+		double py = world[1] * translation[0] + world[3] * translation[1] + world[5];
+		
+		{
+			double a, b, c, d, e, f;
+
+			for(int i = 0; i < 4; i++)
+			{
+				int boneIndex = _weights[i].floor();
+				double weight = _weights[i+4];
+				if(weight > 0)
+				{
+					int bb = boneIndex*6;
+
+					a = bones[bb] * weight;
+					b = bones[bb+1] * weight;
+					c = bones[bb+2] * weight;
+					d = bones[bb+3] * weight;
+					e = bones[bb+4] * weight;
+					f = bones[bb+5] * weight;
+				}
+			}
+
+			Vec2D pos = point.translation;
+			pos[0] = a * px + c * py + e;
+			pos[1] = b * px + d * py + f;
+		}
+		
+		{
+			double a, b, c, d, e, f;
+			px = world[0] * _in[0] + world[2] * _in[1] + world[4];
+			py = world[1] * _in[0] + world[3] * _in[1] + world[5];
+
+			for(int i = 8; i < 12; i++)
+			{
+				int boneIndex = _weights[i].floor();
+				double weight = _weights[i+4];
+				if(weight > 0)
+				{
+					int bb = boneIndex*6;
+
+					a = bones[bb] * weight;
+					b = bones[bb+1] * weight;
+					c = bones[bb+2] * weight;
+					d = bones[bb+3] * weight;
+					e = bones[bb+4] * weight;
+					f = bones[bb+5] * weight;
+				}
+			}
+
+			Vec2D pos = point.inPoint;
+			pos[0] = a * px + c * py + e;
+			pos[1] = b * px + d * py + f;
+		}
+		
+		{
+			double a, b, c, d, e, f;
+			px = world[0] * _out[0] + world[2] * _out[1] + world[4];
+			py = world[1] * _out[0] + world[3] * _out[1] + world[5];
+
+			for(int i = 16; i < 20; i++)
+			{
+				int boneIndex = _weights[i].floor();
+				double weight = _weights[i+4];
+				if(weight > 0)
+				{
+					int bb = boneIndex*6;
+
+					a = bones[bb] * weight;
+					b = bones[bb+1] * weight;
+					c = bones[bb+2] * weight;
+					d = bones[bb+3] * weight;
+					e = bones[bb+4] * weight;
+					f = bones[bb+5] * weight;
+				}
+			}
+
+			Vec2D pos = point.outPoint;
+			pos[0] = a * px + c * py + e;
+			pos[1] = b * px + d * py + f;
+		}
+
+
+		return point;
 	}
 }

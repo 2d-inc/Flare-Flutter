@@ -1,6 +1,5 @@
 import "dart:typed_data";
 import "dart:convert";
-
 import "actor_component.dart";
 import "actor_event.dart";
 import "actor_node.dart";
@@ -8,6 +7,7 @@ import "actor_node_solo.dart";
 import "actor_bone.dart";
 import "actor_root_bone.dart";
 import "actor_jelly_bone.dart";
+import "actor_skin.dart";
 import "jelly_component.dart";
 import "actor_ik_constraint.dart";
 import "actor_rotation_constraint.dart";
@@ -731,6 +731,9 @@ class Actor
                 case BlockTypes.ActorPolygon:
                     component = ActorPolygon.read(this, nodeBlock, makePolygon());
                     break;
+				case BlockTypes.ActorSkin:
+					component = ActorComponent.read(this, nodeBlock, new ActorSkin());
+					break;
 			}
 			if(component is ActorDrawable)
 			{

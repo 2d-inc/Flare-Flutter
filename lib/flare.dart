@@ -829,7 +829,6 @@ abstract class FlutterPathPointsPath implements FlutterPath
 		return (_path = _makePath());
 	}
 	
-	@override
 	void invalidatePath()
     {
         _path = null;

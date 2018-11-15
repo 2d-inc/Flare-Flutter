@@ -2,6 +2,7 @@ import "dart:typed_data";
 import "actor_shape.dart";
 import "actor_component.dart";
 import "actor_node.dart";
+import "actor_skin.dart";
 import "actor_skinnable.dart";
 import "actor.dart";
 import "stream_reader.dart";
@@ -187,6 +188,7 @@ class ActorPath extends ActorSkinnable with ActorBasePath
 	bool _isClosed;
     List<PathPoint> _points;
 	Float32List vertexDeform;
+	ActorSkin skin;
 
 	@override
 	void invalidatePath()
@@ -197,7 +199,21 @@ class ActorPath extends ActorSkinnable with ActorBasePath
 	static const int VertexDeformDirty = 1<<1;
 
 	@override
-	List<PathPoint> get points => _points;
+	List<PathPoint> get points
+	{
+		if(!isConnectedToBones || skin == null)
+		{
+			return _points;
+		}
+		
+		Float32List boneMatrices = skin.boneMatrices;
+		List<PathPoint> deformedPoints = <PathPoint>[];
+		for(PathPoint point in _points)
+		{
+			deformedPoints.add(point.skin(worldTransform, boneMatrices));
+		}
+		return deformedPoints;
+	}
 
 	bool get isClosed
 	{

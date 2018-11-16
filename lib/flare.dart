@@ -61,9 +61,11 @@ class FlutterActorShape extends ActorShape
 
 		for(ActorNode node in children)
 		{
-			if(node is FlutterPath)
+			FlutterPath flutterPath = node as FlutterPath;
+			if(flutterPath != null)
 			{
-				_path.addPath((node as FlutterPath).path, ui.Offset.zero, matrix4:node.transform.mat4);
+				Mat2D transform = (node as ActorBasePath).pathTransform;
+				_path.addPath(flutterPath.path, ui.Offset.zero, matrix4:transform == null ? null : transform.mat4);
 			}
 		}
 		return _path;
@@ -116,7 +118,7 @@ class FlutterActorShape extends ActorShape
 				});
 			}
 		}
-		canvas.transform(paintTransform);
+		//canvas.transform(paintTransform);
 		if(_fills != null)
 		{
 			for(FlutterFill fill in _fills)

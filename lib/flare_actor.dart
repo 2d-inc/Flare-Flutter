@@ -172,6 +172,12 @@ class FlareActorRenderObject extends RenderBox
 						{
                         	_actor.advance(0.0);
                         	_setupAABB = _actor.computeAABB();
+							// _setupAABB[0] -= 5000.0;
+							// _setupAABB[1] -= 5000.0;
+							// _setupAABB[2] += 5000.0;
+							// _setupAABB[3] += 5000.0;
+
+							print("SETUP AABB $_setupAABB");
 						}
                         if(_controller != null)
                         {

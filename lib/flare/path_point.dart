@@ -104,6 +104,7 @@ class StraightPathPoint extends PathPoint
 		}
 	}
 
+	@override
 	PathPoint skin(Mat2D world, Float32List bones)
 	{
 		StraightPathPoint point = new StraightPathPoint()..radius = radius;
@@ -111,7 +112,7 @@ class StraightPathPoint extends PathPoint
 		double px = world[0] * translation[0] + world[2] * translation[1] + world[4];
 		double py = world[1] * translation[0] + world[3] * translation[1] + world[5];
 		
-		double a, b, c, d, e, f;
+		double a = 0.0, b = 0.0, c = 0.0, d = 0.0, e = 0.0, f = 0.0;
 
 		for(int i = 0; i < 4; i++)
 		{
@@ -121,12 +122,12 @@ class StraightPathPoint extends PathPoint
 			{
 				int bb = boneIndex*6;
 
-				a = bones[bb] * weight;
-				b = bones[bb+1] * weight;
-				c = bones[bb+2] * weight;
-				d = bones[bb+3] * weight;
-				e = bones[bb+4] * weight;
-				f = bones[bb+5] * weight;
+				a += bones[bb] * weight;
+				b += bones[bb+1] * weight;
+				c += bones[bb+2] * weight;
+				d += bones[bb+3] * weight;
+				e += bones[bb+4] * weight;
+				f += bones[bb+5] * weight;
 			}
 		}
 
@@ -194,6 +195,7 @@ class CubicPathPoint extends PathPoint
 		return result;
 	}
 
+	@override
 	PathPoint skin(Mat2D world, Float32List bones)
 	{
 		CubicPathPoint point = new CubicPathPoint(pointType);
@@ -202,7 +204,7 @@ class CubicPathPoint extends PathPoint
 		double py = world[1] * translation[0] + world[3] * translation[1] + world[5];
 		
 		{
-			double a, b, c, d, e, f;
+			double a = 0.0, b = 0.0, c = 0.0, d = 0.0, e = 0.0, f = 0.0;
 
 			for(int i = 0; i < 4; i++)
 			{
@@ -212,12 +214,12 @@ class CubicPathPoint extends PathPoint
 				{
 					int bb = boneIndex*6;
 
-					a = bones[bb] * weight;
-					b = bones[bb+1] * weight;
-					c = bones[bb+2] * weight;
-					d = bones[bb+3] * weight;
-					e = bones[bb+4] * weight;
-					f = bones[bb+5] * weight;
+					a += bones[bb] * weight;
+					b += bones[bb+1] * weight;
+					c += bones[bb+2] * weight;
+					d += bones[bb+3] * weight;
+					e += bones[bb+4] * weight;
+					f += bones[bb+5] * weight;
 				}
 			}
 
@@ -227,7 +229,7 @@ class CubicPathPoint extends PathPoint
 		}
 		
 		{
-			double a, b, c, d, e, f;
+			double a = 0.0, b = 0.0, c = 0.0, d = 0.0, e = 0.0, f = 0.0;
 			px = world[0] * _in[0] + world[2] * _in[1] + world[4];
 			py = world[1] * _in[0] + world[3] * _in[1] + world[5];
 
@@ -239,12 +241,12 @@ class CubicPathPoint extends PathPoint
 				{
 					int bb = boneIndex*6;
 
-					a = bones[bb] * weight;
-					b = bones[bb+1] * weight;
-					c = bones[bb+2] * weight;
-					d = bones[bb+3] * weight;
-					e = bones[bb+4] * weight;
-					f = bones[bb+5] * weight;
+					a += bones[bb] * weight;
+					b += bones[bb+1] * weight;
+					c += bones[bb+2] * weight;
+					d += bones[bb+3] * weight;
+					e += bones[bb+4] * weight;
+					f += bones[bb+5] * weight;
 				}
 			}
 
@@ -254,7 +256,7 @@ class CubicPathPoint extends PathPoint
 		}
 		
 		{
-			double a, b, c, d, e, f;
+			double a = 0.0, b = 0.0, c = 0.0, d = 0.0, e = 0.0, f = 0.0;
 			px = world[0] * _out[0] + world[2] * _out[1] + world[4];
 			py = world[1] * _out[0] + world[3] * _out[1] + world[5];
 
@@ -266,12 +268,12 @@ class CubicPathPoint extends PathPoint
 				{
 					int bb = boneIndex*6;
 
-					a = bones[bb] * weight;
-					b = bones[bb+1] * weight;
-					c = bones[bb+2] * weight;
-					d = bones[bb+3] * weight;
-					e = bones[bb+4] * weight;
-					f = bones[bb+5] * weight;
+					a += bones[bb] * weight;
+					b += bones[bb+1] * weight;
+					c += bones[bb+2] * weight;
+					d += bones[bb+3] * weight;
+					e += bones[bb+4] * weight;
+					f += bones[bb+5] * weight;
 				}
 			}
 
@@ -279,7 +281,6 @@ class CubicPathPoint extends PathPoint
 			pos[0] = a * px + c * py + e;
 			pos[1] = b * px + d * py + f;
 		}
-
 
 		return point;
 	}

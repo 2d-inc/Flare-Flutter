@@ -15,9 +15,11 @@ abstract class ActorBasePath
 {
     //bool get isClosed;
     List<PathPoint> get points;
-	Mat2D get transform;
 	ActorNode get parent;
 	void invalidatePath();
+	bool get isPathInWorldSpace => false;
+	Mat2D get pathTransform;
+	Mat2D get transform;
 
     AABB getPathAABB()
     {
@@ -35,11 +37,21 @@ abstract class ActorBasePath
 			new Vec2D.fromValues(obb[0], obb[3])
         ];
 
-        Mat2D transform = this.transform;
+        Mat2D localTransform;
+		if(isPathInWorldSpace)
+		{
+			//  convert the path coordinates into local parent space.
+			localTransform = new Mat2D();
+			Mat2D.invert(localTransform, parent.worldTransform);
+		}
+		else
+		{
+			localTransform = transform;
+		}
 
         for(Vec2D p in pts)
         {
-            Vec2D wp = Vec2D.transformMat2D(p, p, transform);
+            Vec2D wp = Vec2D.transformMat2D(p, p, localTransform);
             if(wp[0] < minX)
 			{
 				minX = wp[0];
@@ -77,7 +89,8 @@ abstract class ActorBasePath
 		double maxX = -double.maxFinite;
 		double maxY = -double.maxFinite;
 
-		for(PathPoint point in points)
+		List<PathPoint> renderPoints = points;
+		for(PathPoint point in renderPoints)
 		{
 			Vec2D t = point.translation;
 			double x = t[0];
@@ -155,6 +168,9 @@ abstract class ActorProceduralPath extends ActorNode with ActorBasePath
 	double get width => _width;
 	double get height => _height;
 
+	@override
+	Mat2D get pathTransform => worldTransform;
+
 	set width(double w)
 	{
 		if(w != _width)
@@ -191,10 +207,17 @@ class ActorPath extends ActorSkinnable with ActorBasePath
 	ActorSkin skin;
 
 	@override
+	bool get isPathInWorldSpace => isConnectedToBones;
+
+	@override
 	void invalidatePath()
 	{
 		// Up to the implementation.
 	}
+
+
+	@override
+	Mat2D get pathTransform => isConnectedToBones ? null : worldTransform;
 
 	static const int VertexDeformDirty = 1<<1;
 
@@ -336,46 +359,46 @@ class ActorPath extends ActorSkinnable with ActorBasePath
 		}
 	}
 
-	AABB getPathAABB()
-	{
-		double minX = double.maxFinite;
-		double minY = double.maxFinite;
-		double maxX = -double.maxFinite;
-		double maxY = -double.maxFinite;
+	// AABB getPathAABB()
+	// {
+	// 	double minX = double.maxFinite;
+	// 	double minY = double.maxFinite;
+	// 	double maxX = -double.maxFinite;
+	// 	double maxY = -double.maxFinite;
 
-		AABB obb = getPathOBB();
+	// 	AABB obb = getPathOBB();
 
-		List<Vec2D> points = [
-			new Vec2D.fromValues(obb[0], obb[1]),
-			new Vec2D.fromValues(obb[2], obb[1]),
-			new Vec2D.fromValues(obb[2], obb[3]),
-			new Vec2D.fromValues(obb[0], obb[3])
-		];
+	// 	List<Vec2D> points = [
+	// 		new Vec2D.fromValues(obb[0], obb[1]),
+	// 		new Vec2D.fromValues(obb[2], obb[1]),
+	// 		new Vec2D.fromValues(obb[2], obb[3]),
+	// 		new Vec2D.fromValues(obb[0], obb[3])
+	// 	];
 		
-		Mat2D transform = this.transform;
-		for(int i = 0; i < points.length; i++)
-		{
-			Vec2D pt = points[i];
-			Vec2D wp = Vec2D.transformMat2D(pt, pt, transform);
-			if(wp[0] < minX)
-			{
-				minX = wp[0];
-			}
-			if(wp[1] < minY)
-			{
-				minY = wp[1];
-			}
+	// 	Mat2D transform = pathTransform;
+	// 	for(int i = 0; i < points.length; i++)
+	// 	{
+	// 		Vec2D pt = points[i];
+	// 		Vec2D wp = transform == null ? pt : Vec2D.transformMat2D(pt, pt, transform);
+	// 		if(wp[0] < minX)
+	// 		{
+	// 			minX = wp[0];
+	// 		}
+	// 		if(wp[1] < minY)
+	// 		{
+	// 			minY = wp[1];
+	// 		}
 
-			if(wp[0] > maxX)
-			{
-				maxX = wp[0];
-			}
-			if(wp[1] > maxY)
-			{
-				maxY = wp[1];
-			}
-		}
+	// 		if(wp[0] > maxX)
+	// 		{
+	// 			maxX = wp[0];
+	// 		}
+	// 		if(wp[1] > maxY)
+	// 		{
+	// 			maxY = wp[1];
+	// 		}
+	// 	}
 
-		return new AABB.fromValues(minX, minY, maxX, maxY);
-	}
+	// 	return new AABB.fromValues(minX, minY, maxX, maxY);
+	// }
 }

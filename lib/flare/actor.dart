@@ -1,13 +1,17 @@
 import "dart:typed_data";
 import "dart:convert";
 import "actor_component.dart";
+import "actor_distance_constraint.dart";
 import "actor_event.dart";
 import "actor_node.dart";
 import "actor_node_solo.dart";
 import "actor_bone.dart";
 import "actor_root_bone.dart";
 import "actor_jelly_bone.dart";
+import "actor_scale_constraint.dart";
 import "actor_skin.dart";
+import "actor_transform_constraint.dart";
+import "actor_translation_constraint.dart";
 import "jelly_component.dart";
 import "actor_ik_constraint.dart";
 import "actor_rotation_constraint.dart";
@@ -661,15 +665,15 @@ class Actor
 					break;
 
 				case BlockTypes.ActorDistanceConstraint:
-					//component = ActorDistanceConstraint.Read(this, nodeBlock);
+					component = ActorDistanceConstraint.read(this, nodeBlock, null);
 					break;
 
 				case BlockTypes.ActorTranslationConstraint:
-					//component = ActorTranslationConstraint.Read(this, nodeBlock);
+					component = ActorTranslationConstraint.read(this, nodeBlock, null);
 					break;
 
 				case BlockTypes.ActorScaleConstraint:
-					//component = ActorScaleConstraint.Read(this, nodeBlock);
+					component = ActorScaleConstraint.read(this, nodeBlock, null);
 					break;
 
 				case BlockTypes.ActorRotationConstraint:
@@ -677,7 +681,7 @@ class Actor
 					break;
 
 				case BlockTypes.ActorTransformConstraint:
-					//component = ActorTransformConstraint.Read(this, nodeBlock);
+					component = ActorTransformConstraint.read(this, nodeBlock, null);
 					break;
 
 				case BlockTypes.ActorShape:
@@ -822,7 +826,10 @@ class Actor
 		{
 			// This is the axis aligned bounding box in the space of the parent (this case our shape).
 			AABB pathAABB = drawable.computeAABB();
-
+			if(pathAABB == null)
+			{
+				continue;
+			}
 			if(aabb == null)
 			{
 				aabb = pathAABB;

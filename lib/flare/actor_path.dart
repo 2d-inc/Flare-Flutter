@@ -20,6 +20,7 @@ abstract class ActorBasePath
 	bool get isPathInWorldSpace => false;
 	Mat2D get pathTransform;
 	Mat2D get transform;
+	List<ActorClip> get allClips;
 
     AABB getPathAABB()
     {
@@ -276,8 +277,8 @@ class ActorPath extends ActorSkinnable with ActorBasePath
 						break;
 				}
 			}
-			markPathDirty();
 		}
+		markPathDirty();
 
 		super.update(dirt);
 	}
@@ -358,47 +359,4 @@ class ActorPath extends ActorSkinnable with ActorBasePath
 			vertexDeform = new Float32List.fromList(nodePath.vertexDeform);
 		}
 	}
-
-	// AABB getPathAABB()
-	// {
-	// 	double minX = double.maxFinite;
-	// 	double minY = double.maxFinite;
-	// 	double maxX = -double.maxFinite;
-	// 	double maxY = -double.maxFinite;
-
-	// 	AABB obb = getPathOBB();
-
-	// 	List<Vec2D> points = [
-	// 		new Vec2D.fromValues(obb[0], obb[1]),
-	// 		new Vec2D.fromValues(obb[2], obb[1]),
-	// 		new Vec2D.fromValues(obb[2], obb[3]),
-	// 		new Vec2D.fromValues(obb[0], obb[3])
-	// 	];
-		
-	// 	Mat2D transform = pathTransform;
-	// 	for(int i = 0; i < points.length; i++)
-	// 	{
-	// 		Vec2D pt = points[i];
-	// 		Vec2D wp = transform == null ? pt : Vec2D.transformMat2D(pt, pt, transform);
-	// 		if(wp[0] < minX)
-	// 		{
-	// 			minX = wp[0];
-	// 		}
-	// 		if(wp[1] < minY)
-	// 		{
-	// 			minY = wp[1];
-	// 		}
-
-	// 		if(wp[0] > maxX)
-	// 		{
-	// 			maxX = wp[0];
-	// 		}
-	// 		if(wp[1] > maxY)
-	// 		{
-	// 			maxY = wp[1];
-	// 		}
-	// 	}
-
-	// 	return new AABB.fromValues(minX, minY, maxX, maxY);
-	// }
 }

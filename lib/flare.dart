@@ -44,6 +44,7 @@ class FlutterActorShape extends ActorShape
 	List<FlutterStroke> _flutterStrokes;
 	ui.Path _path;
 
+	@override
 	void invalidateShape()
 	{
 		_path = null;
@@ -113,7 +114,7 @@ class FlutterActorShape extends ActorShape
 					if(childNode is FlutterActorShape)
 					{
 						ui.Path clippingPath = childNode.path;
-						canvas.clipPath(clippingPath.transform(childNode.worldTransform.mat4));
+						canvas.clipPath(clippingPath);
 					}
 				});
 			}

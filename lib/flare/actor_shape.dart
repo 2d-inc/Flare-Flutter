@@ -63,6 +63,52 @@ class ActorShape extends ActorNode implements ActorDrawable
 	AABB computeAABB()
 	{
 		AABB aabb;
+		List<ActorClip> clippers = allClips;
+		if(clippers != null)
+		{
+			for(ActorClip clip in clippers)
+			{
+				clip.node.all((ActorNode node)
+				{
+					if(node is ActorShape)
+					{
+						AABB bounds = node.computeAABB();
+						if(bounds == null)
+						{
+							return;
+						}
+						if(aabb == null)
+						{
+							aabb = bounds;
+						}
+						else
+						{
+							if(bounds[0] < aabb[0])
+							{
+								aabb[0] = bounds[0];
+							}
+							if(bounds[1] < aabb[1])
+							{
+								aabb[1] = bounds[1];
+							}
+							if(bounds[2] > aabb[2])
+							{
+								aabb[2] = bounds[2];
+							}
+							if(bounds[3] > aabb[3])
+							{
+								aabb[3] = bounds[3];
+							}
+						}
+					}
+				});
+			}
+			if(aabb != null)
+			{
+				print("AA $aabb");
+				return aabb;
+			}
+		}
 
 		for(ActorNode node in children)
 		{
@@ -72,7 +118,7 @@ class ActorShape extends ActorNode implements ActorDrawable
 				continue;
 			}
 			// This is the axis aligned bounding box in the space of the parent (this case our shape).
-			AABB pathAABB = path.getPathOBB();
+			AABB pathAABB = path.getPathAABB();
 
 			if(aabb == null)
 			{

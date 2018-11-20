@@ -1,3 +1,4 @@
+import '../actor_drawable.dart';
 import "../stream_reader.dart";
 import "../actor_component.dart";
 import "../actor_node.dart";
@@ -486,10 +487,15 @@ class DrawOrderIndex
 	int order;
 }
 
+int id = 0;
 class KeyFrameDrawOrder extends KeyFrame
 {
 	List<DrawOrderIndex> _orderedNodes;
-
+	int _id;
+	KeyFrameDrawOrder()
+	{
+		_id = id++;
+	}
 	static KeyFrame read(StreamReader reader, ActorComponent component)
 	{
 		KeyFrameDrawOrder frame = new KeyFrameDrawOrder();
@@ -526,13 +532,12 @@ class KeyFrameDrawOrder extends KeyFrame
 	void apply(ActorComponent component, double mix)
 	{
 		Actor actor = component.actor;
-
 		for(DrawOrderIndex doi in _orderedNodes)
 		{
-			ActorImage actorImage = actor[doi.componentIndex] as ActorImage;
-			if(actorImage != null)
+			ActorDrawable drawable = actor[doi.componentIndex] as ActorDrawable;
+			if(drawable != null)
 			{
-				actorImage.drawOrder = doi.order;
+				drawable.drawOrder = doi.order;
 			}
 		}
 	}

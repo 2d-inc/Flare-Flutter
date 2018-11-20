@@ -15,8 +15,23 @@ class ActorShape extends ActorNode implements ActorDrawable
 	@override
 	int drawIndex;
 
+	int _drawOrder;
 	@override
-	int drawOrder;
+	int get drawOrder => _drawOrder;
+
+	set drawOrder(int value)
+	{
+		if(_drawOrder == value)
+		{
+			return;
+		}
+		if(name == "Moon BG")
+		{
+			print("DRAW ORDER $value");
+		}
+		_drawOrder = value;
+		actor.markDrawOrderDirty();
+	}
 
 	bool _isHidden;
 	List<ActorStroke> _strokes;
@@ -29,6 +44,12 @@ class ActorShape extends ActorNode implements ActorDrawable
 	bool get doesDraw
 	{
 		return !_isHidden && !this.renderCollapsed;
+	}
+
+	void update(int dirt)
+	{
+		super.update(dirt);
+		invalidateShape();
 	}
 
 	static ActorShape read(Actor actor, StreamReader reader, ActorShape component)
@@ -105,7 +126,7 @@ class ActorShape extends ActorNode implements ActorDrawable
 			}
 			if(aabb != null)
 			{
-				print("AA $aabb");
+				//print("AA $aabb");
 				return aabb;
 			}
 		}

@@ -1,5 +1,6 @@
 import "dart:math";
 import "flare.dart";
+import "flare/actor_drawable.dart";
 import "flare/math/mat2d.dart";
 import "flare/math/vec2d.dart";
 import "flare/math/aabb.dart";
@@ -10,9 +11,9 @@ typedef void FlareCompletedCallback(String name);
 
 abstract class FlareController
 {
-    initialize(FlutterActor actor);
-    setViewTransform(Mat2D viewTransform);
-    advance(FlutterActor actor, double elapsed);
+    void initialize(FlutterActor actor);
+    void setViewTransform(Mat2D viewTransform);
+    bool advance(FlutterActor actor, double elapsed);
 }
 
 class FlareActor extends LeafRenderObjectWidget
@@ -26,8 +27,9 @@ class FlareActor extends LeafRenderObjectWidget
     final FlareController controller;
     final FlareCompletedCallback callback;
 	final Color color;
+	final String boundsNode;
 
-    FlareActor(this.filename, {this.animation, this.fit = BoxFit.contain, this.alignment = Alignment.center, this.isPaused = false, this.controller, this.callback, this.color, this.shouldClip = true});
+    FlareActor(this.filename, {this.boundsNode, this.animation, this.fit = BoxFit.contain, this.alignment = Alignment.center, this.isPaused = false, this.controller, this.callback, this.color, this.shouldClip = true});
 
     @override
     RenderObject createRenderObject(BuildContext context)
@@ -37,11 +39,12 @@ class FlareActor extends LeafRenderObjectWidget
                         ..fit = fit
                         ..alignment = alignment
                         ..animationName = animation
-                        ..isPlaying = !isPaused && animation != null
+                        ..isPlaying = (!isPaused && animation != null) || controller != null
                         ..controller = controller
                         ..completed = callback
 						..color = color
-                        ..shouldClip = shouldClip;
+                        ..shouldClip = shouldClip
+						..boundsNodeName = boundsNode;
     }
 
     @override
@@ -52,10 +55,16 @@ class FlareActor extends LeafRenderObjectWidget
             ..fit = fit
             ..alignment = alignment
             ..animationName = animation
-            ..isPlaying = !isPaused && animation != null
+            ..isPlaying = (!isPaused && animation != null) || controller != null
 			.. color = color
-            ..shouldClip = shouldClip;
+            ..shouldClip = shouldClip
+			..boundsNodeName = boundsNode;
     }
+
+	didUnmountRenderObject(covariant FlareActorRenderObject renderObject)
+	{
+		renderObject.dispose();
+	}
 }
 
 class FlareAnimationLayer
@@ -71,6 +80,7 @@ class FlareActorRenderObject extends RenderBox
     BoxFit _fit;
     Alignment _alignment;
     String _animationName;
+	String _boundsNodeName;
     FlareController _controller;
     FlareCompletedCallback _completedCallback;
 	double _lastFrameTime = 0.0;
@@ -82,6 +92,7 @@ class FlareActorRenderObject extends RenderBox
 
     FlutterActor _actor;
     AABB _setupAABB;
+	int _frameCallbackID;
 
 	Color _color;
 
@@ -94,6 +105,51 @@ class FlareActorRenderObject extends RenderBox
             markNeedsPaint();
         }
     }
+
+	String get boundsNodeName => _boundsNodeName;
+	set boundsNodeName(String value)
+	{
+		if(_boundsNodeName == value)
+		{
+			return;
+		}
+		_boundsNodeName = value;
+		if(_actor != null)
+		{
+			ActorNode node = _actor.getNode(_boundsNodeName);
+			if(node is ActorDrawable)
+			{
+				_setupAABB = (node as ActorDrawable).computeAABB();
+			}
+		}
+	}
+
+	void dispose()
+	{
+		if(_frameCallbackID != null)
+		{
+			SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
+		}
+		_isPlaying = false;
+		_actor = null;
+		_controller = null;
+	}
+
+	void updateBounds()
+	{
+		if(_actor != null)
+		{
+			ActorNode node = _actor.getNode(_boundsNodeName);
+			if(node is ActorDrawable)
+			{
+				_setupAABB = (node as ActorDrawable).computeAABB();
+			}
+			else
+			{
+				_setupAABB = _actor.computeAABB();
+			}
+		}
+	}
 
     BoxFit get fit => _fit;
     set fit(BoxFit value)
@@ -113,7 +169,7 @@ class FlareActorRenderObject extends RenderBox
             _isPlaying = value;
             if(_isPlaying)
             {
-                SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
+                _frameCallbackID = SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
             }
 			else
 			{
@@ -171,13 +227,14 @@ class FlareActorRenderObject extends RenderBox
 						if(_actor != null)
 						{
                         	_actor.advance(0.0);
-                        	_setupAABB = _actor.computeAABB();
+							updateBounds();
+							
 							// _setupAABB[0] -= 5000.0;
 							// _setupAABB[1] -= 5000.0;
 							// _setupAABB[2] += 5000.0;
 							// _setupAABB[3] += 5000.0;
 
-							print("SETUP AABB $_setupAABB");
+							//print("SETUP AABB $_setupAABB");
 							// _setupAABB[0] = -261.97979736328125;
 							// _setupAABB[1] = -1001.48486328125;
 							// _setupAABB[2] = 248.85952758789062;
@@ -234,11 +291,15 @@ class FlareActorRenderObject extends RenderBox
 
     void beginFrame(Duration timestamp)
     {
+		if(_actor == null)
+		{
+			return;
+		}
         final double t = timestamp.inMicroseconds / Duration.microsecondsPerMillisecond / 1000.0;
         if(_lastFrameTime == 0 || _actor == null)
         {
             _lastFrameTime = t;
-            SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
+            _frameCallbackID = SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
 			return;
         }
 
@@ -290,19 +351,26 @@ class FlareActorRenderObject extends RenderBox
             }
         }
 
-        if(_controller != null)
-        {
-            _controller.advance(_actor, elapsedSeconds);
-        }
-
-		if(_animationLayers.length == 0)
+		bool stopPlaying = true;
+		if(_animationLayers.length > 0)
 		{
-			isPlaying = false;
+			stopPlaying = false;
 		}
 
-        if(isPlaying)
+        if(_controller != null)
         {
-            SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
+            if(_controller.advance(_actor, elapsedSeconds))
+			{
+				stopPlaying = false;
+			}
+        }
+
+		bool wasPlaying = isPlaying;
+		isPlaying = !stopPlaying;
+
+        if(wasPlaying && isPlaying)
+        {
+            _frameCallbackID = SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
         }
 
 		if(_actor != null)

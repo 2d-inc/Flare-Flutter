@@ -309,7 +309,7 @@ class Actor
 		return null;
 	}
 
-	void markImageDrawOrderDirty()
+	void markDrawOrderDirty()
 	{
 		_flags |= ActorFlags.IsDrawOrderDirty;
 	}

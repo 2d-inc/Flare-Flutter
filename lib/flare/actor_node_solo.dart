@@ -1,4 +1,4 @@
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_component.dart";
 import "actor_node.dart";
 import "stream_reader.dart";
@@ -35,28 +35,28 @@ class ActorNodeSolo extends ActorNode
 		}
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		ActorNodeSolo soloInstance = new ActorNodeSolo();
-		soloInstance.copySolo(this, resetActor);
+		soloInstance.copySolo(this, resetArtboard);
 		return soloInstance;
 	}
 
-	void copySolo(ActorNodeSolo node, Actor resetActor)
+	void copySolo(ActorNodeSolo node, ActorArtboard resetArtboard)
 	{
-		copyComponent(node, resetActor);
+		copyComponent(node, resetArtboard);
 		_activeChildIndex = node._activeChildIndex;
 	}
 
 
-	static ActorNodeSolo read(Actor actor, StreamReader reader, ActorNodeSolo node)
+	static ActorNodeSolo read(ActorArtboard artboard, StreamReader reader, ActorNodeSolo node)
 	{
 		if(node == null)
 		{
 			node = new ActorNodeSolo();
 		}
 
-		ActorNode.read(actor, reader, node);
+		ActorNode.read(artboard, reader, node);
 		node._activeChildIndex = reader.readUint32("activeChild");
 		return node;
 	}

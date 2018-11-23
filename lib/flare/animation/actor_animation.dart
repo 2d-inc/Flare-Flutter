@@ -1,7 +1,7 @@
 import "../stream_reader.dart";
 import "../actor_component.dart";
 import "../actor_event.dart";
-import "../actor.dart";
+import "../actor_artboard.dart";
 import "property_types.dart";
 import "keyframe.dart";
 
@@ -445,11 +445,11 @@ class ActorAnimation
 		}
 	}
 
-	void apply(double time, Actor actor, double mix)
+	void apply(double time, ActorArtboard artboard, double mix)
 	{
 		for(ComponentAnimation componentAnimation in _components)
 		{
-			componentAnimation.apply(time, actor.components, mix);
+			componentAnimation.apply(time, artboard.components, mix);
 		}
 	}
 

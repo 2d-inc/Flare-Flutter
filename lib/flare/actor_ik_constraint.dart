@@ -2,7 +2,7 @@ import "actor_targeted_constraint.dart";
 import "actor_node.dart";
 import "actor_bone.dart";
 import "actor_component.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "stream_reader.dart";
 import "math/transform_components.dart";
 import "math/mat2d.dart";
@@ -119,12 +119,12 @@ class ActorIKConstraint extends ActorTargetedConstraint
 				continue;
 			}
 
-			actor.addDependency(this, bone.bone);
+			artboard.addDependency(this, bone.bone);
 		}
 
 		if(target != null)
 		{
-			actor.addDependency(this, target);
+			artboard.addDependency(this, target);
 		}
 
 		// All the first level children of the influenced bones should depend on the final bone.
@@ -145,18 +145,18 @@ class ActorIKConstraint extends ActorTargetedConstraint
 					// node is in the FK chain.
 					continue;
 				}
-				actor.addDependency(node, tip.bone);
+				artboard.addDependency(node, tip.bone);
 			}
 		}
 	}
 
-	static ActorIKConstraint read(Actor actor, StreamReader reader, ActorIKConstraint component)
+	static ActorIKConstraint read(ActorArtboard artboard, StreamReader reader, ActorIKConstraint component)
 	{
 		if(component == null)
 		{
 			component = new ActorIKConstraint();
 		}
-		ActorTargetedConstraint.read(actor, reader, component);
+		ActorTargetedConstraint.read(artboard, reader, component);
 		component._invertDirection = reader.readBool("isInverted");
 			
         reader.openArray("bones");
@@ -387,16 +387,16 @@ class ActorIKConstraint extends ActorTargetedConstraint
 		firstChild.angle = r2;
 	}
 	
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard artboard)
 	{
 		ActorIKConstraint instance = new ActorIKConstraint();
-		instance.copyIKConstraint(this, resetActor);
+		instance.copyIKConstraint(this, artboard);
 		return instance;
 	}
 
-	void copyIKConstraint(ActorIKConstraint node, Actor resetActor)
+	void copyIKConstraint(ActorIKConstraint node, ActorArtboard artboard)
 	{
-		copyTargetedConstraint(node, resetActor);
+		copyTargetedConstraint(node, artboard);
 
 		_invertDirection = node._invertDirection;
 		if(node._influencedBones != null)

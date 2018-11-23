@@ -1,6 +1,6 @@
 import "actor_component.dart";
 import "actor_constraint.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "stream_reader.dart";
 
 abstract class ActorTargetedConstraint extends ActorConstraint
@@ -21,22 +21,22 @@ abstract class ActorTargetedConstraint extends ActorConstraint
 			_target = components[_targetIdx];
 			if(_target != null)
 			{
-				actor.addDependency(parent, _target);
+				artboard.addDependency(parent, _target);
 			}
 		}
 	}
 
-	static ActorTargetedConstraint read(Actor actor, StreamReader reader, ActorTargetedConstraint component)
+	static ActorTargetedConstraint read(ActorArtboard artboard, StreamReader reader, ActorTargetedConstraint component)
 	{
-		ActorConstraint.read(actor, reader, component);
+		ActorConstraint.read(artboard, reader, component);
 		component._targetIdx = reader.readId("target");
 
 		return component;
 	}
 
-	void copyTargetedConstraint(ActorTargetedConstraint node, Actor resetActor)
+	void copyTargetedConstraint(ActorTargetedConstraint node, ActorArtboard resetArtboard)
 	{
-		copyConstraint(node, resetActor);
+		copyConstraint(node, resetArtboard);
 
 		_targetIdx = node._targetIdx;
 	}

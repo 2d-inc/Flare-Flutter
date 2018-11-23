@@ -2,7 +2,7 @@ import "actor_color.dart";
 import "actor_component.dart";
 import "actor_node.dart";
 import "actor_drawable.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "stream_reader.dart";
 import "actor_path.dart";
 import "dart:math";
@@ -30,7 +30,7 @@ class ActorShape extends ActorNode implements ActorDrawable
 			print("DRAW ORDER $value");
 		}
 		_drawOrder = value;
-		actor.markDrawOrderDirty();
+		artboard.markDrawOrderDirty();
 	}
 
 	bool _isHidden;
@@ -52,14 +52,14 @@ class ActorShape extends ActorNode implements ActorDrawable
 		invalidateShape();
 	}
 
-	static ActorShape read(Actor actor, StreamReader reader, ActorShape component)
+	static ActorShape read(ActorArtboard artboard, StreamReader reader, ActorShape component)
 	{
 		if(component == null)
 		{
 			component = new ActorShape();
 		}
 
-		ActorNode.read(actor, reader, component);
+		ActorNode.read(artboard, reader, component);
 
 		component._isHidden = !reader.readBool("isVisible");
 		/*blendMode*/ reader.readUint8("blendMode");
@@ -67,16 +67,16 @@ class ActorShape extends ActorNode implements ActorDrawable
 		return component;
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		ActorShape instanceEvent = new ActorShape();
-		instanceEvent.copyShape(this, resetActor);
+		instanceEvent.copyShape(this, resetArtboard);
 		return instanceEvent;
 	}
 
-	void copyShape(ActorShape node, Actor resetActor)
+	void copyShape(ActorShape node, ActorArtboard resetArtboard)
 	{
-		copyNode(node, resetActor);
+		copyNode(node, resetArtboard);
 		drawOrder = node.drawOrder;
 		_isHidden = node._isHidden;
 	}

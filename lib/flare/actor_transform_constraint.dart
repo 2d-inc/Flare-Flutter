@@ -1,5 +1,5 @@
 import "dart:math";
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "actor_targeted_constraint.dart";
 import "math/mat2d.dart";
@@ -18,13 +18,13 @@ class ActorTransformConstraint extends ActorTargetedConstraint
 
     ActorTransformConstraint() : super();
 
-    static ActorTransformConstraint read(Actor actor, StreamReader reader, ActorTransformConstraint component)
+    static ActorTransformConstraint read(ActorArtboard artboard, StreamReader reader, ActorTransformConstraint component)
 	{
         if(component == null)
         {
             component = new ActorTransformConstraint();
         }
-        ActorTargetedConstraint.read(actor, reader, component);
+        ActorTargetedConstraint.read(artboard, reader, component);
 
         component._sourceSpace = reader.readUint8("sourceSpaceId");
         component._destSpace = reader.readUint8("destSpaceId");
@@ -33,16 +33,16 @@ class ActorTransformConstraint extends ActorTargetedConstraint
     }
 
     @override
-    makeInstance(Actor resetActor)
+    makeInstance(ActorArtboard resetArtboard)
     {
         ActorTransformConstraint node = new ActorTransformConstraint();
-        node.copyTransformConstraint(this, resetActor);
+        node.copyTransformConstraint(this, resetArtboard);
         return node;
     }
 
-    copyTransformConstraint(ActorTransformConstraint node, Actor resetActor)
+    copyTransformConstraint(ActorTransformConstraint node, ActorArtboard resetArtboard)
     {
-        copyTargetedConstraint(node, resetActor);
+        copyTargetedConstraint(node, resetArtboard);
         _sourceSpace = node._sourceSpace;
         _destSpace = node._destSpace;
     }

@@ -7,6 +7,7 @@ import "package:flutter/material.dart";
 import "flare/actor_component.dart";
 
 import "flare/actor.dart";
+import "flare/actor_artboard.dart";
 import "flare/actor_shape.dart";
 import "flare/actor_path.dart";
 import "flare/actor_ellipse.dart";
@@ -156,10 +157,10 @@ class FlutterActorShape extends ActorShape
 		canvas.restore();
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterActorShape instanceNode = new FlutterActorShape();
-		instanceNode.copyShape(this, resetActor);
+		instanceNode.copyShape(this, resetArtboard);
 		return instanceNode;
 	}
 }
@@ -185,10 +186,10 @@ class FlutterColorFill extends ColorFill implements FlutterFill
 		}
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterColorFill instanceNode = new FlutterColorFill();
-		instanceNode.copyColorFill(this, resetActor);
+		instanceNode.copyColorFill(this, resetArtboard);
 		return instanceNode;
 	}
 }
@@ -219,10 +220,10 @@ class FlutterColorStroke extends ColorStroke implements FlutterStroke
 		}
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterColorStroke instanceNode = new FlutterColorStroke();
-		instanceNode.copyColorStroke(this, resetActor);
+		instanceNode.copyColorStroke(this, resetArtboard);
 		return instanceNode;
 	}
 }
@@ -264,10 +265,10 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 		}
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterGradientFill instanceNode = new FlutterGradientFill();
-		instanceNode.copyGradientFill(this, resetActor);
+		instanceNode.copyGradientFill(this, resetArtboard);
 		return instanceNode;
 	}
 }
@@ -311,10 +312,10 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 		}
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterGradientStroke instanceNode = new FlutterGradientStroke();
-		instanceNode.copyGradientStroke(this, resetActor);
+		instanceNode.copyGradientStroke(this, resetArtboard);
 		return instanceNode;
 	}
 }
@@ -409,10 +410,10 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 		}
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterRadialFill instanceNode = new FlutterRadialFill();
-		instanceNode.copyRadialFill(this, resetActor);
+		instanceNode.copyRadialFill(this, resetArtboard);
 		return instanceNode;
 	}
 }
@@ -476,23 +477,27 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 		}
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterRadialStroke instanceNode = new FlutterRadialStroke();
-		instanceNode.copyRadialStroke(this, resetActor);
+		instanceNode.copyRadialStroke(this, resetArtboard);
 		return instanceNode;
 	}
 }
 
 class FlutterActor extends Actor
 {
-    bool _isInstance = false;
     List<ui.Image> _images;
 
     List<ui.Image> get images
     {
         return _images;
     }
+
+	ActorArtboard makeArtboard()
+	{
+		return new FlutterActorArtboard(this);
+	}
 
 	ActorShape makeShapeNode()
 	{
@@ -567,57 +572,21 @@ class FlutterActor extends Actor
 			super.load(data);
 			completer.complete(true);
 		});
-		//ByteData data = await rootBundle.load(filename);
 		return completer.future;
-		// List<Future<ui.Codec>> waitList = new List<Future<ui.Codec>>();
-		// _images = new List<ui.Image>(texturesUsed);
-
-		// for(int i = 0; i < texturesUsed; i++)
-		// {
-		// 	String atlasFilename;
-		// 	if(texturesUsed == 1)
-		// 	{
-		// 		atlasFilename = filename + ".png";
-		// 	}
-		// 	else
-		// 	{
-		// 		atlasFilename = filename + i.toString() + ".png";
-		// 	}
-		// 	ByteData data = await rootBundle.load(atlasFilename);
-		// 	Uint8List list = new Uint8List.view(data.buffer);
-		// 	waitList.add(ui.instantiateImageCodec(list));
-		// }
-
-		// List<ui.Codec> codecs = await Future.wait(waitList);
-		// List<ui.FrameInfo> frames = await Future.wait(codecs.map((codec) => codec.getNextFrame()));
-		// for(int i = 0; i < frames.length; i++)
-		// {
-		// 	_images[i] = frames[i].image;
-		// }
-
-		// for(FlutterActorImage image in imageNodes)
-		// {
-		// 	image.init();
-		// }
-
-		//return true;
 	}
 
-    Actor makeInstance()
-    {
-        FlutterActor actorInstance = new FlutterActor();
-        actorInstance.copyActor(this);
-        actorInstance._isInstance = true;
-        return actorInstance;
-    }
+    dispose()
+    {}
+}
 
+class FlutterActorArtboard extends ActorArtboard
+{
+	FlutterActorArtboard(FlutterActor actor) : super(actor);
+	
     void advance(double seconds)
     {
         super.advance(seconds);
     }
-
-    dispose()
-    {}
 
 	void draw(ui.Canvas canvas, {ui.Color overrideColor, double opacity = 1.0})
 	{
@@ -629,24 +598,32 @@ class FlutterActor extends Actor
 			}
 		}
 	}
+	
+	ActorArtboard makeInstance()
+    {
+        FlutterActorArtboard artboardInstance = new FlutterActorArtboard(actor);
+        artboardInstance.copyArtboard(this);
+        return artboardInstance;
+    }
+
 }
 
 class FlutterActorPath extends ActorPath with FlutterPathPointsPath
 {
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterActorPath instanceNode = new FlutterActorPath();
-		instanceNode.copyPath(this, resetActor);
+		instanceNode.copyPath(this, resetArtboard);
 		return instanceNode;
 	}
 }
 
 class FlutterActorEllipse extends ActorEllipse with FlutterPathPointsPath
 {
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterActorEllipse instanceNode = new FlutterActorEllipse();
-		instanceNode.copyPath(this, resetActor);
+		instanceNode.copyPath(this, resetArtboard);
 		return instanceNode;
 	}
     // updatePath(ui.Path path)
@@ -675,10 +652,10 @@ class FlutterActorEllipse extends ActorEllipse with FlutterPathPointsPath
 
 class FlutterActorPolygon extends ActorPolygon with FlutterPathPointsPath
 {
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterActorPolygon instanceNode = new FlutterActorPolygon();
-		instanceNode.copyPolygon(this, resetActor);
+		instanceNode.copyPolygon(this, resetArtboard);
 		return instanceNode;
 	}
     // updatePath(ui.Path path)
@@ -706,10 +683,10 @@ class FlutterActorPolygon extends ActorPolygon with FlutterPathPointsPath
 
 class FlutterActorStar extends ActorStar with FlutterPathPointsPath
 {
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterActorStar instanceNode = new FlutterActorStar();
-		instanceNode.copyStar(this, resetActor);
+		instanceNode.copyStar(this, resetArtboard);
 		return instanceNode;
 	}
     // onPathInvalid()
@@ -744,10 +721,10 @@ class FlutterActorStar extends ActorStar with FlutterPathPointsPath
 // This is more efficient, particularly when using a lot of procedural shapes.
 class FlutterActorRectangle extends ActorRectangle with FlutterPath
 {
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterActorRectangle instanceNode = new FlutterActorRectangle();
-		instanceNode.copyRectangle(this, resetActor);
+		instanceNode.copyRectangle(this, resetArtboard);
 		return instanceNode;
 	}
 
@@ -793,10 +770,10 @@ class FlutterActorRectangle extends ActorRectangle with FlutterPath
 
 class FlutterActorTriangle extends ActorTriangle with FlutterPathPointsPath
 {
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		FlutterActorTriangle instanceNode = new FlutterActorTriangle();
-		instanceNode.copyPath(this, resetActor);
+		instanceNode.copyPath(this, resetArtboard);
 		return instanceNode;
 	}
     // updatePath(ui.Path path)
@@ -820,7 +797,7 @@ abstract class FlutterPath
 abstract class FlutterPathPointsPath implements FlutterPath
 {
 	ui.Path _path;
-	List<PathPoint> get points;
+	List<PathPoint> get deformedPoints;
 	bool get isClosed;   
 
     ui.Path get path
@@ -841,7 +818,7 @@ abstract class FlutterPathPointsPath implements FlutterPath
 	{
 		ui.Path p = new ui.Path();
 
-		List<PathPoint> pts = this.points;
+		List<PathPoint> pts = this.deformedPoints;
 		if(pts == null || pts.length == 0)
 		{
 			return p;

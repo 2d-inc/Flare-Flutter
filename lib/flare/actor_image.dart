@@ -3,7 +3,7 @@ import "stream_reader.dart";
 import "actor_node.dart";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_component.dart";
 import "actor_drawable.dart";
 import "math/aabb.dart";
@@ -256,14 +256,14 @@ class ActorImage extends ActorNode implements ActorDrawable
 		return _boneMatrices;
 	}
 
-	static ActorImage read(Actor actor, StreamReader reader, ActorImage node)
+	static ActorImage read(ActorArtboard artboard, StreamReader reader, ActorImage node)
 	{
 		if(node == null)
 		{
 			node = new ActorImage();
 		}
 		
-		ActorNode.read(actor, reader, node);
+		ActorNode.read(artboard, reader, node);
 
 		bool isVisible = reader.readBool("isVisible");
 		if(isVisible)
@@ -330,9 +330,9 @@ class ActorImage extends ActorNode implements ActorDrawable
 		return node;
 	}
 
-	static ActorImage readSequence(Actor actor, StreamReader reader, ActorImage node)
+	static ActorImage readSequence(ActorArtboard artboard, StreamReader reader, ActorImage node)
 	{
-		ActorImage.read(actor, reader, node);
+		ActorImage.read(artboard, reader, node);
 
 		if(node._textureIndex != -1)
 		{
@@ -391,14 +391,14 @@ class ActorImage extends ActorNode implements ActorDrawable
 		}
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		ActorImage instanceNode = new ActorImage();
-		instanceNode.copyImage(this, resetActor);
+		instanceNode.copyImage(this, resetArtboard);
 		return instanceNode;
 	}
 
-	void copyImage(ActorImage node, Actor resetActor)
+	void copyImage(ActorImage node, ActorArtboard resetArtboard)
 	{
 		drawOrder = node.drawOrder;
 		blendMode = node.blendMode;

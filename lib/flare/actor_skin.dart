@@ -1,7 +1,7 @@
 import "dart:typed_data";
 import "actor_path.dart";
 import "actor_skinnable.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_component.dart";
 import "math/mat2d.dart";
 import "actor_constraint.dart";
@@ -82,20 +82,20 @@ class ActorSkin extends ActorComponent
 			return;
 		}
 		path.skin = this;
-		actor.addDependency(this, path);
+		artboard.addDependency(this, path);
 		if(path.isConnectedToBones)
 		{
 			List<SkinnedBone> connectedBones = path.connectedBones;
 			for(SkinnedBone skinnedBone in connectedBones)
 			{
-				actor.addDependency(this, skinnedBone.node);
+				artboard.addDependency(this, skinnedBone.node);
 				List<ActorConstraint> constraints = skinnedBone.node.allConstraints;
 							
 				if(constraints != null)
 				{
 					for(ActorConstraint constraint in constraints)
 					{
-						actor.addDependency(this, constraint);
+						artboard.addDependency(this, constraint);
 					}
 				}
 			}
@@ -103,10 +103,10 @@ class ActorSkin extends ActorComponent
 	}
 
 	@override
-	ActorComponent makeInstance(Actor resetActor) 
+	ActorComponent makeInstance(ActorArtboard resetArtboard) 
 	{
 		ActorSkin instance = new ActorSkin();
-		instance.copyComponent(this, resetActor);
+		instance.copyComponent(this, resetArtboard);
 		return instance;	
 	}
 }

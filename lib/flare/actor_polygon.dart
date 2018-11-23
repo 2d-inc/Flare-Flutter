@@ -1,5 +1,5 @@
 import "dart:math";
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
 import "stream_reader.dart";
@@ -16,27 +16,27 @@ class ActorPolygon extends ActorProceduralPath
 	}
 	
 	
-    ActorComponent makeInstance(Actor resetActor)
+    ActorComponent makeInstance(ActorArtboard resetArtboard)
     {
         ActorPolygon instance = new ActorPolygon();
-        instance.copyPolygon(this, resetActor);
+        instance.copyPolygon(this, resetArtboard);
         return instance;
     }
 
-    void copyPolygon(ActorPolygon node, Actor resetActor)
+    void copyPolygon(ActorPolygon node, ActorArtboard resetArtboard)
     {
-		copyPath(node, resetActor);
+		copyPath(node, resetArtboard);
         sides = node.sides;
     }
 
-    static ActorPolygon read(Actor actor, StreamReader reader, ActorPolygon component)
+    static ActorPolygon read(ActorArtboard artboard, StreamReader reader, ActorPolygon component)
     {
         if(component == null)
         {
             component = new ActorPolygon();
         }
 
-        ActorNode.read(actor, reader, component);
+        ActorNode.read(artboard, reader, component);
 
         component.width = reader.readFloat32("width");
         component.height = reader.readFloat32("height");

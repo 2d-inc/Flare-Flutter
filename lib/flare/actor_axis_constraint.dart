@@ -1,4 +1,4 @@
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_targeted_constraint.dart";
 import "transform_space.dart";
 import "stream_reader.dart";
@@ -26,9 +26,9 @@ abstract class ActorAxisConstraint extends ActorTargetedConstraint
 
     ActorAxisConstraint() : super();
 
-    static ActorAxisConstraint read(Actor actor, StreamReader reader, ActorAxisConstraint component)
+    static ActorAxisConstraint read(ActorArtboard artboard, StreamReader reader, ActorAxisConstraint component)
     {
-        ActorTargetedConstraint.read(actor, reader, component);
+        ActorTargetedConstraint.read(artboard, reader, component);
         component._copyX = reader.readBool("copyX");
         if(component._copyX)
         {
@@ -73,9 +73,9 @@ abstract class ActorAxisConstraint extends ActorTargetedConstraint
         return component;
     }
 
-	void copyAxisConstraint(ActorAxisConstraint node, Actor resetActor)
+	void copyAxisConstraint(ActorAxisConstraint node, ActorArtboard resetArtboard)
     {
-        copyTargetedConstraint(node, resetActor);
+        copyTargetedConstraint(node, resetArtboard);
 
         _copyX = node._copyX;
         _copyY = node._copyY;

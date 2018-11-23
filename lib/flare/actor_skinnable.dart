@@ -1,5 +1,5 @@
 import "stream_reader.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "math/mat2d.dart";
 import "actor_node.dart";
 import "actor_component.dart";
@@ -19,9 +19,9 @@ abstract class ActorSkinnable extends ActorNode
 	List<SkinnedBone> get connectedBones => _connectedBones;
 	bool get isConnectedToBones => _connectedBones != null && _connectedBones.length > 0;
 
-	static ActorSkinnable read(Actor actor, StreamReader reader, ActorSkinnable node)
+	static ActorSkinnable read(ActorArtboard artboard, StreamReader reader, ActorSkinnable node)
 	{
-		ActorNode.read(actor, reader, node);
+		ActorNode.read(artboard, reader, node);
 
 		reader.openArray("bones");
 		int numConnectedBones = reader.readUint8Length();
@@ -65,9 +65,9 @@ abstract class ActorSkinnable extends ActorNode
 		}
 	}
 
-	void copySkinnable(ActorSkinnable node, Actor resetActor)
+	void copySkinnable(ActorSkinnable node, ActorArtboard resetArtboard)
 	{
-		copyNode(node, resetActor);
+		copyNode(node, resetArtboard);
 
 		if(node._connectedBones != null)
 		{

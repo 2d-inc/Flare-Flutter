@@ -1,5 +1,5 @@
 import "actor_component.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
 import "stream_reader.dart";
@@ -10,10 +10,10 @@ const double CircleConstant = 0.55;
 
 class ActorEllipse extends ActorProceduralPath
 {
-    ActorComponent makeInstance(Actor resetActor)
+    ActorComponent makeInstance(ActorArtboard resetArtboard)
     {
         ActorEllipse instance = new ActorEllipse();
-        instance.copyPath(this, resetActor);
+        instance.copyPath(this, resetArtboard);
         return instance;
     }
 
@@ -22,14 +22,14 @@ class ActorEllipse extends ActorProceduralPath
 	{
 	}
 	
-    static ActorEllipse read(Actor actor, StreamReader reader, ActorEllipse component)
+    static ActorEllipse read(ActorArtboard artboard, StreamReader reader, ActorEllipse component)
     {
         if(component == null)
         {
             component = new ActorEllipse();
         }
 
-        ActorNode.read(actor, reader, component);
+        ActorNode.read(artboard, reader, component);
 
         component.width = reader.readFloat32("width");
         component.height = reader.readFloat32("height");

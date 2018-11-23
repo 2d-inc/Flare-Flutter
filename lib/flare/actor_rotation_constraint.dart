@@ -1,7 +1,7 @@
 import "actor_targeted_constraint.dart";
 import "actor_node.dart";
 import "actor_component.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "stream_reader.dart";
 import "math/transform_components.dart";
 import "math/mat2d.dart";
@@ -25,13 +25,13 @@ class ActorRotationConstraint extends ActorTargetedConstraint
 	TransformComponents _componentsA = new TransformComponents();
 	TransformComponents _componentsB = new TransformComponents();
 
-	static ActorRotationConstraint read(Actor actor, StreamReader reader, ActorRotationConstraint component)
+	static ActorRotationConstraint read(ActorArtboard artboard, StreamReader reader, ActorRotationConstraint component)
 	{
 		if(component == null)
 		{
 			component = new ActorRotationConstraint();
 		}
-		ActorTargetedConstraint.read(actor, reader, component);
+		ActorTargetedConstraint.read(artboard, reader, component);
 		component._copy = reader.readBool("copy");
 		if(component._copy)
 		{
@@ -169,16 +169,16 @@ class ActorRotationConstraint extends ActorTargetedConstraint
 		Mat2D.compose(parent.worldTransform, _componentsB);
 	}
 	
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		ActorRotationConstraint instance = new ActorRotationConstraint();
-		instance.copyRotationConstraint(this, resetActor);
+		instance.copyRotationConstraint(this, resetArtboard);
 		return instance;
 	}
 
-	void copyRotationConstraint(ActorRotationConstraint node, Actor resetActor)
+	void copyRotationConstraint(ActorRotationConstraint node, ActorArtboard resetArtboard)
 	{
-		copyTargetedConstraint(node, resetActor);
+		copyTargetedConstraint(node, resetArtboard);
 
 		_copy = node._copy;
 		_scale = node._scale;

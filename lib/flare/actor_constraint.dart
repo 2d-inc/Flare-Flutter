@@ -1,6 +1,6 @@
 import "actor_component.dart";
 import "actor_node.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "stream_reader.dart";
 
 abstract class ActorConstraint extends ActorComponent
@@ -60,18 +60,18 @@ abstract class ActorConstraint extends ActorComponent
 		}
 	}
 
-	static ActorConstraint read(Actor actor, StreamReader reader, ActorConstraint component)
+	static ActorConstraint read(ActorArtboard artboard, StreamReader reader, ActorConstraint component)
 	{
-		ActorComponent.read(actor, reader, component);
+		ActorComponent.read(artboard, reader, component);
 		component._strength = reader.readFloat32("strength");
 		component._isEnabled = reader.readBool("isEnabled");
 
 		return component;
 	}
 
-	void copyConstraint(ActorConstraint node, Actor resetActor)
+	void copyConstraint(ActorConstraint node, ActorArtboard resetArtboard)
 	{
-		copyComponent(node, resetActor);
+		copyComponent(node, resetArtboard);
 
 		_isEnabled = node._isEnabled;
 		_strength = node._strength;

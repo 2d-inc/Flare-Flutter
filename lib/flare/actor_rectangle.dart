@@ -1,4 +1,4 @@
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
 import "stream_reader.dart";
@@ -18,27 +18,27 @@ class ActorRectangle extends ActorProceduralPath
 	}
 	
 	
-    ActorComponent makeInstance(Actor resetActor)
+    ActorComponent makeInstance(ActorArtboard resetArtboard)
     {
         ActorRectangle instance = new ActorRectangle();
-        instance.copyRectangle(this, resetActor);
+        instance.copyRectangle(this, resetArtboard);
         return instance;
     }
 
-    void copyRectangle(ActorRectangle node, Actor resetActor)
+    void copyRectangle(ActorRectangle node, ActorArtboard resetArtboard)
     {
-		copyPath(node, resetActor);
+		copyPath(node, resetArtboard);
         _radius = node._radius;
     }
 
-    static ActorRectangle read(Actor actor, StreamReader reader, ActorRectangle component)
+    static ActorRectangle read(ActorArtboard artboard, StreamReader reader, ActorRectangle component)
     {
         if(component == null)
         {
             component = new ActorRectangle();
         }
 
-        ActorNode.read(actor, reader, component);
+        ActorNode.read(artboard, reader, component);
 
         component.width = reader.readFloat32("width");
         component.height = reader.readFloat32("height");

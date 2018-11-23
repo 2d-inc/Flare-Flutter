@@ -1,4 +1,4 @@
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "actor_axis_constraint.dart";
 import "math/vec2d.dart";
@@ -10,22 +10,22 @@ class ActorTranslationConstraint extends ActorAxisConstraint
 {
     ActorTranslationConstraint() : super();
 
-    static ActorTranslationConstraint read(Actor actor, StreamReader reader, ActorTranslationConstraint component)
+    static ActorTranslationConstraint read(ActorArtboard artboard, StreamReader reader, ActorTranslationConstraint component)
     {
         if(component == null)
         {
             component = new ActorTranslationConstraint();
         }
-        ActorAxisConstraint.read(actor, reader, component);
+        ActorAxisConstraint.read(artboard, reader, component);
 
         return component;
     }
 
     @override
-    makeInstance(Actor resetActor)
+    makeInstance(ActorArtboard resetArtboard)
     {
         ActorTranslationConstraint node = new ActorTranslationConstraint();
-        node.copyAxisConstraint(this, resetActor);
+        node.copyAxisConstraint(this, resetArtboard);
         return node;
     }
 

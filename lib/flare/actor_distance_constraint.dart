@@ -1,4 +1,4 @@
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "actor_targeted_constraint.dart";
 import "stream_reader.dart";
@@ -19,13 +19,13 @@ class ActorDistanceConstraint extends ActorTargetedConstraint
 
     ActorDistanceConstraint() : super();
 
-    static ActorDistanceConstraint read(Actor actor, StreamReader reader, ActorDistanceConstraint component)
+    static ActorDistanceConstraint read(ActorArtboard artboard, StreamReader reader, ActorDistanceConstraint component)
     {
         if(component == null)
         {
             component = new ActorDistanceConstraint();
         }
-        ActorTargetedConstraint.read(actor, reader, component);
+        ActorTargetedConstraint.read(artboard, reader, component);
         
         component._distance = reader.readFloat32("distance");
         component._mode = reader.readUint8("modeId");
@@ -34,16 +34,16 @@ class ActorDistanceConstraint extends ActorTargetedConstraint
     }
 
     @override
-    ActorDistanceConstraint makeInstance(Actor resetActor)
+    ActorDistanceConstraint makeInstance(ActorArtboard resetArtboard)
     {
         ActorDistanceConstraint node = new ActorDistanceConstraint();
-        node.copyDistanceConstraint(this, resetActor);
+        node.copyDistanceConstraint(this, resetArtboard);
         return node;
     }
 
-    void copyDistanceConstraint(ActorDistanceConstraint node, Actor resetActor)
+    void copyDistanceConstraint(ActorDistanceConstraint node, ActorArtboard resetArtboard)
     {
-        copyTargetedConstraint(node, resetActor);
+        copyTargetedConstraint(node, resetArtboard);
         _distance = node._distance;
         _mode = node._mode;
     }

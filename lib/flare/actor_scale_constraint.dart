@@ -1,4 +1,4 @@
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "stream_reader.dart";
 import "actor_axis_constraint.dart";
@@ -13,21 +13,21 @@ class ActorScaleConstraint extends ActorAxisConstraint
 
     ActorScaleConstraint() : super();
 
-    static ActorScaleConstraint read(Actor actor, StreamReader reader, ActorScaleConstraint component)
+    static ActorScaleConstraint read(ActorArtboard artboard, StreamReader reader, ActorScaleConstraint component)
     {
         if(component == null)
         {
             component = new ActorScaleConstraint();
         }
-        ActorAxisConstraint.read(actor, reader, component);
+        ActorAxisConstraint.read(artboard, reader, component);
         return component;
     }
 
     @override
-    makeInstance(Actor resetActor)
+    makeInstance(ActorArtboard resetArtboard)
     {
         ActorScaleConstraint node = new ActorScaleConstraint();
-        node.copyAxisConstraint(this, resetActor);
+        node.copyAxisConstraint(this, resetArtboard);
         return node;
     }
 

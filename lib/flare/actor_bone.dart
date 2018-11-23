@@ -1,5 +1,5 @@
 import "stream_reader.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_bone_base.dart";
 import "actor_component.dart";
 import "actor_node.dart";
@@ -15,10 +15,10 @@ class ActorBone extends ActorBoneBase
 		return _firstBone;
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		ActorBone instanceNode = new ActorBone();
-		instanceNode.copyBoneBase(this, resetActor);
+		instanceNode.copyBoneBase(this, resetArtboard);
 		return instanceNode;
 	}
 
@@ -39,13 +39,13 @@ class ActorBone extends ActorBoneBase
 		}
 	}
 
-	static ActorBone read(Actor actor, StreamReader reader, ActorBone node)
+	static ActorBone read(ActorArtboard artboard, StreamReader reader, ActorBone node)
 	{
 		if(node == null)
 		{
 			node = new ActorBone();
 		}
-		ActorBoneBase.read(actor, reader, node);
+		ActorBoneBase.read(artboard, reader, node);
 		return node;
 	}
 }

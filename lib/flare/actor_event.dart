@@ -1,26 +1,26 @@
 
 import "actor_component.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "stream_reader.dart";
 
 class ActorEvent extends ActorComponent
 {
-	static ActorComponent read(Actor actor, StreamReader reader, ActorEvent component)
+	static ActorComponent read(ActorArtboard artboard, StreamReader reader, ActorEvent component)
 	{
 		if(component == null)
 		{
 			component = new ActorEvent();
 		}
 
-		ActorComponent.read(actor, reader, component);
+		ActorComponent.read(artboard, reader, component);
 
 		return component;
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		ActorEvent instanceEvent = new ActorEvent();
-		instanceEvent.copyComponent(this, resetActor);
+		instanceEvent.copyComponent(this, resetArtboard);
 		return instanceEvent;
 	}
 

@@ -1,5 +1,5 @@
 import 'dart:math';
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
 import "stream_reader.dart";
@@ -18,28 +18,28 @@ class ActorStar extends ActorProceduralPath
 	}
 	
 	
-    ActorComponent makeInstance(Actor resetActor)
+    ActorComponent makeInstance(ActorArtboard resetArtboard)
     {
         ActorStar instance = new ActorStar();
-        instance.copyStar(this, resetActor);
+        instance.copyStar(this, resetArtboard);
         return instance;
     }
 
-    void copyStar(ActorStar node, Actor resetActor)
+    void copyStar(ActorStar node, ActorArtboard resetArtboard)
     {
-		copyPath(node, resetActor);
+		copyPath(node, resetArtboard);
         _numPoints = node._numPoints;
 		_innerRadius = node._innerRadius;
     }
 
-    static ActorStar read(Actor actor, StreamReader reader, ActorStar component)
+    static ActorStar read(ActorArtboard artboard, StreamReader reader, ActorStar component)
     {
         if(component == null)
         {
             component = new ActorStar();
         }
 
-        ActorNode.read(actor, reader, component);
+        ActorNode.read(artboard, reader, component);
 
         component.width = reader.readFloat32("width");
         component.height = reader.readFloat32("height");

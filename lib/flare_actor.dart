@@ -11,9 +11,9 @@ typedef void FlareCompletedCallback(String name);
 
 abstract class FlareController
 {
-    void initialize(FlutterActor actor);
+    void initialize(FlutterActorArtboard artboard);
     void setViewTransform(Mat2D viewTransform);
-    bool advance(FlutterActor actor, double elapsed);
+    bool advance(FlutterActorArtboard artboard, double elapsed);
 }
 
 class FlareActor extends LeafRenderObjectWidget
@@ -91,6 +91,7 @@ class FlareActorRenderObject extends RenderBox
     bool shouldClip;
 
     FlutterActor _actor;
+	FlutterActorArtboard _artboard;
     AABB _setupAABB;
 	int _frameCallbackID;
 
@@ -114,9 +115,9 @@ class FlareActorRenderObject extends RenderBox
 			return;
 		}
 		_boundsNodeName = value;
-		if(_actor != null)
+		if(_artboard != null)
 		{
-			ActorNode node = _actor.getNode(_boundsNodeName);
+			ActorNode node = _artboard.getNode(_boundsNodeName);
 			if(node is ActorDrawable)
 			{
 				_setupAABB = (node as ActorDrawable).computeAABB();
@@ -139,14 +140,15 @@ class FlareActorRenderObject extends RenderBox
 	{
 		if(_actor != null)
 		{
-			ActorNode node = _actor.getNode(_boundsNodeName);
-			if(node is ActorDrawable)
+			ActorNode node;
+			if(_boundsNodeName != null && (node = _artboard.getNode(_boundsNodeName)) is ActorDrawable)
 			{
 				_setupAABB = (node as ActorDrawable).computeAABB();
 			}
 			else
 			{
-				_setupAABB = _actor.computeAABB();
+				_setupAABB = _artboard.artboardAABB();
+				//_setupAABB = _artboard.computeAABB();
 			}
 		}
 	}
@@ -194,9 +196,9 @@ class FlareActorRenderObject extends RenderBox
         if(_controller != c)
         {
             _controller = c;
-            if(_controller != null && _actor != null)
+            if(_controller != null && _artboard != null)
             {
-                _controller.initialize(_actor);
+                _controller.initialize(_artboard);
             }
         }
     }
@@ -211,6 +213,7 @@ class FlareActorRenderObject extends RenderBox
             {
                 _actor.dispose();
                 _actor = null;
+				_artboard = null;
             }
             if(_filename == null)
             {
@@ -224,11 +227,11 @@ class FlareActorRenderObject extends RenderBox
                     if(success)
                     {
                         _actor = actor;
-						if(_actor != null)
+						_artboard = _actor?.artboard;
+						if(_artboard != null)
 						{
-                        	_actor.advance(0.0);
-							updateBounds();
-							
+                        	_artboard.advance(0.0);
+                        	updateBounds();
 							// _setupAABB[0] -= 5000.0;
 							// _setupAABB[1] -= 5000.0;
 							// _setupAABB[2] += 5000.0;
@@ -242,7 +245,7 @@ class FlareActorRenderObject extends RenderBox
 						}
                         if(_controller != null)
                         {
-                            _controller.initialize(_actor);
+                            _controller.initialize(_artboard);
                         }
                         _updateAnimation(onlyWhenMissing: true);
                         markNeedsPaint();
@@ -322,7 +325,7 @@ class FlareActorRenderObject extends RenderBox
             {
                 layer.time %= layer.animation.end;
             }
-            layer.animation.apply(layer.time, _actor, lastMix);
+            layer.animation.apply(layer.time, _artboard, lastMix);
             if(lastMix == 1.0)
             {
                 lastFullyMixed = i;
@@ -359,7 +362,7 @@ class FlareActorRenderObject extends RenderBox
 
         if(_controller != null)
         {
-            if(_controller.advance(_actor, elapsedSeconds))
+            if(_controller.advance(_artboard, elapsedSeconds))
 			{
 				stopPlaying = false;
 			}
@@ -373,9 +376,9 @@ class FlareActorRenderObject extends RenderBox
             _frameCallbackID = SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
         }
 
-		if(_actor != null)
+		if(_artboard != null)
 		{
-        	_actor.advance(elapsedSeconds);
+        	_artboard.advance(elapsedSeconds);
 		}
 
         markNeedsPaint();
@@ -386,7 +389,7 @@ class FlareActorRenderObject extends RenderBox
     {
         final Canvas canvas = context.canvas;
 
-        if(_actor != null)
+        if(_artboard != null)
         {
             AABB bounds = _setupAABB;
             double contentWidth = bounds[2] - bounds[0];
@@ -453,7 +456,7 @@ class FlareActorRenderObject extends RenderBox
 
             canvas.scale(scaleX, scaleY);
             canvas.translate(x,y);
-            _actor.draw(canvas, overrideColor : _color);
+            _artboard.draw(canvas, overrideColor : _color);
             canvas.restore();
         }
     }
@@ -464,9 +467,9 @@ class FlareActorRenderObject extends RenderBox
         {
             return;
         }
-        if(_animationName != null && _actor !=  null)
+        if(_animationName != null && _artboard !=  null)
         {
-            ActorAnimation animation = _actor.getAnimation(_animationName);
+            ActorAnimation animation = _artboard.getAnimation(_animationName);
             _animationLayers.add(new FlareAnimationLayer()
                                         ..name = _animationName
                                         ..animation = animation

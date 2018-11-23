@@ -1,5 +1,5 @@
 import "stream_reader.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
 import "actor_component.dart";
@@ -44,7 +44,7 @@ class ActorNode extends ActorComponent
 	static const int WorldTransformDirty = 1<<1;
 
 	ActorNode();
-	ActorNode.withActor(Actor actor) : super.withActor(actor);
+	ActorNode.withArtboard(ActorArtboard artboard) : super.withArtboard(artboard);
 
 	Mat2D get transform
 	{
@@ -237,16 +237,16 @@ class ActorNode extends ActorComponent
 
 	void markTransformDirty()
 	{
-		if(actor == null)
+		if(artboard == null)
 		{
 			// Still loading?
 			return;
 		}
-		if(!actor.addDirt(this, TransformDirty, false))
+		if(!artboard.addDirt(this, TransformDirty, false))
 		{
 			return;
 		}
-		actor.addDirt(this, WorldTransformDirty, true);
+		artboard.addDirt(this, WorldTransformDirty, true);
 	}
 
 	void updateTransform()
@@ -283,13 +283,13 @@ class ActorNode extends ActorComponent
 		}
 	}
 
-	static ActorNode read(Actor actor, StreamReader reader, ActorNode node)
+	static ActorNode read(ActorArtboard artboard, StreamReader reader, ActorNode node)
 	{
 		if(node == null)
 		{
 			node = new ActorNode();
 		}
-		ActorComponent.read(actor, reader, node);
+		ActorComponent.read(artboard, reader, node);
 		reader.readFloat32ArrayOffset(node._translation.values, 2, 0, "translation");
 		node._rotation = reader.readFloat32("rotation");
 		reader.readFloat32ArrayOffset(node._scale.values, 2, 0, "scale");
@@ -329,16 +329,16 @@ class ActorNode extends ActorComponent
 		return _children;
 	}
 
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard resetArtboard)
 	{
 		ActorNode instanceNode = new ActorNode();
-		instanceNode.copyNode(this, resetActor);
+		instanceNode.copyNode(this, resetArtboard);
 		return instanceNode;
 	}
 
-	void copyNode(ActorNode node, Actor resetActor)
+	void copyNode(ActorNode node, ActorArtboard resetArtboard)
 	{
-		copyComponent(node, resetActor);
+		copyComponent(node, resetArtboard);
 		_transform = new Mat2D.clone(node._transform);
 		_worldTransform = new Mat2D.clone(node._worldTransform);
 		_translation = new Vec2D.clone(node._translation);

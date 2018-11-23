@@ -1,5 +1,5 @@
 import "stream_reader.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
 import "math/mat2d.dart";
@@ -45,18 +45,18 @@ class ActorBoneBase extends ActorNode
 		return vec;
 	}
 
-	static ActorBoneBase read(Actor actor, StreamReader reader, ActorBoneBase node)
+	static ActorBoneBase read(ActorArtboard artboard, StreamReader reader, ActorBoneBase node)
 	{
-		ActorNode.read(actor, reader, node);
+		ActorNode.read(artboard, reader, node);
 
 		node._length = reader.readFloat32("length");
 
 		return node;
 	}
 
-	void copyBoneBase(ActorBoneBase node, Actor resetActor)
+	void copyBoneBase(ActorBoneBase node, ActorArtboard resetArtboard)
 	{
-		super.copyNode(node, resetActor);
+		super.copyNode(node, resetArtboard);
 		_length = node._length;
 	}
 }

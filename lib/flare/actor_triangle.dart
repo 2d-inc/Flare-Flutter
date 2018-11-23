@@ -1,4 +1,4 @@
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_node.dart";
 import "math/vec2d.dart";
 import "stream_reader.dart";
@@ -13,21 +13,21 @@ class ActorTriangle extends ActorProceduralPath
 	{
 	}
 	
-    ActorComponent makeInstance(Actor resetActor)
+    ActorComponent makeInstance(ActorArtboard resetArtboard)
     {
         ActorTriangle instance = new ActorTriangle();
-        instance.copyPath(this, resetActor);
+        instance.copyPath(this, resetArtboard);
         return instance;
     }
 
-    static ActorTriangle read(Actor actor, StreamReader reader, ActorTriangle component)
+    static ActorTriangle read(ActorArtboard artboard, StreamReader reader, ActorTriangle component)
     {
         if(component == null)
         {
             component = new ActorTriangle();
         }
 
-        ActorNode.read(actor, reader, component);
+        ActorNode.read(artboard, reader, component);
 
         component.width = reader.readFloat32("width");
         component.height = reader.readFloat32("height");

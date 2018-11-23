@@ -1,5 +1,5 @@
 import "stream_reader.dart";
-import "actor.dart";
+import "actor_artboard.dart";
 import "actor_jelly_bone.dart";
 import "actor_component.dart";
 import "actor_node.dart";
@@ -133,16 +133,16 @@ class JellyComponent extends ActorComponent
 			_jellyPoints[i] = new Vec2D();
 		}
 	}
-	ActorComponent makeInstance(Actor resetActor)
+	ActorComponent makeInstance(ActorArtboard artboard)
 	{
 		JellyComponent instance = new JellyComponent();
-		instance.copyJelly(this, resetActor);
+		instance.copyJelly(this, artboard);
 		return instance;
 	}
 
-	void copyJelly(JellyComponent component, Actor resetActor)
+	void copyJelly(JellyComponent component, ActorArtboard artboard)
 	{
-		super.copyComponent(component, resetActor);
+		super.copyComponent(component, artboard);
 		_easeIn = component._easeIn;
 		_easeOut = component._easeOut;
 		_scaleIn = component._scaleIn;
@@ -169,19 +169,19 @@ class JellyComponent extends ActorComponent
 		ActorBone bone = parent as ActorBone;
 		if(bone != null)
 		{
-			actor.addDependency(this, bone);
+			artboard.addDependency(this, bone);
 			dependencyConstraints += bone.allConstraints;
 			ActorBone firstBone = bone.firstBone;
 			if(firstBone != null)
 			{
-				actor.addDependency(this, firstBone);
+				artboard.addDependency(this, firstBone);
 				dependencyConstraints += firstBone.allConstraints;
 
 				// If we don't have an out target and the child jelly does have an in target
 				// we are dependent on that target's position.
 				if(_outTarget == null && firstBone.jelly != null && firstBone.jelly.inTarget != null)
 				{
-					actor.addDependency(this, firstBone.jelly.inTarget);
+					artboard.addDependency(this, firstBone.jelly.inTarget);
 					dependencyConstraints += firstBone.jelly.inTarget.allConstraints;
 				}
 			}
@@ -191,7 +191,7 @@ class JellyComponent extends ActorComponent
 				JellyComponent parentBoneJelly = parentBone.jelly;
 				if(parentBoneJelly != null && parentBoneJelly.outTarget != null)
 				{
-					actor.addDependency(this, parentBoneJelly.outTarget);
+					artboard.addDependency(this, parentBoneJelly.outTarget);
 					dependencyConstraints += parentBoneJelly.outTarget.allConstraints;
 				}
 			}
@@ -199,12 +199,12 @@ class JellyComponent extends ActorComponent
 
 		if(_inTarget != null)
 		{
-			actor.addDependency(this, _inTarget);
+			artboard.addDependency(this, _inTarget);
 			dependencyConstraints += _inTarget.allConstraints;
 		}
 		if(_outTarget != null)
 		{
-			actor.addDependency(this, _outTarget);
+			artboard.addDependency(this, _outTarget);
 			dependencyConstraints += _outTarget.allConstraints;
 		}
 
@@ -212,7 +212,7 @@ class JellyComponent extends ActorComponent
 		Set<ActorConstraint> constraints = new Set<ActorConstraint>.from(dependencyConstraints);
 		for(ActorConstraint constraint in constraints)
 		{
-			actor.addDependency(this, constraint);
+			artboard.addDependency(this, constraint);
 		}
 	}
 
@@ -236,18 +236,18 @@ class JellyComponent extends ActorComponent
 			{
 				_bones.add(child);
 				// Make sure the jelly doesn't update until the jelly component has updated
-				actor.addDependency(child, this);
+				artboard.addDependency(child, this);
 			}
 		}    
 	}
 
-	static JellyComponent read(Actor actor, StreamReader reader, JellyComponent node)
+	static JellyComponent read(ActorArtboard artboard, StreamReader reader, JellyComponent node)
 	{
 		if(node == null)
 		{
 			node = new JellyComponent();
 		}
-		ActorComponent.read(actor, reader, node);
+		ActorComponent.read(artboard, reader, node);
 			
 		node._easeIn = reader.readFloat32("easeIn");
 		node._easeOut = reader.readFloat32("easeOut");

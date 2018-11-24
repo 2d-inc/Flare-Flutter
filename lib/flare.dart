@@ -605,7 +605,8 @@ class FlutterActorArtboard extends ActorArtboard
         artboardInstance.copyArtboard(this);
         return artboardInstance;
     }
-
+	
+	void dispose() {}
 }
 
 class FlutterActorPath extends ActorPath with FlutterPathPointsPath

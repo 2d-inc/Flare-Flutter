@@ -191,6 +191,19 @@ class ActorArtboard
 
 	void copyArtboard(ActorArtboard artboard)
 	{
+		_name = artboard._name;
+		Vec2D.copy(_translation, artboard._translation);
+		_width = artboard._width;
+		_height = artboard._height;
+		Vec2D.copy(_origin, artboard._origin);
+		_clipContents = artboard._clipContents;
+		
+		_color[0] = artboard._color[0];
+		_color[1] = artboard._color[1];
+		_color[2] = artboard._color[2];
+		_color[3] = artboard._color[3];
+
+		_actor = artboard._actor;
 		_animations = artboard._animations;
 		_drawableNodeCount = artboard._drawableNodeCount;
 		_nodeCount = artboard._nodeCount;

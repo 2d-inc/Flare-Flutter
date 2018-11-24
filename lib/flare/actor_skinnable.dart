@@ -74,10 +74,11 @@ abstract class ActorSkinnable extends ActorNode
 			_connectedBones = new List<SkinnedBone>(node._connectedBones.length);
 			for(int i = 0; i < node._connectedBones.length; i++)
 			{
+				SkinnedBone from = node._connectedBones[i];
 				SkinnedBone bc = new SkinnedBone();
-				bc.boneIdx = node._connectedBones[i].boneIdx;
-				Mat2D.copy(bc.bind, node._connectedBones[i].bind);
-				Mat2D.copy(bc.inverseBind, node._connectedBones[i].inverseBind);
+				bc.boneIdx = from.boneIdx;
+				Mat2D.copy(bc.bind, from.bind);
+				Mat2D.copy(bc.inverseBind, from.inverseBind);
 				_connectedBones[i] = bc;
 			} 
 		}

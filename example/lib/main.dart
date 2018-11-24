@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
     return new MaterialApp(
       title: 'JSON Reader Demo',
       theme: new ThemeData(primarySwatch: Colors.blue),
-      home: new MyHomePage(title: 'Flare-Flutter with JSON'),
+      home: new MyHomePage(title: 'Flare-Flutter'),
     );
   }
 }
@@ -24,7 +24,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _animationName = "Triangling";
+  String _animationName = "Untitled";
 
   @override
     Widget build(BuildContext context) {
@@ -38,9 +38,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: 
                     [
                         Expanded(
-                            child: FlareActor("assets/ball.flj",
+                            child: FlareActor("assets/Animals.flr",
                                 alignment: Alignment.center,
-                                fit: BoxFit.none,
+                                fit: BoxFit.contain,
                                 animation: _animationName,
                             )
                         )

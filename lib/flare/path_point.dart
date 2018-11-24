@@ -41,6 +41,10 @@ abstract class PathPoint
 	{
 		this._type = from._type;
 		Vec2D.copy(_translation, from._translation);
+		if(from._weights != null)
+		{
+			_weights = new Float32List.fromList(from._weights);
+		}
 	}
 
 	void read(StreamReader reader, bool isConnectedToBones)

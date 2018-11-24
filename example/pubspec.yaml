@@ -58,7 +58,4 @@ flutter:
   # For details regarding fonts from package dependencies, 
   # see https://flutter.io/custom-fonts/#from-packages
   assets:
-    - assets/Dots.flr
-    - assets/Hulk.flr
-    - assets/E.flr
-    - assets/ball.flj
+    - assets/

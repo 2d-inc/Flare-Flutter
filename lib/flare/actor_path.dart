@@ -346,7 +346,7 @@ class ActorPath extends ActorSkinnable with ActorBasePath
 	void copyPath(ActorBasePath node, ActorArtboard resetArtboard)
 	{
         ActorPath nodePath = node as ActorPath;
-		copyNode(nodePath, resetArtboard);
+		copySkinnable(nodePath, resetArtboard);
 		_isHidden = nodePath._isHidden;
 		_isClosed = nodePath._isClosed;
 		

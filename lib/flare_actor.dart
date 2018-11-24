@@ -127,11 +127,8 @@ class FlareActorRenderObject extends RenderBox
 
 	void dispose()
 	{
-		if(_frameCallbackID != null)
-		{
-			SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
-		}
 		_isPlaying = false;
+		updatePlayState();
 		_actor = null;
 		_controller = null;
 	}
@@ -169,16 +166,28 @@ class FlareActorRenderObject extends RenderBox
         if(value != _isPlaying)
         {
             _isPlaying = value;
-            if(_isPlaying)
-            {
-                _frameCallbackID = SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
-            }
-			else
-			{
-				_lastFrameTime = 0;
-			}
+            updatePlayState();
         }
     }
+
+	updatePlayState()
+	{
+		if(_isPlaying)
+		{
+			if(_frameCallbackID == null)
+			{
+				_frameCallbackID = SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
+			}
+		}
+		else
+		{
+			if(_frameCallbackID != null)
+			{
+				SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
+			}
+			_lastFrameTime = 0;
+		}
+	}
 
     String get animationName => _animationName;
     set animationName(String value)
@@ -249,6 +258,7 @@ class FlareActorRenderObject extends RenderBox
                         }
                         _updateAnimation(onlyWhenMissing: true);
                         markNeedsPaint();
+						updatePlayState();
                     }
                 }
             );
@@ -294,6 +304,7 @@ class FlareActorRenderObject extends RenderBox
 
     void beginFrame(Duration timestamp)
     {
+		_frameCallbackID = null;
 		if(_actor == null)
 		{
 			return;
@@ -302,7 +313,7 @@ class FlareActorRenderObject extends RenderBox
         if(_lastFrameTime == 0 || _actor == null)
         {
             _lastFrameTime = t;
-            _frameCallbackID = SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
+			updatePlayState();
 			return;
         }
 
@@ -368,13 +379,9 @@ class FlareActorRenderObject extends RenderBox
 			}
         }
 
-		bool wasPlaying = isPlaying;
 		isPlaying = !stopPlaying;
 
-        if(wasPlaying && isPlaying)
-        {
-            _frameCallbackID = SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
-        }
+        updatePlayState();
 
 		if(_artboard != null)
 		{
@@ -474,6 +481,7 @@ class FlareActorRenderObject extends RenderBox
                                         ..name = _animationName
                                         ..animation = animation
                                         ..mix = 1.0);
+			updatePlayState();
         }
     }
 }

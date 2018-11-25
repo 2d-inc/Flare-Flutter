@@ -25,10 +25,6 @@ class ActorShape extends ActorNode implements ActorDrawable
 		{
 			return;
 		}
-		if(name == "Moon BG")
-		{
-			print("DRAW ORDER $value");
-		}
 		_drawOrder = value;
 		artboard.markDrawOrderDirty();
 	}

@@ -24,7 +24,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _animationName = "Untitled";
+  String _animationName = "idle";
 
   @override
     Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: 
                     [
                         Expanded(
-                            child: FlareActor("assets/Animals.flr",
+                            child: FlareActor("assets/Filip.flr",
                                 alignment: Alignment.center,
                                 fit: BoxFit.contain,
                                 animation: _animationName,

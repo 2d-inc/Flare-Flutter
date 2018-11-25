@@ -26,12 +26,10 @@ class ActorBoneBase extends ActorNode
 		}
 		for(ActorNode node in children)
 		{
-			ActorBoneBase bone = node as ActorBoneBase;
-			if(bone == null)
+			if(node is ActorBoneBase)
 			{
-				continue;
+				node.x = value;
 			}
-			bone.x = value;
 		}
 	}
 

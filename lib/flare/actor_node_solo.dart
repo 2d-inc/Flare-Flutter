@@ -44,7 +44,7 @@ class ActorNodeSolo extends ActorNode
 
 	void copySolo(ActorNodeSolo node, ActorArtboard resetArtboard)
 	{
-		copyComponent(node, resetArtboard);
+		copyNode(node, resetArtboard);
 		_activeChildIndex = node._activeChildIndex;
 	}
 

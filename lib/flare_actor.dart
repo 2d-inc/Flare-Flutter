@@ -236,7 +236,7 @@ class FlareActorRenderObject extends RenderBox
                     if(success)
                     {
                         _actor = actor;
-						_artboard = _actor?.artboard;
+						_artboard = _actor?.artboard;//?.makeInstance();
 						if(_artboard != null)
 						{
                         	_artboard.advance(0.0);
@@ -477,10 +477,13 @@ class FlareActorRenderObject extends RenderBox
         if(_animationName != null && _artboard !=  null)
         {
             ActorAnimation animation = _artboard.getAnimation(_animationName);
-            _animationLayers.add(new FlareAnimationLayer()
-                                        ..name = _animationName
-                                        ..animation = animation
-                                        ..mix = 1.0);
+			if(animation != null)
+			{
+				_animationLayers.add(new FlareAnimationLayer()
+											..name = _animationName
+											..animation = animation
+											..mix = 1.0);
+			}
 			updatePlayState();
         }
     }

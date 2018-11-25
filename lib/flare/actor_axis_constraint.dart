@@ -79,17 +79,19 @@ abstract class ActorAxisConstraint extends ActorTargetedConstraint
 
         _copyX = node._copyX;
         _copyY = node._copyY;
+		_enableMinX = node._enableMinX;
+		_enableMaxX = node._enableMaxX;
+		_enableMinY = node._enableMinY;
+		_enableMaxY = node._enableMaxY;
+		_offset = node._offset;
+
         _scaleX = node._scaleX;
         _scaleY = node._scaleY;
-        _enableMinX = node._enableMinX;
         _minX = node._minX;
-        _enableMaxX = node._enableMaxX;
         _maxX = node._maxX;
-        _enableMinY = node._enableMinY;
 		_minY = node._minY;
-		_enableMaxY = node._enableMaxY;
 		_maxY = node._maxY;
-		_offset = node._offset;
+		
 		_sourceSpace = node._sourceSpace;
 		_destSpace = node._destSpace;
 		_minMaxSpace = node._minMaxSpace;

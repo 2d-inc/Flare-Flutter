@@ -93,6 +93,23 @@ class FlutterActorShape extends ActorShape
 		_fills.add(fill);
 	}
 
+	List<ActorClip> getClips()
+	{
+		ActorNode clipSearch = this;
+		List<ActorClip> clips;
+		while(clipSearch != null)
+		{
+			if(clipSearch.clips != null)
+			{
+				clips = clipSearch.clips;
+				break;
+			}
+			clipSearch = clipSearch.parent;
+		}
+
+		return clips;
+	}
+
 	void draw(ui.Canvas canvas, double opacity, ui.Color overrideColor)
 	{
 		opacity *= renderOpacity;
@@ -107,9 +124,10 @@ class FlutterActorShape extends ActorShape
 		Float64List paintTransform = worldTransform.mat4;
 		
 		// Get Clips
-		if(clips != null)
+		List<ActorClip> clipList = getClips();
+		if(clipList != null)
 		{
-			for(ActorClip clip in clips)
+			for(ActorClip clip in clipList)
 			{
 				clip.node.all((ActorNode childNode)
 				{
@@ -245,12 +263,9 @@ class FlutterGradientFill extends GradientFill implements FlutterFill
 			stops.add(colorStops[idx+4]);
 			idx += 5;
 		}
-		Vec2D gstart = start;
-		Vec2D gend = end;
-        opacity *= this.opacity;
 		ui.Paint paint = new ui.Paint()
 								..color = Colors.white.withOpacity(modulateOpacity*opacity)
-								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)
+								..shader = new ui.Gradient.linear(new ui.Offset(renderStart[0], renderStart[1]), new ui.Offset(renderEnd[0], renderEnd[1]), colors, stops)
 								..style = ui.PaintingStyle.fill;
 		return paint;
 	}
@@ -291,12 +306,9 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke
 			idx += 5;
 		}
 
-		Vec2D gstart = start;
-		Vec2D gend = end;
-        opacity *= this.opacity;
 		ui.Paint paint = new ui.Paint()
 								..color = Colors.white.withOpacity(modulateOpacity*opacity)
-								..shader = new ui.Gradient.linear(new ui.Offset(gstart[0], gstart[1]), new ui.Offset(gend[0], gend[1]), colors, stops)
+								..shader = new ui.Gradient.linear(new ui.Offset(renderStart[0], renderStart[1]), new ui.Offset(renderEnd[0], renderEnd[1]), colors, stops)
 								..strokeWidth = width
 								..style = ui.PaintingStyle.stroke;
 		return paint;
@@ -325,57 +337,29 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 {
 	ui.Paint getPaint(Float64List transform, double modulateOpacity)
 	{
-		/*let {_Start:start, _End:end, _ColorStops:stops, _SecondaryRadiusScale:secondaryRadiusScale} = this;
-		var gradient = ctx.createRadialGradient(0.0, 0.0, 0.0, 0.0, 0.0, vec2.distance(start, end));
+		// double squash = max(0.00001, secondaryRadiusScale);
+		// Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
+		// double angle = atan2(diff[1], diff[0]);
+		// Mat2D transform = new Mat2D();
 
-		const numStops = stops.length/5;
-		let idx = 0;
-		for(let i = 0; i < numStops; i++)
-		{
-			const style = "rgba(" + Math.round(stops[idx++]*255) + ", " + Math.round(stops[idx++]*255) + ", " + Math.round(stops[idx++]*255) + ", " + stops[idx++] + ")";
-			const value = stops[idx++];
-			gradient.addColorStop(value, style);
-		}
-		
-		ctx.fillStyle = gradient;
+		// Mat2D translate = new Mat2D();
+		// translate[4] = start[0];
+		// translate[5] = start[1];
 
-		const squash = Math.max(0.00001, secondaryRadiusScale);
+		// Mat2D rotation = new Mat2D();
+		// Mat2D.fromRotation(rotation, angle);
 
-		let angle = vec2.getAngle(vec2.subtract(vec2.create(), end, start));
-		ctx.save();
-		ctx.translate(start[0], start[1]);
-		ctx.rotate(angle);
-		ctx.scale(1.0, squash);*/
-		double squash = max(0.00001, secondaryRadiusScale);
-		Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
-		double angle = atan2(diff[1], diff[0]);
-		Mat2D transform = new Mat2D();
+		// transform[4] = start[0];
+		// transform[5] = start[1];
 
-		Mat2D translate = new Mat2D();
-		translate[4] = start[0];
-		translate[5] = start[1];
+		// Mat2D scaling = new Mat2D();
+		// scaling[0] = 1.0;
+		// scaling[3] = squash;
 
-		Mat2D rotation = new Mat2D();
-		Mat2D.fromRotation(rotation, angle);
+		// Mat2D.multiply(transform, translate, rotation);
+		// Mat2D.multiply(transform, transform, scaling);
 
-		transform[4] = start[0];
-		transform[5] = start[1];
-
-		Mat2D scaling = new Mat2D();
-		scaling[0] = 1.0;
-		scaling[3] = squash;
-
-		Mat2D.multiply(transform, translate, rotation);
-		Mat2D.multiply(transform, transform, scaling);
-		//Mat2D.scale(transform, transform, new Vec2D.fromValues(1.0, squash));
-		/*Vec2D.normalize(diff, diff);
-		Mat2D transform = new Mat2D();
-		transform[0] = diff[0];
-		transform[1] = diff[1];
-		transform[2] = diff[1] * squash;
-		transform[3] = -diff[0] * squash;*/
-
-		double radius = Vec2D.distance(start, end);
+		double radius = Vec2D.distance(renderStart, renderEnd);
 		List<ui.Color> colors = new List<ui.Color>();
     	List<double> stops = new List<double>();
 		int numStops = (colorStops.length/5).round();
@@ -388,10 +372,7 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill
 			stops.add(colorStops[idx+4]);
 			idx += 5;
 		}
-		Vec2D center = start;
-		ui.Gradient radial = new ui.Gradient.radial(new ui.Offset(0.0, 0.0), radius, colors, stops, ui.TileMode.clamp, transform.mat4);
-        //opacity *= this.opacity;
-		//print("RADIUS ${center[0]} ${center[1]} ${colors.length} $numStops ${colors} ${stops}");
+		ui.Gradient radial = new ui.Gradient.radial(Offset(renderStart[0], renderStart[1]), radius, colors, stops, ui.TileMode.clamp);//, transform.mat4);
 		ui.Paint paint = new ui.Paint()
 								..color = Colors.white.withOpacity(modulateOpacity*opacity)
 								..shader = radial
@@ -423,29 +404,29 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 {
 	ui.Paint getPaint(Float64List transform, double modulateOpacity)
 	{
-        double squash = max(0.00001, secondaryRadiusScale);
-		Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
-		double angle = atan2(diff[1], diff[0]);
-		Mat2D transform = new Mat2D();
+        // double squash = max(0.00001, secondaryRadiusScale);
+		// Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
+		// double angle = atan2(diff[1], diff[0]);
+		// Mat2D transform = new Mat2D();
 
-		Mat2D translate = new Mat2D();
-		translate[4] = start[0];
-		translate[5] = start[1];
+		// Mat2D translate = new Mat2D();
+		// translate[4] = start[0];
+		// translate[5] = start[1];
 
-		Mat2D rotation = new Mat2D();
-		Mat2D.fromRotation(rotation, angle);
+		// Mat2D rotation = new Mat2D();
+		// Mat2D.fromRotation(rotation, angle);
 
-		transform[4] = start[0];
-		transform[5] = start[1];
+		// transform[4] = start[0];
+		// transform[5] = start[1];
 
-		Mat2D scaling = new Mat2D();
-		scaling[0] = 1.0;
-		scaling[3] = squash;
+		// Mat2D scaling = new Mat2D();
+		// scaling[0] = 1.0;
+		// scaling[3] = squash;
 
-		Mat2D.multiply(transform, translate, rotation);
-		Mat2D.multiply(transform, transform, scaling);
+		// Mat2D.multiply(transform, translate, rotation);
+		// Mat2D.multiply(transform, transform, scaling);
 
-		double radius = Vec2D.distance(start, end);
+		double radius = Vec2D.distance(renderStart, renderEnd);
 		List<ui.Color> colors = new List<ui.Color>();
     	List<double> stops = new List<double>();
 		int numStops = (colorStops.length/5).round();
@@ -458,10 +439,9 @@ class FlutterRadialStroke extends RadialGradientStroke implements FlutterStroke
 			stops.add(colorStops[idx+4]);
 			idx += 5;
 		}
-        opacity *= this.opacity;
 		return new ui.Paint()
 								..color = Colors.white.withOpacity(modulateOpacity*opacity)
-								..shader = new ui.Gradient.radial(new ui.Offset(0.0, 0.0), radius, colors, stops, ui.TileMode.clamp, transform.mat4)
+								..shader = new ui.Gradient.radial(Offset(renderStart[0], renderStart[1]), radius, colors, stops, ui.TileMode.clamp)//, transform.mat4)
 								// ..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
 								..strokeWidth = width
 								..style = ui.PaintingStyle.stroke;

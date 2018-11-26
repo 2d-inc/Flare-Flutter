@@ -1,4 +1,6 @@
 import "dart:typed_data";
+import 'math/mat2d.dart';
+
 import "actor_node.dart";
 import "actor_shape.dart";
 import "actor_artboard.dart";
@@ -34,6 +36,11 @@ abstract class ActorPaint extends ActorComponent
 
 		return component;
 	}
+
+	completeResolve()
+	{
+		artboard.addDependency(this, parent);
+	}
 }
 
 abstract class ActorColor extends ActorPaint
@@ -63,7 +70,6 @@ abstract class ActorColor extends ActorPaint
 		return component;
 	}
 
-  	void completeResolve() {}
 	void onDirty(int dirt) {}
 	void update(int dirt) {}
 }
@@ -154,27 +160,14 @@ abstract class GradientColor extends ActorPaint
 	Float32List _colorStops = new Float32List(10);
 	Vec2D _start = new Vec2D();
 	Vec2D _end = new Vec2D();
+	Vec2D _renderStart = new Vec2D();
+	Vec2D _renderEnd = new Vec2D();
     double opacity = 1.0;
 
-	Vec2D get start
-	{
-		return _start;
-	}
-
-	Vec2D get end
-	{
-		return _end;
-	}
-
-	Vec2D get startWorld
-	{
-		return Vec2D.transformMat2D(new Vec2D(), _start, parent.worldTransform);
-	}
-
-	Vec2D get endWorld
-	{
-		return Vec2D.transformMat2D(new Vec2D(), _end, parent.worldTransform);
-	}
+	Vec2D get start => _start;
+	Vec2D get end => _end;
+	Vec2D get renderStart => _renderStart;
+	Vec2D get renderEnd => _renderEnd;
 
 	Float32List get colorStops
 	{
@@ -205,9 +198,14 @@ abstract class GradientColor extends ActorPaint
 		return component;
 	}
 
-  	void completeResolve() {}
 	void onDirty(int dirt) {}
-	void update(int dirt) {}
+	void update(int dirt) 
+	{
+		ActorShape shape = parent;
+		Mat2D world = shape.worldTransform;
+		Vec2D.transformMat2D(_renderStart, _start, world);
+		Vec2D.transformMat2D(_renderEnd, _end, world);
+	}
 }
 
 class GradientFill extends GradientColor

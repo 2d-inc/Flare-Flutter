@@ -2,16 +2,15 @@
 Flutter runtime written in Dart with SKIA based rendering.
 
 ## Installation
-Add `flare` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
+Download the repository and add `flare` as a local [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
 ## Exporting for Flutter
-Export from Flare with the *"Export to Engine"* menu. In the Engine dropdown, choose *Generic*, and in the Format dropdown your favorite form of compression. 
-With a Binary format, the exported file will have a .flr extension, with JSON, it'll be .flj.
+Export from Flare with the *"Export to Engine"* menu. In the Engine dropdown, choose *Generic*, and in the Format dropdown your favorite form of compression, Binary for efficiency or JSON for readability.
 
 ## Adding Assets
-Once you've exported your file, add the **.flj/flr** file to your project's [Flutter assets](https://flutter.io/assets-and-images/). 
+Once you've exported your file, add the **.flr** file to your project's [Flutter assets](https://flutter.io/assets-and-images/). 
 
 ## Example
-Take a look at the provided [example application](https://github.com/2d-inc/Nima-Flutter/tree/master/example/hop) for how to use the NimaActor widget with an exported Nima character.
+Take a look at the provided [example application](https://github.com/2d-inc/Flare-Flutter/tree/master/example) for how to use the FlareActor Widget with the exported Flare file.
 
 ## Usage
 The easiest way to get started is by using the provided **FlareActor** widget. This is a stateless Flutter widget that allows for one Flare file with one active animation playing to be embedded in your Flutter App. 

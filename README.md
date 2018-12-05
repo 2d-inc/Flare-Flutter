@@ -22,7 +22,7 @@ You can change the currently playing animation by changing the animation propert
 You can also specify the mixSeconds to determine how long it takes for the animation to interpolate from the previous one. A value of 0 means that it will just pop to the new animation. A value of 0.5 will mean it takes half of a second to fully mix the new animation on top of the old one.
 
 ```
-import 'package:nima/nima_actor.dart';
+import 'package:flare/flare_actor.dart';
 class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => new _MyHomePageState();
@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return new NimaActor("assets/ball.flj", alignment:Alignment.center, fit:BoxFit.contain, animation:"Triangling");
+    return new FlareActor("assets/ball.flr", alignment:Alignment.center, fit:BoxFit.contain, animation:"Triangling");
   }
 }
 ```

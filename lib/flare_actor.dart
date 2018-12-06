@@ -483,6 +483,8 @@ class FlareActorRenderObject extends RenderBox
 											..name = _animationName
 											..animation = animation
 											..mix = 1.0);
+				animation.apply(0.0, _artboard, 1.0);	
+				_artboard.advance(0.0);
 			}
 			updatePlayState();
         }

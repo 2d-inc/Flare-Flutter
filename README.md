@@ -4,7 +4,7 @@ Flutter runtime written in Dart with SKIA based rendering.
 ## Installation
 Add `flare_flutter` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
 ## Exporting for Flutter
-Export from Flare with the *"Export to Engine"* menu. In the Engine dropdown, choose *Generic*, and in the Format dropdown your favorite form of compression.
+Export from Flare with the *"Export to Engine"* menu. In the Engine dropdown, choose *Flutter*, and in the Format dropdown your favorite form of compression.
 
 ## Adding Assets
 Once you've exported your file, add the **.flr** file to your project's [Flutter assets](https://flutter.io/assets-and-images/). 

@@ -1,4 +1,4 @@
-import "package:flare/flare_actor.dart";
+import "package:flare_flutter/flare_actor.dart";
 import "package:flutter/material.dart";
 
 void main() => runApp(new MyApp());
@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'JSON Reader Demo',
+      title: 'Flare Demo',
       theme: new ThemeData(primarySwatch: Colors.blue),
       home: new MyHomePage(title: 'Flare-Flutter'),
     );

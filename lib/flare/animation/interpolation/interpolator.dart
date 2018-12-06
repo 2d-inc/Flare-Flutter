@@ -1,4 +1,3 @@
-abstract class Interpolator
-{
-	double getEasedMix(double mix);
+abstract class Interpolator {
+  double getEasedMix(double mix);
 }

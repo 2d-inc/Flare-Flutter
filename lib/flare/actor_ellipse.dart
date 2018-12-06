@@ -8,77 +8,72 @@ import "path_point.dart";
 
 const double CircleConstant = 0.55;
 
-class ActorEllipse extends ActorProceduralPath
-{
-    ActorComponent makeInstance(ActorArtboard resetArtboard)
-    {
-        ActorEllipse instance = new ActorEllipse();
-        instance.copyPath(this, resetArtboard);
-        return instance;
+class ActorEllipse extends ActorProceduralPath {
+  ActorComponent makeInstance(ActorArtboard resetArtboard) {
+    ActorEllipse instance = new ActorEllipse();
+    instance.copyPath(this, resetArtboard);
+    return instance;
+  }
+
+  @override
+  void invalidatePath() {
+  }
+
+  static ActorEllipse read(ActorArtboard artboard, StreamReader reader,
+      ActorEllipse component) {
+    if (component == null) {
+      component = new ActorEllipse();
     }
 
-	@override
-	void invalidatePath()
-	{
-	}
-	
-    static ActorEllipse read(ActorArtboard artboard, StreamReader reader, ActorEllipse component)
-    {
-        if(component == null)
-        {
-            component = new ActorEllipse();
-        }
+    ActorNode.read(artboard, reader, component);
 
-        ActorNode.read(artboard, reader, component);
+    component.width = reader.readFloat32("width");
+    component.height = reader.readFloat32("height");
+    return component;
+  }
 
-        component.width = reader.readFloat32("width");
-        component.height = reader.readFloat32("height");
-        return component;
-    }
+  @override
+  List<PathPoint> get points {
+    List<PathPoint> _ellipsePathPoints = <PathPoint>[];
+    _ellipsePathPoints.add(
+        new CubicPathPoint.fromValues(
+            Vec2D.fromValues(0.0, -radiusY),
+            Vec2D.fromValues(-radiusX * CircleConstant, -radiusY),
+            Vec2D.fromValues(radiusX * CircleConstant, -radiusY)
+        )
+    );
+    _ellipsePathPoints.add(
+        new CubicPathPoint.fromValues(
+            Vec2D.fromValues(radiusX, 0.0),
+            Vec2D.fromValues(radiusX, CircleConstant * -radiusY),
+            Vec2D.fromValues(radiusX, CircleConstant * radiusY)
+        )
+    );
+    _ellipsePathPoints.add(
+        new CubicPathPoint.fromValues(
+            Vec2D.fromValues(0.0, radiusY),
+            Vec2D.fromValues(radiusX * CircleConstant, radiusY),
+            Vec2D.fromValues(-radiusX * CircleConstant, radiusY)
+        )
+    );
+    _ellipsePathPoints.add(
+        new CubicPathPoint.fromValues(
+            Vec2D.fromValues(-radiusX, 0.0),
+            Vec2D.fromValues(-radiusX, radiusY * CircleConstant),
+            Vec2D.fromValues(-radiusX, -radiusY * CircleConstant)
+        )
+    );
 
-    @override
-    List<PathPoint> get points
-    {
-        List<PathPoint> _ellipsePathPoints = <PathPoint>[];
-        _ellipsePathPoints.add(
-            new CubicPathPoint.fromValues(
-                Vec2D.fromValues(0.0, -radiusY), 
-                Vec2D.fromValues(-radiusX * CircleConstant, -radiusY), 
-                Vec2D.fromValues(radiusX * CircleConstant, -radiusY)
-            )
-        );
-        _ellipsePathPoints.add(
-            new CubicPathPoint.fromValues(
-                Vec2D.fromValues(radiusX, 0.0), 
-                Vec2D.fromValues(radiusX, CircleConstant * -radiusY), 
-                Vec2D.fromValues(radiusX, CircleConstant * radiusY)
-            )
-        );
-        _ellipsePathPoints.add(
-            new CubicPathPoint.fromValues(
-                Vec2D.fromValues(0.0, radiusY), 
-                Vec2D.fromValues(radiusX * CircleConstant, radiusY), 
-                Vec2D.fromValues(-radiusX * CircleConstant, radiusY)
-            )
-        );
-        _ellipsePathPoints.add(
-            new CubicPathPoint.fromValues(
-                Vec2D.fromValues(-radiusX, 0.0),
-                Vec2D.fromValues(-radiusX, radiusY * CircleConstant), 
-                Vec2D.fromValues(-radiusX, -radiusY * CircleConstant)
-            )
-        );
+    return _ellipsePathPoints;
+  }
 
-        return _ellipsePathPoints;
-    }
+  bool get isClosed => true;
 
-    bool get isClosed => true;
-    
-    bool get doesDraw
-    {
-        return !this.renderCollapsed;
-    }
+  bool get doesDraw {
+    return !this.renderCollapsed;
+  }
 
-    double get radiusX => this.width/2;
-    double get radiusY => this.height/2;
+  double get radiusX => this.width / 2;
+
+  double get radiusY => this.height / 2;
 }

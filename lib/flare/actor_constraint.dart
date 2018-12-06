@@ -3,77 +3,65 @@ import "actor_node.dart";
 import "actor_artboard.dart";
 import "stream_reader.dart";
 
-abstract class ActorConstraint extends ActorComponent
-{
-	bool _isEnabled;
-	double _strength;
+abstract class ActorConstraint extends ActorComponent {
+  bool _isEnabled;
+  double _strength;
 
-	bool get isEnabled
-	{
-		return _isEnabled;
-	}
+  bool get isEnabled {
+    return _isEnabled;
+  }
 
-	set isEnabled(bool value)
-	{
-		if(value == _isEnabled)
-		{
-			return;
-		}
-		_isEnabled = value;
-		markDirty();
-	}
+  set isEnabled(bool value) {
+    if (value == _isEnabled) {
+      return;
+    }
+    _isEnabled = value;
+    markDirty();
+  }
 
-	void onDirty(int dirt)
-	{
-		markDirty();
-	}
+  void onDirty(int dirt) {
+    markDirty();
+  }
 
-	double get strength
-	{
-		return _strength;
-	}
-	
-	set strength(double value)
-	{
-		if(value == _strength)
-		{
-			return;
-		}
-		_strength = value;
-		markDirty();
-	}
+  double get strength {
+    return _strength;
+  }
 
-	void markDirty()
-	{
-		parent.markTransformDirty();
-	}
+  set strength(double value) {
+    if (value == _strength) {
+      return;
+    }
+    _strength = value;
+    markDirty();
+  }
 
-	void constrain(ActorNode node);
+  void markDirty() {
+    parent.markTransformDirty();
+  }
 
-	void resolveComponentIndices(List<ActorComponent> components)
-	{
-		super.resolveComponentIndices(components);
-		if(parent != null)
-		{
-			// This works because nodes are exported in hierarchy order, so we are assured constraints get added in order as we resolve indices.
-			parent.addConstraint(this);
-		}
-	}
+  void constrain(ActorNode node);
 
-	static ActorConstraint read(ActorArtboard artboard, StreamReader reader, ActorConstraint component)
-	{
-		ActorComponent.read(artboard, reader, component);
-		component._strength = reader.readFloat32("strength");
-		component._isEnabled = reader.readBool("isEnabled");
+  void resolveComponentIndices(List<ActorComponent> components) {
+    super.resolveComponentIndices(components);
+    if (parent != null) {
+      // This works because nodes are exported in hierarchy order, so we are assured constraints get added in order as we resolve indices.
+      parent.addConstraint(this);
+    }
+  }
 
-		return component;
-	}
+  static ActorConstraint read(ActorArtboard artboard, StreamReader reader,
+      ActorConstraint component) {
+    ActorComponent.read(artboard, reader, component);
+    component._strength = reader.readFloat32("strength");
+    component._isEnabled = reader.readBool("isEnabled");
 
-	void copyConstraint(ActorConstraint node, ActorArtboard resetArtboard)
-	{
-		copyComponent(node, resetArtboard);
+    return component;
+  }
 
-		_isEnabled = node._isEnabled;
-		_strength = node._strength;
-	}
+  void copyConstraint(ActorConstraint node, ActorArtboard resetArtboard) {
+    copyComponent(node, resetArtboard);
+
+    _isEnabled = node._isEnabled;
+    _strength = node._strength;
+  }
 }

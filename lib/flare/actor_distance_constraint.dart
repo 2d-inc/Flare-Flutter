@@ -5,116 +5,106 @@ import "stream_reader.dart";
 import "math/vec2d.dart";
 import "math/mat2d.dart";
 
-class DistanceMode
-{
-	static const int Closer = 0;
-	static const int Further = 1;
-	static const int Exact = 2;
+class DistanceMode {
+  static const int Closer = 0;
+  static const int Further = 1;
+  static const int Exact = 2;
 }
 
-class ActorDistanceConstraint extends ActorTargetedConstraint
-{
-    double _distance = 100.0;
-    int _mode = DistanceMode.Closer;
+class ActorDistanceConstraint extends ActorTargetedConstraint {
+  double _distance = 100.0;
+  int _mode = DistanceMode.Closer;
 
-    ActorDistanceConstraint() : super();
+  ActorDistanceConstraint() : super();
 
-    static ActorDistanceConstraint read(ActorArtboard artboard, StreamReader reader, ActorDistanceConstraint component)
-    {
-        if(component == null)
-        {
-            component = new ActorDistanceConstraint();
-        }
-        ActorTargetedConstraint.read(artboard, reader, component);
-        
-        component._distance = reader.readFloat32("distance");
-        component._mode = reader.readUint8("modeId");
-        
-        return component;
+  static ActorDistanceConstraint read(ActorArtboard artboard,
+      StreamReader reader, ActorDistanceConstraint component) {
+    if (component == null) {
+      component = new ActorDistanceConstraint();
+    }
+    ActorTargetedConstraint.read(artboard, reader, component);
+
+    component._distance = reader.readFloat32("distance");
+    component._mode = reader.readUint8("modeId");
+
+    return component;
+  }
+
+  @override
+  ActorDistanceConstraint makeInstance(ActorArtboard resetArtboard) {
+    ActorDistanceConstraint node = new ActorDistanceConstraint();
+    node.copyDistanceConstraint(this, resetArtboard);
+    return node;
+  }
+
+  void copyDistanceConstraint(ActorDistanceConstraint node,
+      ActorArtboard resetArtboard) {
+    copyTargetedConstraint(node, resetArtboard);
+    _distance = node._distance;
+    _mode = node._mode;
+  }
+
+  @override
+  constrain(ActorNode node) {
+    ActorNode t = this.target;
+    if (t == null) {
+      return;
     }
 
-    @override
-    ActorDistanceConstraint makeInstance(ActorArtboard resetArtboard)
-    {
-        ActorDistanceConstraint node = new ActorDistanceConstraint();
-        node.copyDistanceConstraint(this, resetArtboard);
-        return node;
+    ActorNode p = this.parent;
+    Vec2D targetTranslation = t.getWorldTranslation(new Vec2D());
+    Vec2D ourTranslation = p.getWorldTranslation(new Vec2D());
+
+    Vec2D toTarget = Vec2D.subtract(
+        new Vec2D(), ourTranslation, targetTranslation);
+    double currentDistance = Vec2D.length(toTarget);
+    switch (_mode) {
+      case DistanceMode.Closer:
+        if (currentDistance < _distance) {
+          return;
+        }
+        break;
+
+      case DistanceMode.Further:
+        if (currentDistance > _distance) {
+          return;
+        }
+        break;
     }
 
-    void copyDistanceConstraint(ActorDistanceConstraint node, ActorArtboard resetArtboard)
-    {
-        copyTargetedConstraint(node, resetArtboard);
-        _distance = node._distance;
-        _mode = node._mode;
+    if (currentDistance < 0.001) {
+      return;
     }
 
-    @override
-    constrain(ActorNode node)
-    {
-        ActorNode t = this.target;
-        if(t == null)
-        {
-            return;
-        }
+    Vec2D.scale(toTarget, toTarget, 1.0 / currentDistance);
+    Vec2D.scale(toTarget, toTarget, _distance);
 
-        ActorNode p = this.parent;
-        Vec2D targetTranslation = t.getWorldTranslation(new Vec2D());
-        Vec2D ourTranslation = p.getWorldTranslation(new Vec2D());
+    Mat2D world = p.worldTransform;
+    Vec2D position = Vec2D.lerp(new Vec2D(), ourTranslation,
+        Vec2D.add(new Vec2D(), targetTranslation, toTarget), strength);
+    world[4] = position[0];
+    world[5] = position[1];
+  }
 
-        Vec2D toTarget = Vec2D.subtract(new Vec2D(), ourTranslation, targetTranslation);
-        double currentDistance = Vec2D.length(toTarget);
-        switch(_mode)
-        {
-            case DistanceMode.Closer:
-                if(currentDistance < _distance)
-                {
-                    return;
-                }
-                break;
+  void update(int dirt) {}
 
-            case DistanceMode.Further:
-                if(currentDistance > _distance)
-                {
-                    return;
-                }
-                break;
-        }
+  void completeResolve() {}
 
-        if(currentDistance < 0.001)
-        {
-            return;
-        }
+  get distance => _distance;
 
-        Vec2D.scale(toTarget, toTarget, 1.0/currentDistance);
-        Vec2D.scale(toTarget, toTarget, _distance);
+  get mode => _mode;
 
-        Mat2D world = p.worldTransform;
-        Vec2D position = Vec2D.lerp(new Vec2D(), ourTranslation, Vec2D.add(new Vec2D(), targetTranslation, toTarget), strength);
-        world[4] = position[0];
-        world[5] = position[1];
+  set distance(double d) {
+    if (_distance != d) {
+      _distance = d;
+      this.markDirty();
     }
+  }
 
-	void update(int dirt) {}
-	void completeResolve() {}
-
-    get distance => _distance;
-    get mode => _mode;
-
-    set distance(double d)
-    {
-        if(_distance != d)
-        {
-            _distance = d;
-            this.markDirty();
-        }
+  set mode(int m) {
+    if (_mode != m) {
+      _mode = m;
+      this.markDirty();
     }
-
-    set mode(int m)
-    {
-        if(_mode != m)
-        {
-            _mode = m;
-            this.markDirty();
-        }
-    }
+  }
 }

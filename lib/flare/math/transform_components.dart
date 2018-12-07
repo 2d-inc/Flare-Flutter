@@ -1,102 +1,82 @@
 import "dart:typed_data";
 import "vec2d.dart";
 
-class TransformComponents
-{
-	Float32List _buffer;
-	
-	Float32List get values
-	{
-		return _buffer;
-	}
+class TransformComponents {
+  Float32List _buffer;
 
-	double operator[](int index)
-	{
-		return _buffer[index];
-	}	
+  Float32List get values {
+    return _buffer;
+  }
 
-	void operator[]=(int index, double value)
-	{
-		_buffer[index] = value;
-	}	
+  double operator [](int index) {
+    return _buffer[index];
+  }
 
-	TransformComponents()
-	{
-		_buffer = new Float32List.fromList([1.0, 0.0, 0.0, 1.0, 0.0, 0.0]);
-	}
+  void operator []=(int index, double value) {
+    _buffer[index] = value;
+  }
 
-	TransformComponents.clone(TransformComponents copy)
-	{
-		_buffer = new Float32List.fromList(copy.values);
-	}
+  TransformComponents() {
+    _buffer = Float32List.fromList([1.0, 0.0, 0.0, 1.0, 0.0, 0.0]);
+  }
 
-	double get x
-	{
-		return _buffer[0];
-	}
+  TransformComponents.clone(TransformComponents copy) {
+    _buffer = Float32List.fromList(copy.values);
+  }
 
-	set x(double value)
-	{
-		_buffer[0] = value;
-	}
+  double get x {
+    return _buffer[0];
+  }
 
-	double get y
-	{
-		return _buffer[1];
-	}
+  set x(double value) {
+    _buffer[0] = value;
+  }
 
-	set y(double value)
-	{
-		_buffer[1] = value;
-	}
+  double get y {
+    return _buffer[1];
+  }
 
-	double get scaleX
-	{
-		return _buffer[2];
-	}
+  set y(double value) {
+    _buffer[1] = value;
+  }
 
-	set scaleX(double value)
-	{
-		_buffer[2] = value;
-	}
+  double get scaleX {
+    return _buffer[2];
+  }
 
-	double get scaleY
-	{
-		return _buffer[3];
-	}
+  set scaleX(double value) {
+    _buffer[2] = value;
+  }
 
-	set scaleY(double value)
-	{
-		_buffer[3] = value;
-	}
+  double get scaleY {
+    return _buffer[3];
+  }
 
-	double get rotation
-	{
-		return _buffer[4];
-	}
+  set scaleY(double value) {
+    _buffer[3] = value;
+  }
 
-	set rotation(double value)
-	{
-		_buffer[4] = value;
-	}
+  double get rotation {
+    return _buffer[4];
+  }
 
-	double get skew
-	{
-		return _buffer[5];
-	}
+  set rotation(double value) {
+    _buffer[4] = value;
+  }
 
-	set skew(double value)
-	{
-		_buffer[5] = value;
-	}
+  double get skew {
+    return _buffer[5];
+  }
 
-	Vec2D get translation
-	{
-		return new Vec2D.fromValues(_buffer[0], _buffer[1]);
-	}
+  set skew(double value) {
+    _buffer[5] = value;
+  }
 
-	Vec2D get scale
-	{
-		return new Vec2D.fromValues(_buffer[2], _buffer[3]);
-	}
+  Vec2D get translation {
+    return Vec2D.fromValues(_buffer[0], _buffer[1]);
+  }
+
+  Vec2D get scale {
+    return Vec2D.fromValues(_buffer[2], _buffer[3]);
+  }
 }

@@ -42,6 +42,9 @@ class FlutterActorShape extends ActorShape {
   List<FlutterStroke> _flutterStrokes;
   ui.Path _path;
 
+  FlutterFill get fill => _fills?.first;
+  FlutterStroke get stroke => _flutterStrokes?.first;
+
   @override
   void invalidateShape() {
     _path = null;

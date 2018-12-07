@@ -185,7 +185,7 @@ class FlareActorRenderObject extends RenderBox
 			{
 				SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
 			}
-			_lastFrameTime = 0;
+			_lastFrameTime = 0.0;
 		}
 	}
 

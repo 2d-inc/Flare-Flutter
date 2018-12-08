@@ -28,12 +28,12 @@ class ActorSkin extends ActorComponent {
       if (_boneMatrices == null || _boneMatrices.length != length) {
         _boneMatrices = Float32List(length);
         // First bone transform is always identity.
-        _boneMatrices[0] = 1;
-        _boneMatrices[1] = 0;
-        _boneMatrices[2] = 0;
-        _boneMatrices[3] = 1;
-        _boneMatrices[4] = 0;
-        _boneMatrices[5] = 0;
+        _boneMatrices[0] = 1.0;
+        _boneMatrices[1] = 0.0;
+        _boneMatrices[2] = 0.0;
+        _boneMatrices[3] = 1.0;
+        _boneMatrices[4] = 0.0;
+        _boneMatrices[5] = 0.0;
       }
 
       int bidx = 6; // Start after first identity.
@@ -42,12 +42,12 @@ class ActorSkin extends ActorComponent {
 
       for (SkinnedBone cb in connectedBones) {
         if (cb.node == null) {
-          _boneMatrices[bidx++] = 1;
-          _boneMatrices[bidx++] = 0;
-          _boneMatrices[bidx++] = 0;
-          _boneMatrices[bidx++] = 1;
-          _boneMatrices[bidx++] = 0;
-          _boneMatrices[bidx++] = 0;
+          _boneMatrices[bidx++] = 1.0;
+          _boneMatrices[bidx++] = 0.0;
+          _boneMatrices[bidx++] = 0.0;
+          _boneMatrices[bidx++] = 1.0;
+          _boneMatrices[bidx++] = 0.0;
+          _boneMatrices[bidx++] = 0.0;
           continue;
         }
 

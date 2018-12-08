@@ -135,7 +135,7 @@ class ActorShape extends ActorNode implements ActorDrawable {
     Mat2D world = worldTransform;
 
     if (_strokes != null) {
-      double maxStroke = 0;
+      double maxStroke = 0.0;
       for (ActorStroke stroke in _strokes) {
         if (stroke.width > maxStroke) {
           maxStroke = stroke.width;

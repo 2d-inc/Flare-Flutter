@@ -129,7 +129,7 @@ class FlutterActorShape extends ActorShape {
         }
         if (overrideColor != null) {
           paint.color = overrideColor
-              .withOpacity(overrideColor.opacity * paint.color.opacity);
+              .withOpacity((overrideColor.opacity * paint.color.opacity).clamp(0.0, 1.0));
         }
         canvas.drawPath(renderPath, paint);
       }
@@ -142,7 +142,7 @@ class FlutterActorShape extends ActorShape {
         }
         if (overrideColor != null) {
           paint.color = overrideColor
-              .withOpacity(overrideColor.opacity * paint.color.opacity);
+              .withOpacity((overrideColor.opacity * paint.color.opacity).clamp(0.0, 1.0));
         }
         canvas.drawPath(renderPath, paint);
       }
@@ -235,8 +235,9 @@ class FlutterGradientFill extends GradientFill implements FlutterFill {
       stops.add(colorStops[idx + 4]);
       idx += 5;
     }
+
     ui.Paint paint = ui.Paint()
-      ..color = Colors.white.withOpacity(modulateOpacity * opacity)
+      ..color = Colors.white.withOpacity((modulateOpacity*opacity).clamp(0.0, 1.0))
       ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
           ui.Offset(renderEnd[0], renderEnd[1]), colors, stops)
       ..style = ui.PaintingStyle.fill;
@@ -278,7 +279,7 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke {
     }
 
     ui.Paint paint = ui.Paint()
-      ..color = Colors.white.withOpacity(modulateOpacity * opacity)
+      ..color = Colors.white.withOpacity((modulateOpacity*opacity).clamp(0.0, 1.0))
       ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
           ui.Offset(renderEnd[0], renderEnd[1]), colors, stops)
       ..strokeWidth = width
@@ -348,8 +349,9 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill {
         colors,
         stops,
         ui.TileMode.clamp); //, transform.mat4);
+
     ui.Paint paint = ui.Paint()
-      ..color = Colors.white.withOpacity(modulateOpacity * opacity)
+      ..color = Colors.white.withOpacity((modulateOpacity*opacity).clamp(0.0, 1.0))
       ..shader = radial
       ..style = ui.PaintingStyle.fill;
 
@@ -413,8 +415,9 @@ class FlutterRadialStroke extends RadialGradientStroke
       stops.add(colorStops[idx + 4]);
       idx += 5;
     }
+
     return ui.Paint()
-      ..color = Colors.white.withOpacity(modulateOpacity * opacity)
+      ..color = Colors.white.withOpacity((modulateOpacity*opacity).clamp(0.0, 1.0))
       ..shader = ui.Gradient.radial(Offset(renderStart[0], renderStart[1]),
           radius, colors, stops, ui.TileMode.clamp) //, transform.mat4)
       // ..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)

@@ -288,7 +288,6 @@ class ActorAnimation {
   bool _isLooping;
   List<ComponentAnimation> _components;
   List<ComponentAnimation> _triggerComponents;
-  double start = 0.0, end = 0.0;
 
   String get name {
     return _name;
@@ -434,10 +433,6 @@ class ActorAnimation {
       }
     }
     reader.closeArray();
-    if (numKeyedComponents > 0) {
-      animation.start = reader.readFloat32("animationStart");
-      animation.end = reader.readFloat32("animationEnd");
-    }
 
     animation._components = List<ComponentAnimation>(animatedComponentCount);
     animation._triggerComponents =

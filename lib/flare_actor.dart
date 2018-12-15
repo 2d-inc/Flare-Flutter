@@ -295,13 +295,13 @@ class FlareActorRenderObject extends RenderBox {
           ? 1.0
           : min(1.0, layer.mix / _mixSeconds);
       if (layer.animation.isLooping) {
-        layer.time %= layer.animation.end;
+        layer.time %= layer.animation.duration;
       }
       layer.animation.apply(layer.time, _artboard, lastMix);
       if (lastMix == 1.0) {
         lastFullyMixed = i;
       }
-      if (layer.time > layer.animation.end) {
+      if (layer.time > layer.animation.duration) {
         completed.add(layer);
       }
     }

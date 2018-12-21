@@ -29,6 +29,7 @@ class _MyHomePageState extends State<MyHomePage> implements FlareController {
   double _rockAmount = 0.5;
   double _speed = 1.0;
   double _rockTime = 0.0;
+  bool _isPaused = false;
 
   ActorAnimation _rock;
 
@@ -54,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage> implements FlareController {
           Positioned.fill(
               child: FlareActor("assets/Penguin.flr",
                   alignment: Alignment.center,
+				  isPaused: _isPaused,
                   fit: BoxFit.cover,
                   animation: "walk",
                   controller: this)),
@@ -62,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> implements FlareController {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                 Container(
-                    height: 100,
+                    height: 200,
                     color: Colors.black.withOpacity(0.5),
                     child: new Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,6 +92,16 @@ class _MyHomePageState extends State<MyHomePage> implements FlareController {
                           onChanged: (double value) {
                             setState(() {
                               _speed = value;
+                            });
+                          },
+                        ),
+                        new Text("Paused",
+                            style: TextStyle(color: Colors.white)),
+                        new Checkbox(
+                          value: _isPaused,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _isPaused = value;
                             });
                           },
                         )

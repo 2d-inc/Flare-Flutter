@@ -45,7 +45,7 @@ class FlareActor extends LeafRenderObjectWidget {
       ..fit = fit
       ..alignment = alignment
       ..animationName = animation
-      ..isPlaying = (!isPaused && animation != null) || controller != null
+      ..isPlaying = !isPaused
       ..controller = controller
       ..completed = callback
       ..color = color
@@ -61,7 +61,7 @@ class FlareActor extends LeafRenderObjectWidget {
       ..fit = fit
       ..alignment = alignment
       ..animationName = animation
-      ..isPlaying = (!isPaused && animation != null) || controller != null
+      ..isPlaying = !isPaused
       ..color = color
       ..shouldClip = shouldClip
       ..boundsNodeName = boundsNode;
@@ -167,6 +167,7 @@ class FlareActorRenderObject extends RenderBox {
     } else {
       if (_frameCallbackID != null) {
         SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
+        _frameCallbackID = null;
       }
       _lastFrameTime = 0.0;
     }
@@ -333,7 +334,9 @@ class FlareActorRenderObject extends RenderBox {
       }
     }
 
-    isPlaying = !stopPlaying;
+    if (stopPlaying) {
+      _isPlaying = false;
+    }
 
     updatePlayState();
 

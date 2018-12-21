@@ -695,23 +695,22 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     });
     frame._vertices = Float32List(length);
     int readIdx = 0;
+    reader.openArray("value");
     for (PathPoint point in pathNode.points) {
-      reader.readFloat32ArrayOffset(frame._vertices, 2, readIdx, "translation");
+      frame._vertices[readIdx++] = reader.readFloat32("translationX");
+      frame._vertices[readIdx++] = reader.readFloat32("translationY");
       if (point.pointType == PointType.Straight) {
         // radius
-        reader.readFloat32ArrayOffset(
-            frame._vertices, 1, readIdx + 2, "radius");
-
-        readIdx += 3;
+        frame._vertices[readIdx++] = reader.readFloat32("radius");
       } else {
         // in/out
-        reader.readFloat32ArrayOffset(
-            frame._vertices, 2, readIdx + 2, "inValue");
-        reader.readFloat32ArrayOffset(
-            frame._vertices, 2, readIdx + 4, "outValue");
-        readIdx += 6;
+        frame._vertices[readIdx++] = reader.readFloat32("inValueX");
+        frame._vertices[readIdx++] = reader.readFloat32("inValueY");
+        frame._vertices[readIdx++] = reader.readFloat32("outValueX");
+        frame._vertices[readIdx++] = reader.readFloat32("outValueY");
       }
     }
+    reader.closeArray();
 
     pathNode.vertexDeform = Float32List.fromList(frame._vertices);
     return frame;

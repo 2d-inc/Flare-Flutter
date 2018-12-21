@@ -1,4 +1,5 @@
 # penguin_dance
+![Penguin Dance Flutter Example](https://cdn.2dimensions.com/penguin_example2.gif)
 
 A new Flutter project.
 

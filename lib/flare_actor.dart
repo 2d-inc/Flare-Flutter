@@ -6,6 +6,7 @@ import "flare/math/vec2d.dart";
 import "flare/math/aabb.dart";
 import "package:flutter/material.dart";
 import "package:flutter/scheduler.dart";
+import "package:flutter/rendering.dart";
 
 typedef void FlareCompletedCallback(String name);
 
@@ -159,7 +160,7 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   updatePlayState() {
-    if (_isPlaying) {
+    if (_isPlaying && attached) {
       if (_frameCallbackID == null) {
         _frameCallbackID =
             SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
@@ -264,6 +265,18 @@ class FlareActorRenderObject extends RenderBox {
   @override
   void performLayout() {
     super.performLayout();
+  }
+
+  @override
+  void detach() {
+    super.detach();
+	updatePlayState();
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+	updatePlayState();
   }
 
   void beginFrame(Duration timestamp) {

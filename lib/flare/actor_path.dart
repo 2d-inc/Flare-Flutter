@@ -208,6 +208,33 @@ class ActorPath extends ActorSkinnable with ActorBasePath {
     return _isClosed;
   }
 
+  void makeVertexDeform() {
+    if (vertexDeform != null) {
+      return;
+    }
+    int length = points.fold<int>(0, (int previous, PathPoint point) {
+      return previous + 2 + (point.pointType == PointType.Straight ? 1 : 4);
+    });
+    Float32List vertices = Float32List(length);
+    int readIdx = 0;
+    for (PathPoint point in points) {
+      vertices[readIdx++] = point.translation[0];
+      vertices[readIdx++] = point.translation[1];
+      if (point.pointType == PointType.Straight) {
+        // radius
+        vertices[readIdx++] = (point as StraightPathPoint).radius;
+      } else {
+        // in/out
+        CubicPathPoint cubicPoint = point as CubicPathPoint;
+        vertices[readIdx++] = cubicPoint.inPoint[0];
+        vertices[readIdx++] = cubicPoint.inPoint[1];
+        vertices[readIdx++] = cubicPoint.outPoint[0];
+        vertices[readIdx++] = cubicPoint.outPoint[1];
+      }
+    }
+    vertexDeform = vertices;
+  }
+
   void markVertexDeformDirty() {
     if (artboard == null) {
       return;

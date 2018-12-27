@@ -712,7 +712,7 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     }
     reader.closeArray();
 
-    pathNode.vertexDeform = Float32List.fromList(frame._vertices);
+	pathNode.makeVertexDeform();
     return frame;
   }
 

@@ -165,6 +165,15 @@ abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
     _width = nodePath.width;
     _height = nodePath.height;
   }
+
+  @override
+  void onDirty(int dirt) {
+    super.onDirty(dirt);
+    // We transformed, make sure parent is invalidated.
+    if (parent is ActorShape) {
+      parent.invalidateShape();
+    }
+  }
 }
 
 class ActorPath extends ActorSkinnable with ActorBasePath {
@@ -206,6 +215,15 @@ class ActorPath extends ActorSkinnable with ActorBasePath {
 
   bool get isClosed {
     return _isClosed;
+  }
+
+  @override
+  void onDirty(int dirt) {
+    super.onDirty(dirt);
+    // We transformed, make sure parent is invalidated.
+    if (parent is ActorShape) {
+      parent.invalidateShape();
+    }
   }
 
   void makeVertexDeform() {

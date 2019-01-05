@@ -65,8 +65,15 @@ abstract class ActorColor extends ActorPaint {
   void update(int dirt) {}
 }
 
-class ColorFill extends ActorColor {
+abstract class ActorFill {
+  FillRule get fillRule;
+}
+
+class ColorFill extends ActorColor implements ActorFill {
   FillRule _fillRule = FillRule.EvenOdd;
+  FillRule get fillRule {
+    return _fillRule;
+  }
 
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ColorFill instanceEvent = ColorFill();
@@ -183,8 +190,11 @@ abstract class GradientColor extends ActorPaint {
   }
 }
 
-class GradientFill extends GradientColor {
+class GradientFill extends GradientColor implements ActorFill {
   FillRule _fillRule = FillRule.EvenOdd;
+  FillRule get fillRule {
+    return _fillRule;
+  }
 
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     GradientFill instanceEvent = GradientFill();
@@ -261,8 +271,11 @@ abstract class RadialGradientColor extends GradientColor {
   }
 }
 
-class RadialGradientFill extends RadialGradientColor {
+class RadialGradientFill extends RadialGradientColor implements ActorFill {
   FillRule _fillRule = FillRule.EvenOdd;
+  FillRule get fillRule {
+    return _fillRule;
+  }
 
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     RadialGradientFill instanceEvent = RadialGradientFill();

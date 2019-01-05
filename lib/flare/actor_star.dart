@@ -47,7 +47,7 @@ class ActorStar extends ActorProceduralPath {
       StraightPathPoint.fromTranslation(Vec2D.fromValues(0.0, -radiusY))
     ];
 
-    double angle = pi / 2.0;
+    double angle = -pi / 2.0;
     double inc = (pi * 2.0) / sides;
     Vec2D sx = Vec2D.fromValues(radiusX, radiusX * _innerRadius);
     Vec2D sy = Vec2D.fromValues(radiusY, radiusY * _innerRadius);

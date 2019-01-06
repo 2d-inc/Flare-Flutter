@@ -270,13 +270,13 @@ class FlareActorRenderObject extends RenderBox {
   @override
   void detach() {
     super.detach();
-	updatePlayState();
+    updatePlayState();
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-	updatePlayState();
+    updatePlayState();
   }
 
   void beginFrame(Duration timestamp) {
@@ -456,5 +456,72 @@ class FlareActorRenderObject extends RenderBox {
       }
       updatePlayState();
     }
+  }
+}
+
+class FlareControls extends FlareController {
+  FlutterActorArtboard _artboard;
+  String _animationName;
+  double _mixSeconds = 0.1;
+  List<FlareAnimationLayer> _animationLayers = [];
+  void initialize(FlutterActorArtboard artboard) {
+    _artboard = artboard;
+  }
+
+  void onCompleted(String name) {}
+  void play(String name) {
+    _animationName = name;
+    if (_animationName != null && _artboard != null) {
+      ActorAnimation animation = _artboard.getAnimation(_animationName);
+      if (animation != null) {
+        _animationLayers.add(FlareAnimationLayer()
+          ..name = _animationName
+          ..animation = animation
+          ..mix = 0.0);
+      }
+    }
+  }
+
+  void setViewTransform(Mat2D viewTransform) {}
+  bool advance(FlutterActorArtboard artboard, double elapsed) {
+    int lastFullyMixed = -1;
+    double lastMix = 0.0;
+
+    List<FlareAnimationLayer> completed = [];
+
+    for (int i = 0; i < _animationLayers.length; i++) {
+      FlareAnimationLayer layer = _animationLayers[i];
+      layer.mix += elapsed;
+      layer.time += elapsed;
+
+      lastMix = (_mixSeconds == null || _mixSeconds == 0.0)
+          ? 1.0
+          : min(1.0, layer.mix / _mixSeconds);
+      if (layer.animation.isLooping) {
+        layer.time %= layer.animation.duration;
+      }
+      layer.animation.apply(layer.time, _artboard, lastMix);
+      if (lastMix == 1.0) {
+        lastFullyMixed = i;
+      }
+      if (layer.time > layer.animation.duration) {
+        completed.add(layer);
+      }
+    }
+
+    if (lastFullyMixed != -1) {
+      _animationLayers.removeRange(0, lastFullyMixed);
+    }
+    if (_animationName == null &&
+        _animationLayers.length == 1 &&
+        lastMix == 1.0) {
+      // Remove remaining animations.
+      _animationLayers.removeAt(0);
+    }
+    for (FlareAnimationLayer animation in completed) {
+      _animationLayers.remove(animation);
+      onCompleted(animation.name);
+    }
+    return true;
   }
 }

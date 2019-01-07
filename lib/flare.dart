@@ -34,6 +34,30 @@ abstract class FlutterFill {
 }
 
 abstract class FlutterStroke {
+  static ui.StrokeCap getStrokeCap(StrokeCap cap) {
+    switch (cap) {
+      case StrokeCap.Butt:
+        return ui.StrokeCap.butt;
+      case StrokeCap.Round:
+        return ui.StrokeCap.round;
+      case StrokeCap.Square:
+        return ui.StrokeCap.square;
+    }
+    return ui.StrokeCap.butt;
+  }
+
+  static ui.StrokeJoin getStrokeJoin(StrokeJoin join) {
+    switch (join) {
+      case StrokeJoin.Miter:
+        return ui.StrokeJoin.miter;
+      case StrokeJoin.Round:
+        return ui.StrokeJoin.round;
+      case StrokeJoin.Bevel:
+        return ui.StrokeJoin.bevel;
+    }
+    return ui.StrokeJoin.miter;
+  }
+
   ui.Paint getPaint(Float64List transform, double opacity);
 }
 
@@ -119,7 +143,6 @@ class FlutterActorShape extends ActorShape {
         });
       }
     }
-    //canvas.transform(paintTransform);
     if (_fills != null) {
       for (FlutterFill fill in _fills) {
         ui.Paint paint = fill.getPaint(paintTransform, opacity);
@@ -194,7 +217,7 @@ class FlutterColorFill extends ColorFill implements FlutterFill {
   }
 }
 
-class FlutterColorStroke extends ColorStroke implements FlutterStroke {
+class FlutterColorStroke extends ColorStroke with FlutterStroke {
   ui.Paint getPaint(Float64List transform, double modulateOpacity) {
     if (width == 0) {
       return null;
@@ -206,6 +229,8 @@ class FlutterColorStroke extends ColorStroke implements FlutterStroke {
           (color[2] * 255.0).round(),
           color[3] * modulateOpacity * opacity)
       ..strokeWidth = width
+	  ..strokeCap = FlutterStroke.getStrokeCap(cap)
+	  ..strokeJoin = FlutterStroke.getStrokeJoin(join)
       ..style = ui.PaintingStyle.stroke;
     return paint;
   }
@@ -269,7 +294,7 @@ class FlutterGradientFill extends GradientFill implements FlutterFill {
   }
 }
 
-class FlutterGradientStroke extends GradientStroke implements FlutterStroke {
+class FlutterGradientStroke extends GradientStroke with FlutterStroke {
   ui.Paint getPaint(Float64List transform, double modulateOpacity) {
     List<ui.Color> colors = List<ui.Color>();
     List<double> stops = List<double>();
@@ -293,6 +318,8 @@ class FlutterGradientStroke extends GradientStroke implements FlutterStroke {
       ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
           ui.Offset(renderEnd[0], renderEnd[1]), colors, stops)
       ..strokeWidth = width
+	  ..strokeCap = FlutterStroke.getStrokeCap(cap)
+	  ..strokeJoin = FlutterStroke.getStrokeJoin(join)
       ..style = ui.PaintingStyle.stroke;
     return paint;
   }
@@ -385,8 +412,7 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill {
   }
 }
 
-class FlutterRadialStroke extends RadialGradientStroke
-    implements FlutterStroke {
+class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
   ui.Paint getPaint(Float64List transform, double modulateOpacity) {
     // double squash = max(0.00001, secondaryRadiusScale);
     // Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
@@ -434,6 +460,8 @@ class FlutterRadialStroke extends RadialGradientStroke
           radius, colors, stops, ui.TileMode.clamp) //, transform.mat4)
       // ..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
       ..strokeWidth = width
+	  ..strokeCap = FlutterStroke.getStrokeCap(cap)
+	  ..strokeJoin = FlutterStroke.getStrokeJoin(join)
       ..style = ui.PaintingStyle.stroke;
   }
 

@@ -1,0 +1,30 @@
+name: favorite
+description: A tappable Flare Widget.
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flare_flutter: ^1.0.8
+  cupertino_icons: ^0.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+flutter:
+
+  uses-material-design: true
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: assets/Montserrat-Bold.ttf
+        - asset: assets/Montserrat-Regular.ttf
+        - asset: assets/Montserrat-Light.ttf
+  assets:
+    - assets/

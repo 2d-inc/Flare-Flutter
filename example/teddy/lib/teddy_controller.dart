@@ -69,10 +69,10 @@ class TeddyController extends FlareControls {
 
     _faceControl.translation = frameTranslation;
 
-    //_originalPosition = Vec2D.clone(_faceControl.translation);
     return true;
   }
 
+  // Fetch references for the `ctrl_face` node and store a copy of its original translation.
   @override
   void initialize(FlutterActorArtboard artboard) {
     super.initialize(artboard);
@@ -88,11 +88,15 @@ class TeddyController extends FlareControls {
     play("idle");
   }
 
+  // Called every frame by the wrapping [FlareActor].
+  // Keep updating the matrix that transforms Global-Flutter-coordinates into Flare-World-coordinates.
   @override
   void setViewTransform(Mat2D viewTransform) {
     Mat2D.invert(_globalToFlareWorld, viewTransform);
   }
 
+  // Transform the [Offset] into a [Vec2D].
+  // If no caret is provided, lower the [_hasFocus] flag.
   void lookAt(Offset caret) {
     if (caret == null) {
       _hasFocus = false;

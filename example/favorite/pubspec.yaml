@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flare_flutter: ^1.0.8
+  flare_flutter:
+    path: ../../
   cupertino_icons: ^0.1.2
 
 dev_dependencies:

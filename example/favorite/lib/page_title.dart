@@ -24,7 +24,7 @@ class PageTitle extends StatelessWidget {
                     children:
                     [
                         Text(
-                            "Istruzioni per Principanti",
+                            "This Must Be\nthe Place",
                             style: TextStyle(
                                 fontFamily: "Montserrat",
                                 fontSize: 20, 
@@ -34,7 +34,7 @@ class PageTitle extends StatelessWidget {
                         Container(
                             margin: const EdgeInsets.only(top: 18, bottom: 36),
                             child: Text(
-                                "By 2Dimensions",
+                                "By Paolo Sorrentino",
                                 style: TextStyle(
                                     fontFamily: "Montserrat",
                                     fontSize: 12.0,

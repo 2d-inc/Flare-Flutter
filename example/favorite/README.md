@@ -1,7 +1,7 @@
 # Flare ❤️ Flutter
 
 A UI experiment with [Flare](https://www.2dimensions.com) and [Flutter](https://www.flutter.io).
-<img align="right" height="500" src="https://i.imgur.com/k9wx8j3.gif">
+<img align="right" height="500" src="https://i.imgur.com/eXmNfRY.gif">
 
 The Flare asset used has been built by Guido Rosso. To see how it's been built, take a look at the actual file [here](https://www.2dimensions.com/a/pollux/files/flare/heart-simple).
 

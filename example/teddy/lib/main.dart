@@ -97,12 +97,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Container(
-                          width: 300,
                           height: 200,
+						  padding: const EdgeInsets.only(left: 30.0, right:30.0),
                           child: FlareActor(
                             "assets/Teddy.flr",
-							shouldClip: false,
-                            alignment: Alignment.center,
+                            shouldClip: false,
+                            alignment: Alignment.bottomCenter,
                             fit: BoxFit.contain,
                             controller: _teddyController,
                           )),
@@ -133,9 +133,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 TrackingTextInput(
                                   label: "Password",
                                   hint: "Try 'bears'...",
-								  isObscured: true,
+                                  isObscured: true,
                                   onCaretMoved: (Offset caret) {
-                                    _teddyController.lookAt(caret);
+                                    _teddyController.coverEyes(caret != null);
+                                    _teddyController.lookAt(null);
                                   },
                                   onTextChanged: (String value) {
                                     _teddyController.setPassword(value);

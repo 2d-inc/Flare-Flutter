@@ -107,6 +107,19 @@ class TeddyController extends FlareControls {
     _password = value;
   }
 
+  bool _isCoveringEyes = false;
+  coverEyes(cover) {
+    if (_isCoveringEyes == cover) {
+      return;
+    }
+	_isCoveringEyes = cover;
+    if (cover) {
+      play("hands_up");
+    } else {
+      play("hands_down");
+    }
+  }
+
   void submitPassword() {
     if (_password == "bears") {
       play("success");

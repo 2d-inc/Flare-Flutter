@@ -174,17 +174,13 @@ class ActorNode extends ActorComponent {
     }
   }
 
-  List<ActorClip> get allClips {
+  List<List<ActorClip>> get allClips {
     // Find clips.
-    List<ActorClip> all = null;
+    List<List<ActorClip>> all = List<List<ActorClip>>();
     ActorNode clipSearch = this;
     while (clipSearch != null) {
       if (clipSearch.clips != null) {
-        if (all == null) {
-          all = clipSearch.clips;
-        } else {
-          all += clipSearch.clips;
-        }
+		  all.add(clipSearch.clips);
       }
       clipSearch = clipSearch.parent;
     }

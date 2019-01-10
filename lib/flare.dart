@@ -106,20 +106,6 @@ class FlutterActorShape extends ActorShape {
     _fills.add(fill);
   }
 
-  List<ActorClip> getClips() {
-    ActorNode clipSearch = this;
-    List<ActorClip> clips;
-    while (clipSearch != null) {
-      if (clipSearch.clips != null) {
-        clips = clipSearch.clips;
-        break;
-      }
-      clipSearch = clipSearch.parent;
-    }
-
-    return clips;
-  }
-
   void draw(ui.Canvas canvas, double opacity, ui.Color overrideColor) {
     opacity *= renderOpacity;
     if (opacity <= 0 || !this.doesDraw) {
@@ -132,15 +118,16 @@ class FlutterActorShape extends ActorShape {
     Float64List paintTransform = worldTransform.mat4;
 
     // Get Clips
-    List<ActorClip> clipList = getClips();
-    if (clipList != null) {
-      for (ActorClip clip in clipList) {
-        clip.node.all((ActorNode childNode) {
-          if (childNode is FlutterActorShape) {
-            ui.Path clippingPath = childNode.path;
-            canvas.clipPath(clippingPath);
-          }
-        });
+    for (List<ActorShape> clips in clipShapes) {
+      if (clips.length == 1) {
+        canvas.clipPath((clips[0] as FlutterActorShape).path);
+      } else {
+        ui.Path clippingPath = ui.Path();
+        for (ActorShape clipShape in clips) {
+          clippingPath.addPath(
+              (clipShape as FlutterActorShape).path, ui.Offset.zero);
+        }
+        canvas.clipPath(clippingPath);
       }
     }
     if (_fills != null) {
@@ -229,8 +216,8 @@ class FlutterColorStroke extends ColorStroke with FlutterStroke {
           (color[2] * 255.0).round(),
           color[3] * modulateOpacity * opacity)
       ..strokeWidth = width
-	  ..strokeCap = FlutterStroke.getStrokeCap(cap)
-	  ..strokeJoin = FlutterStroke.getStrokeJoin(join)
+      ..strokeCap = FlutterStroke.getStrokeCap(cap)
+      ..strokeJoin = FlutterStroke.getStrokeJoin(join)
       ..style = ui.PaintingStyle.stroke;
     return paint;
   }
@@ -318,8 +305,8 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
       ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
           ui.Offset(renderEnd[0], renderEnd[1]), colors, stops)
       ..strokeWidth = width
-	  ..strokeCap = FlutterStroke.getStrokeCap(cap)
-	  ..strokeJoin = FlutterStroke.getStrokeJoin(join)
+      ..strokeCap = FlutterStroke.getStrokeCap(cap)
+      ..strokeJoin = FlutterStroke.getStrokeJoin(join)
       ..style = ui.PaintingStyle.stroke;
     return paint;
   }
@@ -460,8 +447,8 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
           radius, colors, stops, ui.TileMode.clamp) //, transform.mat4)
       // ..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
       ..strokeWidth = width
-	  ..strokeCap = FlutterStroke.getStrokeCap(cap)
-	  ..strokeJoin = FlutterStroke.getStrokeJoin(join)
+      ..strokeCap = FlutterStroke.getStrokeCap(cap)
+      ..strokeJoin = FlutterStroke.getStrokeJoin(join)
       ..style = ui.PaintingStyle.stroke;
   }
 

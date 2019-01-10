@@ -19,7 +19,7 @@ abstract class ActorBasePath {
   bool get isPathInWorldSpace => false;
   Mat2D get pathTransform;
   Mat2D get transform;
-  List<ActorClip> get allClips;
+  List<List<ActorClip>> get allClips;
   List<PathPoint> get deformedPoints => points;
 
   AABB getPathAABB() {

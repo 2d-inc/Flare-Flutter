@@ -18,6 +18,10 @@ class ActorShape extends ActorNode implements ActorDrawable {
   @override
   int get drawOrder => _drawOrder;
 
+  List<List<ActorShape>> _clipShapes;
+
+  List<List<ActorShape>> get clipShapes => _clipShapes;
+
   set drawOrder(int value) {
     if (_drawOrder == value) {
       return;
@@ -70,38 +74,32 @@ class ActorShape extends ActorNode implements ActorDrawable {
 
   AABB computeAABB() {
     AABB aabb;
-    List<ActorClip> clippers = allClips;
-    if (clippers != null) {
-      for (ActorClip clip in clippers) {
-        clip.node.all((ActorNode node) {
-          if (node is ActorShape) {
-            AABB bounds = node.computeAABB();
-            if (bounds == null) {
-              return;
-            }
-            if (aabb == null) {
-              aabb = bounds;
-            } else {
-              if (bounds[0] < aabb[0]) {
-                aabb[0] = bounds[0];
-              }
-              if (bounds[1] < aabb[1]) {
-                aabb[1] = bounds[1];
-              }
-              if (bounds[2] > aabb[2]) {
-                aabb[2] = bounds[2];
-              }
-              if (bounds[3] > aabb[3]) {
-                aabb[3] = bounds[3];
-              }
-            }
+    for (List<ActorShape> clips in _clipShapes) {
+      for (ActorShape node in clips) {
+        AABB bounds = node.computeAABB();
+        if (bounds == null) {
+          continue;
+        }
+        if (aabb == null) {
+          aabb = bounds;
+        } else {
+          if (bounds[0] < aabb[0]) {
+            aabb[0] = bounds[0];
           }
-        });
+          if (bounds[1] < aabb[1]) {
+            aabb[1] = bounds[1];
+          }
+          if (bounds[2] > aabb[2]) {
+            aabb[2] = bounds[2];
+          }
+          if (bounds[3] > aabb[3]) {
+            aabb[3] = bounds[3];
+          }
+        }
       }
-      if (aabb != null) {
-        //print("AA $aabb");
-        return aabb;
-      }
+    }
+    if (aabb != null) {
+      return aabb;
     }
 
     for (ActorNode node in children) {
@@ -179,5 +177,23 @@ class ActorShape extends ActorNode implements ActorDrawable {
       _strokes = List<ActorStroke>();
     }
     _strokes.add(stroke);
+  }
+
+  void completeResolve() {
+    _clipShapes = List<List<ActorShape>>();
+    List<List<ActorClip>> clippers = allClips;
+    for (List<ActorClip> clips in clippers) {
+      List<ActorShape> shapes = List<ActorShape>();
+      for (ActorClip clip in clips) {
+        clip.node.all((ActorNode node) {
+          if (node is ActorShape) {
+            shapes.add(node);
+          }
+        });
+      }
+      if (shapes.length > 0) {
+        _clipShapes.add(shapes);
+      }
+    }
   }
 }

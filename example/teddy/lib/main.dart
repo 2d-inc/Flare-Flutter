@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import "package:flare_flutter/flare_actor.dart";
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/rendering.dart';
 import 'package:teddy/signin_button.dart';
 import 'package:teddy/teddy_controller.dart';

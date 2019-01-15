@@ -4,12 +4,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-typedef void DemoButtonSelectedCallback(int index, Object item);
+typedef void DemoButtonSelectedCallback(int index, String item);
 
 class DemoButtonBar extends StatelessWidget
 {
-	final List<Object> data;
-	final Object selectedItem;
+	final List<String> data;
+	final String selectedItem;
 	final DemoButtonSelectedCallback selectedCallback;
 
 	DemoButtonBar(this.data,
@@ -46,8 +46,8 @@ class DemoButtonBar extends StatelessWidget
 
 class DemoButtonBarDisplay extends LeafRenderObjectWidget
 {
-	final List<Object> data;
-	final Object selectedItem;
+	final List<String> data;
+	final String selectedItem;
 
 	DemoButtonBarDisplay(this.data,
 		{
@@ -71,7 +71,7 @@ class DemoButtonBarDisplay extends LeafRenderObjectWidget
 
 class DataLabelParagraph
 {
-	Object item;
+	String item;
 	ui.Paragraph paragraph;
 	Size size;
 }
@@ -79,17 +79,17 @@ class DataLabelParagraph
 const double DemoButtonPadding = 20.0;
 class DemoButtonBarRenderObject extends RenderBox
 {
-	List<Object> _data;
+	List<String> _data;
 
 	List<DataLabelParagraph> _labelParagraphs;
 	double _fullParagraphWidth = 0.0;
-	Object _selectedItem;
+	String _selectedItem;
 	double _lastFrameTime = 0.0;
 
 	double _selectedIndex = 0.0;
 	double _targetSelectedIndex = 0.0;
 
-	DemoButtonBarRenderObject(List<Object> data, Object selectedItem)
+	DemoButtonBarRenderObject(List<String> data, String selectedItem)
 	{
 		this.data = data;
 		this.selectedItem = selectedItem;
@@ -103,8 +103,6 @@ class DemoButtonBarRenderObject extends RenderBox
 		{
 			_lastFrameTime = t;
 			SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
-			// hack to circumvent not being enable to initialize lastFrameTime to a starting timeStamp (maybe it's just the date?)
-			// Is the FrameCallback supposed to pass elapsed time since last frame? timeStamp seems to behave more like a date
 			return;
 		}
 
@@ -112,7 +110,6 @@ class DemoButtonBarRenderObject extends RenderBox
 		_lastFrameTime = t;
 		
 		_selectedIndex += (_targetSelectedIndex-_selectedIndex)*min(1.0, elapsed*15.0);
-//		print("TARGET $_selectedIndex $_targetSelectedIndex");
 		
 		markNeedsPaint();
 
@@ -151,21 +148,20 @@ class DemoButtonBarRenderObject extends RenderBox
 
 		for(int i = 0; i < _data.length; i++)
 		{
-			Object item = _data[i];
-			String label = item.toString();
+			String label = _data[i];
 			ui.ParagraphBuilder builder = new ui.ParagraphBuilder(new ui.ParagraphStyle(
 				textAlign:TextAlign.start,
 				fontFamily: "Roboto",
 				fontSize: 14.0,
 				fontWeight: FontWeight.w700
-			))..pushStyle(new ui.TextStyle(color: _selectedItem == item ? Colors.white : const Color.fromARGB(128, 255, 255, 255)));
+			))..pushStyle(new ui.TextStyle(color: _selectedItem == label ? Colors.white : const Color.fromARGB(128, 255, 255, 255)));
 			builder.addText(label);
 			ui.Paragraph paragraph = builder.build();
 			paragraph.layout(new ui.ParagraphConstraints(width: size.width));
 			List<ui.TextBox> boxes = paragraph.getBoxesForRange(0, label.length);
 			DataLabelParagraph dlp = new DataLabelParagraph()
 															..paragraph = paragraph
-															..item = item
+															..item = label
 															..size = new Size(boxes.last.right-boxes.first.left, boxes.last.bottom - boxes.first.top);
 			_labelParagraphs[i] = dlp;
 		}
@@ -200,8 +196,6 @@ class DemoButtonBarRenderObject extends RenderBox
 
 		int index = _selectedIndex.truncate();
 		double fraction = _selectedIndex - index;
-//		print("INDEX $_selectedIndex $index $fraction ${xs.length}");
-//		return;
 		Offset from = xs[index];
 		Offset to = index + 1 < xs.length ? xs[index+1] : from;
 		double dx = ui.lerpDouble(from.dx, to.dx, fraction);
@@ -216,12 +210,12 @@ class DemoButtonBarRenderObject extends RenderBox
 		}
 	}
 
-	List<Object> get data
+	List<String> get data
 	{
 		return _data;
 	}
 
-	set data(List<Object> v)
+	set data(List<String> v)
 	{
 		if(_data == v)
 		{
@@ -233,12 +227,12 @@ class DemoButtonBarRenderObject extends RenderBox
 		markNeedsPaint();
 	}
 
-	Object get selectedItem
+	String get selectedItem
 	{
 		return _selectedItem;
 	}
 
-	set selectedItem(Object v)
+	set selectedItem(String v)
 	{
 		if(_selectedItem == v)
 		{

@@ -42,8 +42,15 @@ class StackPage extends StatefulWidget
 
 class _StackPageState extends State<StackPage> with SingleTickerProviderStateMixin
 {
+    static const List<String> _barOptions = ["DEMO 1", "DEMO 2"];
+    
     Timer _currentDemoSchedule;
     HouseController _houseController;
+    String _selectedDemo = _barOptions[0];
+    double _offset = 0.0;
+
+    AnimationController _sliderController;
+    Animation<double> _slideAnimation;
 
     _demoValueChange(double rooms)
     {
@@ -77,12 +84,23 @@ class _StackPageState extends State<StackPage> with SingleTickerProviderStateMix
     @override
     void initState() {
         _houseController = HouseController(demoValueChange: _demoValueChange);
+
+        _sliderController = AnimationController(duration: const Duration(seconds: 2), vsync: this);
+        _sliderController.addListener(()
+        {
+            setState(() {
+                _offset = _slideAnimation.value;
+            });
+        });
+
         super.initState();
       }
 
     @override
     Widget build(BuildContext context)
     {
+        Size screenSize = MediaQuery.of(context).size;
+        // print(s);
         return Scaffold(
             body: Container(
                 color: Colors.black,
@@ -90,40 +108,104 @@ class _StackPageState extends State<StackPage> with SingleTickerProviderStateMix
                     fit: StackFit.expand,
                     children:
                     [
-                        Listener(
-                            onPointerUp: _touchUp,
-                            child: Stack(
+                        Positioned(
+                            left: _offset*-screenSize.width,
+                            width: screenSize.width,
+                            height: screenSize.height,
+                          child: Listener(
+                              onPointerUp: _touchUp,
+                              child: Stack(
+                                  children:
+                                  [
+                                      FlareActor(
+                                          "assets/Resizing_House.flr",
+                                          fit: BoxFit.fill,
+                                          controller: _houseController,
+                                      ),
+                                      Container(
+                                          margin: const EdgeInsets.only(left: 40, right:40),
+                                          child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children:
+                                              [
+                                                  Text(
+                                                      _houseController.rooms.toString() + " ROOMS",
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontFamily: "Roboto",
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight.w700
+                                                      )
+                                                  ),
+                                                  Slider(
+                                                      value: _houseController.rooms.toDouble()-3,
+                                                      min: 0.0,
+                                                      max: 3.0,
+                                                      divisions: 3,
+                                                      onChanged: (double value)
+                                                      {
+                                                          setState(() {
+                                                              _houseController.isDemoMode = false;
+                                                              _houseController.rooms = value.toInt() + 3;
+                                                              
+                                                              if(_currentDemoSchedule != null)
+                                                              {
+                                                                  _currentDemoSchedule.cancel();
+                                                                  _currentDemoSchedule = null;
+                                                              }
+                                                          });
+                                                      }
+                                                  ),
+                                                  Text(
+                                                      _houseController.isDemoMode ? 
+                                                          "TAP TO TRY" : "DRAG TO CHANGE ROOMS",
+                                                      style: TextStyle(
+                                                          color: Colors.white.withAlpha(128),
+                                                          fontFamily: "Roboto",
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight.w700
+                                                      )
+                                                  )
+                                            ],
+                                          )
+                                      )
+                                  ]
+                              )
+                          ),
+                        ),
+                        Container(
+                            margin: const EdgeInsets.only(bottom:46, left:40, right:40),
+                            // color: Colors.black45,
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children:
                                 [
-                                    FlareActor(
-                                        "assets/Resizing_House.flr",
-                                        fit: BoxFit.fill,
-                                        controller: _houseController,
-                                    ),
                                     Container(
-                                        margin: EdgeInsets.only(left: 40, right:40),
-                                        child: Slider(
-                                            value: _houseController.rooms.toDouble()-3,
-                                            min: 0.0,
-                                            max: 3.0,
-                                            divisions: 3,
-                                            onChanged: (double value)
+                                        margin: const EdgeInsets.only(bottom: 40),
+                                        // color: Colors.white54,
+                                        child: DemoButtonBar(
+                                            _barOptions,
+                                            selectedItem: _selectedDemo,
+                                            selectedCallback: (int index, String demoLabel)
                                             {
-                                                setState(() {
-                                                    _houseController.isDemoMode = false;
-                                                    _houseController.rooms = value.toInt() + 3;
-                                                    
-                                                    if(_currentDemoSchedule != null)
-                                                    {
-                                                        _currentDemoSchedule.cancel();
-                                                        _currentDemoSchedule = null;
-                                                    }
+                                                _slideAnimation = Tween<double>(
+                                                    begin: _offset,
+                                                    end: index.toDouble()
+                                                ).animate(_sliderController);
+
+                                                _sliderController
+                                                    ..value = 0.0
+                                                    ..fling(velocity: 0.5);
+                                                setState((){
+                                                    _selectedDemo = demoLabel;
                                                 });
                                             }
                                         )
                                     )
                                 ]
-                            )
+                            ),
                         )
                     ]
                 )

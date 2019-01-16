@@ -65,6 +65,17 @@ abstract class ActorColor extends ActorPaint {
     return _color;
   }
 
+  set color(Float32List value) {
+    if (value.length != 4) {
+      return;
+    }
+    _color[0] = value[0];
+    _color[1] = value[1];
+    _color[2] = value[2];
+    _color[3] = value[3];
+	markPaintDirty();
+  }
+
   void copyColor(ActorColor node, ActorArtboard resetArtboard) {
     copyPaint(node, resetArtboard);
     _color[0] = node._color[0];
@@ -161,7 +172,6 @@ abstract class ColorFill extends ActorColor with ActorFill {
 }
 
 abstract class ColorStroke extends ActorColor with ActorStroke {
-
   void copyColorStroke(ColorStroke node, ActorArtboard resetArtboard) {
     copyColor(node, resetArtboard);
     copyStroke(node, resetArtboard);

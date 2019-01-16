@@ -1,5 +1,4 @@
 import 'package:flare_flutter/flare.dart';
-import 'package:flare_flutter/flare/actor_color.dart';
 import 'package:flare_flutter/flare/math/mat2d.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
@@ -50,11 +49,11 @@ class MyHomePage extends StatefulWidget {
 List<Color> exampleColors = <Color>[Colors.red, Colors.green, Colors.blue];
 
 class _MyHomePageState extends State<MyHomePage> implements FlareController {
-  ColorFill _fill;
+  FlutterColorFill _fill;
   void initialize(FlutterActorArtboard artboard) {
     // Find our "Num 2" shape and get its fill so we can change it programmatically.
     FlutterActorShape shape = artboard.getNode("Num 2");
-    _fill = shape?.fill as ColorFill;
+    _fill = shape?.fill as FlutterColorFill;
   }
 
   void setViewTransform(Mat2D viewTransform) {}
@@ -63,10 +62,7 @@ class _MyHomePageState extends State<MyHomePage> implements FlareController {
     // advance is called whenever the flare artboard is about to update (before it draws).
     Color nextColor = exampleColors[(_counter++) % exampleColors.length];
     if (_fill != null) {
-      _fill.color[0] = nextColor.red / 255;
-      _fill.color[1] = nextColor.green / 255;
-      _fill.color[2] = nextColor.blue / 255;
-      _fill.color[3] = nextColor.opacity;
+      _fill.uiColor = nextColor;
     }
     // Return false as we don't need to be called again. You'd return true if you wanted to manually animate some property.
     return false;

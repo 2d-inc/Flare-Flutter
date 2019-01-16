@@ -203,6 +203,15 @@ class FlutterColorFill extends ColorFill with FlutterFill {
     return instanceNode;
   }
 
+  Color get uiColor {
+    Float32List c = color;
+    return Color.fromRGBO((c[0]*255.0).round(), (c[1]*255.0).round(), (c[2]*255.0).round(), c[3]);
+  }
+
+  set uiColor(Color c) {
+    color = Float32List.fromList([c.red / 255, c.green / 255, c.blue / 255, c.opacity]);
+  }
+
   @override
   void update(int dirt) {
     super.update(dirt);

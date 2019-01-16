@@ -61,12 +61,11 @@ class _StackPageState extends State<StackPage>
     _scheduleDemo();
   }
 
-  _setTouchPosition(PointerEvent details)
-  {
+  _setTouchPosition(PointerEvent details) {
     setState(() {
       double dpr = window.devicePixelRatio;
       Offset position = details.position;
-      _touchPosition = Offset(position.dx*dpr, position.dy*dpr);
+      _touchPosition = Offset(position.dx * dpr, position.dy * dpr);
     });
   }
 
@@ -107,20 +106,19 @@ class _StackPageState extends State<StackPage>
             color: Colors.black,
             child: Stack(fit: StackFit.expand, children: [
               Positioned(
-                left: (_offset - 1) * -screenSize.width,
-                width: screenSize.width,
-                height: screenSize.height,
-                child: Listener(
-                  onPointerDown: _setTouchPosition,
-                  onPointerMove: _setTouchPosition,
-                  onPointerUp: (_) => _touchPosition = null,
-                  child: NimaWidget(
-                    "assets/nima/Robot_Kr2.nima",
-                    scrollOffset: -_offset+1,
-                    touchPosition: _touchPosition,
-                  ),
-                )
-              ),
+                  left: (_offset - 1) * -screenSize.width,
+                  width: screenSize.width,
+                  height: screenSize.height,
+                  child: Listener(
+                    onPointerDown: _setTouchPosition,
+                    onPointerMove: _setTouchPosition,
+                    onPointerUp: (_) => _touchPosition = null,
+                    child: NimaWidget(
+                      "assets/nima/Robot_Kr2.nima",
+                      scrollOffset: -_offset + 1,
+                      touchPosition: _touchPosition,
+                    ),
+                  )),
               Positioned(
                 left: _offset * -screenSize.width,
                 width: screenSize.width,

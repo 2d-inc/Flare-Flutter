@@ -11,4 +11,5 @@ abstract class ActorDrawable {
   set drawIndex(int value);
 
   AABB computeAABB();
+  void initializeGraphics() {}
 }

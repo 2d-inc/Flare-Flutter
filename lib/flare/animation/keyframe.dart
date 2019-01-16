@@ -654,8 +654,7 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
         wr[i] = wr[i] * mixi + v * mix;
       }
     }
-
-    //path.markVertexDeformDirty();
+    ac.markPaintDirty();
   }
 
   void apply(ActorComponent component, double mix) {
@@ -672,6 +671,7 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
         wr[i] = wr[i] * mixi + _value[i] * mix;
       }
     }
+    ac.markPaintDirty();
   }
 }
 
@@ -712,7 +712,7 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     }
     reader.closeArray();
 
-	pathNode.makeVertexDeform();
+    pathNode.makeVertexDeform();
     return frame;
   }
 
@@ -764,9 +764,9 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
   }
 }
 
-class KeyFrameFillOpacity extends KeyFrameNumeric {
+class KeyFramePaintOpacity extends KeyFrameNumeric {
   static KeyFrame read(StreamReader reader, ActorComponent component) {
-    KeyFrameFillOpacity frame = KeyFrameFillOpacity();
+    KeyFramePaintOpacity frame = KeyFramePaintOpacity();
     if (KeyFrameNumeric.read(reader, frame)) {
       return frame;
     }
@@ -774,7 +774,6 @@ class KeyFrameFillOpacity extends KeyFrameNumeric {
   }
 
   void setValue(ActorComponent component, double value, double mix) {
-    // GradientFill node = component as GradientFill;
     ActorPaint node = component as ActorPaint;
     node.opacity = node.opacity * (1.0 - mix) + value * mix;
   }
@@ -819,6 +818,7 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
         wr[i] = wr[i] * mixi + v * mix;
       }
     }
+    cs.markPaintDirty();
   }
 
   @override
@@ -836,6 +836,7 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
         wr[i] = wr[i] * mixi + _value[i] * mix;
       }
     }
+    node.markPaintDirty();
   }
 }
 
@@ -921,6 +922,7 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
         wi++;
       }
     }
+    gradient.markPaintDirty();
   }
 
   @override
@@ -952,6 +954,7 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
         wi++;
       }
     }
+    gradient.markPaintDirty();
   }
 }
 
@@ -1018,6 +1021,7 @@ class KeyFrameRadial extends KeyFrameWithInterpolation {
         wi++;
       }
     }
+    radial.markPaintDirty();
   }
 
   @override
@@ -1051,6 +1055,7 @@ class KeyFrameRadial extends KeyFrameWithInterpolation {
         wi++;
       }
     }
+    radial.markPaintDirty();
   }
 }
 
@@ -1086,7 +1091,6 @@ class KeyFrameShapeHeight extends KeyFrameNumeric {
 
     if (component is ActorProceduralPath) {
       component.height = component.height * (1.0 - mix) + value * mix;
-      //print("YEAHe ${component.name} ${component.height}");
     }
   }
 }
@@ -1102,34 +1106,8 @@ class KeyFrameStrokeWidth extends KeyFrameNumeric {
 
   void setValue(ActorComponent component, double value, double mix) {
     if (component == null) return;
-
-    if (component is GradientStroke) {
-      component.width = component.width * (1.0 - mix) + value * mix;
-    } else if (component is RadialGradientStroke) {
-      component.width = component.width * (1.0 - mix) + value * mix;
-    } else if (component is ColorStroke) {
-      component.width = component.width * (1.0 - mix) + value * mix;
-    }
-  }
-}
-
-class KeyFrameStrokeOpacity extends KeyFrameNumeric {
-  static KeyFrame read(StreamReader reader, ActorComponent component) {
-    KeyFrameStrokeOpacity frame = KeyFrameStrokeOpacity();
-    if (KeyFrameNumeric.read(reader, frame)) {
-      return frame;
-    }
-    return null;
-  }
-
-  void setValue(ActorComponent component, double value, double mix) {
-    if (component == null) return;
-
-    if (component is GradientColor) {
-      component.opacity = component.opacity * (1.0 - mix) + value * mix;
-    } else if (component is ColorStroke) {
-      component.opacity = component.opacity * (1.0 - mix) + value * mix;
-    }
+    ActorStroke stroke = component as ActorStroke;
+    stroke.width = stroke.width * (1.0 - mix) + value * mix;
   }
 }
 

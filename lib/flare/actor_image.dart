@@ -535,4 +535,8 @@ class ActorImage extends ActorNode implements ActorDrawable {
     return AABB.fromValues(worldTransform[4], worldTransform[5],
         worldTransform[4], worldTransform[5]);
   }
+
+  @override
+  void initializeGraphics() {
+  }
 }

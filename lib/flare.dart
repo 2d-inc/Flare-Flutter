@@ -30,10 +30,39 @@ export "flare/actor_node.dart";
 import "package:flutter/services.dart" show rootBundle;
 
 abstract class FlutterFill {
-  ui.Paint getPaint(Float64List transform, double opacity);
+  ui.Paint _paint;
+  void initializeGraphics() {
+    _paint = ui.Paint()..style = PaintingStyle.fill;
+  }
+
+  void paint(ActorFill fill, ui.Canvas canvas, ui.Path path) {
+    switch (fill.fillRule) {
+      case FillRule.EvenOdd:
+        path.fillType = ui.PathFillType.evenOdd;
+        break;
+      case FillRule.NonZero:
+        path.fillType = ui.PathFillType.nonZero;
+        break;
+    }
+    canvas.drawPath(path, _paint);
+  }
 }
 
+// double trimStart = 0.0;
+
 abstract class FlutterStroke {
+  ui.Paint _paint;
+  void initializeGraphics() {
+    // yikes, no nice way to inherit with a mixin.
+    ActorStroke stroke = this as ActorStroke;
+
+    _paint = ui.Paint()
+      ..style = ui.PaintingStyle.stroke
+      ..strokeWidth = stroke.width
+      ..strokeCap = FlutterStroke.getStrokeCap(stroke.cap)
+      ..strokeJoin = FlutterStroke.getStrokeJoin(stroke.join);
+  }
+
   static ui.StrokeCap getStrokeCap(StrokeCap cap) {
     switch (cap) {
       case StrokeCap.Butt:
@@ -58,16 +87,16 @@ abstract class FlutterStroke {
     return ui.StrokeJoin.miter;
   }
 
-  ui.Paint getPaint(Float64List transform, double opacity);
+  void paint(ActorStroke stroke, ui.Canvas canvas, ui.Path path) {
+    if (stroke.width == 0) {
+      return;
+    }
+    canvas.drawPath(path, _paint);
+  }
 }
 
 class FlutterActorShape extends ActorShape {
-  List<FlutterFill> _fills;
-  List<FlutterStroke> _flutterStrokes;
   ui.Path _path;
-
-  FlutterFill get fill => _fills?.first;
-  FlutterStroke get stroke => _flutterStrokes?.first;
 
   @override
   void invalidateShape() {
@@ -92,30 +121,14 @@ class FlutterActorShape extends ActorShape {
     return _path;
   }
 
-  void addFlutterStroke(FlutterStroke stroke) {
-    if (_flutterStrokes == null) {
-      _flutterStrokes = List<FlutterStroke>();
-    }
-    _flutterStrokes.add(stroke);
-  }
-
-  void addFill(FlutterFill fill) {
-    if (_fills == null) {
-      _fills = List<FlutterFill>();
-    }
-    _fills.add(fill);
-  }
-
-  void draw(ui.Canvas canvas, double opacity, ui.Color overrideColor) {
-    opacity *= renderOpacity;
-    if (opacity <= 0 || !this.doesDraw) {
+  void draw(ui.Canvas canvas) {
+    if (!this.doesDraw) {
       return;
     }
 
     canvas.save();
 
     ui.Path renderPath = path;
-    Float64List paintTransform = worldTransform.mat4;
 
     // Get Clips
     for (List<ActorShape> clips in clipShapes) {
@@ -130,39 +143,46 @@ class FlutterActorShape extends ActorShape {
         canvas.clipPath(clippingPath);
       }
     }
-    if (_fills != null) {
-      for (FlutterFill fill in _fills) {
-        ui.Paint paint = fill.getPaint(paintTransform, opacity);
-        if (paint == null) {
-          continue;
-        }
-        if (overrideColor != null) {
-          paint.color = overrideColor.withOpacity(
-              (overrideColor.opacity * paint.color.opacity).clamp(0.0, 1.0));
-        }
+    if (fills != null) {
+      for (ActorFill actorFill in fills) {
+        FlutterFill fill = actorFill as FlutterFill;
+        fill.paint(actorFill, canvas, renderPath);
+        // ui.Paint paint = fill.getPaint(paintTransform, opacity);
+        // if (paint == null) {
+        //   continue;
+        // }
+        // if (overrideColor != null) {
+        //   paint.color = overrideColor.withOpacity(
+        //       (overrideColor.opacity * paint.color.opacity).clamp(0.0, 1.0));
+        // }
 
-        switch ((fill as ActorFill).fillRule) {
-          case FillRule.EvenOdd:
-            renderPath.fillType = ui.PathFillType.evenOdd;
-            break;
-          case FillRule.NonZero:
-            renderPath.fillType = ui.PathFillType.nonZero;
-            break;
-        }
-        canvas.drawPath(renderPath, paint);
+        // switch ((fill as ActorFill).fillRule) {
+        //   case FillRule.EvenOdd:
+        //     renderPath.fillType = ui.PathFillType.evenOdd;
+        //     break;
+        //   case FillRule.NonZero:
+        //     renderPath.fillType = ui.PathFillType.nonZero;
+        //     break;
+        // }
+        // canvas.drawPath(renderPath, paint);
       }
     }
-    if (_flutterStrokes != null) {
-      for (FlutterStroke stroke in _flutterStrokes) {
-        ui.Paint paint = stroke.getPaint(paintTransform, opacity);
-        if (paint == null) {
-          continue;
-        }
-        if (overrideColor != null) {
-          paint.color = overrideColor.withOpacity(
-              (overrideColor.opacity * paint.color.opacity).clamp(0.0, 1.0));
-        }
-        canvas.drawPath(renderPath, paint);
+    if (strokes != null) {
+      for (ActorStroke actorStroke in strokes) {
+        FlutterStroke stroke = actorStroke as FlutterStroke;
+        stroke.paint(actorStroke, canvas, renderPath);
+        // ui.Paint paint = stroke.getPaint(paintTransform, opacity);
+        // if (paint == null) {
+        //   continue;
+        // }
+        // if (overrideColor != null) {
+        //   paint.color = overrideColor.withOpacity(
+        //       (overrideColor.opacity * paint.color.opacity).clamp(0.0, 1.0));
+        // }
+        // ui.Path trimmedPath = Path.from(renderPath);
+        // trimmedPath.trim(trimStart, 0.2 + trimStart, false);
+        // trimStart += 0.01;
+        // canvas.drawPath(trimmedPath, paint);
       }
     }
 
@@ -176,70 +196,52 @@ class FlutterActorShape extends ActorShape {
   }
 }
 
-class FlutterColorFill extends ColorFill implements FlutterFill {
-  ui.Paint getPaint(Float64List transform, double modulateOpacity) {
-    ui.Paint paint = ui.Paint()
-      ..color = ui.Color.fromRGBO(
-          (color[0] * 255.0).round(),
-          (color[1] * 255.0).round(),
-          (color[2] * 255.0).round(),
-          color[3] * modulateOpacity * opacity)
-      ..style = ui.PaintingStyle.fill;
-    return paint;
-  }
-
-  void completeResolve() {
-    super.completeResolve();
-
-    ActorNode parentNode = parent;
-    if (parentNode is FlutterActorShape) {
-      parentNode.addFill(this);
-    }
-  }
-
+class FlutterColorFill extends ColorFill with FlutterFill {
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     FlutterColorFill instanceNode = FlutterColorFill();
     instanceNode.copyColorFill(this, resetArtboard);
     return instanceNode;
   }
+
+  @override
+  void update(int dirt) {
+    super.update(dirt);
+    _paint.color = ui.Color.fromRGBO(
+        (color[0] * 255.0).round(),
+        (color[1] * 255.0).round(),
+        (color[2] * 255.0).round(),
+        color[3] * opacity * shape.renderOpacity);
+  }
 }
 
 class FlutterColorStroke extends ColorStroke with FlutterStroke {
-  ui.Paint getPaint(Float64List transform, double modulateOpacity) {
-    if (width == 0) {
-      return null;
-    }
-    ui.Paint paint = ui.Paint()
-      ..color = ui.Color.fromRGBO(
-          (color[0] * 255.0).round(),
-          (color[1] * 255.0).round(),
-          (color[2] * 255.0).round(),
-          color[3] * modulateOpacity * opacity)
-      ..strokeWidth = width
-      ..strokeCap = FlutterStroke.getStrokeCap(cap)
-      ..strokeJoin = FlutterStroke.getStrokeJoin(join)
-      ..style = ui.PaintingStyle.stroke;
-    return paint;
-  }
-
-  void completeResolve() {
-    super.completeResolve();
-
-    ActorNode parentNode = parent;
-    if (parentNode is FlutterActorShape) {
-      parentNode.addFlutterStroke(this);
-    }
-  }
-
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     FlutterColorStroke instanceNode = FlutterColorStroke();
     instanceNode.copyColorStroke(this, resetArtboard);
     return instanceNode;
   }
+
+  @override
+  void update(int dirt) {
+    super.update(dirt);
+    Float32List paintColor = artboard.overrideColor ?? color;
+    _paint
+      ..color = ui.Color.fromRGBO(
+          (paintColor[0] * 255.0).round(),
+          (paintColor[1] * 255.0).round(),
+          (paintColor[2] * 255.0).round(),
+          paintColor[3] *
+              artboard.modulateOpacity *
+              opacity *
+              shape.renderOpacity)
+      ..strokeWidth = width;
+  }
 }
 
-class FlutterGradientFill extends GradientFill implements FlutterFill {
-  ui.Paint getPaint(Float64List transform, double modulateOpacity) {
+class FlutterGradientFill extends GradientFill with FlutterFill {
+  @override
+  void update(int dirt) {
+    super.update(dirt);
     List<ui.Color> colors = List<ui.Color>();
     List<double> stops = List<double>();
     int numStops = (colorStops.length / 5).round();
@@ -256,22 +258,26 @@ class FlutterGradientFill extends GradientFill implements FlutterFill {
       idx += 5;
     }
 
-    ui.Paint paint = ui.Paint()
-      ..color =
-          Colors.white.withOpacity((modulateOpacity * opacity).clamp(0.0, 1.0))
-      ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
-          ui.Offset(renderEnd[0], renderEnd[1]), colors, stops)
-      ..style = ui.PaintingStyle.fill;
-    return paint;
-  }
-
-  void completeResolve() {
-    super.completeResolve();
-
-    ActorNode parentNode = parent;
-    if (parentNode is FlutterActorShape) {
-      parentNode.addFill(this);
+    Color paintColor;
+    if (artboard.overrideColor == null) {
+      paintColor = Colors.white.withOpacity(
+          (artboard.modulateOpacity * opacity * shape.renderOpacity)
+              .clamp(0.0, 1.0));
+    } else {
+      Float32List overrideColor = artboard.overrideColor;
+      paintColor = ui.Color.fromRGBO(
+          (overrideColor[0] * 255.0).round(),
+          (overrideColor[1] * 255.0).round(),
+          (overrideColor[2] * 255.0).round(),
+          overrideColor[3] *
+              artboard.modulateOpacity *
+              opacity *
+              shape.renderOpacity);
     }
+    _paint
+      ..color = paintColor
+      ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
+          ui.Offset(renderEnd[0], renderEnd[1]), colors, stops);
   }
 
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
@@ -282,7 +288,9 @@ class FlutterGradientFill extends GradientFill implements FlutterFill {
 }
 
 class FlutterGradientStroke extends GradientStroke with FlutterStroke {
-  ui.Paint getPaint(Float64List transform, double modulateOpacity) {
+  @override
+  void update(int dirt) {
+    super.update(dirt);
     List<ui.Color> colors = List<ui.Color>();
     List<double> stops = List<double>();
     int numStops = (colorStops.length / 5).round();
@@ -299,25 +307,27 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
       idx += 5;
     }
 
-    ui.Paint paint = ui.Paint()
-      ..color =
-          Colors.white.withOpacity((modulateOpacity * opacity).clamp(0.0, 1.0))
-      ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
-          ui.Offset(renderEnd[0], renderEnd[1]), colors, stops)
-      ..strokeWidth = width
-      ..strokeCap = FlutterStroke.getStrokeCap(cap)
-      ..strokeJoin = FlutterStroke.getStrokeJoin(join)
-      ..style = ui.PaintingStyle.stroke;
-    return paint;
-  }
-
-  void completeResolve() {
-    super.completeResolve();
-
-    ActorNode parentNode = parent;
-    if (parentNode is FlutterActorShape) {
-      parentNode.addFlutterStroke(this);
+    Color paintColor;
+    if (artboard.overrideColor == null) {
+      paintColor = Colors.white.withOpacity(
+          (artboard.modulateOpacity * opacity * shape.renderOpacity)
+              .clamp(0.0, 1.0));
+    } else {
+      Float32List overrideColor = artboard.overrideColor;
+      paintColor = ui.Color.fromRGBO(
+          (overrideColor[0] * 255.0).round(),
+          (overrideColor[1] * 255.0).round(),
+          (overrideColor[2] * 255.0).round(),
+          overrideColor[3] *
+              artboard.modulateOpacity *
+              opacity *
+              shape.renderOpacity);
     }
+    _paint
+      ..color = paintColor
+      ..strokeWidth = width
+      ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
+          ui.Offset(renderEnd[0], renderEnd[1]), colors, stops);
   }
 
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
@@ -327,30 +337,10 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
   }
 }
 
-class FlutterRadialFill extends RadialGradientFill implements FlutterFill {
-  ui.Paint getPaint(Float64List transform, double modulateOpacity) {
-    // double squash = max(0.00001, secondaryRadiusScale);
-    // Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
-    // double angle = atan2(diff[1], diff[0]);
-    // Mat2D transform = new Mat2D();
-
-    // Mat2D translate = new Mat2D();
-    // translate[4] = start[0];
-    // translate[5] = start[1];
-
-    // Mat2D rotation = new Mat2D();
-    // Mat2D.fromRotation(rotation, angle);
-
-    // transform[4] = start[0];
-    // transform[5] = start[1];
-
-    // Mat2D scaling = new Mat2D();
-    // scaling[0] = 1.0;
-    // scaling[3] = squash;
-
-    // Mat2D.multiply(transform, translate, rotation);
-    // Mat2D.multiply(transform, transform, scaling);
-
+class FlutterRadialFill extends RadialGradientFill with FlutterFill {
+  @override
+  void update(int dirt) {
+    super.update(dirt);
     double radius = Vec2D.distance(renderStart, renderEnd);
     List<ui.Color> colors = List<ui.Color>();
     List<double> stops = List<double>();
@@ -374,22 +364,26 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill {
         stops,
         ui.TileMode.clamp); //, transform.mat4);
 
-    ui.Paint paint = ui.Paint()
-      ..color =
-          Colors.white.withOpacity((modulateOpacity * opacity).clamp(0.0, 1.0))
-      ..shader = radial
-      ..style = ui.PaintingStyle.fill;
-
-    return paint;
-  }
-
-  void completeResolve() {
-    super.completeResolve();
-
-    ActorNode parentNode = parent;
-    if (parentNode is FlutterActorShape) {
-      parentNode.addFill(this);
+    Color paintColor;
+    if (artboard.overrideColor == null) {
+      paintColor = Colors.white.withOpacity(
+          (artboard.modulateOpacity * opacity * shape.renderOpacity)
+              .clamp(0.0, 1.0));
+    } else {
+      Float32List overrideColor = artboard.overrideColor;
+      paintColor = ui.Color.fromRGBO(
+          (overrideColor[0] * 255.0).round(),
+          (overrideColor[1] * 255.0).round(),
+          (overrideColor[2] * 255.0).round(),
+          overrideColor[3] *
+              artboard.modulateOpacity *
+              opacity *
+              shape.renderOpacity);
     }
+
+    _paint
+      ..color = paintColor
+      ..shader = radial;
   }
 
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
@@ -400,29 +394,9 @@ class FlutterRadialFill extends RadialGradientFill implements FlutterFill {
 }
 
 class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
-  ui.Paint getPaint(Float64List transform, double modulateOpacity) {
-    // double squash = max(0.00001, secondaryRadiusScale);
-    // Vec2D diff = Vec2D.subtract(new Vec2D(), end, start);
-    // double angle = atan2(diff[1], diff[0]);
-    // Mat2D transform = new Mat2D();
-
-    // Mat2D translate = new Mat2D();
-    // translate[4] = start[0];
-    // translate[5] = start[1];
-
-    // Mat2D rotation = new Mat2D();
-    // Mat2D.fromRotation(rotation, angle);
-
-    // transform[4] = start[0];
-    // transform[5] = start[1];
-
-    // Mat2D scaling = new Mat2D();
-    // scaling[0] = 1.0;
-    // scaling[3] = squash;
-
-    // Mat2D.multiply(transform, translate, rotation);
-    // Mat2D.multiply(transform, transform, scaling);
-
+  @override
+  void update(int dirt) {
+    super.update(dirt);
     double radius = Vec2D.distance(renderStart, renderEnd);
     List<ui.Color> colors = List<ui.Color>();
     List<double> stops = List<double>();
@@ -440,25 +414,28 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
       idx += 5;
     }
 
-    return ui.Paint()
-      ..color =
-          Colors.white.withOpacity((modulateOpacity * opacity).clamp(0.0, 1.0))
-      ..shader = ui.Gradient.radial(Offset(renderStart[0], renderStart[1]),
-          radius, colors, stops, ui.TileMode.clamp) //, transform.mat4)
-      // ..shader = new ui.Gradient.radial(new ui.Offset(center[0], center[1]), radius, colors, stops)
-      ..strokeWidth = width
-      ..strokeCap = FlutterStroke.getStrokeCap(cap)
-      ..strokeJoin = FlutterStroke.getStrokeJoin(join)
-      ..style = ui.PaintingStyle.stroke;
-  }
-
-  void completeResolve() {
-    super.completeResolve();
-
-    ActorNode parentNode = parent;
-    if (parentNode is FlutterActorShape) {
-      parentNode.addFlutterStroke(this);
+    Color paintColor;
+    if (artboard.overrideColor == null) {
+      paintColor = Colors.white.withOpacity(
+          (artboard.modulateOpacity * opacity * shape.renderOpacity)
+              .clamp(0.0, 1.0));
+    } else {
+      Float32List overrideColor = artboard.overrideColor;
+      paintColor = ui.Color.fromRGBO(
+          (overrideColor[0] * 255.0).round(),
+          (overrideColor[1] * 255.0).round(),
+          (overrideColor[2] * 255.0).round(),
+          overrideColor[3] *
+              artboard.modulateOpacity *
+              opacity *
+              shape.renderOpacity);
     }
+
+    _paint
+      ..color = paintColor
+      ..strokeWidth = width
+      ..shader = ui.Gradient.radial(Offset(renderStart[0], renderStart[1]),
+          radius, colors, stops, ui.TileMode.clamp);
   }
 
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
@@ -550,10 +527,10 @@ class FlutterActorArtboard extends ActorArtboard {
     super.advance(seconds);
   }
 
-  void draw(ui.Canvas canvas, {ui.Color overrideColor, double opacity = 1.0}) {
+  void draw(ui.Canvas canvas) {
     for (ActorDrawable drawable in drawableNodes) {
       if (drawable is FlutterActorShape) {
-        drawable.draw(canvas, opacity, overrideColor);
+        drawable.draw(canvas);
       }
     }
   }

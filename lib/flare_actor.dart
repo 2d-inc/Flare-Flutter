@@ -1,4 +1,5 @@
 import "dart:math";
+import 'dart:typed_data';
 import "flare.dart";
 import "flare/actor_drawable.dart";
 import "flare/math/mat2d.dart";
@@ -105,6 +106,16 @@ class FlareActorRenderObject extends RenderBox {
   set color(Color value) {
     if (value != _color) {
       _color = value;
+      if (_artboard != null) {
+        _artboard.overrideColor = value == null
+            ? null
+            : Float32List.fromList([
+                value.red / 255.0,
+                value.green / 255.0,
+                value.blue / 255.0,
+                value.opacity
+              ]);
+      }
       markNeedsPaint();
     }
   }
@@ -212,6 +223,15 @@ class FlareActorRenderObject extends RenderBox {
           _actor = actor;
           _artboard = _actor?.artboard; //?.makeInstance();
           if (_artboard != null) {
+            _artboard.initializeGraphics();
+            _artboard.overrideColor = _color == null
+                ? null
+                : Float32List.fromList([
+                    _color.red / 255.0,
+                    _color.green / 255.0,
+                    _color.blue / 255.0,
+                    _color.opacity
+                  ]);
             _artboard.advance(0.0);
             updateBounds();
             // _setupAABB[0] -= 5000.0;
@@ -435,7 +455,7 @@ class FlareActorRenderObject extends RenderBox {
 
       canvas.scale(scaleX, scaleY);
       canvas.translate(x, y);
-      _artboard.draw(canvas, overrideColor: _color);
+      _artboard.draw(canvas);
       canvas.restore();
     }
   }

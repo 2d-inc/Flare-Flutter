@@ -11,6 +11,10 @@ import "math/vec2d.dart";
 import "math/aabb.dart";
 
 class ActorShape extends ActorNode implements ActorDrawable {
+  bool _isHidden;
+  List<ActorStroke> _strokes = List<ActorStroke>();
+  List<ActorFill> _fills = List<ActorFill>();
+
   @override
   int drawIndex;
 
@@ -22,6 +26,11 @@ class ActorShape extends ActorNode implements ActorDrawable {
 
   List<List<ActorShape>> get clipShapes => _clipShapes;
 
+  ActorFill get fill => _fills?.first;
+  ActorStroke get stroke => _strokes?.first;
+  List<ActorFill> get fills => _fills;
+  List<ActorStroke> get strokes => _strokes;
+
   set drawOrder(int value) {
     if (_drawOrder == value) {
       return;
@@ -29,9 +38,6 @@ class ActorShape extends ActorNode implements ActorDrawable {
     _drawOrder = value;
     artboard.markDrawOrderDirty();
   }
-
-  bool _isHidden;
-  List<ActorStroke> _strokes;
 
   bool get isHidden {
     return _isHidden;
@@ -173,10 +179,21 @@ class ActorShape extends ActorNode implements ActorDrawable {
   }
 
   void addStroke(ActorStroke stroke) {
-    if (_strokes == null) {
-      _strokes = List<ActorStroke>();
-    }
     _strokes.add(stroke);
+  }
+  void addFill(ActorFill fill) {
+    _fills.add(fill);
+  }
+
+  void initializeGraphics(){
+	  for(ActorStroke stroke in _strokes)
+	  {
+		  stroke.initializeGraphics();
+	  }
+	  for(ActorFill fill in _fills)
+	  {
+		  fill.initializeGraphics();
+	  }
   }
 
   void completeResolve() {

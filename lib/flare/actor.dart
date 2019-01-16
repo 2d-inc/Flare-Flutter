@@ -13,7 +13,7 @@ import "stream_reader.dart";
 import "block_types.dart";
 import "actor_artboard.dart";
 
-class Actor {
+abstract class Actor {
   int maxTextureIndex = 0;
   int _version = 0;
   int _artboardCount = 0;
@@ -84,29 +84,17 @@ class Actor {
     return ActorEllipse();
   }
 
-  ColorFill makeColorFill() {
-    return ColorFill();
-  }
+  ColorFill makeColorFill();
 
-  ColorStroke makeColorStroke() {
-    return ColorStroke();
-  }
+  ColorStroke makeColorStroke();
 
-  GradientFill makeGradientFill() {
-    return GradientFill();
-  }
+  GradientFill makeGradientFill();
 
-  GradientStroke makeGradientStroke() {
-    return GradientStroke();
-  }
+  GradientStroke makeGradientStroke();
 
-  RadialGradientFill makeRadialFill() {
-    return RadialGradientFill();
-  }
+  RadialGradientFill makeRadialFill();
 
-  RadialGradientStroke makeRadialStroke() {
-    return RadialGradientStroke();
-  }
+  RadialGradientStroke makeRadialStroke();
 
   void load(ByteData data) {
     if (data.lengthInBytes < 5) {

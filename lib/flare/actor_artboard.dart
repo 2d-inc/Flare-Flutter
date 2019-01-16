@@ -53,6 +53,8 @@ class ActorArtboard {
   Vec2D _origin = Vec2D();
   bool _clipContents = true;
   Float32List _color = Float32List(4);
+  double _modulateOpacity = 1.0;
+  Float32List _overrideColor;
 
   String get name => _name;
   double get width => _width;
@@ -60,6 +62,22 @@ class ActorArtboard {
   Vec2D get origin => _origin;
   Vec2D get translation => _translation;
   bool get clipContents => _clipContents;
+  double get modulateOpacity => _modulateOpacity;
+  Float32List get overrideColor => _overrideColor;
+
+  set overrideColor(Float32List value) {
+    _overrideColor = value;
+    for (ActorDrawable drawable in _drawableNodes) {
+      addDirt((drawable as ActorComponent), DirtyFlags.PaintDirty, true);
+    }
+  }
+
+  set modulateOpacity(double value) {
+    _modulateOpacity = value;
+    for (ActorDrawable drawable in _drawableNodes) {
+      addDirt((drawable as ActorComponent), DirtyFlags.PaintDirty, true);
+    }
+  }
 
   ActorArtboard(Actor actor) {
     _actor = actor;
@@ -545,6 +563,12 @@ class ActorArtboard {
     }
 
     sortDependencies();
+  }
+
+  void initializeGraphics() {
+    for (ActorDrawable drawable in _drawableNodes) {
+      drawable.initializeGraphics();
+    }
   }
 
   void readAnimationsBlock(StreamReader block) {

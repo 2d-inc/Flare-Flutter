@@ -116,10 +116,8 @@ class PropertyAnimation {
         keyFrameReader = KeyFrameStrokeWidth.read;
         break;
       case PropertyTypes.StrokeOpacity:
-        keyFrameReader = KeyFrameStrokeOpacity.read;
-        break;
       case PropertyTypes.FillOpacity:
-        keyFrameReader = KeyFrameFillOpacity.read;
+        keyFrameReader = KeyFramePaintOpacity.read;
         break;
       case PropertyTypes.ShapeWidth:
         keyFrameReader = KeyFrameShapeWidth.read;

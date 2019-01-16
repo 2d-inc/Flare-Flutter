@@ -4,6 +4,7 @@ import "math/mat2d.dart";
 import "math/vec2d.dart";
 import "actor_component.dart";
 import "actor_constraint.dart";
+import "actor_flags.dart";
 
 typedef bool NodeWalkCallback(ActorNode node);
 
@@ -37,8 +38,8 @@ class ActorNode extends ActorComponent {
   List<ActorConstraint> _constraints;
   List<ActorConstraint> _peerConstraints;
 
-  static const int TransformDirty = 1 << 0;
-  static const int WorldTransformDirty = 1 << 1;
+  static const int TransformDirty = DirtyFlags.TransformDirty;
+  static const int WorldTransformDirty = DirtyFlags.WorldTransformDirty;
 
   ActorNode();
   ActorNode.withArtboard(ActorArtboard artboard) : super.withArtboard(artboard);

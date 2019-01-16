@@ -9,6 +9,7 @@ import "actor_component.dart";
 import "dart:collection";
 import "stream_reader.dart";
 import "math/vec2d.dart";
+import "actor_flags.dart";
 
 enum FillRule { EvenOdd, NonZero }
 enum StrokeCap { Butt, Round, Square }
@@ -23,7 +24,15 @@ HashMap<int, StrokeJoin> strokeJoinLookup =
         [0, 1, 2], [StrokeJoin.Miter, StrokeJoin.Round, StrokeJoin.Bevel]);
 
 abstract class ActorPaint extends ActorComponent {
-  double opacity = 1.0;
+  double _opacity = 1.0;
+  double get opacity => _opacity;
+  set opacity(double value) {
+    if (value == _opacity) {
+      return;
+    }
+    _opacity = value;
+    markPaintDirty();
+  }
 
   void copyPaint(ActorPaint component, ActorArtboard resetArtboard) {
     copyComponent(component, resetArtboard);
@@ -38,8 +47,14 @@ abstract class ActorPaint extends ActorComponent {
     return component;
   }
 
-  completeResolve() {
+  void completeResolve() {
     artboard.addDependency(this, parent);
+  }
+
+  ActorShape get shape => parent as ActorShape;
+
+  void markPaintDirty() {
+    artboard.addDirt(this, DirtyFlags.PaintDirty, false);
   }
 }
 
@@ -71,7 +86,7 @@ abstract class ActorColor extends ActorPaint {
   void update(int dirt) {}
 }
 
-class ActorFill {
+abstract class ActorFill {
   FillRule _fillRule = FillRule.EvenOdd;
   FillRule get fillRule => _fillRule;
 
@@ -83,10 +98,23 @@ class ActorFill {
   void copyFill(ActorFill node, ActorArtboard resetArtboard) {
     _fillRule = node._fillRule;
   }
+
+  void initializeGraphics();
 }
 
 abstract class ActorStroke {
-  double width = 1.0;
+  double _width = 1.0;
+  double get width => _width;
+  set width(double value) {
+    if (value == _width) {
+      return;
+    }
+    _width = value;
+    markPaintDirty();
+  }
+
+  void markPaintDirty();
+
   StrokeCap _cap = StrokeCap.Butt;
   StrokeJoin _join = StrokeJoin.Miter;
   StrokeCap get cap => _cap;
@@ -105,15 +133,11 @@ abstract class ActorStroke {
     _cap = node._cap;
     _join = node._join;
   }
+
+  void initializeGraphics();
 }
 
-class ColorFill extends ActorColor with ActorFill {
-  ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ColorFill instanceEvent = ColorFill();
-    instanceEvent.copyColorFill(this, resetArtboard);
-    return instanceEvent;
-  }
-
+abstract class ColorFill extends ActorColor with ActorFill {
   void copyColorFill(ColorFill node, ActorArtboard resetArtboard) {
     copyColor(node, resetArtboard);
     copyFill(node, resetArtboard);
@@ -121,27 +145,22 @@ class ColorFill extends ActorColor with ActorFill {
 
   static ColorFill read(
       ActorArtboard artboard, StreamReader reader, ColorFill component) {
-    if (component == null) {
-      component = ColorFill();
-    }
     ActorColor.read(artboard, reader, component);
     ActorFill.read(artboard, reader, component);
     return component;
   }
+
+  void completeResolve() {
+    super.completeResolve();
+
+    ActorNode parentNode = parent;
+    if (parentNode is ActorShape) {
+      parentNode.addFill(this);
+    }
+  }
 }
 
-class ColorStroke extends ActorColor with ActorStroke {
-  double get opacity => _color[3];
-
-  set opacity(double val) {
-    this.color[3] = val;
-  }
-
-  ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ColorStroke instanceEvent = ColorStroke();
-    instanceEvent.copyColorStroke(this, resetArtboard);
-    return instanceEvent;
-  }
+abstract class ColorStroke extends ActorColor with ActorStroke {
 
   void copyColorStroke(ColorStroke node, ActorArtboard resetArtboard) {
     copyColor(node, resetArtboard);
@@ -150,9 +169,6 @@ class ColorStroke extends ActorColor with ActorStroke {
 
   static ColorStroke read(
       ActorArtboard artboard, StreamReader reader, ColorStroke component) {
-    if (component == null) {
-      component = ColorStroke();
-    }
     ActorColor.read(artboard, reader, component);
     ActorStroke.read(artboard, reader, component);
     return component;
@@ -217,13 +233,7 @@ abstract class GradientColor extends ActorPaint {
   }
 }
 
-class GradientFill extends GradientColor with ActorFill {
-  ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    GradientFill instanceEvent = GradientFill();
-    instanceEvent.copyGradientFill(this, resetArtboard);
-    return instanceEvent;
-  }
-
+abstract class GradientFill extends GradientColor with ActorFill {
   void copyGradientFill(GradientFill node, ActorArtboard resetArtboard) {
     copyGradient(node, resetArtboard);
     copyFill(node, resetArtboard);
@@ -231,22 +241,22 @@ class GradientFill extends GradientColor with ActorFill {
 
   static GradientFill read(
       ActorArtboard artboard, StreamReader reader, GradientFill component) {
-    if (component == null) {
-      component = GradientFill();
-    }
     GradientColor.read(artboard, reader, component);
     component._fillRule = fillRuleLookup[reader.readUint8("fillRule")];
     return component;
   }
+
+  void completeResolve() {
+    super.completeResolve();
+
+    ActorNode parentNode = parent;
+    if (parentNode is ActorShape) {
+      parentNode.addFill(this);
+    }
+  }
 }
 
-class GradientStroke extends GradientColor with ActorStroke {
-  ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    GradientStroke instanceEvent = GradientStroke();
-    instanceEvent.copyGradientStroke(this, resetArtboard);
-    return instanceEvent;
-  }
-
+abstract class GradientStroke extends GradientColor with ActorStroke {
   void copyGradientStroke(GradientStroke node, ActorArtboard resetArtboard) {
     copyGradient(node, resetArtboard);
     copyStroke(node, resetArtboard);
@@ -254,9 +264,6 @@ class GradientStroke extends GradientColor with ActorStroke {
 
   static GradientStroke read(
       ActorArtboard artboard, StreamReader reader, GradientStroke component) {
-    if (component == null) {
-      component = GradientStroke();
-    }
     GradientColor.read(artboard, reader, component);
     ActorStroke.read(artboard, reader, component);
     return component;
@@ -291,13 +298,7 @@ abstract class RadialGradientColor extends GradientColor {
   }
 }
 
-class RadialGradientFill extends RadialGradientColor with ActorFill {
-  ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    RadialGradientFill instanceEvent = RadialGradientFill();
-    instanceEvent.copyRadialFill(this, resetArtboard);
-    return instanceEvent;
-  }
-
+abstract class RadialGradientFill extends RadialGradientColor with ActorFill {
   void copyRadialFill(RadialGradientFill node, ActorArtboard resetArtboard) {
     copyRadialGradient(node, resetArtboard);
     copyFill(node, resetArtboard);
@@ -305,23 +306,24 @@ class RadialGradientFill extends RadialGradientColor with ActorFill {
 
   static RadialGradientFill read(ActorArtboard artboard, StreamReader reader,
       RadialGradientFill component) {
-    if (component == null) {
-      component = RadialGradientFill();
-    }
     RadialGradientColor.read(artboard, reader, component);
     ActorFill.read(artboard, reader, component);
 
     return component;
   }
+
+  void completeResolve() {
+    super.completeResolve();
+
+    ActorNode parentNode = parent;
+    if (parentNode is ActorShape) {
+      parentNode.addFill(this);
+    }
+  }
 }
 
-class RadialGradientStroke extends RadialGradientColor with ActorStroke {
-  ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    RadialGradientStroke instanceEvent = RadialGradientStroke();
-    instanceEvent.copyRadialStroke(this, resetArtboard);
-    return instanceEvent;
-  }
-
+abstract class RadialGradientStroke extends RadialGradientColor
+    with ActorStroke {
   void copyRadialStroke(
       RadialGradientStroke node, ActorArtboard resetArtboard) {
     copyRadialGradient(node, resetArtboard);
@@ -330,9 +332,6 @@ class RadialGradientStroke extends RadialGradientColor with ActorStroke {
 
   static RadialGradientStroke read(ActorArtboard artboard, StreamReader reader,
       RadialGradientStroke component) {
-    if (component == null) {
-      component = RadialGradientStroke();
-    }
     RadialGradientColor.read(artboard, reader, component);
     ActorStroke.read(artboard, reader, component);
     return component;

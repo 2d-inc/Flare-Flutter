@@ -30,188 +30,198 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class StackPage extends StatefulWidget
-{
-    final String title;
+class StackPage extends StatefulWidget {
+  final String title;
 
-    StackPage({this.title, Key key}) : super(key: key);
+  StackPage({this.title, Key key}) : super(key: key);
 
-    @override
-    _StackPageState createState() => _StackPageState();
+  @override
+  _StackPageState createState() => _StackPageState();
 }
 
-class _StackPageState extends State<StackPage> with SingleTickerProviderStateMixin
-{
-    static const List<String> _barOptions = ["DEMO 1", "DEMO 2"];
-    
-    Timer _currentDemoSchedule;
-    HouseController _houseController;
-    String _selectedDemo = _barOptions[0];
-    double _offset = 0.0;
+class _StackPageState extends State<StackPage>
+    with SingleTickerProviderStateMixin {
+  static const List<String> _barOptions = ["DEMO 1", "DEMO 2"];
 
-    AnimationController _sliderController;
-    Animation<double> _slideAnimation;
+  Timer _currentDemoSchedule;
+  HouseController _houseController;
+  String _selectedDemo = _barOptions[0];
+  double _offset = 0.0;
 
-    _demoValueChange(double rooms)
-    {
-        setState(() {
-           _houseController.rooms = rooms.toInt();
-        });
-    }
+  AnimationController _sliderController;
+  Animation<double> _slideAnimation;
 
-    _touchUp(PointerUpEvent details)
-    {
-        _scheduleDemo();
-    }
+  _demoValueChange(double rooms) {
+    setState(() {
+      _houseController.rooms = rooms.toInt();
+    });
+  }
 
-    _scheduleDemo()
-    {
-        if(!_houseController.isDemoMode)
-        {
-            if(_currentDemoSchedule != null)
-            {
-                _currentDemoSchedule.cancel();
-            }
-            _currentDemoSchedule = Timer(const Duration(seconds: 2), (){
-                setState(() {
-                    _houseController.isDemoMode = true;
-                });
-            });
-        }
-        
-    }
+  _touchUp(PointerUpEvent details) {
+    _scheduleDemo();
+  }
 
-    @override
-    void initState() {
-        _houseController = HouseController(demoValueChange: _demoValueChange);
-
-        _sliderController = AnimationController(duration: const Duration(seconds: 2), vsync: this);
-        _sliderController.addListener(()
-        {
-            setState(() {
-                _offset = _slideAnimation.value;
-            });
-        });
-
-        super.initState();
+  _scheduleDemo() {
+    if (!_houseController.isDemoMode) {
+      if (_currentDemoSchedule != null) {
+        _currentDemoSchedule.cancel();
       }
-
-    @override
-    Widget build(BuildContext context)
-    {
-        Size screenSize = MediaQuery.of(context).size;
-        // print(s);
-        return Scaffold(
-            body: Container(
-                color: Colors.black,
-                child: Stack(
-                    fit: StackFit.expand,
-                    children:
-                    [
-                        Positioned(
-                            left: _offset*-screenSize.width,
-                            width: screenSize.width,
-                            height: screenSize.height,
-                          child: Listener(
-                              onPointerUp: _touchUp,
-                              child: Stack(
-                                  children:
-                                  [
-                                      FlareActor(
-                                          "assets/Resizing_House.flr",
-                                          fit: BoxFit.fill,
-                                          controller: _houseController,
-                                      ),
-                                      Container(
-                                          margin: const EdgeInsets.only(left: 40, right:40),
-                                          child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children:
-                                              [
-                                                  Text(
-                                                      _houseController.rooms.toString() + " ROOMS",
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontFamily: "Roboto",
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight.w700
-                                                      )
-                                                  ),
-                                                  Slider(
-                                                      value: _houseController.rooms.toDouble()-3,
-                                                      min: 0.0,
-                                                      max: 3.0,
-                                                      divisions: 3,
-                                                      onChanged: (double value)
-                                                      {
-                                                          setState(() {
-                                                              _houseController.isDemoMode = false;
-                                                              _houseController.rooms = value.toInt() + 3;
-                                                              
-                                                              if(_currentDemoSchedule != null)
-                                                              {
-                                                                  _currentDemoSchedule.cancel();
-                                                                  _currentDemoSchedule = null;
-                                                              }
-                                                          });
-                                                      }
-                                                  ),
-                                                  Text(
-                                                      _houseController.isDemoMode ? 
-                                                          "TAP TO TRY" : "DRAG TO CHANGE ROOMS",
-                                                      style: TextStyle(
-                                                          color: Colors.white.withAlpha(128),
-                                                          fontFamily: "Roboto",
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight.w700
-                                                      )
-                                                  )
-                                            ],
-                                          )
-                                      )
-                                  ]
-                              )
-                          ),
-                        ),
-                        Container(
-                            margin: const EdgeInsets.only(bottom:46, left:40, right:40),
-                            // color: Colors.black45,
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children:
-                                [
-                                    Container(
-                                        margin: const EdgeInsets.only(bottom: 40),
-                                        // color: Colors.white54,
-                                        child: DemoButtonBar(
-                                            _barOptions,
-                                            selectedItem: _selectedDemo,
-                                            selectedCallback: (int index, String demoLabel)
-                                            {
-                                                _slideAnimation = Tween<double>(
-                                                    begin: _offset,
-                                                    end: index.toDouble()
-                                                ).animate(_sliderController);
-
-                                                _sliderController
-                                                    ..value = 0.0
-                                                    ..fling(velocity: 0.5);
-                                                setState((){
-                                                    _selectedDemo = demoLabel;
-                                                });
-                                            }
-                                        )
-                                    )
-                                ]
-                            ),
-                        )
-                    ]
-                )
-            ) 
-        );
+      _currentDemoSchedule = Timer(const Duration(seconds: 2), () {
+        setState(() {
+          _houseController.isDemoMode = true;
+        });
+      });
     }
+  }
+
+  @override
+  void initState() {
+    _houseController = HouseController(demoValueChange: _demoValueChange);
+
+    _sliderController =
+        AnimationController(duration: const Duration(seconds: 2), vsync: this);
+    _sliderController.addListener(() {
+      setState(() {
+        _offset = _slideAnimation.value;
+      });
+    });
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+    // print(screenSize);
+    return Scaffold(
+        body: Container(
+            color: Colors.black,
+            child: Stack(fit: StackFit.expand, children: [
+              Positioned(
+                left: _offset * -screenSize.width,
+                width: screenSize.width,
+                height: screenSize.height,
+                child: Listener(
+                    onPointerUp: _touchUp,
+                    child: Stack(children: [
+                      FlareActor(
+                        "assets/Resizing_House.flr",
+                        fit: BoxFit.fill,
+                        controller: _houseController,
+                      ),
+                      Container(
+                          margin: const EdgeInsets.only(left: 40, right: 40),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(_houseController.rooms.toString() + " ROOMS",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: "Roboto",
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700)),
+                              Slider(
+                                  value: _houseController.rooms.toDouble() - 3,
+                                  min: 0.0,
+                                  max: 3.0,
+                                  divisions: 3,
+                                  onChanged: (double value) {
+                                    setState(() {
+                                      _houseController.isDemoMode = false;
+                                      _houseController.rooms =
+                                          value.toInt() + 3;
+
+                                      if (_currentDemoSchedule != null) {
+                                        _currentDemoSchedule.cancel();
+                                        _currentDemoSchedule = null;
+                                      }
+                                    });
+                                  }),
+                              Text(
+                                  _houseController.isDemoMode
+                                      ? "TAP TO TRY"
+                                      : "DRAG TO CHANGE ROOMS",
+                                  style: TextStyle(
+                                      color: Colors.white.withAlpha(128),
+                                      fontFamily: "Roboto",
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700))
+                            ],
+                          ))
+                    ])),
+              ),
+              Positioned(
+                  bottom: 46,
+                  left: 40,
+                  right: 40,
+                  child: Container(
+                      child: Column(children: [
+                    Container(
+                        margin: const EdgeInsets.only(right: 4),
+                        width: 234,
+                        height: 18,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage("assets/images/2DLogo.png"),
+                                fit: BoxFit.fitHeight,
+                                alignment: Alignment.centerRight))),
+                    Container(
+                        margin: const EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                            "Powerful Realtime Animation for Apps, Games, and Web.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "Roboto",
+                                fontSize: 18.0,
+                                decoration: TextDecoration.none,
+                                fontWeight: FontWeight.w100))),
+                    Container(
+                        width: 200,
+                        margin: const EdgeInsets.only(bottom: 40),
+                        child: DemoButtonBar(_barOptions,
+                            selectedItem: _selectedDemo,
+                            selectedCallback: (int index, String demoLabel) {
+                          _slideAnimation = Tween<double>(
+                                  begin: _offset, end: index.toDouble())
+                              .animate(_sliderController);
+                          _sliderController
+                            ..value = 0.0
+                            ..fling(velocity: 0.5);
+
+                          setState(() {
+                            _selectedDemo = demoLabel;
+                          });
+                        })),
+                    Row(children: [
+                      Text("2DIMENSIONS.COM",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: "Roboto",
+                              fontSize: 14.0,
+                              decoration: TextDecoration.none,
+                              fontWeight: FontWeight.w700)),
+                      Expanded(
+                          child: Container(
+                              margin: const EdgeInsets.only(right: 4.0),
+                              child: Image.asset(
+                                "assets/images/flutter.png",
+                                width: 32,
+                                height: 32,
+                                alignment: Alignment.centerRight,
+                              ))),
+                      Text("FLUTTER",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: "Roboto",
+                              fontSize: 14.0,
+                              decoration: TextDecoration.none,
+                              fontWeight: FontWeight.w700))
+                    ])
+                  ])))
+            ])));
+  }
 }
 
 class MyHomePage extends StatefulWidget {

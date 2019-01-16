@@ -20,10 +20,13 @@ dev_dependencies:
 
 
 flutter:
-
   uses-material-design: true
   assets:
     - assets/
+    - assets/images/flutter.png
+    - assets/images/2DLogo.png
+    - assets/images/2.0x/2DLogo.png
+    - assets/images/3.0x/2DLogo.png
   fonts:
   - family: Roboto
     fonts:

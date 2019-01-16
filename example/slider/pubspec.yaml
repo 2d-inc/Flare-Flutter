@@ -23,6 +23,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/flare/Resizing_House.flr
+    - assets/nima/Robot_Kr2.nima
+    - assets/nima/Robot_Kr20.png
+    - assets/nima/Robot_Kr21.png
     - assets/images/flutter.png
     - assets/images/2DLogo.png
     - assets/images/2.0x/2DLogo.png

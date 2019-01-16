@@ -131,6 +131,15 @@ class PropertyAnimation {
       case PropertyTypes.InnerRadius:
         keyFrameReader = KeyFrameInnerRadius.read;
         break;
+      case PropertyTypes.StrokeStart:
+        keyFrameReader = KeyFrameStrokeStart.read;
+        break;
+      case PropertyTypes.StrokeEnd:
+        keyFrameReader = KeyFrameStrokeEnd.read;
+        break;
+      case PropertyTypes.StrokeOffset:
+        keyFrameReader = KeyFrameStrokeOffset.read;
+        break;
     }
 
     if (keyFrameReader == null) {

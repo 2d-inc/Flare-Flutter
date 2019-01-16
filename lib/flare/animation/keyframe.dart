@@ -1127,3 +1127,54 @@ class KeyFrameInnerRadius extends KeyFrameNumeric {
     star.innerRadius = star.innerRadius * (1.0 - mix) + value * mix;
   }
 }
+
+class KeyFrameStrokeStart extends KeyFrameNumeric {
+  static KeyFrame read(StreamReader reader, ActorComponent component) {
+    KeyFrameStrokeStart frame = KeyFrameStrokeStart();
+    if (KeyFrameNumeric.read(reader, frame)) {
+      return frame;
+    }
+    return null;
+  }
+
+  void setValue(ActorComponent component, double value, double mix) {
+    if (component == null) return;
+
+    ActorStroke star = component as ActorStroke;
+    star.trimStart = star.trimStart * (1.0 - mix) + value * mix;
+  }
+}
+
+class KeyFrameStrokeEnd extends KeyFrameNumeric {
+  static KeyFrame read(StreamReader reader, ActorComponent component) {
+    KeyFrameStrokeEnd frame = KeyFrameStrokeEnd();
+    if (KeyFrameNumeric.read(reader, frame)) {
+      return frame;
+    }
+    return null;
+  }
+
+  void setValue(ActorComponent component, double value, double mix) {
+    if (component == null) return;
+
+    ActorStroke star = component as ActorStroke;
+    star.trimEnd = star.trimEnd * (1.0 - mix) + value * mix;
+  }
+}
+
+class KeyFrameStrokeOffset extends KeyFrameNumeric {
+  static KeyFrame read(StreamReader reader, ActorComponent component) {
+    KeyFrameStrokeOffset frame = KeyFrameStrokeOffset();
+    if (KeyFrameNumeric.read(reader, frame)) {
+      return frame;
+    }
+    return null;
+  }
+
+  void setValue(ActorComponent component, double value, double mix) {
+    if (component == null) return;
+
+    ActorStroke star = component as ActorStroke;
+    star.trimOffset = star.trimOffset * (1.0 - mix) + value * mix;
+  }
+}

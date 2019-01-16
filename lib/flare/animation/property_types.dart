@@ -32,6 +32,9 @@ class PropertyTypes {
   static const int ShapeHeight = 30;
   static const int CornerRadius = 31;
   static const int InnerRadius = 32;
+  static const int StrokeStart = 33;
+  static const int StrokeEnd = 34;
+  static const int StrokeOffset = 35;
 }
 
 const Map<String, int> PropertyTypesMap = {
@@ -68,4 +71,7 @@ const Map<String, int> PropertyTypesMap = {
   "height": PropertyTypes.ShapeHeight,
   "cornerRadius": PropertyTypes.CornerRadius,
   "innerRadius": PropertyTypes.InnerRadius,
+  "strokeStart": PropertyTypes.StrokeStart,
+  "strokeEnd": PropertyTypes.StrokeEnd,
+  "strokeOffset": PropertyTypes.StrokeOffset,
 };

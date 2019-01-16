@@ -73,7 +73,7 @@ abstract class ActorColor extends ActorPaint {
     _color[1] = value[1];
     _color[2] = value[2];
     _color[3] = value[3];
-	markPaintDirty();
+    markPaintDirty();
   }
 
   void copyColor(ActorColor node, ActorArtboard resetArtboard) {
@@ -124,18 +124,62 @@ abstract class ActorStroke {
     markPaintDirty();
   }
 
-  void markPaintDirty();
-
   StrokeCap _cap = StrokeCap.Butt;
   StrokeJoin _join = StrokeJoin.Miter;
   StrokeCap get cap => _cap;
   StrokeJoin get join => _join;
+
+  bool _isTrimmed;
+
+  bool get isTrimmed => _isTrimmed;
+
+  double _trimStart;
+  double get trimStart => _trimStart;
+  set trimStart(double value) {
+    if (_trimStart == value) {
+      return;
+    }
+    _trimStart = value;
+    markPathEffectsDirty();
+  }
+
+  double _trimEnd;
+  double get trimEnd => _trimEnd;
+  set trimEnd(double value) {
+    if (_trimEnd == value) {
+      return;
+    }
+    _trimEnd = value;
+    markPathEffectsDirty();
+  }
+
+  double _trimOffset;
+  double get trimOffset => _trimOffset;
+  set trimOffset(double value) {
+    if (_trimOffset == value) {
+      return;
+    }
+    _trimOffset = value;
+    markPathEffectsDirty();
+  }
+
+  void markPaintDirty();
+  void markPathEffectsDirty();
+
   static void read(
       ActorArtboard artboard, StreamReader reader, ActorStroke component) {
     component.width = reader.readFloat32("width");
     if (artboard.actor.version >= 19) {
       component._cap = strokeCapLookup[reader.readUint8("cap")];
       component._join = strokeJoinLookup[reader.readUint8("join")];
+      if (artboard.actor.version >= 20) {
+        component._isTrimmed = reader.readBool("isTrimmed");
+        if (component._isTrimmed) {
+          component._trimStart = reader.readFloat32("start");
+          component._trimEnd = reader.readFloat32("end");
+          component._trimOffset = reader.readFloat32("offset");
+        }
+      }
     }
   }
 

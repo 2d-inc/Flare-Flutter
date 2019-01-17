@@ -11,7 +11,6 @@ dependencies:
     sdk: flutter
   flare_flutter:
     path: ../../
-  nima: ^1.0.2
   cupertino_icons: ^0.1.2
 
 dev_dependencies:
@@ -23,10 +22,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
-    - assets/images/flutter.png
-    - assets/images/2DLogo.png
-    - assets/images/2.0x/2DLogo.png
-    - assets/images/3.0x/2DLogo.png
   fonts:
   - family: Roboto
     fonts:

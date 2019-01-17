@@ -7,56 +7,52 @@ import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_controller.dart';
 import 'package:flutter/animation.dart';
 
-typedef OnDoubleChanged(double value);
+typedef void OnUpdated();
 
 class HouseController extends FlareController {
   static const double DemoMixSpeed = 10;
   static const double FPS = 60;
 
-  final OnDoubleChanged demoValueChange;
+  final OnUpdated demoUpdated;
 
-  HouseController({this.demoValueChange});
+  HouseController({this.demoUpdated});
 
-  bool _isPlaying = false;
   bool isDemoMode = true;
   int _rooms = 6;
+  double _lastDemoValue = 0.0;
   FlutterActorArtboard _artboard;
   FlareAnimationLayer _demoAnimation;
   FlareAnimationLayer _skyAnimation;
 
   final List<FlareAnimationLayer> _roomAnimations = [];
-  double _lastDemoValue = 0.0;
 
   @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
-    if (_isPlaying) {
-      int len = _roomAnimations.length - 1;
-      for (int i = len; i >= 0; i--) {
-        FlareAnimationLayer layer = _roomAnimations[i];
-        layer.time += elapsed;
-        layer.mix = min(1.0, layer.time / 0.07);
-        layer.apply(artboard);
-        if (layer.isDone) {
-          _roomAnimations.removeAt(i);
-        }
+    int len = _roomAnimations.length - 1;
+    for (int i = len; i >= 0; i--) {
+      FlareAnimationLayer layer = _roomAnimations[i];
+      layer.time += elapsed;
+      layer.mix = min(1.0, layer.time / 0.07);
+      layer.apply(artboard);
+      if (layer.isDone) {
+        _roomAnimations.removeAt(i);
       }
-
-      double demoMix =
-          _demoAnimation.mix + DemoMixSpeed * (isDemoMode ? elapsed : -elapsed);
-      demoMix = demoMix.clamp(0.0, 1.0);
-      _demoAnimation.mix = demoMix;
-      if (demoMix != 0.0) {
-        _demoAnimation.time =
-            (_demoAnimation.time + elapsed) % _demoAnimation.duration;
-        _demoAnimation.apply(artboard);
-        // Check which room we're in
-        _checkRoom();
-      }
-
-      _skyAnimation.time =
-          (_skyAnimation.time + elapsed) % _skyAnimation.duration;
-      _skyAnimation.apply(artboard);
     }
+
+    double demoMix =
+        _demoAnimation.mix + DemoMixSpeed * (isDemoMode ? elapsed : -elapsed);
+    demoMix = demoMix.clamp(0.0, 1.0);
+    _demoAnimation.mix = demoMix;
+    if (demoMix != 0.0) {
+      _demoAnimation.time =
+          (_demoAnimation.time + elapsed) % _demoAnimation.duration;
+      _demoAnimation.apply(artboard);
+      _checkRoom();
+    }
+
+    _skyAnimation.time =
+        (_skyAnimation.time + elapsed) % _skyAnimation.duration;
+    _skyAnimation.apply(artboard);
     return true;
   }
 
@@ -72,7 +68,6 @@ class HouseController extends FlareController {
     if (endAnimation != null) {
       endAnimation.apply(endAnimation.duration, artboard, 1.0);
     }
-    _isPlaying = true;
   }
 
   @override
@@ -105,8 +100,9 @@ class HouseController extends FlareController {
 
     if (_lastDemoValue != demoValue) {
       _lastDemoValue = demoValue;
-      if (demoValueChange != null) {
-        demoValueChange(demoValue);
+      this.rooms = demoValue.toInt();
+      if (demoUpdated != null) {
+        demoUpdated();
       }
     }
   }
@@ -115,13 +111,6 @@ class HouseController extends FlareController {
     ActorAnimation animation = _artboard.getAnimation(name);
     if (animation != null) {
       _roomAnimations.add(FlareAnimationLayer()..animation = animation);
-    }
-    //   print("ENQUEUEING $name, $_roomAnimations");
-  }
-
-  set isPlaying(bool isIt) {
-    if (_isPlaying != isIt) {
-      _isPlaying = isIt;
     }
   }
 
@@ -146,6 +135,5 @@ class HouseController extends FlareController {
     _rooms = value;
   }
 
-  bool get isPlaying => _isPlaying;
   int get rooms => _rooms;
 }

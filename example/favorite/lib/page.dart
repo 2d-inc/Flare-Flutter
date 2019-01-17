@@ -6,7 +6,7 @@ class Page extends StatelessWidget
 {
     static const double cardWidth = 175;
     static const double cardHeight = 250;
-    static const double titleWidth = cardWidth;
+    static const double titleWidth = 160;
     static const double titleHeight = 200;
     
     @override
@@ -28,7 +28,6 @@ class Page extends StatelessWidget
                                     [
                                         Expanded(
                                             child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children:
                                                 [

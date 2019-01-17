@@ -16,6 +16,7 @@ class Page extends StatefulWidget {
 }
 
 class _PageState extends State<Page> with SingleTickerProviderStateMixin {
+  /// Inactivity [Timer]: if it fires, set the animation state back to "Demo Mode".
   Timer _currentDemoSchedule;
   HouseController _houseController;
 
@@ -50,8 +51,8 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
               onPointerUp: _scheduleDemo,
               child: Stack(fit: StackFit.expand, children: [
                 FlareActor("assets/Resizing_House.flr",
-                  fit: BoxFit.fill,
                   controller: _houseController,
+                  fit: BoxFit.fill,
                 ),
                 Container(
                     margin: const EdgeInsets.only(left: 40, right: 40),

@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flare_flutter/flare.dart';
 import 'package:flare_flutter/flare/math/mat2d.dart';
 import 'package:flare_flutter/flare/math/vec2d.dart';
-import 'package:flare_flutter/flare_actor.dart';
+import 'package:flare_flutter/flare_controls.dart';
 
 class TeddyController extends FlareControls {
   // Store a reference to our face control node (the "ctrl_look" node in Flare)
@@ -63,9 +63,9 @@ class TeddyController extends FlareControls {
     // We could just set _faceControl.translation to targetTranslation, but we want to animate it smoothly to this target
     // so we interpolate towards it by a factor of elapsed time in order to maintain speed regardless of frame rate.
     Vec2D diff =
-        Vec2D.subtract(Vec2D(), targetTranslation, _faceControl.translation);
+    Vec2D.subtract(Vec2D(), targetTranslation, _faceControl.translation);
     Vec2D frameTranslation = Vec2D.add(Vec2D(), _faceControl.translation,
-        Vec2D.scale(diff, diff, min(1.0, elapsed * 5.0)));
+    Vec2D.scale(diff, diff, min(1.0, elapsed * 5.0)));
 
     _faceControl.translation = frameTranslation;
 
@@ -89,7 +89,7 @@ class TeddyController extends FlareControls {
   }
 
   // Called every frame by the wrapping [FlareActor].
-  // Keep updating the matrix that transforms Global-Flutter-coordinates into Flare-World-coordinates.
+  // Updates the matrix that transforms Global-Flutter-coordinates into Flare-World-coordinates.
   @override
   void setViewTransform(Mat2D viewTransform) {
     Mat2D.invert(_globalToFlareWorld, viewTransform);

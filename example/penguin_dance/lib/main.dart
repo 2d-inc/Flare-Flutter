@@ -1,7 +1,8 @@
+import 'package:flare_flutter/flare_controller.dart';
 import 'package:flare_flutter/flare.dart';
 import 'package:flare_flutter/flare/math/mat2d.dart';
-import "package:flare_flutter/flare_actor.dart";
-import "package:flutter/material.dart";
+import 'package:flare_flutter/flare_actor.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(new MyApp());
 
@@ -33,12 +34,15 @@ class _MyHomePageState extends State<MyHomePage> implements FlareController {
 
   ActorAnimation _rock;
 
+  @override
   void initialize(FlutterActorArtboard artboard) {
     _rock = artboard.getAnimation("music_walk");
   }
 
+  @override
   void setViewTransform(Mat2D viewTransform) {}
 
+  @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
     _rockTime += elapsed * _speed;
     _rock.apply(_rockTime % _rock.duration, artboard, _rockAmount);

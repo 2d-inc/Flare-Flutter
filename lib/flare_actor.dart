@@ -1,21 +1,16 @@
-import "dart:math";
+import 'dart:math';
+import 'package:flare_flutter/flare_controller.dart';
 import 'dart:typed_data';
-import "flare.dart";
-import "flare/actor_drawable.dart";
-import "flare/math/mat2d.dart";
-import "flare/math/vec2d.dart";
-import "flare/math/aabb.dart";
-import "package:flutter/material.dart";
-import "package:flutter/scheduler.dart";
-import "package:flutter/rendering.dart";
+import 'flare.dart';
+import 'flare/actor_drawable.dart';
+import 'flare/math/mat2d.dart';
+import 'flare/math/vec2d.dart';
+import 'flare/math/aabb.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/rendering.dart';
 
 typedef void FlareCompletedCallback(String name);
-
-abstract class FlareController {
-  void initialize(FlutterActorArtboard artboard);
-  void setViewTransform(Mat2D viewTransform);
-  bool advance(FlutterActorArtboard artboard, double elapsed);
-}
 
 class FlareActor extends LeafRenderObjectWidget {
   final String filename;
@@ -149,7 +144,6 @@ class FlareActorRenderObject extends RenderBox {
         _setupAABB = (node as ActorDrawable).computeAABB();
       } else {
         _setupAABB = _artboard.artboardAABB();
-        //_setupAABB = _artboard.computeAABB();
       }
     }
   }
@@ -221,7 +215,7 @@ class FlareActorRenderObject extends RenderBox {
       actor.loadFromBundle(_filename).then((bool success) {
         if (success) {
           _actor = actor;
-          _artboard = _actor?.artboard; //?.makeInstance();
+          _artboard = _actor?.artboard;
           if (_artboard != null) {
             _artboard.initializeGraphics();
             _artboard.overrideColor = _color == null
@@ -234,16 +228,6 @@ class FlareActorRenderObject extends RenderBox {
                   ]);
             _artboard.advance(0.0);
             updateBounds();
-            // _setupAABB[0] -= 5000.0;
-            // _setupAABB[1] -= 5000.0;
-            // _setupAABB[2] += 5000.0;
-            // _setupAABB[3] += 5000.0;
-
-            //print("SETUP AABB $_setupAABB");
-            // _setupAABB[0] = -261.97979736328125;
-            // _setupAABB[1] = -1001.48486328125;
-            // _setupAABB[2] = 248.85952758789062;
-            // _setupAABB[3] = -33.52388381958008;
           }
           if (_controller != null) {
             _controller.initialize(_artboard);
@@ -476,72 +460,5 @@ class FlareActorRenderObject extends RenderBox {
       }
       updatePlayState();
     }
-  }
-}
-
-class FlareControls extends FlareController {
-  FlutterActorArtboard _artboard;
-  String _animationName;
-  double _mixSeconds = 0.1;
-  List<FlareAnimationLayer> _animationLayers = [];
-  void initialize(FlutterActorArtboard artboard) {
-    _artboard = artboard;
-  }
-
-  void onCompleted(String name) {}
-  void play(String name) {
-    _animationName = name;
-    if (_animationName != null && _artboard != null) {
-      ActorAnimation animation = _artboard.getAnimation(_animationName);
-      if (animation != null) {
-        _animationLayers.add(FlareAnimationLayer()
-          ..name = _animationName
-          ..animation = animation
-          ..mix = 0.0);
-      }
-    }
-  }
-
-  void setViewTransform(Mat2D viewTransform) {}
-  bool advance(FlutterActorArtboard artboard, double elapsed) {
-    int lastFullyMixed = -1;
-    double lastMix = 0.0;
-
-    List<FlareAnimationLayer> completed = [];
-
-    for (int i = 0; i < _animationLayers.length; i++) {
-      FlareAnimationLayer layer = _animationLayers[i];
-      layer.mix += elapsed;
-      layer.time += elapsed;
-
-      lastMix = (_mixSeconds == null || _mixSeconds == 0.0)
-          ? 1.0
-          : min(1.0, layer.mix / _mixSeconds);
-      if (layer.animation.isLooping) {
-        layer.time %= layer.animation.duration;
-      }
-      layer.animation.apply(layer.time, _artboard, lastMix);
-      if (lastMix == 1.0) {
-        lastFullyMixed = i;
-      }
-      if (layer.time > layer.animation.duration) {
-        completed.add(layer);
-      }
-    }
-
-    if (lastFullyMixed != -1) {
-      _animationLayers.removeRange(0, lastFullyMixed);
-    }
-    if (_animationName == null &&
-        _animationLayers.length == 1 &&
-        lastMix == 1.0) {
-      // Remove remaining animations.
-      _animationLayers.removeAt(0);
-    }
-    for (FlareAnimationLayer animation in completed) {
-      _animationLayers.remove(animation);
-      onCompleted(animation.name);
-    }
-    return true;
   }
 }

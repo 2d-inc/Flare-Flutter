@@ -25,7 +25,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
     super.initState();
   }
 
-  // Trigger an update.
+  /// Trigger an update.
   _update() => setState((){});
 
   _scheduleDemo(PointerUpEvent details) {
@@ -35,6 +35,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
       }
       _currentDemoSchedule = Timer(const Duration(seconds: 2), () {
         setState(() {
+          /// Restart the demo at the end of this timer.
           _houseController.isDemoMode = true;
         });
       });
@@ -68,12 +69,18 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
                             min: 0,
                             max: 3,
                             divisions: 3,
+                            /// Get the room value and adjust it for the slider's min/max value.
                             value: _houseController.rooms.toDouble() - 3,
                             onChanged: (double value) {
+                              /// [setState()] triggers a visual refresh with the updated parameters.
                               setState(() {
+                                /// Stop the demo.
                                 _houseController.isDemoMode = false;
+                                /// When the value of the slider changes, the rooms setter
+                                /// is invoked, which enqueues the new animation.
                                 _houseController.rooms = value.toInt() + 3;
 
+                                /// Stop a scheduled timer, if any.
                                 if (_currentDemoSchedule != null) {
                                   _currentDemoSchedule.cancel();
                                   _currentDemoSchedule = null;

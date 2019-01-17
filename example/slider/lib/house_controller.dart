@@ -28,34 +28,48 @@ class HouseController extends FlareController {
 
   @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
+
+    /// Advance the background animation every frame.
+    _skyAnimation.time =
+        (_skyAnimation.time + elapsed) % _skyAnimation.duration;
+    _skyAnimation.apply(artboard);
+
+    /// Iterate from the top b/c elements might be removed.
     int len = _roomAnimations.length - 1;
     for (int i = len; i >= 0; i--) {
       FlareAnimationLayer layer = _roomAnimations[i];
       layer.time += elapsed;
+      /// The mix quickly ramps up to 1, but interpolates for the first few frames.
       layer.mix = min(1.0, layer.time / 0.07);
       layer.apply(artboard);
+
+      /// When done, remove it.
       if (layer.isDone) {
         _roomAnimations.removeAt(i);
       }
     }
 
+    /// If the app is still in demo mode, the mix is positive
+    /// Otherwise quickly ramp it down to stop the animation.
     double demoMix =
         _demoAnimation.mix + DemoMixSpeed * (isDemoMode ? elapsed : -elapsed);
     demoMix = demoMix.clamp(0.0, 1.0);
     _demoAnimation.mix = demoMix;
+
     if (demoMix != 0.0) {
+      /// Advance the time, and loop.
       _demoAnimation.time =
           (_demoAnimation.time + elapsed) % _demoAnimation.duration;
       _demoAnimation.apply(artboard);
+      /// Check which number of rooms is currently visible.
       _checkRoom();
     }
 
-    _skyAnimation.time =
-        (_skyAnimation.time + elapsed) % _skyAnimation.duration;
-    _skyAnimation.apply(artboard);
     return true;
   }
 
+  /// Grab the references to the right animations, and
+  /// packs them into [FlareAnimationLayer] objects
   @override
   void initialize(FlutterActorArtboard artboard) {
     _artboard = artboard;
@@ -73,6 +87,8 @@ class HouseController extends FlareController {
   @override
   void setViewTransform(Mat2D viewTransform) {}
 
+  /// Use the [demoUpdated] callback to relay the current number of rooms
+  /// to the [Page] widget, so it can position the slider accordingly. 
   _checkRoom() {
     double demoFrame = _demoAnimation.time * FPS;
     double demoValue = 0.0;
@@ -100,7 +116,9 @@ class HouseController extends FlareController {
 
     if (_lastDemoValue != demoValue) {
       _lastDemoValue = demoValue;
-      this.rooms = demoValue.toInt();
+      this._rooms = demoValue.toInt();
+      /// Use the callback to let the [Page] widget know that the current value
+      /// has been changed so that the Slider can be updated.
       if (demoUpdated != null) {
         demoUpdated();
       }
@@ -119,9 +137,12 @@ class HouseController extends FlareController {
       return;
     }
 
+    /// Sanity check.
     if (_artboard != null) {
+      /// Add the animation with room [value] to the list.
       _enqueueAnimation("to $value");
 
+      /// Add the correct highlight.
       if ((_rooms > 4 && value < 5) || (_rooms < 5 && value > 4)) {
         _enqueueAnimation("Center Window Highlight");
       }

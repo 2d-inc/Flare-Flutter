@@ -73,6 +73,11 @@ class FlareAnimationLayer {
   String name;
   ActorAnimation animation;
   double time = 0.0, mix = 0.0;
+  apply(FlutterActorArtboard artboard){
+      animation.apply(time, artboard, mix);
+  }
+  get duration => animation.duration;
+  get isDone => time >= animation.duration;
 }
 
 class FlareActorRenderObject extends RenderBox {

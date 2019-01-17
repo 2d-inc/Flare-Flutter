@@ -129,7 +129,7 @@ abstract class ActorStroke {
   StrokeCap get cap => _cap;
   StrokeJoin get join => _join;
 
-  bool _isTrimmed;
+  bool _isTrimmed = false;
 
   bool get isTrimmed => _isTrimmed;
 

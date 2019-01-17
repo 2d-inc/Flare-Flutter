@@ -26,8 +26,8 @@ class ActorShape extends ActorNode implements ActorDrawable {
 
   List<List<ActorShape>> get clipShapes => _clipShapes;
 
-  ActorFill get fill => _fills?.first;
-  ActorStroke get stroke => _strokes?.first;
+  ActorFill get fill => _fills.length > 0 ? _fills.first : null;
+  ActorStroke get stroke => _strokes.length > 0 ? _strokes.first : null;
   List<ActorFill> get fills => _fills;
   List<ActorStroke> get strokes => _strokes;
 

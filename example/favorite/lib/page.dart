@@ -15,13 +15,15 @@ class Page extends StatelessWidget
         return Scaffold(
                 backgroundColor: Colors.white,
                 body: SafeArea(
+                        top: true,
+                        bottom:  false,
                         child: Stack(
                         children: 
                         [
                             Container(
                                 margin: const EdgeInsets.only(top:60, left:30),
                                 color: const Color.fromRGBO(245, 245, 245, 1),
-                                padding: const EdgeInsets.all(18.0),
+                                padding: const EdgeInsets.only(top: 18.0),
                                 child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: 

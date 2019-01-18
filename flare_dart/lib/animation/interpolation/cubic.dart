@@ -1,6 +1,6 @@
 import "./interpolator.dart";
 import "../../stream_reader.dart";
-import "package:flutter/animation.dart";
+import "cubic_curve.dart";
 
 class CubicInterpolator extends Interpolator {
   Cubic _cubic;

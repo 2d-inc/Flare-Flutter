@@ -24,6 +24,7 @@ import 'package:flare_dart/math/vec2d.dart';
 import 'package:flare_dart/path_point.dart';
 export 'package:flare_dart/animation/actor_animation.dart';
 export 'package:flare_dart/actor_node.dart';
+import 'trim_path.dart';
 
 abstract class FlutterFill {
   ui.Paint _paint;
@@ -43,8 +44,6 @@ abstract class FlutterFill {
     canvas.drawPath(path, _paint);
   }
 }
-
-// double trimStart = 0.0;
 
 abstract class FlutterStroke {
   ui.Paint _paint;
@@ -92,14 +91,36 @@ abstract class FlutterStroke {
 
     if (stroke.isTrimmed) {
       if (effectPath == null) {
-        effectPath = ui.Path.from(path);
-		// Todo: reenable after https://github.com/flutter/engine/pull/7486 is merged.
-        // effectPath.trim((stroke.trimStart + stroke.trimOffset).clamp(0.0, 1.0),
-        //     (stroke.trimEnd + stroke.trimOffset).clamp(0.0, 1.0), false);
+        double start = stroke.trimStart;
+        double end = stroke.trimEnd;
+        double offset = stroke.trimOffset;
+        bool inverted = start > end;
+        if ((start - end).abs() != 1.0) {
+          start = (start + offset) % 1.0;
+          end = (end + offset) % 1.0;
+
+          if (start < 0) {
+            start += 1.0;
+          }
+          if (end < 0) {
+            end += 1.0;
+          }
+          if (inverted) {
+            final double swap = end;
+            end = start;
+            start = swap;
+          }
+          if (end >= start) {
+            effectPath = trimPath(path, start, end, false);
+          } else {
+            effectPath = trimPath(path, end, start, true);
+          }
+        } else {
+          effectPath = path;
+        }
       }
       path = effectPath;
     }
-
     canvas.drawPath(path, _paint);
   }
 
@@ -740,8 +761,8 @@ abstract class FlutterPathPointsPath implements FlutterPath {
           cin = nextPoint.translation;
         }
 
-        _path.cubicTo(cout[0], cout[1], cin[0], cin[1], nextPoint.translation[0],
-            nextPoint.translation[1]);
+        _path.cubicTo(cout[0], cout[1], cin[0], cin[1],
+            nextPoint.translation[0], nextPoint.translation[1]);
       }
     }
 

@@ -52,7 +52,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
               child: Stack(fit: StackFit.expand, children: [
                 FlareActor("assets/Resizing_House.flr",
                   controller: _houseController,
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                 ),
                 Container(
                     margin: const EdgeInsets.only(left: 40, right: 40),

@@ -36,13 +36,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2"
+  flare_dart:
+    dependency: transitive
+    description:
+      path: "../../flare_dart"
+      relative: true
+    source: path
+    version: "1.1.0"
   flare_flutter:
     dependency: "direct main"
     description:
-      path: "../.."
+      path: "../../flare_flutter"
       relative: true
     source: path
-    version: "1.0.1"
+    version: "1.1.0"
   flutter:
     dependency: "direct main"
     description: flutter

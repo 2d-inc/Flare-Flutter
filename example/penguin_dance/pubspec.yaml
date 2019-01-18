@@ -10,7 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   flare_flutter:
-    path: ../../
+    path: ../../flare_flutter
+  flare_dart:
+    path: ../../flare_dart
 
   cupertino_icons: ^0.1.2
 

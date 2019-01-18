@@ -1,14 +1,14 @@
 import 'dart:math';
-import 'package:flare_flutter/flare_controller.dart';
 import 'dart:typed_data';
-import 'flare.dart';
-import 'flare/actor_drawable.dart';
-import 'flare/math/mat2d.dart';
-import 'flare/math/vec2d.dart';
-import 'flare/math/aabb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flare_dart/actor_drawable.dart';
+import 'package:flare_dart/math/mat2d.dart';
+import 'package:flare_dart/math/vec2d.dart';
+import 'package:flare_dart/math/aabb.dart';
+import 'flare.dart';
+import 'flare_controller.dart';
 
 typedef void FlareCompletedCallback(String name);
 
@@ -73,9 +73,10 @@ class FlareAnimationLayer {
   String name;
   ActorAnimation animation;
   double time = 0.0, mix = 0.0;
-  apply(FlutterActorArtboard artboard){
-      animation.apply(time, artboard, mix);
+  apply(FlutterActorArtboard artboard) {
+    animation.apply(time, artboard, mix);
   }
+
   get duration => animation.duration;
   get isDone => time >= animation.duration;
 }

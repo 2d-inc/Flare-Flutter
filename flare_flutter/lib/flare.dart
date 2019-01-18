@@ -1,33 +1,29 @@
 library flare;
 
-import "dart:async";
-import "dart:typed_data";
-import "package:flutter/material.dart";
-
-import "flare/actor_component.dart";
-
-import "flare/actor.dart";
-import "flare/actor_artboard.dart";
-import "flare/actor_shape.dart";
-import "flare/actor_path.dart";
-import "flare/actor_ellipse.dart";
-import "flare/actor_polygon.dart";
-import "flare/actor_rectangle.dart";
-import "flare/actor_star.dart";
-import "flare/actor_triangle.dart";
-import "flare/actor_color.dart";
-import "flare/actor_node.dart";
-import "flare/actor_drawable.dart";
-import "dart:ui" as ui;
-import "flare/math/mat2d.dart";
-import "flare/math/vec2d.dart";
-import "dart:math";
-import "flare/path_point.dart";
-
-export "flare/animation/actor_animation.dart";
-export "flare/actor_node.dart";
-
-import "package:flutter/services.dart" show rootBundle;
+import 'dart:ui' as ui;
+import 'dart:math';
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:async';
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:flare_dart/actor_component.dart';
+import 'package:flare_dart/actor.dart';
+import 'package:flare_dart/actor_artboard.dart';
+import 'package:flare_dart/actor_shape.dart';
+import 'package:flare_dart/actor_path.dart';
+import 'package:flare_dart/actor_ellipse.dart';
+import 'package:flare_dart/actor_polygon.dart';
+import 'package:flare_dart/actor_rectangle.dart';
+import 'package:flare_dart/actor_star.dart';
+import 'package:flare_dart/actor_triangle.dart';
+import 'package:flare_dart/actor_color.dart';
+import 'package:flare_dart/actor_node.dart';
+import 'package:flare_dart/actor_drawable.dart';
+import 'package:flare_dart/math/mat2d.dart';
+import 'package:flare_dart/math/vec2d.dart';
+import 'package:flare_dart/path_point.dart';
+export 'package:flare_dart/animation/actor_animation.dart';
+export 'package:flare_dart/actor_node.dart';
 
 abstract class FlutterFill {
   ui.Paint _paint;
@@ -97,8 +93,9 @@ abstract class FlutterStroke {
     if (stroke.isTrimmed) {
       if (effectPath == null) {
         effectPath = ui.Path.from(path);
-        effectPath.trim((stroke.trimStart + stroke.trimOffset).clamp(0.0, 1.0),
-            (stroke.trimEnd + stroke.trimOffset).clamp(0.0, 1.0), false);
+		// Todo: reenable after https://github.com/flutter/engine/pull/7486 is merged.
+        // effectPath.trim((stroke.trimStart + stroke.trimOffset).clamp(0.0, 1.0),
+        //     (stroke.trimEnd + stroke.trimOffset).clamp(0.0, 1.0), false);
       }
       path = effectPath;
     }

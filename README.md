@@ -1,5 +1,5 @@
-<img align="right" src="https://www.2dimensions.com/static/2086/images/flare_macbook.png" height="250">
 # Flare
+<img align="right" src="https://www.2dimensions.com/static/2086/images/flare_macbook.png" height="250">
 [Flare](https://www.2dimensions.com/about-flare) offers powerful realtime vector design and animation for app and game designers alike. The primary goal of Flare is to allow designers to work directly with assets that run in their final product, eliminating the need to redo that work in code.
 
 ## Libraries

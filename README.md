@@ -1,8 +1,9 @@
 # Flare-Flutter
-Flutter runtime written in Dart with SKIA based rendering.
+Flutter runtime written in Dart with SKIA based rendering. N.B. this repository now contains two packages: `flare_dart` and `flare_flutter`.
 
 ## Installation
-Add `flare_flutter` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
+Add `flare_flutter` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/). If you plan on writing a custom controller or want access to more of the guts of the library, you will want to also include `flare_dart` which is the base library responsible for loading, instancing, animating, and doing all the work that happens before rendering in `flare_flutter`. The examples include use cases for both scenarios.
+
 ## Exporting for Flutter
 Export from Flare with the *"Export to Engine"* menu. In the Engine dropdown, choose *Flutter*, and in the Format dropdown your favorite form of compression.
 
@@ -10,7 +11,7 @@ Export from Flare with the *"Export to Engine"* menu. In the Engine dropdown, ch
 Once you've exported your file, add the **.flr** file to your project's [Flutter assets](https://flutter.io/assets-and-images/). 
 
 ## Example
-Take a look at the provided [example application](https://github.com/2d-inc/Flare-Flutter/tree/master/example) for how to use the FlutterActor widget with an exported Flutter character.
+Take a look at the provided [example applications](https://github.com/2d-inc/Flare-Flutter/tree/master/example) for how to use the FlutterActor widget with an exported Flutter character.
 
 ## Usage
 The easiest way to get started is by using the provided **FlareActor** widget. This is a stateless Flutter widget that allows for one Flare file with one active animation playing to be embedded in your Flutter App. 

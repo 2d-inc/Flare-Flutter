@@ -1,48 +1,13 @@
-# Flare-Flutter
-Flutter runtime written in Dart with SKIA based rendering. N.B. this repository now contains two packages: `flare_dart` and `flare_flutter`.
+<img align="right" src="https://www.2dimensions.com/static/2086/images/flare_macbook.png" height="250">
 
-## Installation
-Add `flare_flutter` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/). If you plan on writing a custom controller or want access to more of the guts of the library, you will want to also include `flare_dart` which is the base library responsible for loading, instancing, animating, and doing all the work that happens before rendering in `flare_flutter`. The examples include use cases for both scenarios.
+# Flare
+[Flare](https://www.2dimensions.com/about-flare) offers powerful realtime vector design and animation for app and game designers alike. The primary goal of Flare is to allow designers to work directly with assets that run in their final product, eliminating the need to redo that work in code.
 
-## Exporting for Flutter
-Export from Flare with the *"Export to Engine"* menu. In the Engine dropdown, choose *Flutter*, and in the Format dropdown your favorite form of compression.
+## Libraries
+There are two Dart packages provided in this repository. [flare_dart](flare_dart) and [flare_flutter](flare_flutter). Most of the time you'll want just [flare_flutter](flare_flutter), especially if you're just starting out with Flare. Please read the details in [flare_flutter](flare_flutter) for how to get your Flare animations running in Flutter!
 
-## Adding Assets
-Once you've exported your file, add the **.flr** file to your project's [Flutter assets](https://flutter.io/assets-and-images/). 
-
-## Example
-Take a look at the provided [example applications](https://github.com/2d-inc/Flare-Flutter/tree/master/example) for how to use the FlutterActor widget with an exported Flutter character.
-
-## Usage
-The easiest way to get started is by using the provided **FlareActor** widget. This is a stateless Flutter widget that allows for one Flare file with one active animation playing to be embedded in your Flutter App. 
-
-
-You can change the currently playing animation by changing the animation property's name. 
-
-
-You can also specify the mixSeconds to determine how long it takes for the animation to interpolate from the previous one. A value of 0 means that it will just pop to the new animation. A value of 0.5 will mean it takes half of a second to fully mix the new animation on top of the old one.
-
-```
-import 'package:flare_flutter/flare_actor.dart';
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => new _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return new FlareActor("assets/Filip.flr", alignment:Alignment.center, fit:BoxFit.contain, animation:"idle");
-  }
-}
-```
-
-## Contributing
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request.
+## Examples
+Take a look at the provided [example applications](https://github.com/2d-inc/Flare-Flutter/tree/master/example).
 
 ## License
 See the [LICENSE](LICENSE) file for license rights and limitations (MIT).

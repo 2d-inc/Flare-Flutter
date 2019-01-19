@@ -3,10 +3,6 @@ import "dart:math";
 import "vec2d.dart";
 import "transform_components.dart";
 
-double sign(double value) {
-  return value > 0.0 ? 1.0 : -1.0;
-}
-
 class Mat2D {
   Float32List _buffer;
 
@@ -139,11 +135,11 @@ class Mat2D {
   static void getScale(Mat2D m, Vec2D s) {
     double x = m[0];
     double y = m[1];
-    s[0] = sign(x) * sqrt(x * x + y * y);
+    s[0] = x.sign * sqrt(x * x + y * y);
 
     x = m[2];
     y = m[3];
-    s[1] = sign(y) * sqrt(x * x + y * y);
+    s[1] = y.sign * sqrt(x * x + y * y);
   }
 
   static void identity(Mat2D mat) {

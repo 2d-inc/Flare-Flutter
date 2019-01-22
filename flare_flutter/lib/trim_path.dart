@@ -16,7 +16,7 @@ double appendPathSegment(PathMetrics metrics, Path from, Path to, double offset,
     }
     offset = nextOffset;
   }
-  return nextOffset;
+  return offset;
 }
 
 Path trimPath(Path path, double startT, double stopT, bool complement) {

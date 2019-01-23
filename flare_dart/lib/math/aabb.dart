@@ -1,5 +1,5 @@
+import 'dart:math';
 import "dart:typed_data";
-import "dart:math";
 import "vec2d.dart";
 
 class AABB {
@@ -7,6 +7,14 @@ class AABB {
 
   Float32List get values {
     return _buffer;
+  }
+
+  Vec2D get minimum {
+    return Vec2D.fromValues(_buffer[0], _buffer[1]);
+  }
+
+  Vec2D get maximum {
+    return Vec2D.fromValues(_buffer[2], _buffer[3]);
   }
 
   AABB() {

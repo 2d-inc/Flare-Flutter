@@ -14,14 +14,20 @@ import "actor_flags.dart";
 enum FillRule { EvenOdd, NonZero }
 enum StrokeCap { Butt, Round, Square }
 enum StrokeJoin { Miter, Round, Bevel }
+enum TrimPath { Off, Sequential, Synced }
 
-HashMap<int, FillRule> fillRuleLookup = HashMap<int, FillRule>.fromIterables(
-    [0, 1], [FillRule.EvenOdd, FillRule.NonZero]);
-HashMap<int, StrokeCap> strokeCapLookup = HashMap<int, StrokeCap>.fromIterables(
-    [0, 1, 2], [StrokeCap.Butt, StrokeCap.Round, StrokeCap.Square]);
-HashMap<int, StrokeJoin> strokeJoinLookup =
+final HashMap<int, FillRule> fillRuleLookup =
+    HashMap<int, FillRule>.fromIterables(
+        [0, 1], [FillRule.EvenOdd, FillRule.NonZero]);
+final HashMap<int, StrokeCap> strokeCapLookup =
+    HashMap<int, StrokeCap>.fromIterables(
+        [0, 1, 2], [StrokeCap.Butt, StrokeCap.Round, StrokeCap.Square]);
+final HashMap<int, StrokeJoin> strokeJoinLookup =
     HashMap<int, StrokeJoin>.fromIterables(
         [0, 1, 2], [StrokeJoin.Miter, StrokeJoin.Round, StrokeJoin.Bevel]);
+final HashMap<int, TrimPath> trimPathLookup =
+    HashMap<int, TrimPath>.fromIterables(
+        [0, 1, 2], [TrimPath.Off, TrimPath.Sequential, TrimPath.Synced]);
 
 abstract class ActorPaint extends ActorComponent {
   double _opacity = 1.0;
@@ -129,9 +135,10 @@ abstract class ActorStroke {
   StrokeCap get cap => _cap;
   StrokeJoin get join => _join;
 
-  bool _isTrimmed = false;
+  TrimPath _trim;
 
-  bool get isTrimmed => _isTrimmed;
+  TrimPath get trim => _trim;
+  bool get isTrimmed => _trim != TrimPath.Off;
 
   double _trimStart;
   double get trimStart => _trimStart;
@@ -173,8 +180,8 @@ abstract class ActorStroke {
       component._cap = strokeCapLookup[reader.readUint8("cap")];
       component._join = strokeJoinLookup[reader.readUint8("join")];
       if (artboard.actor.version >= 20) {
-        component._isTrimmed = reader.readBool("isTrimmed");
-        if (component._isTrimmed) {
+        component._trim = trimPathLookup[reader.readUint8("trim")];
+        if (component.isTrimmed) {
           component._trimStart = reader.readFloat32("start");
           component._trimEnd = reader.readFloat32("end");
           component._trimOffset = reader.readFloat32("offset");

@@ -1,4 +1,4 @@
-library flare;
+library flare_flutter;
 
 import 'dart:ui' as ui;
 import 'dart:math';
@@ -91,6 +91,7 @@ abstract class FlutterStroke {
 
     if (stroke.isTrimmed) {
       if (effectPath == null) {
+        bool isSequential = stroke.trim == TrimPath.Sequential;
         double start = stroke.trimStart;
         double end = stroke.trimEnd;
         double offset = stroke.trimOffset;
@@ -111,9 +112,9 @@ abstract class FlutterStroke {
             start = swap;
           }
           if (end >= start) {
-            effectPath = trimPath(path, start, end, false);
+            effectPath = trimPath(path, start, end, false, isSequential);
           } else {
-            effectPath = trimPath(path, end, start, true);
+            effectPath = trimPath(path, end, start, true, isSequential);
           }
         } else {
           effectPath = path;

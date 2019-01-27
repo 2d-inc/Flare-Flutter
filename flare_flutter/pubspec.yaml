@@ -8,9 +8,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-#  flare_dart: ^1.2.0
   flare_dart:
-    path: ../flare_dart
+    git:
+      url: https://github.com/iuraiura879/Flare-Flutter.git
+      path: flare_dart
+      ref: fix-keypath-crash
 dev_dependencies:
   flutter_test:
     sdk: flutter

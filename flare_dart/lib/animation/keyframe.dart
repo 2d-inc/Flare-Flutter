@@ -1141,6 +1141,8 @@ class KeyFrameStrokeStart extends KeyFrameNumeric {
     if (component == null) return;
 
     ActorStroke star = component as ActorStroke;
+    if(star.trimStart == null) return;
+
     star.trimStart = star.trimStart * (1.0 - mix) + value * mix;
   }
 }

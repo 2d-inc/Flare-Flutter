@@ -135,7 +135,7 @@ abstract class ActorStroke {
   StrokeCap get cap => _cap;
   StrokeJoin get join => _join;
 
-  TrimPath _trim;
+  TrimPath _trim = TrimPath.Off;
 
   TrimPath get trim => _trim;
   bool get isTrimmed => _trim != TrimPath.Off;
@@ -180,7 +180,7 @@ abstract class ActorStroke {
       component._cap = strokeCapLookup[reader.readUint8("cap")];
       component._join = strokeJoinLookup[reader.readUint8("join")];
       if (artboard.actor.version >= 20) {
-        component._trim = trimPathLookup[reader.readUint8("trim")];
+        component._trim = trimPathLookup[reader.readUint8("trim")] ?? TrimPath.Off;
         if (component.isTrimmed) {
           component._trimStart = reader.readFloat32("start");
           component._trimEnd = reader.readFloat32("end");

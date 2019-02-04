@@ -184,42 +184,12 @@ class FlutterActorShape extends ActorShape {
       for (ActorFill actorFill in fills) {
         FlutterFill fill = actorFill as FlutterFill;
         fill.paint(actorFill, canvas, renderPath);
-        // ui.Paint paint = fill.getPaint(paintTransform, opacity);
-        // if (paint == null) {
-        //   continue;
-        // }
-        // if (overrideColor != null) {
-        //   paint.color = overrideColor.withOpacity(
-        //       (overrideColor.opacity * paint.color.opacity).clamp(0.0, 1.0));
-        // }
-
-        // switch ((fill as ActorFill).fillRule) {
-        //   case FillRule.EvenOdd:
-        //     renderPath.fillType = ui.PathFillType.evenOdd;
-        //     break;
-        //   case FillRule.NonZero:
-        //     renderPath.fillType = ui.PathFillType.nonZero;
-        //     break;
-        // }
-        // canvas.drawPath(renderPath, paint);
       }
     }
     if (strokes != null) {
       for (ActorStroke actorStroke in strokes) {
         FlutterStroke stroke = actorStroke as FlutterStroke;
         stroke.paint(actorStroke, canvas, renderPath);
-        // ui.Paint paint = stroke.getPaint(paintTransform, opacity);
-        // if (paint == null) {
-        //   continue;
-        // }
-        // if (overrideColor != null) {
-        //   paint.color = overrideColor.withOpacity(
-        //       (overrideColor.opacity * paint.color.opacity).clamp(0.0, 1.0));
-        // }
-        // ui.Path trimmedPath = Path.from(renderPath);
-        // trimmedPath.trim(trimStart, 0.2 + trimStart, false);
-        // trimStart += 0.01;
-        // canvas.drawPath(trimmedPath, paint);
       }
     }
 
@@ -242,8 +212,11 @@ class FlutterColorFill extends ColorFill with FlutterFill {
 
   Color get uiColor {
     Float32List c = color;
-    return Color.fromRGBO((c[0] * 255.0).round(), (c[1] * 255.0).round(),
-        (c[2] * 255.0).round(), c[3]);
+    return Color.fromRGBO(
+        (c[0] * 255.0).round(),
+        (c[1] * 255.0).round(),
+        (c[2] * 255.0).round(),
+        c[3] * artboard.modulateOpacity * opacity * shape.renderOpacity);
   }
 
   set uiColor(Color c) {
@@ -254,11 +227,7 @@ class FlutterColorFill extends ColorFill with FlutterFill {
   @override
   void update(int dirt) {
     super.update(dirt);
-    _paint.color = ui.Color.fromRGBO(
-        (color[0] * 255.0).round(),
-        (color[1] * 255.0).round(),
-        (color[2] * 255.0).round(),
-        color[3] * opacity * shape.renderOpacity);
+    _paint.color = uiColor;
   }
 }
 
@@ -269,19 +238,25 @@ class FlutterColorStroke extends ColorStroke with FlutterStroke {
     return instanceNode;
   }
 
+  Color get uiColor {
+    Float32List c = color;
+    return Color.fromRGBO(
+        (c[0] * 255.0).round(),
+        (c[1] * 255.0).round(),
+        (c[2] * 255.0).round(),
+        c[3] * artboard.modulateOpacity * opacity * shape.renderOpacity);
+  }
+
+  set uiColor(Color c) {
+    color = Float32List.fromList(
+        [c.red / 255, c.green / 255, c.blue / 255, c.opacity]);
+  }
+
   @override
   void update(int dirt) {
     super.update(dirt);
-    Float32List paintColor = artboard.overrideColor ?? color;
     _paint
-      ..color = ui.Color.fromRGBO(
-          (paintColor[0] * 255.0).round(),
-          (paintColor[1] * 255.0).round(),
-          (paintColor[2] * 255.0).round(),
-          paintColor[3] *
-              artboard.modulateOpacity *
-              opacity *
-              shape.renderOpacity)
+      ..color = uiColor
       ..strokeWidth = width;
   }
 }
@@ -410,7 +385,7 @@ class FlutterRadialFill extends RadialGradientFill with FlutterFill {
         radius,
         colors,
         stops,
-        ui.TileMode.clamp); //, transform.mat4);
+        ui.TileMode.clamp);
 
     Color paintColor;
     if (artboard.overrideColor == null) {

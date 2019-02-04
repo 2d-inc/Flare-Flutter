@@ -68,7 +68,7 @@ abstract class ActorColor extends ActorPaint {
   Float32List _color = Float32List(4);
 
   Float32List get color {
-    return _color;
+    return artboard?.overrideColor ?? _color;
   }
 
   set color(Float32List value) {

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flare_dart/actor_drawable.dart';
 import 'package:flare_dart/math/mat2d.dart';
@@ -38,6 +39,7 @@ class FlareActor extends LeafRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return FlareActorRenderObject()
+      ..assetBundle = DefaultAssetBundle.of(context)
       ..filename = filename
       ..fit = fit
       ..alignment = alignment
@@ -54,6 +56,7 @@ class FlareActor extends LeafRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, covariant FlareActorRenderObject renderObject) {
     renderObject
+      ..assetBundle = DefaultAssetBundle.of(context)
       ..filename = filename
       ..fit = fit
       ..alignment = alignment
@@ -82,6 +85,7 @@ class FlareAnimationLayer {
 }
 
 class FlareActorRenderObject extends RenderBox {
+  AssetBundle assetBundle;
   String _filename;
   BoxFit _fit;
   Alignment _alignment;
@@ -218,7 +222,7 @@ class FlareActorRenderObject extends RenderBox {
       }
 
       FlutterActor actor = FlutterActor();
-      actor.loadFromBundle(_filename).then((bool success) {
+      actor.loadFromBundle(assetBundle, _filename).then((bool success) {
         if (success) {
           _actor = actor;
           _artboard = _actor?.artboard;

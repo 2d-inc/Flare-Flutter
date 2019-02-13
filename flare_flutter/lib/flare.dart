@@ -2,7 +2,7 @@ library flare_flutter;
 
 import 'dart:ui' as ui;
 import 'dart:math';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -531,9 +531,9 @@ class FlutterActor extends Actor {
     return FlutterRadialStroke();
   }
 
-  Future<bool> loadFromBundle(String filename) async {
+  Future<bool> loadFromBundle(AssetBundle assetBundle, String filename) async {
     Completer<bool> completer = Completer<bool>();
-    rootBundle.load(filename).then((ByteData data) {
+    assetBundle.load(filename).then((ByteData data) {
       super.load(data);
       completer.complete(true);
     });

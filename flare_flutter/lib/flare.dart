@@ -147,12 +147,14 @@ class FlutterActorShape extends ActorShape {
     _isValid = true;
     _path.reset();
 
-    for (ActorNode node in children) {
-      FlutterPath flutterPath = node as FlutterPath;
-      if (flutterPath != null) {
-        Mat2D transform = (node as ActorBasePath).pathTransform;
-        _path.addPath(flutterPath.path, ui.Offset.zero,
-            matrix4: transform == null ? null : transform.mat4);
+    if (children != null) {
+      for (ActorNode node in children) {
+        FlutterPath flutterPath = node as FlutterPath;
+        if (flutterPath != null) {
+          Mat2D transform = (node as ActorBasePath).pathTransform;
+          _path.addPath(flutterPath.path, ui.Offset.zero,
+              matrix4: transform == null ? null : transform.mat4);
+        }
       }
     }
     return _path;

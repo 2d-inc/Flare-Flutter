@@ -82,10 +82,22 @@ class Vec2D {
     return sqrt(x * x + y * y);
   }
 
+  static double squaredLength(Vec2D a) {
+    double x = a[0];
+    double y = a[1];
+    return x * x + y * y;
+  }
+
   static double distance(Vec2D a, Vec2D b) {
     double x = b[0] - a[0];
     double y = b[1] - a[1];
     return sqrt(x * x + y * y);
+  }
+
+  static double squaredDistance(Vec2D a, Vec2D b) {
+    double x = b[0] - a[0];
+    double y = b[1] - a[1];
+    return x * x + y * y;
   }
 
   static Vec2D negate(Vec2D result, Vec2D a) {
@@ -111,8 +123,8 @@ class Vec2D {
   }
 
   static Vec2D scaleAndAdd(Vec2D result, Vec2D a, Vec2D b, double scale) {
-    result[0] = a[0] + (b[0] * scale);
-    result[1] = a[1] + (b[1] * scale);
+    result[0] = a[0] + b[0] * scale;
+    result[1] = a[1] + b[1] * scale;
     return result;
   }
 

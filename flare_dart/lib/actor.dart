@@ -126,6 +126,10 @@ abstract class Actor {
         case BlockTypes.Artboards:
           readArtboardsBlock(block);
           break;
+
+        case BlockTypes.Atlases:
+          print("ATLASES");
+          break;
       }
     }
   }

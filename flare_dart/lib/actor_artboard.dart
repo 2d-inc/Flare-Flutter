@@ -359,13 +359,14 @@ class ActorArtboard {
           component = ActorRootBone.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorImageSequence:
-          component =
-              ActorImage.readSequence(this, nodeBlock, actor.makeImageNode());
-          ActorImage ai = component as ActorImage;
-          actor.maxTextureIndex = ai
-              .sequenceFrames.last.atlasIndex; // Last atlasIndex is the biggest
-          break;
+		// Todo: fix sequences for flare.
+        // case BlockTypes.ActorImageSequence:
+        //   component =
+        //       ActorImage.readSequence(this, nodeBlock, actor.makeImageNode());
+        //   ActorImage ai = component as ActorImage;
+        //   actor.maxTextureIndex = ai
+        //       .sequenceFrames.last.atlasIndex; // Last atlasIndex is the biggest
+        //   break;
 
         case BlockTypes.ActorImage:
           component = ActorImage.read(this, nodeBlock, actor.makeImageNode());

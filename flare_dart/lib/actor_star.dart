@@ -63,7 +63,7 @@ class ActorStar extends ActorProceduralPath {
   set innerRadius(double val) {
     if (val != _innerRadius) {
       _innerRadius = val;
-      markPathDirty();
+      invalidateDrawable();
     }
   }
 

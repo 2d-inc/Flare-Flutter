@@ -59,7 +59,7 @@ class ActorRectangle extends ActorProceduralPath {
   set radius(double rd) {
     if (rd != _radius) {
       _radius = rd;
-      markPathDirty();
+      invalidateDrawable();
     }
   }
 

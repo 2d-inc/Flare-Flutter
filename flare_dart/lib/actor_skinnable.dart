@@ -1,3 +1,5 @@
+import 'package:flare_dart/actor_skin.dart';
+
 import "stream_reader.dart";
 import "actor_artboard.dart";
 import "math/mat2d.dart";
@@ -11,8 +13,10 @@ class SkinnedBone {
   Mat2D inverseBind = Mat2D();
 }
 
-abstract class ActorSkinnable extends ActorNode {
+abstract class ActorSkinnable {
+  ActorSkin skin;
   List<SkinnedBone> _connectedBones;
+  set worldTransformOverride(Mat2D value);
 
   List<SkinnedBone> get connectedBones => _connectedBones;
   bool get isConnectedToBones =>
@@ -20,8 +24,6 @@ abstract class ActorSkinnable extends ActorNode {
 
   static ActorSkinnable read(
       ActorArtboard artboard, StreamReader reader, ActorSkinnable node) {
-    ActorNode.read(artboard, reader, node);
-
     reader.openArray("bones");
     int numConnectedBones = reader.readUint8Length();
     if (numConnectedBones != 0) {
@@ -48,8 +50,7 @@ abstract class ActorSkinnable extends ActorNode {
     return node;
   }
 
-  void resolveComponentIndices(List<ActorComponent> components) {
-    super.resolveComponentIndices(components);
+  void resolveSkinnable(List<ActorComponent> components) {
     if (_connectedBones != null) {
       for (int i = 0; i < _connectedBones.length; i++) {
         SkinnedBone bc = _connectedBones[i];
@@ -59,8 +60,6 @@ abstract class ActorSkinnable extends ActorNode {
   }
 
   void copySkinnable(ActorSkinnable node, ActorArtboard resetArtboard) {
-    copyNode(node, resetArtboard);
-
     if (node._connectedBones != null) {
       _connectedBones = List<SkinnedBone>(node._connectedBones.length);
       for (int i = 0; i < node._connectedBones.length; i++) {
@@ -73,4 +72,6 @@ abstract class ActorSkinnable extends ActorNode {
       }
     }
   }
+
+  void invalidateDrawable();
 }

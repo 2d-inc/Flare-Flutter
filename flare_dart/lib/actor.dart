@@ -1,3 +1,4 @@
+import 'dart:async';
 import "dart:typed_data";
 import "dart:convert";
 import "actor_image.dart";
@@ -96,10 +97,15 @@ abstract class Actor {
 
   RadialGradientStroke makeRadialStroke();
 
-  void load(ByteData data) {
+  Future<bool> loadAtlases(List<Uint8List> rawAtlases);
+
+  Future<bool> load(ByteData data, dynamic context) async {
     if (data.lengthInBytes < 5) {
       throw UnsupportedError("Not a valid Flare file.");
     }
+
+    bool success = true;
+
     int F = data.getUint8(0);
     int L = data.getUint8(1);
     int A = data.getUint8(2);
@@ -128,10 +134,13 @@ abstract class Actor {
           break;
 
         case BlockTypes.Atlases:
-          print("ATLASES");
+          List<Uint8List> rawAtlases = await readAtlasesBlock(block, context);
+          success = await loadAtlases(rawAtlases);
           break;
       }
     }
+
+    return success;
   }
 
   void readArtboardsBlock(StreamReader block) {
@@ -155,5 +164,46 @@ abstract class Actor {
           }
       }
     }
+  }
+
+  Future<Uint8List> readOutOfBandAsset(String filename, dynamic context);
+
+  Future<List<Uint8List>> readAtlasesBlock(
+      StreamReader block, dynamic context) {
+    // Determine whether or not the atlas is in or out of band.
+    bool isOOB = block.readBool("isOOB");
+    block.openArray("data");
+    int numAtlases = block.readUint16Length();
+    if (isOOB) {
+      List<Future<Uint8List>> waitingFor = List<Future<Uint8List>>(numAtlases);
+      for (int i = 0; i < numAtlases; i++) {
+        waitingFor[i] = readOutOfBandAsset(block.readString("data"), context);
+      }
+      return Future.wait(waitingFor);
+    } else {
+      // This is sync.
+      List<Uint8List> inBandAssets = List<Uint8List>(numAtlases);
+      for (int i = 0; i < numAtlases; i++) {
+        inBandAssets[i] = block.readAsset();
+      }
+      Completer<List<Uint8List>> completer = Completer<List<Uint8List>>();
+      completer.complete(inBandAssets);
+      return completer.future;
+    }
+
+    // for(int i = 0; i < numAtlases; i++)
+    // {
+    //   if(isOOB)
+    //   {
+
+    // 	  // Read from assets
+    //   }
+    //   else
+    //   {
+    // 	  // Read from data block.
+    // 	  block.readUint32("length");
+    //   }
+    // }
+    block.closeArray();
   }
 }

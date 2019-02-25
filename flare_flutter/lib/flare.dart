@@ -470,6 +470,12 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
   }
 }
 
+class _AssetBundleContext {
+  String filename;
+  AssetBundle bundle;
+  _AssetBundleContext(filename, bundle);
+}
+
 class FlutterActor extends Actor {
   List<ui.Image> _images;
 
@@ -534,15 +540,29 @@ class FlutterActor extends Actor {
   }
 
   Future<bool> loadFromBundle(AssetBundle assetBundle, String filename) async {
-    Completer<bool> completer = Completer<bool>();
-    assetBundle.load(filename).then((ByteData data) {
-      super.load(data);
-      completer.complete(true);
-    });
-    return completer.future;
+    ByteData data = await assetBundle.load(filename);
+    return super.load(data, _AssetBundleContext(assetBundle, filename));
   }
 
   dispose() {}
+
+  @override
+  Future<bool> loadAtlases(List<Uint8List> rawAtlases) async {
+    List<ui.Codec> codecs =  await Future.wait(rawAtlases.map((Uint8List buffer) => ui.instantiateImageCodec(buffer)));
+    List<ui.FrameInfo> frames = await Future.wait(codecs.map((ui.Codec codec) => codec.getNextFrame()));
+    _images = frames.map((ui.FrameInfo frame) => frame.image).toList(growable: false);
+    print("GOT IMAGES $_images");
+    return true;
+  }
+
+  @override
+  Future<Uint8List> readOutOfBandAsset(String assetFilename, dynamic context) async {
+    _AssetBundleContext bundleContext = context;
+    int pathIdx = bundleContext.filename.lastIndexOf('/') + 1;
+    String basePath = bundleContext.filename.substring(0, pathIdx);
+    ByteData data = await bundleContext.bundle.load(basePath + assetFilename);
+    return Uint8List.view(data.buffer);
+  }
 }
 
 class FlutterActorArtboard extends ActorArtboard {

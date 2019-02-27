@@ -38,7 +38,7 @@ abstract class ActorDrawable extends ActorNode {
     ActorNode.read(artboard, reader, component);
 
     component.isHidden = !reader.readBool("isVisible");
-    component.blendModeId = reader.readUint8("blendMode");
+    component.blendModeId = artboard.actor.version < 21 ? 3 : reader.readUint8("blendMode");
     component.drawOrder = reader.readUint16("drawOrder");
 
     return component;

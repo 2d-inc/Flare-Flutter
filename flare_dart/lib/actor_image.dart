@@ -3,7 +3,6 @@ import 'package:flare_dart/actor_skinnable.dart';
 
 import "stream_reader.dart";
 import "math/mat2d.dart";
-import "math/vec2d.dart";
 import "actor_artboard.dart";
 import "actor_component.dart";
 import "actor_drawable.dart";
@@ -38,7 +37,6 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 
   @override
   int drawOrder;
-  BlendModes blendMode;
 
   int _textureIndex = -1;
   Float32List _vertices;
@@ -46,7 +44,6 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
   int _vertexCount = 0;
   int _triangleCount = 0;
   Float32List _animationDeformedVertices;
-  bool isVertexDeformDirty = false;
 
   List<SequenceFrame> _sequenceFrames;
   Float32List _sequenceUVs;
@@ -159,6 +156,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       node._textureIndex = reader.readUint8("atlas");
 
       int numVertices = reader.readUint32("numVertices");
+
       node._vertexCount = numVertices;
       node._vertices = Float32List(numVertices * node.vertexStride);
       reader.readFloat32ArrayOffset(
@@ -338,6 +336,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       // 		weightOffset += vertexStride;
       // 	}
       // }
+      //print("VERTEX STRIDE $stride, $vertexStride, $_vertexCount, ${_vertices.length}");
       int boneIndexOffset = vertexBoneIndexOffset;
       int weightOffset = vertexBoneWeightOffset;
       for (int i = 0; i < _vertexCount; i++) {
@@ -364,9 +363,14 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
           double weight = _vertices[weightOffset + wi];
 
           int boneTransformIndex = boneIndex * 6;
-          for (int j = 0; j < 6; j++) {
-            influenceMatrix[j] +=
-                boneTransforms[boneTransformIndex + j] * weight;
+          if (boneIndex <= connectedBones.length) {
+            //print("BONE TRANSFORMS ${boneTransforms.length} $boneIndex $boneTransformIndex ${connectedBones.length} $boneIndexOffset $wi");
+            for (int j = 0; j < 6; j++) {
+              influenceMatrix[j] +=
+                  boneTransforms[boneTransformIndex + j] * weight;
+            }
+          } else {
+            //print("BAD BONE INDEX $boneIndex ${connectedBones.length} ${name}");
           }
         }
 
@@ -385,15 +389,10 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
         buffer[writeIdx++] = y;
       }
     } else {
-      Vec2D tempVec = Vec2D();
       for (int i = 0; i < _vertexCount; i++) {
-        tempVec[0] = v[readIdx];
-        tempVec[1] = v[readIdx + 1];
-        Vec2D.transformMat2D(tempVec, tempVec, worldTransform);
+        buffer[writeIdx++] = v[readIdx];
+        buffer[writeIdx++] = v[readIdx + 1];
         readIdx += stride;
-
-        buffer[writeIdx++] = tempVec[0];
-        buffer[writeIdx++] = tempVec[1];
       }
     }
   }
@@ -405,8 +404,19 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
         worldTransform[4], worldTransform[5]);
   }
 
+  Mat2D get imageTransform => isConnectedToBones ? null : worldTransform;
+
   @override
   void initializeGraphics() {}
 
+  @override
   void invalidateDrawable() {}
+
+  @override
+  int get blendModeId {
+    return 0;
+  }
+
+  @override
+  set blendModeId(int value) {}
 }

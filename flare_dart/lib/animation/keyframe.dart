@@ -455,7 +455,7 @@ class KeyFrameDrawOrder extends KeyFrame {
   }
 }
 
-class KeyFrameVertexDeform extends KeyFrameWithInterpolation {
+class KeyFrameImageVertices extends KeyFrameWithInterpolation {
   Float32List _vertices;
 
   Float32List get vertices {
@@ -463,7 +463,7 @@ class KeyFrameVertexDeform extends KeyFrameWithInterpolation {
   }
 
   static KeyFrame read(StreamReader reader, ActorComponent component) {
-    KeyFrameVertexDeform frame = KeyFrameVertexDeform();
+    KeyFrameImageVertices frame = KeyFrameImageVertices();
     if (!KeyFrameWithInterpolation.read(reader, frame)) {
       return null;
     }
@@ -478,21 +478,21 @@ class KeyFrameVertexDeform extends KeyFrameWithInterpolation {
     return frame;
   }
 
-  void transformVertices(Mat2D wt) {
-    int aiVertexCount = _vertices.length ~/ 2;
-    Float32List fv = _vertices;
+//   void transformVertices(Mat2D wt) {
+//     int aiVertexCount = _vertices.length ~/ 2;
+//     Float32List fv = _vertices;
 
-    int vidx = 0;
-    for (int j = 0; j < aiVertexCount; j++) {
-      double x = fv[vidx];
-      double y = fv[vidx + 1];
+//     int vidx = 0;
+//     for (int j = 0; j < aiVertexCount; j++) {
+//       double x = fv[vidx];
+//       double y = fv[vidx + 1];
 
-      fv[vidx] = wt[0] * x + wt[2] * y + wt[4];
-      fv[vidx + 1] = wt[1] * x + wt[3] * y + wt[5];
+//       fv[vidx] = wt[0] * x + wt[2] * y + wt[4];
+//       fv[vidx + 1] = wt[1] * x + wt[3] * y + wt[5];
 
-      vidx += 2;
-    }
-  }
+//       vidx += 2;
+//     }
+//   }
 
   void setNext(KeyFrame frame) {
     // Do nothing.
@@ -502,7 +502,7 @@ class KeyFrameVertexDeform extends KeyFrameWithInterpolation {
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     ActorImage imageNode = component as ActorImage;
     Float32List wr = imageNode.animationDeformedVertices;
-    Float32List to = (toFrame as KeyFrameVertexDeform)._vertices;
+    Float32List to = (toFrame as KeyFrameImageVertices)._vertices;
     int l = _vertices.length;
 
     double f = (time - _time) / (toFrame.time - _time);
@@ -524,7 +524,7 @@ class KeyFrameVertexDeform extends KeyFrameWithInterpolation {
       }
     }
 
-    imageNode.isVertexDeformDirty = true;
+	imageNode.invalidateDrawable();
   }
 
   void apply(ActorComponent component, double mix) {
@@ -542,7 +542,7 @@ class KeyFrameVertexDeform extends KeyFrameWithInterpolation {
       }
     }
 
-    imageNode.isVertexDeformDirty = true;
+    imageNode.invalidateDrawable();
   }
 }
 

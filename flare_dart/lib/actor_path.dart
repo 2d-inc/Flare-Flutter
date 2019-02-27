@@ -289,7 +289,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     if (component == null) {
       component = ActorPath();
     }
-
+	ActorNode.read(artboard, reader, component);
     ActorSkinnable.read(artboard, reader, component);
 
     component._isHidden = !reader.readBool("isVisible");

@@ -25,17 +25,21 @@ abstract class ActorDrawable extends ActorNode {
   // Computed draw index in the draw list.
   int drawIndex;
   bool isHidden;
+
   bool get doesDraw {
     return !isHidden && !renderCollapsed;
   }
+
+  int get blendModeId;
+  set blendModeId(int value);
 
   static ActorDrawable read(
       ActorArtboard artboard, StreamReader reader, ActorDrawable component) {
     ActorNode.read(artboard, reader, component);
 
-    /*blendMode*/ reader.readUint8("blendMode");
-    component.drawOrder = reader.readUint16("drawOrder");
     component.isHidden = !reader.readBool("isVisible");
+    component.blendModeId = reader.readUint8("blendMode");
+    component.drawOrder = reader.readUint16("drawOrder");
 
     return component;
   }
@@ -44,6 +48,7 @@ abstract class ActorDrawable extends ActorNode {
     copyNode(node, resetArtboard);
     // todo blendmode
     drawOrder = node.drawOrder;
+    blendModeId = node.blendModeId;
     isHidden = node.isHidden;
   }
 

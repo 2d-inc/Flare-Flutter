@@ -29,6 +29,26 @@ export 'package:flare_dart/actor_node.dart';
 import 'trim_path.dart';
 
 abstract class FlutterActorDrawable {
+  ui.BlendMode _blendMode;
+  int get blendModeId {
+    return _blendMode.index;
+  }
+
+  set blendModeId(int index) {
+    blendMode = ui.BlendMode.values[index];
+  }
+
+  ui.BlendMode get blendMode => _blendMode;
+  set blendMode(ui.BlendMode mode) {
+    if (_blendMode == mode) {
+      return;
+    }
+    _blendMode = mode;
+    onBlendModeChanged(_blendMode);
+  }
+
+  void onBlendModeChanged(ui.BlendMode blendMode);
+
   void draw(ui.Canvas canvas);
 }
 
@@ -136,7 +156,7 @@ abstract class FlutterStroke {
   }
 }
 
-class FlutterActorShape extends ActorShape implements FlutterActorDrawable {
+class FlutterActorShape extends ActorShape with FlutterActorDrawable {
   ui.Path _path = ui.Path();
   bool _isValid = false;
 
@@ -144,6 +164,20 @@ class FlutterActorShape extends ActorShape implements FlutterActorDrawable {
   void invalidateShape() {
     _isValid = false;
     stroke?.markPathEffectsDirty();
+  }
+
+  @override
+  void onBlendModeChanged(ui.BlendMode mode) {
+    if (fills != null) {
+      for (ActorFill actorFill in fills) {
+        (actorFill as ActorPaint).markPaintDirty();
+      }
+    }
+    if (strokes != null) {
+      for (ActorStroke actorStroke in strokes) {
+        (actorStroke as ActorPaint).markPaintDirty();
+      }
+    }
   }
 
   ui.Path get path {
@@ -235,7 +269,9 @@ class FlutterColorFill extends ColorFill with FlutterFill {
   @override
   void update(int dirt) {
     super.update(dirt);
-    _paint.color = uiColor;
+    _paint
+      ..color = uiColor
+      ..blendMode = (parent as FlutterActorShape).blendMode;
   }
 }
 
@@ -265,7 +301,8 @@ class FlutterColorStroke extends ColorStroke with FlutterStroke {
     super.update(dirt);
     _paint
       ..color = uiColor
-      ..strokeWidth = width;
+      ..strokeWidth = width
+      ..blendMode = (parent as FlutterActorShape).blendMode;
   }
 }
 
@@ -307,6 +344,7 @@ class FlutterGradientFill extends GradientFill with FlutterFill {
     }
     _paint
       ..color = paintColor
+      ..blendMode = (parent as FlutterActorShape).blendMode
       ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
           ui.Offset(renderEnd[0], renderEnd[1]), colors, stops);
   }
@@ -356,6 +394,7 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
     }
     _paint
       ..color = paintColor
+      ..blendMode = (parent as FlutterActorShape).blendMode
       ..strokeWidth = width
       ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
           ui.Offset(renderEnd[0], renderEnd[1]), colors, stops);
@@ -414,6 +453,7 @@ class FlutterRadialFill extends RadialGradientFill with FlutterFill {
 
     _paint
       ..color = paintColor
+      ..blendMode = (parent as FlutterActorShape).blendMode
       ..shader = radial;
   }
 
@@ -465,6 +505,7 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
     _paint
       ..color = paintColor
       ..strokeWidth = width
+      ..blendMode = (parent as FlutterActorShape).blendMode
       ..shader = ui.Gradient.radial(Offset(renderStart[0], renderStart[1]),
           radius, colors, stops, ui.TileMode.clamp);
   }
@@ -785,7 +826,7 @@ abstract class FlutterPathPointsPath implements FlutterPath {
   }
 }
 
-class FlutterActorImage extends ActorImage implements FlutterActorDrawable {
+class FlutterActorImage extends ActorImage with FlutterActorDrawable {
   Float32List _vertexBuffer;
   Float32List _uvBuffer;
   ui.Paint _paint;
@@ -814,13 +855,14 @@ class FlutterActorImage extends ActorImage implements FlutterActorDrawable {
   set textureIndex(int value) {
     if (this.textureIndex != value) {
       _paint = ui.Paint()
+        ..blendMode = blendMode
         ..shader = ui.ImageShader(
             (artboard.actor as FlutterActor).images[textureIndex],
             ui.TileMode.clamp,
             ui.TileMode.clamp,
-            _identityMatrix);
-      _paint.filterQuality = ui.FilterQuality.low;
-      _paint.isAntiAlias = true;
+            _identityMatrix)
+        ..filterQuality = ui.FilterQuality.low
+        ..isAntiAlias = true;
     }
   }
 
@@ -829,6 +871,13 @@ class FlutterActorImage extends ActorImage implements FlutterActorDrawable {
     _vertexBuffer = null;
     _indices = null;
     _paint = null;
+  }
+
+  @override
+  void onBlendModeChanged(ui.BlendMode mode) {
+    if (_paint != null) {
+      _paint.blendMode = mode;
+    }
   }
 
   void initializeGraphics() {
@@ -860,6 +909,7 @@ class FlutterActorImage extends ActorImage implements FlutterActorDrawable {
     }
 
     _paint = ui.Paint()
+      ..blendMode = blendMode
       ..shader = ui.ImageShader(
           (artboard.actor as FlutterActor).images[textureIndex],
           ui.TileMode.clamp,
@@ -869,6 +919,7 @@ class FlutterActorImage extends ActorImage implements FlutterActorDrawable {
     _paint.isAntiAlias = true;
   }
 
+  @override
   void invalidateDrawable() {
     _canvasVertices = null;
   }
@@ -908,12 +959,18 @@ class FlutterActorImage extends ActorImage implements FlutterActorDrawable {
       return;
     }
 
-    if (_canvasVertices == null && updateVertices()) {
+    if (_canvasVertices == null && !updateVertices()) {
       return;
     }
     _paint.color = _paint.color.withOpacity(renderOpacity);
-    //_paint.isAntiAlias = true;
-    canvas.drawVertices(_canvasVertices, ui.BlendMode.srcOver, _paint);
+    if (imageTransform != null) {
+      canvas.save();
+      canvas.transform(imageTransform.mat4);
+      canvas.drawVertices(_canvasVertices, ui.BlendMode.srcOver, _paint);
+      canvas.restore();
+    } else {
+      canvas.drawVertices(_canvasVertices, ui.BlendMode.srcOver, _paint);
+    }
   }
 
   @override

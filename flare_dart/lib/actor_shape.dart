@@ -32,7 +32,7 @@ class ActorShape extends ActorDrawable {
 
     ActorDrawable.read(artboard, reader, component);
 
-	return component;
+    return component;
   }
 
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
@@ -42,7 +42,7 @@ class ActorShape extends ActorDrawable {
   }
 
   void copyShape(ActorShape node, ActorArtboard resetArtboard) {
-	  node.copyDrawable(this, resetArtboard);
+    node.copyDrawable(this, resetArtboard);
   }
 
   AABB computeAABB() {
@@ -148,18 +148,25 @@ class ActorShape extends ActorDrawable {
   void addStroke(ActorStroke stroke) {
     _strokes.add(stroke);
   }
+
   void addFill(ActorFill fill) {
     _fills.add(fill);
   }
 
-  void initializeGraphics(){
-	  for(ActorStroke stroke in _strokes)
-	  {
-		  stroke.initializeGraphics();
-	  }
-	  for(ActorFill fill in _fills)
-	  {
-		  fill.initializeGraphics();
-	  }
+  void initializeGraphics() {
+    for (ActorStroke stroke in _strokes) {
+      stroke.initializeGraphics();
+    }
+    for (ActorFill fill in _fills) {
+      fill.initializeGraphics();
+    }
   }
+
+  @override
+  int get blendModeId {
+    return 0;
+  }
+
+  @override
+  set blendModeId(int value) {}
 }

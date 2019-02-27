@@ -177,9 +177,9 @@ abstract class JSONReader implements StreamReader {
   int _readLength() =>
       _context.first.length; // Maps and Lists both have a `length` property.
 
-  Uint8List readAsset()
-  {
-    String encodedAsset = readString("data"); // are we sure we need a label here?
+  Uint8List readAsset() {
+    String encodedAsset =
+        readString("data"); // are we sure we need a label here?
     return Base64Decoder().convert(encodedAsset, 22);
   }
 

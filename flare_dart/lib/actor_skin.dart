@@ -17,13 +17,13 @@ class ActorSkin extends ActorComponent {
 
   @override
   void update(int dirt) {
-    ActorPath path = parent as ActorPath;
-    if (path == null) {
+    ActorSkinnable skinnable = parent as ActorSkinnable;
+    if (skinnable == null) {
       return;
     }
 
-    if (path.isConnectedToBones) {
-      List<SkinnedBone> connectedBones = path.connectedBones;
+    if (skinnable.isConnectedToBones) {
+      List<SkinnedBone> connectedBones = skinnable.connectedBones;
       int length = (connectedBones.length + 1) * 6;
       if (_boneMatrices == null || _boneMatrices.length != length) {
         _boneMatrices = Float32List(length);
@@ -62,19 +62,19 @@ class ActorSkin extends ActorComponent {
       }
     }
 
-    path.markPathDirty();
+    skinnable.invalidateDrawable();
   }
 
   @override
   void completeResolve() {
-    ActorPath path = parent as ActorPath;
-    if (path == null) {
+    ActorSkinnable skinnable = parent as ActorSkinnable;
+    if (skinnable == null) {
       return;
     }
-    path.skin = this;
-    artboard.addDependency(this, path);
-    if (path.isConnectedToBones) {
-      List<SkinnedBone> connectedBones = path.connectedBones;
+    skinnable.skin = this;
+    artboard.addDependency(this, skinnable as ActorComponent);
+    if (skinnable.isConnectedToBones) {
+      List<SkinnedBone> connectedBones = skinnable.connectedBones;
       for (SkinnedBone skinnedBone in connectedBones) {
         artboard.addDependency(this, skinnedBone.node);
         List<ActorConstraint> constraints = skinnedBone.node.allConstraints;

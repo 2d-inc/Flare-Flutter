@@ -8,7 +8,7 @@ class PropertyTypes {
   static const int Opacity = 6;
   static const int DrawOrder = 7;
   static const int Length = 8;
-  static const int VertexDeform = 9;
+  static const int ImageVertices = 9;
   static const int ConstraintStrength = 10;
   static const int Trigger = 11;
   static const int IntProperty = 12;
@@ -47,7 +47,7 @@ const Map<String, int> PropertyTypesMap = {
   "opacity": PropertyTypes.Opacity,
   "drawOrder": PropertyTypes.DrawOrder,
   "length": PropertyTypes.Length,
-  "vertices": PropertyTypes.VertexDeform,
+  "vertices": PropertyTypes.ImageVertices,
   "strength": PropertyTypes.ConstraintStrength,
   "trigger": PropertyTypes.Trigger,
   "intValue": PropertyTypes.IntProperty,

@@ -57,4 +57,6 @@ abstract class StreamReader {
   closeObject();
 
   String get containerType;
+
+  Uint8List readAsset();
 }

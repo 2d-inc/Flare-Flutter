@@ -61,8 +61,8 @@ class PropertyAnimation {
       case PropertyTypes.Length:
         keyFrameReader = KeyFrameLength.read;
         break;
-      case PropertyTypes.VertexDeform:
-        keyFrameReader = KeyFrameVertexDeform.read;
+      case PropertyTypes.ImageVertices:
+        keyFrameReader = KeyFrameImageVertices.read;
         break;
       case PropertyTypes.ConstraintStrength:
         keyFrameReader = KeyFrameConstraintStrength.read;

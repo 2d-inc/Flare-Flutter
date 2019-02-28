@@ -2,7 +2,6 @@ import "dart:typed_data";
 import "actor_shape.dart";
 import "actor_component.dart";
 import "actor_node.dart";
-import "actor_skin.dart";
 import "actor_skinnable.dart";
 import "actor_artboard.dart";
 import "stream_reader.dart";
@@ -65,7 +64,7 @@ abstract class ActorBasePath {
     return AABB.fromValues(minX, minY, maxX, maxY);
   }
 
-  markPathDirty() {
+  invalidateDrawable() {
     invalidatePath();
     if (parent is ActorShape) {
       parent.invalidateShape();
@@ -148,22 +147,21 @@ abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
   set width(double w) {
     if (w != _width) {
       _width = w;
-      markPathDirty();
+      invalidateDrawable();
     }
   }
 
   set height(double w) {
     if (w != _height) {
       _height = w;
-      markPathDirty();
+      invalidateDrawable();
     }
   }
 
-  void copyPath(ActorBasePath node, ActorArtboard resetArtboard) {
-    ActorProceduralPath nodePath = node as ActorProceduralPath;
-    copyNode(nodePath, resetArtboard);
-    _width = nodePath.width;
-    _height = nodePath.height;
+  void copyPath(ActorProceduralPath node, ActorArtboard resetArtboard) {
+    copyNode(node, resetArtboard);
+    _width = node.width;
+    _height = node.height;
   }
 
   @override
@@ -176,12 +174,11 @@ abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
   }
 }
 
-class ActorPath extends ActorSkinnable with ActorBasePath {
+class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
   bool _isHidden;
   bool _isClosed;
   List<PathPoint> _points;
   Float32List vertexDeform;
-  ActorSkin skin;
 
   @override
   bool get isPathInWorldSpace => isConnectedToBones;
@@ -282,7 +279,7 @@ class ActorPath extends ActorSkinnable with ActorBasePath {
         }
       }
     }
-    markPathDirty();
+    invalidateDrawable();
 
     super.update(dirt);
   }
@@ -292,7 +289,7 @@ class ActorPath extends ActorSkinnable with ActorBasePath {
     if (component == null) {
       component = ActorPath();
     }
-
+	ActorNode.read(artboard, reader, component);
     ActorSkinnable.read(artboard, reader, component);
 
     component._isHidden = !reader.readBool("isVisible");
@@ -336,21 +333,27 @@ class ActorPath extends ActorSkinnable with ActorBasePath {
     return instanceEvent;
   }
 
-  void copyPath(ActorBasePath node, ActorArtboard resetArtboard) {
-    ActorPath nodePath = node as ActorPath;
-    copySkinnable(nodePath, resetArtboard);
-    _isHidden = nodePath._isHidden;
-    _isClosed = nodePath._isClosed;
+	@override
+  void resolveComponentIndices(List<ActorComponent> components) {
+	  super.resolveComponentIndices(components);
+	  resolveSkinnable(components);
+  }
 
-    int pointCount = nodePath._points.length;
+  void copyPath(ActorPath node, ActorArtboard resetArtboard) {
+	copyNode(node, resetArtboard);
+    copySkinnable(node, resetArtboard);
+    _isHidden = node._isHidden;
+    _isClosed = node._isClosed;
+
+    int pointCount = node._points.length;
 
     _points = List<PathPoint>(pointCount);
     for (int i = 0; i < pointCount; i++) {
-      _points[i] = nodePath._points[i].makeInstance();
+      _points[i] = node._points[i].makeInstance();
     }
 
-    if (nodePath.vertexDeform != null) {
-      vertexDeform = Float32List.fromList(nodePath.vertexDeform);
+    if (node.vertexDeform != null) {
+      vertexDeform = Float32List.fromList(node.vertexDeform);
     }
   }
 }

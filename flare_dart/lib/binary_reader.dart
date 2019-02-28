@@ -159,6 +159,13 @@ abstract class BinaryReader implements StreamReader {
     return readUint8(label) == 1;
   }
 
+  Uint8List readAsset() {
+    int length = readUint32();
+    Uint8List bytes = new Uint8List(length);
+    readUint8Array(bytes, length, 0);
+    return bytes;
+  }
+
   @override
   openArray(String label) {
     /* NOP */

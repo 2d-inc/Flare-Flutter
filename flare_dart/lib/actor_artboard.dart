@@ -35,7 +35,7 @@ import "math/aabb.dart";
 import "dart:math";
 
 class ActorArtboard {
-  int _flags = ActorFlags.IsDrawOrderDirty | ActorFlags.IsVertexDeformDirty;
+  int _flags = ActorFlags.IsDrawOrderDirty;
   int _drawableNodeCount = 0;
   int _nodeCount = 0;
   int _dirtDepth = 0;
@@ -175,10 +175,6 @@ class ActorArtboard {
     _flags |= ActorFlags.IsDrawOrderDirty;
   }
 
-  bool get isVertexDeformDirty {
-    return (_flags & ActorFlags.IsVertexDeformDirty) != 0x00;
-  }
-
   ActorArtboard makeInstance() {
     ActorArtboard artboardInstance = ActorArtboard(_actor);
     artboardInstance.copyArtboard(this);
@@ -297,16 +293,6 @@ class ActorArtboard {
         }
       }
     }
-    if ((_flags & ActorFlags.IsVertexDeformDirty) != 0) {
-      _flags &= ~ActorFlags.IsVertexDeformDirty;
-      for (int i = 0; i < _drawableNodeCount; i++) {
-        ActorDrawable drawable = _drawableNodes[i];
-        if (drawable is ActorImage && drawable.isVertexDeformDirty) {
-          drawable.isVertexDeformDirty = false;
-          //updateVertexDeform(drawable);
-        }
-      }
-    }
   }
 
   void read(StreamReader reader) {
@@ -359,13 +345,14 @@ class ActorArtboard {
           component = ActorRootBone.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorImageSequence:
-          component =
-              ActorImage.readSequence(this, nodeBlock, actor.makeImageNode());
-          ActorImage ai = component as ActorImage;
-          actor.maxTextureIndex = ai
-              .sequenceFrames.last.atlasIndex; // Last atlasIndex is the biggest
-          break;
+		// Todo: fix sequences for flare.
+        // case BlockTypes.ActorImageSequence:
+        //   component =
+        //       ActorImage.readSequence(this, nodeBlock, actor.makeImageNode());
+        //   ActorImage ai = component as ActorImage;
+        //   actor.maxTextureIndex = ai
+        //       .sequenceFrames.last.atlasIndex; // Last atlasIndex is the biggest
+        //   break;
 
         case BlockTypes.ActorImage:
           component = ActorImage.read(this, nodeBlock, actor.makeImageNode());

@@ -10,42 +10,14 @@ import "math/mat2d.dart";
 import "math/vec2d.dart";
 import "math/aabb.dart";
 
-class ActorShape extends ActorNode implements ActorDrawable {
-  bool _isHidden;
+class ActorShape extends ActorDrawable {
   List<ActorStroke> _strokes = List<ActorStroke>();
   List<ActorFill> _fills = List<ActorFill>();
-
-  @override
-  int drawIndex;
-
-  int _drawOrder;
-  @override
-  int get drawOrder => _drawOrder;
-
-  List<List<ActorShape>> _clipShapes;
-
-  List<List<ActorShape>> get clipShapes => _clipShapes;
 
   ActorFill get fill => _fills.length > 0 ? _fills.first : null;
   ActorStroke get stroke => _strokes.length > 0 ? _strokes.first : null;
   List<ActorFill> get fills => _fills;
   List<ActorStroke> get strokes => _strokes;
-
-  set drawOrder(int value) {
-    if (_drawOrder == value) {
-      return;
-    }
-    _drawOrder = value;
-    artboard.markDrawOrderDirty();
-  }
-
-  bool get isHidden {
-    return _isHidden;
-  }
-
-  bool get doesDraw {
-    return !_isHidden && !this.renderCollapsed;
-  }
 
   void update(int dirt) {
     super.update(dirt);
@@ -58,11 +30,8 @@ class ActorShape extends ActorNode implements ActorDrawable {
       component = ActorShape();
     }
 
-    ActorNode.read(artboard, reader, component);
+    ActorDrawable.read(artboard, reader, component);
 
-    component._isHidden = !reader.readBool("isVisible");
-    /*blendMode*/ reader.readUint8("blendMode");
-    component.drawOrder = reader.readUint16("drawOrder");
     return component;
   }
 
@@ -73,14 +42,12 @@ class ActorShape extends ActorNode implements ActorDrawable {
   }
 
   void copyShape(ActorShape node, ActorArtboard resetArtboard) {
-    copyNode(node, resetArtboard);
-    drawOrder = node.drawOrder;
-    _isHidden = node._isHidden;
+    node.copyDrawable(this, resetArtboard);
   }
 
   AABB computeAABB() {
     AABB aabb;
-    for (List<ActorShape> clips in _clipShapes) {
+    for (List<ActorShape> clips in clipShapes) {
       for (ActorShape node in clips) {
         AABB bounds = node.computeAABB();
         if (bounds == null) {
@@ -181,36 +148,25 @@ class ActorShape extends ActorNode implements ActorDrawable {
   void addStroke(ActorStroke stroke) {
     _strokes.add(stroke);
   }
+
   void addFill(ActorFill fill) {
     _fills.add(fill);
   }
 
-  void initializeGraphics(){
-	  for(ActorStroke stroke in _strokes)
-	  {
-		  stroke.initializeGraphics();
-	  }
-	  for(ActorFill fill in _fills)
-	  {
-		  fill.initializeGraphics();
-	  }
-  }
-
-  void completeResolve() {
-    _clipShapes = List<List<ActorShape>>();
-    List<List<ActorClip>> clippers = allClips;
-    for (List<ActorClip> clips in clippers) {
-      List<ActorShape> shapes = List<ActorShape>();
-      for (ActorClip clip in clips) {
-        clip.node.all((ActorNode node) {
-          if (node is ActorShape) {
-            shapes.add(node);
-          }
-        });
-      }
-      if (shapes.length > 0) {
-        _clipShapes.add(shapes);
-      }
+  void initializeGraphics() {
+    for (ActorStroke stroke in _strokes) {
+      stroke.initializeGraphics();
+    }
+    for (ActorFill fill in _fills) {
+      fill.initializeGraphics();
     }
   }
+
+  @override
+  int get blendModeId {
+    return 0;
+  }
+
+  @override
+  set blendModeId(int value) {}
 }

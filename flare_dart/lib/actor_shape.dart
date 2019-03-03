@@ -42,7 +42,7 @@ class ActorShape extends ActorDrawable {
   }
 
   void copyShape(ActorShape node, ActorArtboard resetArtboard) {
-    node.copyDrawable(this, resetArtboard);
+    copyDrawable(node, resetArtboard);
   }
 
   AABB computeAABB() {

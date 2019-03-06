@@ -596,12 +596,6 @@ class FlutterActor extends Actor {
     return super.load(data, provider);
   }
 
-  static Future<ByteData> loadFromUrl(String url) async {
-    final response = await http.get(url);
-    final buffer = response.bodyBytes.buffer;
-    return ByteData.view(buffer);
-  }
-
   dispose() {}
 
   @override

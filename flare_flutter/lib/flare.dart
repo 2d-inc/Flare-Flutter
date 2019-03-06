@@ -27,6 +27,8 @@ import 'package:flare_dart/path_point.dart';
 export 'package:flare_dart/animation/actor_animation.dart';
 export 'package:flare_dart/actor_node.dart';
 import 'trim_path.dart';
+import 'package:http/http.dart' as http;
+
 
 abstract class FlutterActorDrawable {
   ui.BlendMode _blendMode;
@@ -591,8 +593,21 @@ class FlutterActor extends Actor {
   }
 
   Future<bool> loadFromBundle(AssetBundle assetBundle, String filename) async {
-    ByteData data = await assetBundle.load(filename);
+    ByteData data;
+
+    if(filename.startsWith('http')){
+      data = await loadFromUrl(filename);
+    }
+    else{
+      data = await assetBundle.load(filename);
+    }
     return super.load(data, _AssetBundleContext(assetBundle, filename));
+  }
+
+  static Future<ByteData> loadFromUrl(String url) async {
+    final response = await http.get(url);
+    final buffer = response.bodyBytes.buffer;
+    return ByteData.view(buffer);
   }
 
   dispose() {}

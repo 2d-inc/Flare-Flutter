@@ -1,4 +1,5 @@
 import "package:flare_flutter/flare_actor.dart";
+import 'package:flare_flutter/flare_providers.dart';
 import "package:flutter/material.dart";
 
 void main() => runApp(MyApp());
@@ -38,7 +39,8 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Expanded(
                   child: FlareActor(
-                "assets/Filip.flr",
+                FlareAssetAnimationProvider(
+                    context: context, fileName: 'Filip.flr'),
                 alignment: Alignment.center,
                 fit: BoxFit.contain,
                 animation: _animationName,

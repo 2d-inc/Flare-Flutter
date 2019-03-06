@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:flare_dart/actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +16,7 @@ import 'flare_controller.dart';
 typedef void FlareCompletedCallback(String name);
 
 class FlareActor extends LeafRenderObjectWidget {
-  final String filename;
+  final FlareAnimationProvider provider;
   final String animation;
   final BoxFit fit;
   final Alignment alignment;
@@ -25,7 +27,7 @@ class FlareActor extends LeafRenderObjectWidget {
   final Color color;
   final String boundsNode;
 
-  FlareActor(this.filename,
+  FlareActor(this.provider,
       {this.boundsNode,
       this.animation,
       this.fit = BoxFit.contain,
@@ -39,8 +41,7 @@ class FlareActor extends LeafRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return FlareActorRenderObject()
-      ..assetBundle = DefaultAssetBundle.of(context)
-      ..filename = filename
+      ..provider = provider
       ..fit = fit
       ..alignment = alignment
       ..animationName = animation
@@ -56,8 +57,7 @@ class FlareActor extends LeafRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, covariant FlareActorRenderObject renderObject) {
     renderObject
-      ..assetBundle = DefaultAssetBundle.of(context)
-      ..filename = filename
+      ..provider = provider
       ..fit = fit
       ..alignment = alignment
       ..animationName = animation
@@ -76,17 +76,18 @@ class FlareAnimationLayer {
   String name;
   ActorAnimation animation;
   double time = 0.0, mix = 0.0;
+
   apply(FlutterActorArtboard artboard) {
     animation.apply(time, artboard, mix);
   }
 
   get duration => animation.duration;
+
   get isDone => time >= animation.duration;
 }
 
 class FlareActorRenderObject extends RenderBox {
-  AssetBundle assetBundle;
-  String _filename;
+  FlareAnimationProvider _provider;
   BoxFit _fit;
   Alignment _alignment;
   String _animationName;
@@ -108,6 +109,7 @@ class FlareActorRenderObject extends RenderBox {
   Color _color;
 
   Color get color => _color;
+
   set color(Color value) {
     if (value != _color) {
       _color = value;
@@ -126,6 +128,7 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   String get boundsNodeName => _boundsNodeName;
+
   set boundsNodeName(String value) {
     if (_boundsNodeName == value) {
       return;
@@ -159,6 +162,7 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   BoxFit get fit => _fit;
+
   set fit(BoxFit value) {
     if (value != _fit) {
       _fit = value;
@@ -167,6 +171,7 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   bool get isPlaying => _isPlaying;
+
   set isPlaying(bool value) {
     if (value != _isPlaying) {
       _isPlaying = value;
@@ -190,6 +195,7 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   String get animationName => _animationName;
+
   set animationName(String value) {
     if (value != _animationName) {
       _animationName = value;
@@ -198,6 +204,7 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   FlareController get controller => _controller;
+
   set controller(FlareController c) {
     if (_controller != c) {
       _controller = c;
@@ -207,22 +214,23 @@ class FlareActorRenderObject extends RenderBox {
     }
   }
 
-  String get filename => _filename;
-  set filename(String value) {
-    if (value != _filename) {
-      _filename = value;
+  FlareAnimationProvider get provider => _provider;
+
+  set provider(FlareAnimationProvider value) {
+    if (value != _provider) {
+      _provider = value;
       if (_actor != null) {
         _actor.dispose();
         _actor = null;
         _artboard = null;
       }
-      if (_filename == null) {
+      if (_provider == null) {
         markNeedsPaint();
         return;
       }
 
       FlutterActor actor = FlutterActor();
-      actor.loadFromBundle(assetBundle, _filename).then((bool success) {
+      actor.loadFromProvider(provider).then((bool success) {
         if (success) {
           _actor = actor;
           _artboard = _actor?.artboard;
@@ -251,6 +259,7 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   Alignment get alignment => _alignment;
+
   set alignment(Alignment value) {
     if (value != _alignment) {
       _alignment = value;
@@ -259,6 +268,7 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   FlareCompletedCallback get completed => _completedCallback;
+
   set completed(FlareCompletedCallback value) {
     if (_completedCallback != value) {
       _completedCallback = value;
@@ -472,3 +482,5 @@ class FlareActorRenderObject extends RenderBox {
     }
   }
 }
+
+

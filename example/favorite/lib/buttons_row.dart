@@ -1,3 +1,4 @@
+import 'package:flare_flutter/flare_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flare_flutter/flare_actor.dart';
 
@@ -8,6 +9,7 @@ class ButtonsRow extends StatefulWidget {
 
 class _ButtonsState extends State<ButtonsRow> {
   static final double containerSize = 20.0;
+
   // Wheather this element is a favorite or not.
   bool _isFav = false;
 
@@ -44,7 +46,9 @@ class _ButtonsState extends State<ButtonsRow> {
                   margin: EdgeInsets.only(right: 10),
                   width: containerSize,
                   height: containerSize,
-                  child: FlareActor("assets/Favorite.flr",
+                  child: FlareActor(
+                      FlareAssetAnimationProvider(
+                          context: context, fileName: 'assets/Favorite.flr'),
                       shouldClip: false,
                       // Play the animation depending on the state.
                       animation:

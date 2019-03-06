@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> implements FlareController {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: FlareActor("assets/Change Color Example.flr", // You can find the example project here: https://www.2dimensions.com/a/castor/files/flare/change-color-example
+      body: FlareActor(FlareAssetAnimationProvider(context: context, fileName: 'Change Color Example.flr'), // You can find the example project here: https://www.2dimensions.com/a/castor/files/flare/change-color-example
           fit: BoxFit.contain, alignment: Alignment.center, controller: this),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,

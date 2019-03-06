@@ -57,9 +57,11 @@ class _MyHomePageState extends State<MyHomePage> implements FlareController {
       body: new Stack(
         children: [
           Positioned.fill(
-              child: FlareActor("assets/Penguin.flr",
+              child: FlareActor(
+                  FlareAssetAnimationProvider(
+                      context: context, fileName: 'Penguin.flr'),
                   alignment: Alignment.center,
-				  isPaused: _isPaused,
+                  isPaused: _isPaused,
                   fit: BoxFit.cover,
                   animation: "walk",
                   controller: this)),

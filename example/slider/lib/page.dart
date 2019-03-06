@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:flare_flutter/flare_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flare_flutter/flare_actor.dart';
@@ -50,7 +51,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
             child: Listener(
               onPointerUp: _scheduleDemo,
               child: Stack(fit: StackFit.expand, children: [
-                FlareActor("assets/Resizing_House.flr",
+                FlareActor(FlareAssetAnimationProvider(context:context,fileName:"Resizing_House.flr"),
                   controller: _houseController,
                   fit: BoxFit.cover,
                 ),

@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:flare_dart/actor_image.dart';
 import 'package:flare_dart/math/aabb.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';
@@ -29,8 +30,11 @@ export 'package:flare_dart/actor_node.dart';
 import 'trim_path.dart';
 import 'package:http/http.dart' as http;
 
+export 'package:flare_flutter/flare_providers.dart';
+
 abstract class FlutterActorDrawable {
   ui.BlendMode _blendMode;
+
   int get blendModeId {
     return _blendMode.index;
   }
@@ -40,6 +44,7 @@ abstract class FlutterActorDrawable {
   }
 
   ui.BlendMode get blendMode => _blendMode;
+
   set blendMode(ui.BlendMode mode) {
     if (_blendMode == mode) {
       return;
@@ -55,6 +60,7 @@ abstract class FlutterActorDrawable {
 
 abstract class FlutterFill {
   ui.Paint _paint;
+
   void initializeGraphics() {
     _paint = ui.Paint()..style = PaintingStyle.fill;
   }
@@ -518,12 +524,6 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
   }
 }
 
-class _AssetBundleContext {
-  String filename;
-  AssetBundle bundle;
-  _AssetBundleContext(filename, bundle);
-}
-
 class FlutterActor extends Actor {
   List<ui.Image> _images;
 
@@ -591,15 +591,9 @@ class FlutterActor extends Actor {
     return FlutterRadialStroke();
   }
 
-  Future<bool> loadFromBundle(AssetBundle assetBundle, String filename) async {
-    ByteData data;
-
-    if (filename.startsWith('http')) {
-      data = await loadFromUrl(filename);
-    } else {
-      data = await assetBundle.load(filename);
-    }
-    return super.load(data, _AssetBundleContext(assetBundle, filename));
+  Future<bool> loadFromProvider(FlareAnimationProvider provider) async {
+    ByteData data = await provider.loadAnimation();
+    return super.load(data, provider);
   }
 
   static Future<ByteData> loadFromUrl(String url) async {
@@ -623,13 +617,8 @@ class FlutterActor extends Actor {
 
   @override
   Future<Uint8List> readOutOfBandAsset(
-      String assetFilename, dynamic context) async {
-    _AssetBundleContext bundleContext = context;
-    int pathIdx = bundleContext.filename.lastIndexOf('/') + 1;
-    String basePath = bundleContext.filename.substring(0, pathIdx);
-    ByteData data = await bundleContext.bundle.load(basePath + assetFilename);
-    return Uint8List.view(data.buffer);
-  }
+          String fileName, FlareAnimationProvider provider) =>
+      provider.readOutOfBandAsset(fileName);
 }
 
 class FlutterActorArtboard extends ActorArtboard {
@@ -714,8 +703,11 @@ abstract class FlutterPath {
 // they should implement FlutterPath and generate the path another way.
 abstract class FlutterPathPointsPath implements FlutterPath {
   ui.Path _path = ui.Path();
+
   List<PathPoint> get deformedPoints;
+
   bool get isClosed;
+
   bool _isValid = false;
 
   ui.Path get path {

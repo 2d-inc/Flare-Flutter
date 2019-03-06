@@ -14,6 +14,12 @@ import "stream_reader.dart";
 import "block_types.dart";
 import "actor_artboard.dart";
 
+abstract class FlareAnimationProvider {
+  Future<ByteData> loadAnimation();
+
+  Future<Uint8List> readOutOfBandAsset(String fileName);
+}
+
 abstract class Actor {
   int maxTextureIndex = 0;
   int _version = 0;
@@ -99,7 +105,7 @@ abstract class Actor {
 
   Future<bool> loadAtlases(List<Uint8List> rawAtlases);
 
-  Future<bool> load(ByteData data, dynamic context) async {
+  Future<bool> load(ByteData data, FlareAnimationProvider provider) async {
     if (data.lengthInBytes < 5) {
       throw UnsupportedError("Not a valid Flare file.");
     }
@@ -134,7 +140,7 @@ abstract class Actor {
           break;
 
         case BlockTypes.Atlases:
-          List<Uint8List> rawAtlases = await readAtlasesBlock(block, context);
+          List<Uint8List> rawAtlases = await readAtlasesBlock(block, provider);
           success = await loadAtlases(rawAtlases);
           break;
       }
@@ -166,10 +172,10 @@ abstract class Actor {
     }
   }
 
-  Future<Uint8List> readOutOfBandAsset(String filename, dynamic context);
+  Future<Uint8List> readOutOfBandAsset(String fileName, FlareAnimationProvider provider);
 
   Future<List<Uint8List>> readAtlasesBlock(
-      StreamReader block, dynamic context) {
+      StreamReader block, FlareAnimationProvider provider) {
     // Determine whether or not the atlas is in or out of band.
     bool isOOB = block.readBool("isOOB");
     block.openArray("data");
@@ -177,7 +183,7 @@ abstract class Actor {
     if (isOOB) {
       List<Future<Uint8List>> waitingFor = List<Future<Uint8List>>(numAtlases);
       for (int i = 0; i < numAtlases; i++) {
-        waitingFor[i] = readOutOfBandAsset(block.readString("data"), context);
+        waitingFor[i] = readOutOfBandAsset(block.readString("data"),provider);
       }
       return Future.wait(waitingFor);
     } else {

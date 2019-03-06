@@ -29,7 +29,6 @@ export 'package:flare_dart/actor_node.dart';
 import 'trim_path.dart';
 import 'package:http/http.dart' as http;
 
-
 abstract class FlutterActorDrawable {
   ui.BlendMode _blendMode;
   int get blendModeId {
@@ -595,10 +594,9 @@ class FlutterActor extends Actor {
   Future<bool> loadFromBundle(AssetBundle assetBundle, String filename) async {
     ByteData data;
 
-    if(filename.startsWith('http')){
+    if (filename.startsWith('http')) {
       data = await loadFromUrl(filename);
-    }
-    else{
+    } else {
       data = await assetBundle.load(filename);
     }
     return super.load(data, _AssetBundleContext(assetBundle, filename));

@@ -253,7 +253,7 @@ class FlutterColorFill extends ColorFill with FlutterFill {
   }
 
   Color get uiColor {
-    Float32List c = color;
+    Float32List c = displayColor;
     return Color.fromRGBO(
         (c[0] * 255.0).round(),
         (c[1] * 255.0).round(),
@@ -283,7 +283,7 @@ class FlutterColorStroke extends ColorStroke with FlutterStroke {
   }
 
   Color get uiColor {
-    Float32List c = color;
+    Float32List c = displayColor;
     return Color.fromRGBO(
         (c[0] * 255.0).round(),
         (c[1] * 255.0).round(),

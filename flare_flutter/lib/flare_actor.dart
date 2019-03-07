@@ -217,8 +217,8 @@ class FlareActorRenderObject extends RenderBox {
         _artboard = null;
       }
 
-	  _animationLayers.length = 0;
-	  
+      _animationLayers.length = 0;
+
       if (_filename == null) {
         markNeedsPaint();
         return;

@@ -68,6 +68,10 @@ abstract class ActorColor extends ActorPaint {
   Float32List _color = Float32List(4);
 
   Float32List get color {
+    return _color;
+  }
+
+  Float32List get displayColor {
     return artboard?.overrideColor ?? _color;
   }
 
@@ -180,7 +184,8 @@ abstract class ActorStroke {
       component._cap = strokeCapLookup[reader.readUint8("cap")];
       component._join = strokeJoinLookup[reader.readUint8("join")];
       if (artboard.actor.version >= 20) {
-        component._trim = trimPathLookup[reader.readUint8("trim")] ?? TrimPath.Off;
+        component._trim =
+            trimPathLookup[reader.readUint8("trim")] ?? TrimPath.Off;
         if (component.isTrimmed) {
           component._trimStart = reader.readFloat32("start");
           component._trimEnd = reader.readFloat32("end");

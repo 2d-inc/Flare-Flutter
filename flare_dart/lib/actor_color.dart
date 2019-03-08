@@ -144,7 +144,7 @@ abstract class ActorStroke {
   TrimPath get trim => _trim;
   bool get isTrimmed => _trim != TrimPath.Off;
 
-  double _trimStart;
+  double _trimStart = 0.0;
   double get trimStart => _trimStart;
   set trimStart(double value) {
     if (_trimStart == value) {
@@ -154,7 +154,7 @@ abstract class ActorStroke {
     markPathEffectsDirty();
   }
 
-  double _trimEnd;
+  double _trimEnd = 0.0;
   double get trimEnd => _trimEnd;
   set trimEnd(double value) {
     if (_trimEnd == value) {
@@ -164,7 +164,7 @@ abstract class ActorStroke {
     markPathEffectsDirty();
   }
 
-  double _trimOffset;
+  double _trimOffset = 0.0;
   double get trimOffset => _trimOffset;
   set trimOffset(double value) {
     if (_trimOffset == value) {

@@ -962,6 +962,21 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     if (_canvasVertices == null && !updateVertices()) {
       return;
     }
+    
+    // Get Clips
+    for (List<ActorShape> clips in clipShapes) {
+      if (clips.length == 1) {
+        canvas.clipPath((clips[0] as FlutterActorShape).path);
+      } else {
+        ui.Path clippingPath = ui.Path();
+        for (ActorShape clipShape in clips) {
+          clippingPath.addPath(
+              (clipShape as FlutterActorShape).path, ui.Offset.zero);
+        }
+        canvas.clipPath(clippingPath);
+      }
+    }
+
     _paint.color = _paint.color.withOpacity(renderOpacity);
     if (imageTransform != null) {
       canvas.save();

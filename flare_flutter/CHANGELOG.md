@@ -1,3 +1,7 @@
+## [1.3.3] - 2019-03-12 09:23:54
+
+Apply clip to ActorImage.
+
 ## [1.3.2] - 2019-03-07 12:46:33
 
 Use the displayColor value exposed by the ActorColor instead of the color value.

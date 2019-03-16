@@ -45,6 +45,25 @@ class ActorShape extends ActorDrawable {
     copyDrawable(node, resetArtboard);
   }
 
+  AABB computeOBB() {
+    AABB aabb;
+    for (ActorNode node in children) {
+      ActorBasePath path = node as ActorBasePath;
+      if (path == null) {
+        continue;
+      }
+      // This is the axis aligned bounding box in the space of the parent (this case our shape).
+      AABB pathAABB = path.getPathAABB();
+
+      if (aabb == null) {
+        aabb = pathAABB;
+      } else {
+        AABB.combine(aabb, aabb, pathAABB);
+      }
+    }
+	return aabb;
+  }
+
   AABB computeAABB() {
     AABB aabb;
     for (List<ActorShape> clips in clipShapes) {

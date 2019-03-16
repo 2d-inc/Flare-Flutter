@@ -1,5 +1,7 @@
 import 'dart:math';
 import "dart:typed_data";
+import 'package:flare_dart/math/mat2d.dart';
+
 import "vec2d.dart";
 
 class AABB {
@@ -57,6 +59,9 @@ class AABB {
     return out;
   }
 
+  double get width => maximum[0]-minimum[0];
+  double get height => maximum[1]-minimum[1];
+
   static Vec2D extents(Vec2D out, AABB a) {
     out[0] = (a[2] - a[0]) * 0.5;
     out[1] = (a[3] - a[1]) * 0.5;
@@ -113,5 +118,23 @@ class AABB {
   @override
   String toString() {
     return _buffer.toString();
+  }
+
+  AABB transform(Mat2D matrix) {
+	Vec2D p1 = Vec2D.fromValues(_buffer[0], _buffer[1]);
+	Vec2D p2 = Vec2D.fromValues(_buffer[2], _buffer[1]);
+	Vec2D p3 = Vec2D.fromValues(_buffer[2], _buffer[3]);
+	Vec2D p4 = Vec2D.fromValues(_buffer[0], _buffer[3]);
+
+	Vec2D.transformMat2D(p1, p1, matrix);
+	Vec2D.transformMat2D(p2, p2, matrix);
+	Vec2D.transformMat2D(p3, p3, matrix);
+	Vec2D.transformMat2D(p4, p4, matrix);
+
+	return AABB.fromValues(min(p1[0], min(p2[0], min(p3[0], p4[0]))), min(p1[1], min(p2[1], min(p3[1], p4[1]))), max(p1[0], max(p2[0], max(p3[0], p4[0]))), max(p1[1], max(p2[1], max(p3[1], p4[1]))));
+  }
+
+  bool isIdenticalTo(AABB aabb) {
+	  return aabb._buffer[0] == _buffer[0] && aabb._buffer[1] == _buffer[1] && aabb._buffer[2] == _buffer[2] && aabb._buffer[3] == _buffer[3];
   }
 }

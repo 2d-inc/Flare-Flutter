@@ -1,6 +1,7 @@
 import 'package:flare_dart/actor_artboard.dart';
 import 'package:flare_dart/actor_shape.dart';
 import 'package:flare_dart/stream_reader.dart';
+import 'package:flare_dart/actor_cache_node.dart';
 
 import "math/aabb.dart";
 import "actor_node.dart";
@@ -10,6 +11,8 @@ enum BlendModes { Normal, Multiply, Screen, Additive }
 abstract class ActorDrawable extends ActorNode {
   List<List<ActorShape>> _clipShapes;
   List<List<ActorShape>> get clipShapes => _clipShapes;
+  ActorCacheNode _cacheNode;
+  ActorCacheNode get cacheNode => _cacheNode;
 
   // Editor set draw index.
   int _drawOrder;
@@ -38,7 +41,8 @@ abstract class ActorDrawable extends ActorNode {
     ActorNode.read(artboard, reader, component);
 
     component.isHidden = !reader.readBool("isVisible");
-    component.blendModeId = artboard.actor.version < 21 ? 3 : reader.readUint8("blendMode");
+    component.blendModeId =
+        artboard.actor.version < 21 ? 3 : reader.readUint8("blendMode");
     component.drawOrder = reader.readUint16("drawOrder");
 
     return component;
@@ -52,10 +56,22 @@ abstract class ActorDrawable extends ActorNode {
     isHidden = node.isHidden;
   }
 
+  AABB computeOBB();
   AABB computeAABB();
   void initializeGraphics() {}
 
   void completeResolve() {
+    super.completeResolve();
+    // Find cache node we may belong to.
+    for (ActorNode check = this.parent; check != null; check = check.parent) {
+      if (check is ActorCacheNode) {
+        _cacheNode = check;
+        _cacheNode.addDrawable(this);
+        break;
+      }
+    }
+
+    // Find clipping shapes.
     _clipShapes = List<List<ActorShape>>();
     List<List<ActorClip>> clippers = allClips;
     for (List<ActorClip> clips in clippers) {

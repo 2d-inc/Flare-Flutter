@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flare_dart/actor_skinnable.dart';
+import 'package:flare_dart/math/vec2d.dart';
 
 import "stream_reader.dart";
 import "math/mat2d.dart";
@@ -307,36 +308,9 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     if (skin != null) {
       Float32List boneTransforms = skin.boneMatrices;
 
-      //Mat2D inverseWorldTransform = Mat2D.Invert(new Mat2D(), worldTransform);
       Float32List influenceMatrix =
           Float32List.fromList([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
 
-      // if(this.name == "evolution_1_0001s_0003_evolution_1_weapo")
-      // {
-      // //	print("TEST!");
-      // 	int boneIndexOffset = vertexBoneIndexOffset;
-      // 	int weightOffset = vertexBoneWeightOffset;
-      // 	for(int i = 0; i < _vertexCount; i++)
-      // 	{
-      // 		for(int wi = 0; wi < 4; wi++)
-      // 		{
-      // 			int boneIndex = _vertices[boneIndexOffset+wi].toInt();
-      // 			double weight = _vertices[weightOffset+wi];
-      // 			if(boneIndex == 1)
-      // 			{
-      // 				_vertices[weightOffset+wi] = 1.0;
-      // 			}
-      // 			else if(boneIndex == 2)
-      // 			{
-      // 				_vertices[weightOffset+wi] = 0.0;
-      // 			}
-      // 			//print("BI $boneIndex $weight");
-      // 		}
-      // 		boneIndexOffset += vertexStride;
-      // 		weightOffset += vertexStride;
-      // 	}
-      // }
-      //print("VERTEX STRIDE $stride, $vertexStride, $_vertexCount, ${_vertices.length}");
       int boneIndexOffset = vertexBoneIndexOffset;
       int weightOffset = vertexBoneWeightOffset;
       for (int i = 0; i < _vertexCount; i++) {
@@ -364,13 +338,10 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 
           int boneTransformIndex = boneIndex * 6;
           if (boneIndex <= connectedBones.length) {
-            //print("BONE TRANSFORMS ${boneTransforms.length} $boneIndex $boneTransformIndex ${connectedBones.length} $boneIndexOffset $wi");
             for (int j = 0; j < 6; j++) {
               influenceMatrix[j] +=
                   boneTransforms[boneTransformIndex + j] * weight;
             }
-          } else {
-            //print("BAD BONE INDEX $boneIndex ${connectedBones.length} ${name}");
           }
         }
 
@@ -397,11 +368,60 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     }
   }
 
+  AABB computeTransformedAABB(Float32List vb, Mat2D transform) {
+    double minX = double.maxFinite;
+    double minY = double.maxFinite;
+    double maxX = -double.maxFinite;
+    double maxY = -double.maxFinite;
+    int idx = 0;
+    int stride = vertexStride;
+
+    for (int i = 0; i < _vertexCount; i++) {
+      Vec2D p = Vec2D.fromValues(vb[idx], vb[idx + 1]);
+      if (transform != null) {
+        Vec2D.transformMat2D(p, p, transform);
+      }
+      if (p[0] < minX) {
+        minX = p[0];
+      }
+      if (p[1] < minY) {
+        minY = p[1];
+      }
+
+      if (p[0] > maxX) {
+        maxX = p[0];
+      }
+      if (p[1] > maxY) {
+        maxY = p[1];
+      }
+      idx += stride;
+    }
+    return AABB.fromValues(minX, minY, maxX, maxY);
+  }
+
+  @override
+  AABB computeOBB() {
+    // N.B. children should override a more efficient version.
+    Float32List vb = makeVertexPositionBuffer();
+    updateVertexPositionBuffer(vb, false);
+
+    if (isConnectedToBones) {
+      Mat2D inverseWorld = Mat2D();
+      Mat2D.invert(inverseWorld, worldTransform);
+      return computeTransformedAABB(vb, inverseWorld);
+    } else {
+      return computeTransformedAABB(vb, null);
+    }
+  }
+
+  @override
   AABB computeAABB() {
-    // Todo: implement for image.
-    Mat2D worldTransform = this.worldTransform;
-    return AABB.fromValues(worldTransform[4], worldTransform[5],
-        worldTransform[4], worldTransform[5]);
+    // N.B. children should override a more efficient version.
+    Float32List vb = makeVertexPositionBuffer();
+    updateVertexPositionBuffer(vb, false);
+
+    return computeTransformedAABB(
+        vb, isConnectedToBones ? null : worldTransform);
   }
 
   Mat2D get imageTransform => isConnectedToBones ? null : worldTransform;

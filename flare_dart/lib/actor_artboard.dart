@@ -1,3 +1,5 @@
+import 'package:flare_dart/actor_cache_node.dart';
+
 import "actor_flags.dart";
 import "block_types.dart";
 import "actor_node.dart";
@@ -43,6 +45,8 @@ class ActorArtboard {
   List<ActorComponent> _components;
   List<ActorNode> _nodes;
   List<ActorDrawable> _drawableNodes;
+  List<ActorDrawable> _drawingNodes;
+  List<ActorCacheNode> _cacheNodes;
   List<ActorAnimation> _animations;
   List<ActorComponent> _dependencyOrder;
   Actor _actor;
@@ -68,14 +72,14 @@ class ActorArtboard {
   set overrideColor(Float32List value) {
     _overrideColor = value;
     for (ActorDrawable drawable in _drawableNodes) {
-      addDirt((drawable as ActorComponent), DirtyFlags.PaintDirty, true);
+      addDirt(drawable, DirtyFlags.PaintDirty, true);
     }
   }
 
   set modulateOpacity(double value) {
     _modulateOpacity = value;
     for (ActorDrawable drawable in _drawableNodes) {
-      addDirt((drawable as ActorComponent), DirtyFlags.PaintDirty, true);
+      addDirt(drawable, DirtyFlags.PaintDirty, true);
     }
   }
 
@@ -89,6 +93,7 @@ class ActorArtboard {
   List<ActorNode> get nodes => _nodes;
   List<ActorAnimation> get animations => _animations;
   List<ActorDrawable> get drawableNodes => _drawableNodes;
+  List<ActorDrawable> get drawingNodes => _drawingNodes;
   ActorComponent operator [](int index) {
     return _components[index];
   }
@@ -227,7 +232,13 @@ class ActorArtboard {
         }
 
         if (instanceComponent is ActorDrawable) {
-          _drawableNodes[drwIdx++] = instanceComponent as ActorDrawable;
+          _drawableNodes[drwIdx++] = instanceComponent;
+          if (instanceComponent is ActorCacheNode) {
+            if (_cacheNodes == null) {
+              _cacheNodes = [];
+            }
+            _cacheNodes.add(instanceComponent);
+          }
         }
       }
     }
@@ -246,14 +257,26 @@ class ActorArtboard {
         continue;
       }
       component.completeResolve();
+
+      if (component is ActorDrawable && component.cacheNode == null) {
+        if (_drawingNodes == null) {
+          _drawingNodes = [];
+        }
+        _drawingNodes.add(component);
+      }
     }
 
     sortDependencies();
 
-    if (_drawableNodes != null) {
-      _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
-      for (int i = 0; i < _drawableNodes.length; i++) {
-        _drawableNodes[i].drawIndex = i;
+    if (_drawingNodes != null) {
+      _drawingNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
+      for (int i = 0; i < _drawingNodes.length; i++) {
+        _drawingNodes[i].drawIndex = i;
+      }
+      if (_cacheNodes != null) {
+        for (ActorCacheNode cacheNode in _cacheNodes) {
+          cacheNode.sortDrawOrder();
+        }
       }
     }
   }
@@ -286,10 +309,15 @@ class ActorArtboard {
     if ((_flags & ActorFlags.IsDrawOrderDirty) != 0) {
       _flags &= ~ActorFlags.IsDrawOrderDirty;
 
-      if (_drawableNodes != null) {
-        _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
-        for (int i = 0; i < _drawableNodes.length; i++) {
-          _drawableNodes[i].drawIndex = i;
+      if (_drawingNodes != null) {
+        _drawingNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
+        for (int i = 0; i < _drawingNodes.length; i++) {
+          _drawingNodes[i].drawIndex = i;
+        }
+        if (_cacheNodes != null) {
+          for (ActorCacheNode cacheNode in _cacheNodes) {
+            cacheNode.sortDrawOrder();
+          }
         }
       }
     }
@@ -337,6 +365,11 @@ class ActorArtboard {
           component = ActorNode.read(this, nodeBlock, null);
           break;
 
+        case BlockTypes.ActorCacheNode:
+          component =
+              ActorCacheNode.read(this, nodeBlock, actor.makeCacheNode());
+          break;
+
         case BlockTypes.ActorBone:
           component = ActorBone.read(this, nodeBlock, null);
           break;
@@ -345,7 +378,7 @@ class ActorArtboard {
           component = ActorRootBone.read(this, nodeBlock, null);
           break;
 
-		// Todo: fix sequences for flare.
+        // Todo: fix sequences for flare.
         // case BlockTypes.ActorImageSequence:
         //   component =
         //       ActorImage.readSequence(this, nodeBlock, actor.makeImageNode());
@@ -531,7 +564,7 @@ class ActorArtboard {
       }
 
       if (c is ActorDrawable) {
-        _drawableNodes[drwIdx++] = c as ActorDrawable;
+        _drawableNodes[drwIdx++] = c;
       }
 
       if (c is ActorNode) {
@@ -546,6 +579,20 @@ class ActorArtboard {
       ActorComponent c = components[i];
       if (c != null) {
         c.completeResolve();
+        if (c is ActorDrawable) {
+          if (c.cacheNode == null) {
+            if (_drawingNodes == null) {
+              _drawingNodes = [];
+            }
+            _drawingNodes.add(c.cacheNode);
+          }
+          if (c is ActorCacheNode) {
+            if (_cacheNodes == null) {
+              _cacheNodes = [];
+            }
+            _cacheNodes.add(c);
+          }
+        }
       }
     }
 

@@ -1,18 +1,20 @@
 import 'dart:async';
-import "dart:typed_data";
-import "dart:convert";
-import "actor_image.dart";
-import "actor_shape.dart";
-import "actor_ellipse.dart";
-import "actor_polygon.dart";
-import "actor_rectangle.dart";
-import "actor_star.dart";
-import "actor_triangle.dart";
-import "actor_path.dart";
-import "actor_color.dart";
-import "stream_reader.dart";
-import "block_types.dart";
-import "actor_artboard.dart";
+import 'dart:typed_data';
+import 'dart:convert';
+import 'package:flare_dart/actor_cache_node.dart';
+
+import 'actor_image.dart';
+import 'actor_shape.dart';
+import 'actor_ellipse.dart';
+import 'actor_polygon.dart';
+import 'actor_rectangle.dart';
+import 'actor_star.dart';
+import 'actor_triangle.dart';
+import 'actor_path.dart';
+import 'actor_color.dart';
+import 'stream_reader.dart';
+import 'block_types.dart';
+import 'actor_artboard.dart';
 
 abstract class Actor {
   int maxTextureIndex = 0;
@@ -59,6 +61,10 @@ abstract class Actor {
 
   ActorPath makePathNode() {
     return ActorPath();
+  }
+
+  ActorCacheNode makeCacheNode() {
+    return ActorCacheNode();
   }
 
   ActorShape makeShapeNode() {

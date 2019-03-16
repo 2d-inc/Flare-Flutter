@@ -2,6 +2,7 @@ library flare_flutter;
 
 import 'dart:ui' as ui;
 import 'dart:math';
+import 'package:flare_dart/actor_cache_node.dart';
 import 'package:flare_dart/actor_image.dart';
 import 'package:flare_dart/math/aabb.dart';
 import 'package:flutter/services.dart';
@@ -55,7 +56,8 @@ abstract class FlutterActorDrawable {
 abstract class FlutterFill {
   ui.Paint _paint;
   void initializeGraphics() {
-    _paint = ui.Paint()..style = PaintingStyle.fill;
+    _paint = ui.Paint()
+      ..style = PaintingStyle.fill;
   }
 
   void paint(ActorFill fill, ui.Canvas canvas, ui.Path path) {
@@ -538,6 +540,10 @@ class FlutterActor extends Actor {
     return FlutterActorShape();
   }
 
+  ActorCacheNode makeCacheNode() {
+    return FlutterCacheNode();
+  }
+
   ActorPath makePathNode() {
     return FlutterActorPath();
   }
@@ -627,7 +633,7 @@ class FlutterActorArtboard extends ActorArtboard {
   }
 
   void draw(ui.Canvas canvas) {
-    for (ActorDrawable drawable in drawableNodes) {
+    for (ActorDrawable drawable in drawingNodes) {
       if (drawable is FlutterActorDrawable) {
         (drawable as FlutterActorDrawable).draw(canvas);
       }
@@ -962,7 +968,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     if (_canvasVertices == null && !updateVertices()) {
       return;
     }
-    
+
     // Get Clips
     for (List<ActorShape> clips in clipShapes) {
       if (clips.length == 1) {
@@ -1026,5 +1032,77 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     }
 
     return AABB.fromValues(minX, minY, maxX, maxY);
+  }
+}
+
+class FlutterCacheNode extends ActorCacheNode with FlutterActorDrawable {
+  ui.Paint _paint;
+
+  void initializeGraphics() {
+    _paint = ui.Paint()
+      ..style = PaintingStyle.fill
+      ..filterQuality = FilterQuality.low;
+  }
+
+  AABB _lastBounds;
+  ui.Image _cachedImage = null;
+  bool _waitingForImage = false;
+  @override
+  void draw(ui.Canvas canvas) {
+    AABB aabb = computeOBB();
+    if (_lastBounds == null || !_lastBounds.isIdenticalTo(aabb)) {}
+
+    if (_cachedImage == null && !_waitingForImage) {
+      Mat2D inverseWorld = Mat2D();
+      Mat2D.invert(inverseWorld, worldTransform);
+
+      final ui.Rect paintBounds =
+          ui.Offset.zero & Size(aabb.width, aabb.height);
+      final ui.PictureRecorder recorder = new ui.PictureRecorder();
+      final ui.Canvas cacheCanvas = new ui.Canvas(recorder, paintBounds);
+      Rect rect = Rect.fromLTRB(0, 0, aabb.width, aabb.height);
+      //   cacheCanvas.drawRect(
+      //       rect,
+      //       new Paint()
+      //         ..style = PaintingStyle.fill
+      //         ..color = Colors.pink);
+      cacheCanvas.translate(-aabb[0], -aabb[1]);
+      cacheCanvas.transform(inverseWorld.mat4);
+      for (final ActorDrawable drawable in drawables) {
+        (drawable as FlutterActorDrawable).draw(cacheCanvas);
+      }
+
+      ui.Picture picture = recorder.endRecording();
+      _waitingForImage = true;
+      picture.toImage(aabb.width.round(), aabb.height.round()).then((image) {
+        _cachedImage = image;
+        _waitingForImage = false;
+      });
+    }
+    canvas.save();
+    canvas.transform(worldTransform.mat4);
+    canvas.translate(aabb[0], aabb[1]);
+    // Rect rect = Rect.fromLTRB(
+    //     aabb.minimum[0], aabb.minimum[1], aabb.maximum[0], aabb.maximum[1]);
+    //canvas.drawRect(rect, _paint);
+    //canvas.drawPicture(_cachePicture);
+    if (_cachedImage != null) {
+      canvas.drawImage(_cachedImage, Offset(0.0, 0.0), _paint);
+    }
+    canvas.restore();
+  }
+
+  @override
+  void onBlendModeChanged(ui.BlendMode mode) {
+    if (_paint != null) {
+      _paint.blendMode = mode;
+    }
+  }
+
+  @override
+  ActorComponent makeInstance(ActorArtboard resetArtboard) {
+    FlutterCacheNode instanceNode = FlutterCacheNode();
+    instanceNode.copyCacheNode(this, resetArtboard);
+    return instanceNode;
   }
 }

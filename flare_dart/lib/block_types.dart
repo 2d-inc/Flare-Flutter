@@ -96,4 +96,5 @@ class BlockTypes {
   static const int ActorSkin = 113;
   static const int ActorArtboard = 114;
   static const int Artboards = 115;
+  static const int ActorCacheNode = 116;
 }

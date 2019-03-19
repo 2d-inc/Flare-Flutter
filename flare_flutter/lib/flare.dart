@@ -962,7 +962,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     if (_canvasVertices == null && !updateVertices()) {
       return;
     }
-    
+    canvas.save();
     // Get Clips
     for (List<ActorShape> clips in clipShapes) {
       if (clips.length == 1) {
@@ -978,14 +978,15 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     }
 
     _paint.color = _paint.color.withOpacity(renderOpacity);
+
     if (imageTransform != null) {
-      canvas.save();
       canvas.transform(imageTransform.mat4);
       canvas.drawVertices(_canvasVertices, ui.BlendMode.srcOver, _paint);
-      canvas.restore();
     } else {
       canvas.drawVertices(_canvasVertices, ui.BlendMode.srcOver, _paint);
     }
+
+    canvas.restore();
   }
 
   @override

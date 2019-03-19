@@ -1,3 +1,7 @@
+## [1.3.4] - 2019-03-18 19:46:52
+
+Ensure rendering state is restored after ActorImage is clipped.
+
 ## [1.3.3] - 2019-03-12 09:23:54
 
 Apply clip to ActorImage.

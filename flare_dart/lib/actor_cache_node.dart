@@ -55,6 +55,8 @@ class ActorCacheNode extends ActorDrawable {
     _drawables.add(drawable);
   }
 
+  void updateCache() {}
+
   static ActorCacheNode read(
       ActorArtboard artboard, StreamReader reader, ActorCacheNode node) {
     ActorDrawable.read(artboard, reader, node);

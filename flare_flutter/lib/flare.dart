@@ -3,6 +3,7 @@ library flare_flutter;
 import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:flare_dart/actor_cache_node.dart';
+import 'package:flare_dart/actor_flags.dart';
 import 'package:flare_dart/actor_image.dart';
 import 'package:flare_dart/math/aabb.dart';
 import 'package:flutter/services.dart';
@@ -56,8 +57,7 @@ abstract class FlutterActorDrawable {
 abstract class FlutterFill {
   ui.Paint _paint;
   void initializeGraphics() {
-    _paint = ui.Paint()
-      ..style = PaintingStyle.fill;
+    _paint = ui.Paint()..style = PaintingStyle.fill;
   }
 
   void paint(ActorFill fill, ui.Canvas canvas, ui.Path path) {
@@ -260,7 +260,7 @@ class FlutterColorFill extends ColorFill with FlutterFill {
         (c[0] * 255.0).round(),
         (c[1] * 255.0).round(),
         (c[2] * 255.0).round(),
-        c[3] * artboard.modulateOpacity * opacity * shape.renderOpacity);
+        c[3] * artboard.modulateOpacity * renderOpacity);
   }
 
   set uiColor(Color c) {
@@ -290,7 +290,7 @@ class FlutterColorStroke extends ColorStroke with FlutterStroke {
         (c[0] * 255.0).round(),
         (c[1] * 255.0).round(),
         (c[2] * 255.0).round(),
-        c[3] * artboard.modulateOpacity * opacity * shape.renderOpacity);
+        c[3] * artboard.modulateOpacity * renderOpacity);
   }
 
   set uiColor(Color c) {
@@ -312,9 +312,16 @@ class FlutterGradientFill extends GradientFill with FlutterFill {
   @override
   void update(int dirt) {
     super.update(dirt);
-    List<ui.Color> colors = List<ui.Color>();
-    List<double> stops = List<double>();
+
+    if (!isPaintInvalid &&
+        dirt & DirtyFlags.PaintDirty != DirtyFlags.PaintDirty) {
+      return;
+    }
+    isPaintInvalid = false;
+
     int numStops = (colorStops.length / 5).round();
+    List<ui.Color> colors = List<ui.Color>(numStops);
+    List<double> stops = List<double>(numStops);
 
     int idx = 0;
     for (int i = 0; i < numStops; i++) {
@@ -323,26 +330,22 @@ class FlutterGradientFill extends GradientFill with FlutterFill {
           (colorStops[idx + 1] * 255.0).round(),
           (colorStops[idx + 2] * 255.0).round(),
           colorStops[idx + 3]);
-      colors.add(color);
-      stops.add(colorStops[idx + 4]);
+      colors[i] = color;
+      stops[i] = colorStops[idx + 4];
       idx += 5;
     }
 
     Color paintColor;
     if (artboard.overrideColor == null) {
       paintColor = Colors.white.withOpacity(
-          (artboard.modulateOpacity * opacity * shape.renderOpacity)
-              .clamp(0.0, 1.0));
+          (artboard.modulateOpacity * renderOpacity).clamp(0.0, 1.0));
     } else {
       Float32List overrideColor = artboard.overrideColor;
       paintColor = ui.Color.fromRGBO(
           (overrideColor[0] * 255.0).round(),
           (overrideColor[1] * 255.0).round(),
           (overrideColor[2] * 255.0).round(),
-          overrideColor[3] *
-              artboard.modulateOpacity *
-              opacity *
-              shape.renderOpacity);
+          overrideColor[3] * artboard.modulateOpacity * renderOpacity);
     }
     _paint
       ..color = paintColor
@@ -362,9 +365,16 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
   @override
   void update(int dirt) {
     super.update(dirt);
-    List<ui.Color> colors = List<ui.Color>();
-    List<double> stops = List<double>();
+
+    if (!isPaintInvalid &&
+        dirt & DirtyFlags.PaintDirty != DirtyFlags.PaintDirty) {
+      return;
+    }
+    isPaintInvalid = false;
+
     int numStops = (colorStops.length / 5).round();
+    List<ui.Color> colors = List<ui.Color>(numStops);
+    List<double> stops = List<double>(numStops);
 
     int idx = 0;
     for (int i = 0; i < numStops; i++) {
@@ -373,26 +383,22 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
           (colorStops[idx + 1] * 255.0).round(),
           (colorStops[idx + 2] * 255.0).round(),
           colorStops[idx + 3]);
-      colors.add(color);
-      stops.add(colorStops[idx + 4]);
+      colors[i] = color;
+      stops[i] = colorStops[idx + 4];
       idx += 5;
     }
 
     Color paintColor;
     if (artboard.overrideColor == null) {
       paintColor = Colors.white.withOpacity(
-          (artboard.modulateOpacity * opacity * shape.renderOpacity)
-              .clamp(0.0, 1.0));
+          (artboard.modulateOpacity * renderOpacity).clamp(0.0, 1.0));
     } else {
       Float32List overrideColor = artboard.overrideColor;
       paintColor = ui.Color.fromRGBO(
           (overrideColor[0] * 255.0).round(),
           (overrideColor[1] * 255.0).round(),
           (overrideColor[2] * 255.0).round(),
-          overrideColor[3] *
-              artboard.modulateOpacity *
-              opacity *
-              shape.renderOpacity);
+          overrideColor[3] * artboard.modulateOpacity * renderOpacity);
     }
     _paint
       ..color = paintColor
@@ -413,10 +419,17 @@ class FlutterRadialFill extends RadialGradientFill with FlutterFill {
   @override
   void update(int dirt) {
     super.update(dirt);
+
+    if (!isPaintInvalid &&
+        dirt & DirtyFlags.PaintDirty != DirtyFlags.PaintDirty) {
+      return;
+    }
+    isPaintInvalid = false;
+
     double radius = Vec2D.distance(renderStart, renderEnd);
-    List<ui.Color> colors = List<ui.Color>();
-    List<double> stops = List<double>();
     int numStops = (colorStops.length / 5).round();
+    List<ui.Color> colors = List<ui.Color>(numStops);
+    List<double> stops = List<double>(numStops);
 
     int idx = 0;
     for (int i = 0; i < numStops; i++) {
@@ -425,8 +438,8 @@ class FlutterRadialFill extends RadialGradientFill with FlutterFill {
           (colorStops[idx + 1] * 255.0).round(),
           (colorStops[idx + 2] * 255.0).round(),
           colorStops[idx + 3]);
-      colors.add(color);
-      stops.add(colorStops[idx + 4]);
+      colors[i] = color;
+      stops[i] = colorStops[idx + 4];
       idx += 5;
     }
     ui.Gradient radial = ui.Gradient.radial(
@@ -439,18 +452,14 @@ class FlutterRadialFill extends RadialGradientFill with FlutterFill {
     Color paintColor;
     if (artboard.overrideColor == null) {
       paintColor = Colors.white.withOpacity(
-          (artboard.modulateOpacity * opacity * shape.renderOpacity)
-              .clamp(0.0, 1.0));
+          (artboard.modulateOpacity * renderOpacity).clamp(0.0, 1.0));
     } else {
       Float32List overrideColor = artboard.overrideColor;
       paintColor = ui.Color.fromRGBO(
           (overrideColor[0] * 255.0).round(),
           (overrideColor[1] * 255.0).round(),
           (overrideColor[2] * 255.0).round(),
-          overrideColor[3] *
-              artboard.modulateOpacity *
-              opacity *
-              shape.renderOpacity);
+          overrideColor[3] * artboard.modulateOpacity * renderOpacity);
     }
 
     _paint
@@ -470,10 +479,17 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
   @override
   void update(int dirt) {
     super.update(dirt);
-    double radius = Vec2D.distance(renderStart, renderEnd);
-    List<ui.Color> colors = List<ui.Color>();
-    List<double> stops = List<double>();
+
+    if (!isPaintInvalid &&
+        dirt & DirtyFlags.PaintDirty != DirtyFlags.PaintDirty) {
+      return;
+    }
+    isPaintInvalid = false;
+
     int numStops = (colorStops.length / 5).round();
+    double radius = Vec2D.distance(renderStart, renderEnd);
+    List<ui.Color> colors = List<ui.Color>(numStops);
+    List<double> stops = List<double>(numStops);
 
     int idx = 0;
     for (int i = 0; i < numStops; i++) {
@@ -482,26 +498,22 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
           (colorStops[idx + 1] * 255.0).round(),
           (colorStops[idx + 2] * 255.0).round(),
           colorStops[idx + 3]);
-      colors.add(color);
-      stops.add(colorStops[idx + 4]);
+      colors[i] = color;
+      stops[i] = colorStops[idx + 4];
       idx += 5;
     }
 
     Color paintColor;
     if (artboard.overrideColor == null) {
       paintColor = Colors.white.withOpacity(
-          (artboard.modulateOpacity * opacity * shape.renderOpacity)
-              .clamp(0.0, 1.0));
+          (artboard.modulateOpacity * renderOpacity).clamp(0.0, 1.0));
     } else {
       Float32List overrideColor = artboard.overrideColor;
       paintColor = ui.Color.fromRGBO(
           (overrideColor[0] * 255.0).round(),
           (overrideColor[1] * 255.0).round(),
           (overrideColor[2] * 255.0).round(),
-          overrideColor[3] *
-              artboard.modulateOpacity *
-              opacity *
-              shape.renderOpacity);
+          overrideColor[3] * artboard.modulateOpacity * renderOpacity);
     }
 
     _paint
@@ -711,6 +723,12 @@ abstract class FlutterPathPointsPath implements FlutterPath {
   bool get isClosed;
   bool _isValid = false;
 
+  AABB getPathOBB() {
+    final Rect rect = path.getBounds();
+
+    return AABB.fromValues(rect.left, rect.top, rect.right, rect.bottom);
+  }
+
   ui.Path get path {
     if (_isValid) {
       return _path;
@@ -886,6 +904,23 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     }
   }
 
+  @override
+  AABB computeOBB() {
+    if (isConnectedToBones) {
+      Mat2D inverseWorld = Mat2D();
+      Mat2D.invert(inverseWorld, worldTransform);
+      return computeTransformedAABB(_vertexBuffer, inverseWorld);
+    } else {
+      return computeTransformedAABB(_vertexBuffer, null);
+    }
+  }
+
+  @override
+  AABB computeAABB() {
+    return computeTransformedAABB(
+        _vertexBuffer, isConnectedToBones ? null : worldTransform);
+  }
+
   void initializeGraphics() {
     super.initializeGraphics();
     if (triangles == null) {
@@ -1000,95 +1035,81 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     instanceNode.copyImage(this, resetArtboard);
     return instanceNode;
   }
+}
 
-  AABB computeAABB() {
-    this.updateVertices();
-
-    double minX = double.infinity;
-    double minY = double.infinity;
-    double maxX = double.negativeInfinity;
-    double maxY = double.negativeInfinity;
-
-    int readIdx = 0;
-    if (_vertexBuffer != null) {
-      int nv = _vertexBuffer.length ~/ 2;
-
-      for (int i = 0; i < nv; i++) {
-        double x = _vertexBuffer[readIdx++];
-        double y = _vertexBuffer[readIdx++];
-        if (x < minX) {
-          minX = x;
-        }
-        if (y < minY) {
-          minY = y;
-        }
-        if (x > maxX) {
-          maxX = x;
-        }
-        if (y > maxY) {
-          maxY = y;
-        }
-      }
-    }
-
-    return AABB.fromValues(minX, minY, maxX, maxY);
-  }
+class FlutterCacheNodeImage {
+  ui.Image image;
+  AABB bounds;
 }
 
 class FlutterCacheNode extends ActorCacheNode with FlutterActorDrawable {
   ui.Paint _paint;
+  FlutterCacheNodeImage _cacheImage;
+  FlutterCacheNodeImage _renderCacheImage;
 
+  bool _isCacheInvalid = true;
   void initializeGraphics() {
     _paint = ui.Paint()
       ..style = PaintingStyle.fill
       ..filterQuality = FilterQuality.low;
   }
 
-  AABB _lastBounds;
-  ui.Image _cachedImage = null;
-  bool _waitingForImage = false;
+  double renderScale = 2.0;
+  void updateCache() {
+    if (!_isCacheInvalid) {
+      return;
+    }
+    _cacheImage = FlutterCacheNodeImage();
+    _isCacheInvalid = false;
+    AABB aabb = computeOBB();
+    Mat2D inverseWorld = Mat2D();
+    Mat2D.invert(inverseWorld, worldTransform);
+
+    final ui.Rect paintBounds = ui.Offset.zero &
+        Size(aabb.width * renderScale, aabb.height * renderScale);
+    final ui.PictureRecorder recorder = new ui.PictureRecorder();
+    final ui.Canvas cacheCanvas = new ui.Canvas(recorder, paintBounds);
+    //Rect rect = Rect.fromLTRB(0, 0, aabb.width, aabb.height);
+    //   cacheCanvas.drawRect(
+    //       rect,
+    //       new Paint()
+    //         ..style = PaintingStyle.fill
+    //         ..color = Colors.pink);
+    cacheCanvas.scale(renderScale);
+    cacheCanvas.translate(-aabb[0], -aabb[1]);
+    cacheCanvas.transform(inverseWorld.mat4);
+    for (final ActorDrawable drawable in drawables) {
+      (drawable as FlutterActorDrawable).draw(cacheCanvas);
+    }
+
+    ui.Picture picture = recorder.endRecording();
+    picture
+        .toImage((aabb.width * renderScale).round(),
+            (aabb.height * renderScale).round())
+        .then((image) {
+      _renderCacheImage = _cacheImage
+        ..image = image
+        ..bounds = aabb;
+    });
+  }
+
   @override
   void draw(ui.Canvas canvas) {
-    AABB aabb = computeOBB();
-    if (_lastBounds == null || !_lastBounds.isIdenticalTo(aabb)) {}
-
-    if (_cachedImage == null && !_waitingForImage) {
-      Mat2D inverseWorld = Mat2D();
-      Mat2D.invert(inverseWorld, worldTransform);
-
-      final ui.Rect paintBounds =
-          ui.Offset.zero & Size(aabb.width, aabb.height);
-      final ui.PictureRecorder recorder = new ui.PictureRecorder();
-      final ui.Canvas cacheCanvas = new ui.Canvas(recorder, paintBounds);
-      Rect rect = Rect.fromLTRB(0, 0, aabb.width, aabb.height);
-      //   cacheCanvas.drawRect(
-      //       rect,
-      //       new Paint()
-      //         ..style = PaintingStyle.fill
-      //         ..color = Colors.pink);
-      cacheCanvas.translate(-aabb[0], -aabb[1]);
-      cacheCanvas.transform(inverseWorld.mat4);
-      for (final ActorDrawable drawable in drawables) {
-        (drawable as FlutterActorDrawable).draw(cacheCanvas);
-      }
-
-      ui.Picture picture = recorder.endRecording();
-      _waitingForImage = true;
-      picture.toImage(aabb.width.round(), aabb.height.round()).then((image) {
-        _cachedImage = image;
-        _waitingForImage = false;
-      });
+    if (_isCacheInvalid) {
+      updateCache();
+    }
+    if (_renderCacheImage?.image == null) {
+      return;
     }
     canvas.save();
     canvas.transform(worldTransform.mat4);
-    canvas.translate(aabb[0], aabb[1]);
+    canvas.translate(_renderCacheImage.bounds[0], _renderCacheImage.bounds[1]);
+    canvas.scale(1.0 / renderScale);
     // Rect rect = Rect.fromLTRB(
     //     aabb.minimum[0], aabb.minimum[1], aabb.maximum[0], aabb.maximum[1]);
     //canvas.drawRect(rect, _paint);
     //canvas.drawPicture(_cachePicture);
-    if (_cachedImage != null) {
-      canvas.drawImage(_cachedImage, Offset(0.0, 0.0), _paint);
-    }
+    canvas.drawImage(_renderCacheImage.image, Offset(0.0, 0.0), _paint);
     canvas.restore();
   }
 
@@ -1104,5 +1125,18 @@ class FlutterCacheNode extends ActorCacheNode with FlutterActorDrawable {
     FlutterCacheNode instanceNode = FlutterCacheNode();
     instanceNode.copyCacheNode(this, resetArtboard);
     return instanceNode;
+  }
+
+  void invalidateDrawable() {
+    _isCacheInvalid = true;
+  }
+
+  @override
+  void copyCacheNode(ActorCacheNode node, ActorArtboard resetArtboard) {
+    super.copyCacheNode(node, resetArtboard);
+    if (node is FlutterCacheNode) {
+      _renderCacheImage = _cacheImage = node._cacheImage;
+      _isCacheInvalid = node._isCacheInvalid;
+    }
   }
 }

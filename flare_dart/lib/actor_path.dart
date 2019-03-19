@@ -278,10 +278,19 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
             break;
         }
       }
+      // Invalidate the entire drawable (path & shape).
+      invalidateDrawable();
     }
-    invalidateDrawable();
 
     super.update(dirt);
+  }
+
+  @override
+  void updateWorldTransform() {
+    super.updateWorldTransform();
+	if (parent is ActorShape) {
+      parent.invalidateShape();
+    }
   }
 
   static ActorPath read(
@@ -289,7 +298,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     if (component == null) {
       component = ActorPath();
     }
-	ActorNode.read(artboard, reader, component);
+    ActorNode.read(artboard, reader, component);
     ActorSkinnable.read(artboard, reader, component);
 
     component._isHidden = !reader.readBool("isVisible");
@@ -333,14 +342,14 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     return instanceEvent;
   }
 
-	@override
+  @override
   void resolveComponentIndices(List<ActorComponent> components) {
-	  super.resolveComponentIndices(components);
-	  resolveSkinnable(components);
+    super.resolveComponentIndices(components);
+    resolveSkinnable(components);
   }
 
   void copyPath(ActorPath node, ActorArtboard resetArtboard) {
-	copyNode(node, resetArtboard);
+    copyNode(node, resetArtboard);
     copySkinnable(node, resetArtboard);
     _isHidden = node._isHidden;
     _isClosed = node._isClosed;

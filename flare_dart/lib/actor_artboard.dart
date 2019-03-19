@@ -584,7 +584,7 @@ class ActorArtboard {
             if (_drawingNodes == null) {
               _drawingNodes = [];
             }
-            _drawingNodes.add(c.cacheNode);
+            _drawingNodes.add(c);
           }
           if (c is ActorCacheNode) {
             if (_cacheNodes == null) {
@@ -600,9 +600,17 @@ class ActorArtboard {
   }
 
   void initializeGraphics() {
-    for (ActorDrawable drawable in _drawableNodes) {
+    for (final ActorDrawable drawable in _drawableNodes) {
       drawable.initializeGraphics();
     }
+
+    // Update cache nodes.
+	advance(0.0);
+	if (_cacheNodes != null) {
+	for (final ActorCacheNode cache in _cacheNodes) {
+		cache.updateCache();
+	}
+	}
   }
 
   void readAnimationsBlock(StreamReader block) {

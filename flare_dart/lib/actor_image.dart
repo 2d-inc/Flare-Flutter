@@ -374,7 +374,6 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     double maxX = -double.maxFinite;
     double maxY = -double.maxFinite;
     int idx = 0;
-    int stride = vertexStride;
 
     for (int i = 0; i < _vertexCount; i++) {
       Vec2D p = Vec2D.fromValues(vb[idx], vb[idx + 1]);
@@ -394,7 +393,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       if (p[1] > maxY) {
         maxY = p[1];
       }
-      idx += stride;
+      idx += 2;
     }
     return AABB.fromValues(minX, minY, maxX, maxY);
   }

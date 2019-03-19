@@ -31,7 +31,10 @@ final HashMap<int, TrimPath> trimPathLookup =
 
 abstract class ActorPaint extends ActorComponent {
   double _opacity = 1.0;
+  double _renderOpacity = 1.0;
   double get opacity => _opacity;
+  double get renderOpacity => _renderOpacity;
+  bool isPaintInvalid = true;
   set opacity(double value) {
     if (value == _opacity) {
       return;
@@ -61,6 +64,19 @@ abstract class ActorPaint extends ActorComponent {
 
   void markPaintDirty() {
     artboard.addDirt(this, DirtyFlags.PaintDirty, false);
+  }
+
+  void invalidatePaint() {
+    isPaintInvalid = true;
+  }
+
+  void onDirty(int dirt) {}
+  void update(int dirt) {
+    final double ro = shape.renderOpacity * _opacity;
+    if (ro != _renderOpacity) {
+      _renderOpacity = ro;
+      invalidatePaint();
+    }
   }
 }
 
@@ -102,9 +118,6 @@ abstract class ActorColor extends ActorPaint {
 
     return component;
   }
-
-  void onDirty(int dirt) {}
-  void update(int dirt) {}
 }
 
 abstract class ActorFill {
@@ -250,6 +263,8 @@ abstract class ColorStroke extends ActorColor with ActorStroke {
   }
 }
 
+Vec2D _temp = Vec2D();
+
 abstract class GradientColor extends ActorPaint {
   Float32List _colorStops = Float32List(10);
   Vec2D _start = Vec2D();
@@ -292,10 +307,22 @@ abstract class GradientColor extends ActorPaint {
 
   void onDirty(int dirt) {}
   void update(int dirt) {
+    super.update(dirt);
     ActorShape shape = parent;
-    Mat2D world = shape.worldTransform;
-    Vec2D.transformMat2D(_renderStart, _start, world);
-    Vec2D.transformMat2D(_renderEnd, _end, world);
+    if (dirt & DirtyFlags.WorldTransformDirty ==
+        DirtyFlags.WorldTransformDirty) {
+      Mat2D world = shape.worldTransform;
+      Vec2D.transformMat2D(_temp, _start, world);
+      if (!_renderStart.isIdenticalTo(_temp)) {
+        Vec2D.copy(_renderStart, _temp);
+        invalidatePaint();
+      }
+      Vec2D.transformMat2D(_temp, _end, world);
+      if (!_renderEnd.isIdenticalTo(_temp)) {
+        Vec2D.copy(_renderEnd, _temp);
+        invalidatePaint();
+      }
+    }
   }
 }
 

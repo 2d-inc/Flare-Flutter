@@ -20,15 +20,23 @@ class AABB {
   }
 
   AABB() {
-    this._buffer = Float32List.fromList([0.0, 0.0, 0.0, 0.0]);
+    _buffer = Float32List(4);
   }
 
   AABB.clone(AABB a) {
-    this._buffer = Float32List.fromList(a.values);
+    _buffer = Float32List(4);
+    _buffer[0] = a[0];
+    _buffer[1] = a[1];
+    _buffer[2] = a[2];
+    _buffer[3] = a[3];
   }
 
   AABB.fromValues(double a, double b, double c, double d) {
-    _buffer = Float32List.fromList([a, b, c, d]);
+    _buffer = Float32List(4);
+    _buffer[0] = a;
+    _buffer[1] = b;
+    _buffer[2] = c;
+    _buffer[3] = d;
   }
 
   double operator [](int idx) {
@@ -59,8 +67,8 @@ class AABB {
     return out;
   }
 
-  double get width => maximum[0]-minimum[0];
-  double get height => maximum[1]-minimum[1];
+  double get width => maximum[0] - minimum[0];
+  double get height => maximum[1] - minimum[1];
 
   static Vec2D extents(Vec2D out, AABB a) {
     out[0] = (a[2] - a[0]) * 0.5;
@@ -121,20 +129,43 @@ class AABB {
   }
 
   AABB transform(Mat2D matrix) {
-	Vec2D p1 = Vec2D.fromValues(_buffer[0], _buffer[1]);
-	Vec2D p2 = Vec2D.fromValues(_buffer[2], _buffer[1]);
-	Vec2D p3 = Vec2D.fromValues(_buffer[2], _buffer[3]);
-	Vec2D p4 = Vec2D.fromValues(_buffer[0], _buffer[3]);
+    _p1[0] = _buffer[0];
+    _p1[1] = _buffer[1];
 
-	Vec2D.transformMat2D(p1, p1, matrix);
-	Vec2D.transformMat2D(p2, p2, matrix);
-	Vec2D.transformMat2D(p3, p3, matrix);
-	Vec2D.transformMat2D(p4, p4, matrix);
+    _p2[0] = _buffer[2];
+    _p2[1] = _buffer[1];
 
-	return AABB.fromValues(min(p1[0], min(p2[0], min(p3[0], p4[0]))), min(p1[1], min(p2[1], min(p3[1], p4[1]))), max(p1[0], max(p2[0], max(p3[0], p4[0]))), max(p1[1], max(p2[1], max(p3[1], p4[1]))));
+    _p3[0] = _buffer[2];
+    _p3[1] = _buffer[3];
+
+    _p4[0] = _buffer[0];
+    _p4[1] = _buffer[3];
+    // Vec2D p1 = Vec2D.fromValues(_buffer[0], _buffer[1]);
+    // Vec2D p2 = Vec2D.fromValues(_buffer[2], _buffer[1]);
+    // Vec2D p3 = Vec2D.fromValues(_buffer[2], _buffer[3]);
+    // Vec2D p4 = Vec2D.fromValues(_buffer[0], _buffer[3]);
+
+    Vec2D.transformMat2D(_p1, _p1, matrix);
+    Vec2D.transformMat2D(_p2, _p2, matrix);
+    Vec2D.transformMat2D(_p3, _p3, matrix);
+    Vec2D.transformMat2D(_p4, _p4, matrix);
+
+    return AABB.fromValues(
+        min(_p1[0], min(_p2[0], min(_p3[0], _p4[0]))),
+        min(_p1[1], min(_p2[1], min(_p3[1], _p4[1]))),
+        max(_p1[0], max(_p2[0], max(_p3[0], _p4[0]))),
+        max(_p1[1], max(_p2[1], max(_p3[1], _p4[1]))));
   }
 
   bool isIdenticalTo(AABB aabb) {
-	  return aabb._buffer[0] == _buffer[0] && aabb._buffer[1] == _buffer[1] && aabb._buffer[2] == _buffer[2] && aabb._buffer[3] == _buffer[3];
+    return aabb._buffer[0] == _buffer[0] &&
+        aabb._buffer[1] == _buffer[1] &&
+        aabb._buffer[2] == _buffer[2] &&
+        aabb._buffer[3] == _buffer[3];
   }
 }
+
+Vec2D _p1 = Vec2D();
+Vec2D _p2 = Vec2D();
+Vec2D _p3 = Vec2D();
+Vec2D _p4 = Vec2D();

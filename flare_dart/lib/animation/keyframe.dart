@@ -524,7 +524,7 @@ class KeyFrameImageVertices extends KeyFrameWithInterpolation {
       }
     }
 
-	imageNode.invalidateDrawable();
+    imageNode.invalidateDrawable();
   }
 
   void apply(ActorComponent component, double mix) {
@@ -875,7 +875,6 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     GradientColor gradient = component as GradientColor;
     Float32List v = (toFrame as KeyFrameGradient)._value;
-
     double f = (time - _time) / (toFrame.time - _time);
     if (_interpolator != null) {
       f = _interpolator.getEasedMix(f);
@@ -960,7 +959,7 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
 
 class KeyFrameRadial extends KeyFrameWithInterpolation {
   Float32List _value;
-  get value => _value;
+  Float32List get value => _value;
 
   static KeyFrame read(StreamReader reader, ActorComponent component) {
     KeyFrameRadial frame = KeyFrameRadial();
@@ -1032,7 +1031,7 @@ class KeyFrameRadial extends KeyFrameWithInterpolation {
     int wi = 0;
 
     if (mix == 1.0) {
-      radial.secondaryRadiusScale = value[ridx++];
+      radial.secondaryRadiusScale = _value[ridx++];
       radial.start[0] = _value[ridx++];
       radial.start[1] = _value[ridx++];
       radial.end[0] = _value[ridx++];

@@ -16,6 +16,7 @@ typedef void FlareCompletedCallback(String name);
 class FlareActor extends LeafRenderObjectWidget {
   final String filename;
   final String animation;
+  final bool snapToEnd;
   final BoxFit fit;
   final Alignment alignment;
   final bool isPaused;
@@ -31,6 +32,7 @@ class FlareActor extends LeafRenderObjectWidget {
       this.fit = BoxFit.contain,
       this.alignment = Alignment.center,
       this.isPaused = false,
+      this.snapToEnd = true,
       this.controller,
       this.callback,
       this.color,
@@ -44,6 +46,7 @@ class FlareActor extends LeafRenderObjectWidget {
       ..fit = fit
       ..alignment = alignment
       ..animationName = animation
+      ..snapToEnd = snapToEnd
       ..isPlaying = !isPaused
       ..controller = controller
       ..completed = callback
@@ -61,6 +64,7 @@ class FlareActor extends LeafRenderObjectWidget {
       ..fit = fit
       ..alignment = alignment
       ..animationName = animation
+      ..snapToEnd = snapToEnd
       ..isPlaying = !isPaused
       ..color = color
       ..shouldClip = shouldClip
@@ -95,6 +99,7 @@ class FlareActorRenderObject extends RenderBox {
   FlareCompletedCallback _completedCallback;
   double _lastFrameTime = 0.0;
   double _mixSeconds = 0.2;
+  bool snapToEnd = false;
 
   List<FlareAnimationLayer> _animationLayers = [];
   bool _isPlaying;
@@ -319,8 +324,14 @@ class FlareActorRenderObject extends RenderBox {
 
     for (int i = 0; i < _animationLayers.length; i++) {
       FlareAnimationLayer layer = _animationLayers[i];
-      layer.mix += elapsedSeconds;
-      layer.time += elapsedSeconds;
+
+      if (snapToEnd && !layer.animation.isLooping) {
+        layer.mix = 1.0;
+        layer.time = layer.duration;
+      } else {
+        layer.mix += elapsedSeconds;
+        layer.time += elapsedSeconds;
+      }
 
       lastMix = (_mixSeconds == null || _mixSeconds == 0.0)
           ? 1.0

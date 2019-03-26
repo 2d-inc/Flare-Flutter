@@ -1,3 +1,7 @@
+## [1.3.5] - 2019-03-25 20:05:16
+
+Updating flare_dart dependency which fixes a critical draw order issue.
+
 ## [1.3.4] - 2019-03-18 19:46:52
 
 Ensure rendering state is restored after ActorImage is clipped.

@@ -68,14 +68,14 @@ class ActorArtboard {
   set overrideColor(Float32List value) {
     _overrideColor = value;
     for (ActorDrawable drawable in _drawableNodes) {
-      addDirt((drawable as ActorComponent), DirtyFlags.PaintDirty, true);
+      addDirt(drawable, DirtyFlags.PaintDirty, true);
     }
   }
 
   set modulateOpacity(double value) {
     _modulateOpacity = value;
     for (ActorDrawable drawable in _drawableNodes) {
-      addDirt((drawable as ActorComponent), DirtyFlags.PaintDirty, true);
+      addDirt(drawable, DirtyFlags.PaintDirty, true);
     }
   }
 

@@ -447,9 +447,9 @@ class KeyFrameDrawOrder extends KeyFrame {
     ActorArtboard artboard = component.artboard;
 
     for (DrawOrderIndex doi in _orderedNodes) {
-      ActorDrawable drawable = artboard[doi.componentIndex] as ActorDrawable;
-      if (drawable != null) {
-        drawable.drawOrder = doi.order;
+      ActorComponent component = artboard[doi.componentIndex];
+      if (component is ActorDrawable) {
+        component.drawOrder = doi.order;
       }
     }
   }
@@ -524,7 +524,7 @@ class KeyFrameImageVertices extends KeyFrameWithInterpolation {
       }
     }
 
-	imageNode.invalidateDrawable();
+    imageNode.invalidateDrawable();
   }
 
   void apply(ActorComponent component, double mix) {

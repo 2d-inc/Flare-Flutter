@@ -32,7 +32,7 @@ class FlareActor extends LeafRenderObjectWidget {
       this.fit = BoxFit.contain,
       this.alignment = Alignment.center,
       this.isPaused = false,
-      this.snapToEnd = true,
+      this.snapToEnd = false,
       this.controller,
       this.callback,
       this.color,
@@ -145,6 +145,7 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   void dispose() {
+	  print("DISPOSED");
     _isPlaying = false;
     updatePlayState();
     _actor = null;

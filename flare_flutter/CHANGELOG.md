@@ -1,3 +1,7 @@
+## [1.3.6] - 2019-03-26 15:56:34
+
+Making new snapToEnd functionality default to false to support backwards compatibility.
+
 ## [1.3.5] - 2019-03-25 20:05:16
 
 Updating flare_dart dependency which fixes a critical draw order issue.

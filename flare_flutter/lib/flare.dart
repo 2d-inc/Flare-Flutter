@@ -54,8 +54,12 @@ abstract class FlutterActorDrawable {
 
 abstract class FlutterFill {
   ui.Paint _paint;
+
+  void onPaintUpdated(ui.Paint paint) {}
+
   void initializeGraphics() {
     _paint = ui.Paint()..style = PaintingStyle.fill;
+    onPaintUpdated(_paint);
   }
 
   void paint(ActorFill fill, ui.Canvas canvas, ui.Path path) {
@@ -73,6 +77,7 @@ abstract class FlutterFill {
 
 abstract class FlutterStroke {
   ui.Paint _paint;
+  void onPaintUpdated(ui.Paint paint) {}
   ui.Path effectPath;
 
   void initializeGraphics() {
@@ -84,6 +89,7 @@ abstract class FlutterStroke {
       ..strokeWidth = stroke.width
       ..strokeCap = FlutterStroke.getStrokeCap(stroke.cap)
       ..strokeJoin = FlutterStroke.getStrokeJoin(stroke.join);
+    onPaintUpdated(_paint);
   }
 
   static ui.StrokeCap getStrokeCap(StrokeCap cap) {
@@ -157,7 +163,7 @@ abstract class FlutterStroke {
 }
 
 class FlutterActorShape extends ActorShape with FlutterActorDrawable {
-  ui.Path _path = ui.Path();
+  final ui.Path _path = ui.Path();
   bool _isValid = false;
 
   @override
@@ -169,12 +175,12 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
   @override
   void onBlendModeChanged(ui.BlendMode mode) {
     if (fills != null) {
-      for (ActorFill actorFill in fills) {
+      for (final ActorFill actorFill in fills) {
         (actorFill as ActorPaint).markPaintDirty();
       }
     }
     if (strokes != null) {
-      for (ActorStroke actorStroke in strokes) {
+      for (final ActorStroke actorStroke in strokes) {
         (actorStroke as ActorPaint).markPaintDirty();
       }
     }
@@ -188,20 +194,21 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     _path.reset();
 
     if (children != null) {
-      for (ActorNode node in children) {
+      for (final ActorNode node in children) {
         FlutterPath flutterPath = node as FlutterPath;
         if (flutterPath != null) {
           Mat2D transform = (node as ActorBasePath).pathTransform;
           _path.addPath(flutterPath.path, ui.Offset.zero,
-              matrix4: transform == null ? null : transform.mat4);
+              matrix4: transform?.mat4);
         }
       }
     }
     return _path;
   }
 
+  @override
   void draw(ui.Canvas canvas) {
-    if (!this.doesDraw) {
+    if (!doesDraw) {
       return;
     }
 
@@ -210,12 +217,12 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     ui.Path renderPath = path;
 
     // Get Clips
-    for (List<ActorShape> clips in clipShapes) {
+    for (final List<ActorShape> clips in clipShapes) {
       if (clips.length == 1) {
         canvas.clipPath((clips[0] as FlutterActorShape).path);
       } else {
         ui.Path clippingPath = ui.Path();
-        for (ActorShape clipShape in clips) {
+        for (final ActorShape clipShape in clips) {
           clippingPath.addPath(
               (clipShape as FlutterActorShape).path, ui.Offset.zero);
         }
@@ -223,13 +230,13 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
       }
     }
     if (fills != null) {
-      for (ActorFill actorFill in fills) {
+      for (final ActorFill actorFill in fills) {
         FlutterFill fill = actorFill as FlutterFill;
         fill.paint(actorFill, canvas, renderPath);
       }
     }
     if (strokes != null) {
-      for (ActorStroke actorStroke in strokes) {
+      for (final ActorStroke actorStroke in strokes) {
         FlutterStroke stroke = actorStroke as FlutterStroke;
         stroke.paint(actorStroke, canvas, renderPath);
       }
@@ -238,6 +245,7 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     canvas.restore();
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     FlutterActorShape instanceNode = FlutterActorShape();
     instanceNode.copyShape(this, resetArtboard);
@@ -246,6 +254,7 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
 }
 
 class FlutterColorFill extends ColorFill with FlutterFill {
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     FlutterColorFill instanceNode = FlutterColorFill();
     instanceNode.copyColorFill(this, resetArtboard);
@@ -272,10 +281,12 @@ class FlutterColorFill extends ColorFill with FlutterFill {
     _paint
       ..color = uiColor
       ..blendMode = (parent as FlutterActorShape).blendMode;
+    onPaintUpdated(_paint);
   }
 }
 
 class FlutterColorStroke extends ColorStroke with FlutterStroke {
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     FlutterColorStroke instanceNode = FlutterColorStroke();
     instanceNode.copyColorStroke(this, resetArtboard);
@@ -303,6 +314,7 @@ class FlutterColorStroke extends ColorStroke with FlutterStroke {
       ..color = uiColor
       ..strokeWidth = width
       ..blendMode = (parent as FlutterActorShape).blendMode;
+    onPaintUpdated(_paint);
   }
 }
 
@@ -310,8 +322,8 @@ class FlutterGradientFill extends GradientFill with FlutterFill {
   @override
   void update(int dirt) {
     super.update(dirt);
-    List<ui.Color> colors = List<ui.Color>();
-    List<double> stops = List<double>();
+    List<ui.Color> colors = <ui.Color>[];
+    List<double> stops = <double>[];
     int numStops = (colorStops.length / 5).round();
 
     int idx = 0;
@@ -347,8 +359,10 @@ class FlutterGradientFill extends GradientFill with FlutterFill {
       ..blendMode = (parent as FlutterActorShape).blendMode
       ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
           ui.Offset(renderEnd[0], renderEnd[1]), colors, stops);
+    onPaintUpdated(_paint);
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     FlutterGradientFill instanceNode = FlutterGradientFill();
     instanceNode.copyGradientFill(this, resetArtboard);
@@ -360,8 +374,8 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
   @override
   void update(int dirt) {
     super.update(dirt);
-    List<ui.Color> colors = List<ui.Color>();
-    List<double> stops = List<double>();
+    List<ui.Color> colors = <ui.Color>[];
+    List<double> stops = <double>[];
     int numStops = (colorStops.length / 5).round();
 
     int idx = 0;
@@ -398,8 +412,10 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
       ..strokeWidth = width
       ..shader = ui.Gradient.linear(ui.Offset(renderStart[0], renderStart[1]),
           ui.Offset(renderEnd[0], renderEnd[1]), colors, stops);
+    onPaintUpdated(_paint);
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     FlutterGradientStroke instanceNode = FlutterGradientStroke();
     instanceNode.copyGradientStroke(this, resetArtboard);
@@ -412,8 +428,8 @@ class FlutterRadialFill extends RadialGradientFill with FlutterFill {
   void update(int dirt) {
     super.update(dirt);
     double radius = Vec2D.distance(renderStart, renderEnd);
-    List<ui.Color> colors = List<ui.Color>();
-    List<double> stops = List<double>();
+    List<ui.Color> colors = <ui.Color>[];
+    List<double> stops = <double>[];
     int numStops = (colorStops.length / 5).round();
 
     int idx = 0;
@@ -455,8 +471,10 @@ class FlutterRadialFill extends RadialGradientFill with FlutterFill {
       ..color = paintColor
       ..blendMode = (parent as FlutterActorShape).blendMode
       ..shader = radial;
+    onPaintUpdated(_paint);
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     FlutterRadialFill instanceNode = FlutterRadialFill();
     instanceNode.copyRadialFill(this, resetArtboard);
@@ -469,8 +487,8 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
   void update(int dirt) {
     super.update(dirt);
     double radius = Vec2D.distance(renderStart, renderEnd);
-    List<ui.Color> colors = List<ui.Color>();
-    List<double> stops = List<double>();
+    List<ui.Color> colors = <ui.Color>[];
+    List<double> stops = <double>[];
     int numStops = (colorStops.length / 5).round();
 
     int idx = 0;
@@ -508,8 +526,10 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
       ..blendMode = (parent as FlutterActorShape).blendMode
       ..shader = ui.Gradient.radial(Offset(renderStart[0], renderStart[1]),
           radius, colors, stops, ui.TileMode.clamp);
+    onPaintUpdated(_paint);
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     FlutterRadialStroke instanceNode = FlutterRadialStroke();
     instanceNode.copyRadialStroke(this, resetArtboard);
@@ -518,9 +538,9 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
 }
 
 class _AssetBundleContext {
-  String filename;
-  AssetBundle bundle;
-  _AssetBundleContext(filename, bundle);
+  final String filename;
+  final AssetBundle bundle;
+  _AssetBundleContext(this.bundle, this.filename);
 }
 
 class FlutterActor extends Actor {
@@ -530,62 +550,77 @@ class FlutterActor extends Actor {
     return _images;
   }
 
+  @override
   ActorArtboard makeArtboard() {
     return FlutterActorArtboard(this);
   }
 
+  @override
   ActorShape makeShapeNode() {
     return FlutterActorShape();
   }
 
+  @override
   ActorPath makePathNode() {
     return FlutterActorPath();
   }
 
+  @override
   ActorImage makeImageNode() {
     return FlutterActorImage();
   }
 
+  @override
   ActorRectangle makeRectangle() {
     return FlutterActorRectangle();
   }
 
+  @override
   ActorTriangle makeTriangle() {
     return FlutterActorTriangle();
   }
 
+  @override
   ActorStar makeStar() {
     return FlutterActorStar();
   }
 
+  @override
   ActorPolygon makePolygon() {
     return FlutterActorPolygon();
   }
 
+  @override
   ActorEllipse makeEllipse() {
     return FlutterActorEllipse();
   }
 
+  @override
   ColorFill makeColorFill() {
     return FlutterColorFill();
   }
 
+  @override
   ColorStroke makeColorStroke() {
     return FlutterColorStroke();
   }
 
+  @override
   GradientFill makeGradientFill() {
     return FlutterGradientFill();
   }
 
+  @override
   GradientStroke makeGradientStroke() {
     return FlutterGradientStroke();
   }
 
+  @override
   RadialGradientFill makeRadialFill() {
     return FlutterRadialFill();
   }
 
+  @override
   RadialGradientStroke makeRadialStroke() {
     return FlutterRadialStroke();
   }
@@ -595,7 +630,12 @@ class FlutterActor extends Actor {
     return super.load(data, _AssetBundleContext(assetBundle, filename));
   }
 
-  dispose() {}
+  void copyFlutterActor(FlutterActor actor) {
+    copyActor(actor);
+    _images = actor._images;
+  }
+
+  void dispose() {}
 
   @override
   Future<bool> loadAtlases(List<Uint8List> rawAtlases) async {
@@ -632,12 +672,6 @@ class FlutterActorArtboard extends ActorArtboard {
         (drawable as FlutterActorDrawable).draw(canvas);
       }
     }
-  }
-
-  ActorArtboard makeInstance() {
-    FlutterActorArtboard artboardInstance = FlutterActorArtboard(actor);
-    artboardInstance.copyArtboard(this);
-    return artboardInstance;
   }
 
   void dispose() {}
@@ -833,6 +867,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
   ui.Vertices _canvasVertices;
   Int32List _indices;
 
+  void onPaintUpdated(ui.Paint paint) {}
   final Float64List _identityMatrix = Float64List.fromList(<double>[
     1.0,
     0.0,
@@ -863,6 +898,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
             _identityMatrix)
         ..filterQuality = ui.FilterQuality.low
         ..isAntiAlias = true;
+      onPaintUpdated(_paint);
     }
   }
 
@@ -877,6 +913,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
   void onBlendModeChanged(ui.BlendMode mode) {
     if (_paint != null) {
       _paint.blendMode = mode;
+      onPaintUpdated(_paint);
     }
   }
 
@@ -917,6 +954,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
           _identityMatrix);
     _paint.filterQuality = ui.FilterQuality.low;
     _paint.isAntiAlias = true;
+    onPaintUpdated(_paint);
   }
 
   @override
@@ -987,13 +1025,6 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     }
 
     canvas.restore();
-  }
-
-  @override
-  ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    FlutterActorImage instanceNode = FlutterActorImage();
-    instanceNode.copyImage(this, resetArtboard);
-    return instanceNode;
   }
 
   AABB computeAABB() {

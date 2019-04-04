@@ -145,7 +145,6 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   void dispose() {
-	  print("DISPOSED");
     _isPlaying = false;
     updatePlayState();
     _actor = null;

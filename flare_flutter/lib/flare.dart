@@ -2,6 +2,7 @@ library flare_flutter;
 
 import 'dart:ui' as ui;
 import 'dart:math';
+import 'package:flare_dart/actor_flags.dart';
 import 'package:flare_dart/actor_image.dart';
 import 'package:flare_dart/math/aabb.dart';
 import 'package:flutter/services.dart';
@@ -1058,5 +1059,13 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     }
 
     return AABB.fromValues(minX, minY, maxX, maxY);
+  }
+
+  @override
+  void update(int dirt) {
+    super.update(dirt);
+    if (dirt & DirtyFlags.PaintDirty != 0) {
+      onPaintUpdated(_paint);
+    }
   }
 }

@@ -18,11 +18,11 @@ class AABB {
   }
 
   AABB() {
-    this._buffer = Float32List.fromList([0.0, 0.0, 0.0, 0.0]);
+    _buffer = Float32List.fromList([0.0, 0.0, 0.0, 0.0]);
   }
 
   AABB.clone(AABB a) {
-    this._buffer = Float32List.fromList(a.values);
+    _buffer = Float32List.fromList(a.values);
   }
 
   AABB.fromValues(double a, double b, double c, double d) {
@@ -30,11 +30,11 @@ class AABB {
   }
 
   double operator [](int idx) {
-    return this._buffer[idx];
+    return _buffer[idx];
   }
 
   operator []=(int idx, double v) {
-    this._buffer[idx] = v;
+    _buffer[idx] = v;
   }
 
   static AABB copy(AABB out, AABB a) {

@@ -71,7 +71,8 @@ class FlareActor extends LeafRenderObjectWidget {
       ..boundsNodeName = boundsNode;
   }
 
-  didUnmountRenderObject(covariant FlareActorRenderObject renderObject) {
+  @override
+  void didUnmountRenderObject(covariant FlareActorRenderObject renderObject) {
     renderObject.dispose();
   }
 }
@@ -80,12 +81,12 @@ class FlareAnimationLayer {
   String name;
   ActorAnimation animation;
   double time = 0.0, mix = 0.0;
-  apply(FlutterActorArtboard artboard) {
+  void apply(FlutterActorArtboard artboard) {
     animation.apply(time, artboard, mix);
   }
 
-  get duration => animation.duration;
-  get isDone => time >= animation.duration;
+  double get duration => animation.duration;
+  bool get isDone => time >= animation.duration;
 }
 
 class FlareActorRenderObject extends RenderBox {
@@ -98,10 +99,10 @@ class FlareActorRenderObject extends RenderBox {
   FlareController _controller;
   FlareCompletedCallback _completedCallback;
   double _lastFrameTime = 0.0;
-  double _mixSeconds = 0.2;
+  final double _mixSeconds = 0.2;
   bool snapToEnd = false;
 
-  List<FlareAnimationLayer> _animationLayers = [];
+  final List<FlareAnimationLayer> _animationLayers = [];
   bool _isPlaying;
   bool shouldClip;
 
@@ -139,13 +140,12 @@ class FlareActorRenderObject extends RenderBox {
     if (_artboard != null) {
       ActorNode node = _artboard.getNode(_boundsNodeName);
       if (node is ActorDrawable) {
-        _setupAABB = (node as ActorDrawable).computeAABB();
+        _setupAABB = node.computeAABB();
       }
     }
   }
 
   void dispose() {
-	  print("DISPOSED");
     _isPlaying = false;
     updatePlayState();
     _actor = null;
@@ -180,7 +180,7 @@ class FlareActorRenderObject extends RenderBox {
     }
   }
 
-  updatePlayState() {
+  void updatePlayState() {
     if (_isPlaying && attached) {
       if (_frameCallbackID == null) {
         _frameCallbackID =
@@ -234,7 +234,7 @@ class FlareActorRenderObject extends RenderBox {
       actor.loadFromBundle(assetBundle, _filename).then((bool success) {
         if (success) {
           _actor = actor;
-          _artboard = _actor?.artboard;
+          _artboard = _actor?.artboard as FlutterActorArtboard;
           if (_artboard != null) {
             _artboard.initializeGraphics();
             _artboard.overrideColor = _color == null
@@ -281,13 +281,8 @@ class FlareActorRenderObject extends RenderBox {
   bool hitTestSelf(Offset screenOffset) => true;
 
   @override
-  performResize() {
+  void performResize() {
     size = constraints.biggest;
-  }
-
-  @override
-  void performLayout() {
-    super.performLayout();
   }
 
   @override
@@ -366,7 +361,7 @@ class FlareActorRenderObject extends RenderBox {
     }
 
     bool stopPlaying = true;
-    if (_animationLayers.length > 0) {
+    if (_animationLayers.isNotEmpty) {
       stopPlaying = false;
     }
 
@@ -406,7 +401,7 @@ class FlareActorRenderObject extends RenderBox {
       double scaleX = 1.0, scaleY = 1.0;
 
       canvas.save();
-      if (this.shouldClip) {
+      if (shouldClip) {
         canvas.clipRect(offset & size);
       }
 
@@ -469,7 +464,7 @@ class FlareActorRenderObject extends RenderBox {
     }
   }
 
-  _updateAnimation({bool onlyWhenMissing = false}) {
+  void _updateAnimation({bool onlyWhenMissing = false}) {
     if (onlyWhenMissing && _animationLayers.isNotEmpty) {
       return;
     }

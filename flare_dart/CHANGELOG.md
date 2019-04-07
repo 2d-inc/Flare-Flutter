@@ -1,3 +1,7 @@
+## [1.3.5] - 2019-04-06 19:04:55
+
+Allow overriding instance nodes so that custom paint effects and operations can be applied to Images and Shapes.
+
 ## [1.3.4] - 2019-03-25 20:02:50
 
 Validate draw order keyframe value is applying values to valid ActorDrawables. We had a condition in Flare that would export null drawOrder values, which would resolve to 0 in binary, causing the keyframe to point to a 0 indexed component. The fix is to both make the runtime library more resilient and to fix the exporter. Both have been done.

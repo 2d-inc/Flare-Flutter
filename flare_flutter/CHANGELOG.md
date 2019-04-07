@@ -1,3 +1,7 @@
+## [1.3.7] - 2019-04-06 19:28:48
+
+New features for caching, custom renderers, and better support for overriding paint operations (allows for mutating paint to add things like color filters).
+
 ## [1.3.6] - 2019-03-26 15:56:34
 
 Making new snapToEnd functionality default to false to support backwards compatibility.

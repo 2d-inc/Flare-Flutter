@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:flare_flutter/flare_render_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +27,7 @@ class FlareActor extends LeafRenderObjectWidget {
   final Color color;
   final String boundsNode;
 
-  FlareActor(this.filename,
+  const FlareActor(this.filename,
       {this.boundsNode,
       this.animation,
       this.fit = BoxFit.contain,
@@ -89,27 +90,20 @@ class FlareAnimationLayer {
   bool get isDone => time >= animation.duration;
 }
 
-class FlareActorRenderObject extends RenderBox {
-  AssetBundle assetBundle;
+class FlareActorRenderObject extends FlareRenderBox {
   String _filename;
-  BoxFit _fit;
-  Alignment _alignment;
   String _animationName;
   String _boundsNodeName;
   FlareController _controller;
   FlareCompletedCallback _completedCallback;
-  double _lastFrameTime = 0.0;
   final double _mixSeconds = 0.2;
   bool snapToEnd = false;
 
   final List<FlareAnimationLayer> _animationLayers = [];
-  bool _isPlaying;
   bool shouldClip;
 
-  FlutterActor _actor;
   FlutterActorArtboard _artboard;
   AABB _setupAABB;
-  int _frameCallbackID;
 
   Color _color;
 
@@ -145,15 +139,14 @@ class FlareActorRenderObject extends RenderBox {
     }
   }
 
+  @override
   void dispose() {
-    _isPlaying = false;
-    updatePlayState();
-    _actor = null;
+    super.dispose();
     _controller = null;
   }
 
   void updateBounds() {
-    if (_actor != null) {
+    if (_artboard != null) {
       ActorNode node;
       if (_boundsNodeName != null &&
           (node = _artboard.getNode(_boundsNodeName)) is ActorDrawable) {
@@ -161,37 +154,6 @@ class FlareActorRenderObject extends RenderBox {
       } else {
         _setupAABB = _artboard.artboardAABB();
       }
-    }
-  }
-
-  BoxFit get fit => _fit;
-  set fit(BoxFit value) {
-    if (value != _fit) {
-      _fit = value;
-      markNeedsPaint();
-    }
-  }
-
-  bool get isPlaying => _isPlaying;
-  set isPlaying(bool value) {
-    if (value != _isPlaying) {
-      _isPlaying = value;
-      updatePlayState();
-    }
-  }
-
-  void updatePlayState() {
-    if (_isPlaying && attached) {
-      if (_frameCallbackID == null) {
-        _frameCallbackID =
-            SchedulerBinding.instance.scheduleFrameCallback(beginFrame);
-      }
-    } else {
-      if (_frameCallbackID != null) {
-        SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
-        _frameCallbackID = null;
-      }
-      _lastFrameTime = 0.0;
     }
   }
 
@@ -213,58 +175,51 @@ class FlareActorRenderObject extends RenderBox {
     }
   }
 
-  String get filename => _filename;
-  set filename(String value) {
-    if (value != _filename) {
-      _filename = value;
-      if (_actor != null) {
-        _actor.dispose();
-        _actor = null;
-        _artboard = null;
-      }
-
-      _animationLayers.length = 0;
-
-      if (_filename == null) {
-        markNeedsPaint();
-        return;
-      }
-
-      FlutterActor actor = FlutterActor();
-      actor.loadFromBundle(assetBundle, _filename).then((bool success) {
-        if (success) {
-          _actor = actor;
-          _artboard = _actor?.artboard as FlutterActorArtboard;
-          if (_artboard != null) {
-            _artboard.initializeGraphics();
-            _artboard.overrideColor = _color == null
-                ? null
-                : Float32List.fromList([
-                    _color.red / 255.0,
-                    _color.green / 255.0,
-                    _color.blue / 255.0,
-                    _color.opacity
-                  ]);
-            _artboard.advance(0.0);
-            updateBounds();
-          }
-          if (_controller != null) {
-            _controller.initialize(_artboard);
-          }
-          _updateAnimation(onlyWhenMissing: true);
-          markNeedsPaint();
-          updatePlayState();
-        }
-      });
-    }
+  @override
+  void onUnload() {
+    _animationLayers.length = 0;
   }
 
-  Alignment get alignment => _alignment;
-  set alignment(Alignment value) {
-    if (value != _alignment) {
-      _alignment = value;
+  String get filename => _filename;
+  set filename(String value) {
+    if (value == _filename) {
+      return;
+    }
+    _filename = value;
+
+    if (_filename == null) {
       markNeedsPaint();
     }
+
+    load();
+  }
+
+  @override
+  void load() {
+    super.load();
+    loadFlare(_filename).then((FlutterActor actor) {
+      if (actor == null || actor.artboard == null) {
+        return;
+      }
+      _artboard = actor.artboard.makeInstance() as FlutterActorArtboard;
+      _artboard.initializeGraphics();
+      _artboard.overrideColor = _color == null
+          ? null
+          : Float32List.fromList([
+              _color.red / 255.0,
+              _color.green / 255.0,
+              _color.blue / 255.0,
+              _color.opacity
+            ]);
+      _artboard.advance(0.0);
+      updateBounds();
+
+      if (_controller != null) {
+        _controller.initialize(_artboard);
+      }
+      _updateAnimation(onlyWhenMissing: true);
+      markNeedsPaint();
+    });
   }
 
   FlareCompletedCallback get completed => _completedCallback;
@@ -275,88 +230,53 @@ class FlareActorRenderObject extends RenderBox {
   }
 
   @override
-  bool get sizedByParent => true;
+  bool advance(double elapsedSeconds) {
+    if (isPlaying) {
+      int lastFullyMixed = -1;
+      double lastMix = 0.0;
 
-  @override
-  bool hitTestSelf(Offset screenOffset) => true;
+      List<FlareAnimationLayer> completed = [];
 
-  @override
-  void performResize() {
-    size = constraints.biggest;
-  }
+      for (int i = 0; i < _animationLayers.length; i++) {
+        FlareAnimationLayer layer = _animationLayers[i];
 
-  @override
-  void detach() {
-    super.detach();
-    updatePlayState();
-  }
+        if (snapToEnd && !layer.animation.isLooping) {
+          layer.mix = 1.0;
+          layer.time = layer.duration;
+        } else {
+          layer.mix += elapsedSeconds;
+          layer.time += elapsedSeconds;
+        }
 
-  @override
-  void attach(PipelineOwner owner) {
-    super.attach(owner);
-    updatePlayState();
-  }
-
-  void beginFrame(Duration timestamp) {
-    _frameCallbackID = null;
-    if (_actor == null) {
-      return;
-    }
-    final double t =
-        timestamp.inMicroseconds / Duration.microsecondsPerMillisecond / 1000.0;
-    if (_lastFrameTime == 0 || _actor == null) {
-      _lastFrameTime = t;
-      updatePlayState();
-      return;
-    }
-
-    double elapsedSeconds = t - _lastFrameTime;
-    _lastFrameTime = t;
-
-    int lastFullyMixed = -1;
-    double lastMix = 0.0;
-
-    List<FlareAnimationLayer> completed = [];
-
-    for (int i = 0; i < _animationLayers.length; i++) {
-      FlareAnimationLayer layer = _animationLayers[i];
-
-      if (snapToEnd && !layer.animation.isLooping) {
-        layer.mix = 1.0;
-        layer.time = layer.duration;
-      } else {
-        layer.mix += elapsedSeconds;
-        layer.time += elapsedSeconds;
+        lastMix = (_mixSeconds == null || _mixSeconds == 0.0)
+            ? 1.0
+            : min(1.0, layer.mix / _mixSeconds);
+        if (layer.animation.isLooping) {
+          layer.time %= layer.animation.duration;
+        }
+        layer.animation.apply(layer.time, _artboard, lastMix);
+        if (lastMix == 1.0) {
+          lastFullyMixed = i;
+        }
+        if (layer.time > layer.animation.duration) {
+          completed.add(layer);
+        }
       }
 
-      lastMix = (_mixSeconds == null || _mixSeconds == 0.0)
-          ? 1.0
-          : min(1.0, layer.mix / _mixSeconds);
-      if (layer.animation.isLooping) {
-        layer.time %= layer.animation.duration;
+      if (lastFullyMixed != -1) {
+        _animationLayers.removeRange(0, lastFullyMixed);
       }
-      layer.animation.apply(layer.time, _artboard, lastMix);
-      if (lastMix == 1.0) {
-        lastFullyMixed = i;
+      if (animationName == null &&
+          _animationLayers.length == 1 &&
+          lastMix == 1.0) {
+        // Remove remaining animations.
+        _animationLayers.removeAt(0);
       }
-      if (layer.time > layer.animation.duration) {
-        completed.add(layer);
-      }
-    }
-
-    if (lastFullyMixed != -1) {
-      _animationLayers.removeRange(0, lastFullyMixed);
-    }
-    if (animationName == null &&
-        _animationLayers.length == 1 &&
-        lastMix == 1.0) {
-      // Remove remaining animations.
-      _animationLayers.removeAt(0);
-    }
-    for (FlareAnimationLayer animation in completed) {
-      _animationLayers.remove(animation);
-      if (_completedCallback != null) {
-        _completedCallback(animation.name);
+      for (final FlareAnimationLayer animation in completed) {
+        _animationLayers.remove(animation);
+        if (_completedCallback != null) {
+          _completedCallback(animation.name);
+        }
       }
     }
 
@@ -371,97 +291,33 @@ class FlareActorRenderObject extends RenderBox {
       }
     }
 
-    if (stopPlaying) {
-      _isPlaying = false;
-    }
-
-    updatePlayState();
-
     if (_artboard != null) {
       _artboard.advance(elapsedSeconds);
     }
 
-    markNeedsPaint();
+    if (stopPlaying) {
+      isPlaying = false;
+    }
+
+    return !stopPlaying;
   }
 
   @override
-  void paint(PaintingContext context, Offset offset) {
-    final Canvas canvas = context.canvas;
+  AABB get aabb => _setupAABB;
 
-    if (_artboard != null) {
-      AABB bounds = _setupAABB;
-      double contentWidth = bounds[2] - bounds[0];
-      double contentHeight = bounds[3] - bounds[1];
-      double x =
-          -bounds[0] - contentWidth / 2.0 - (_alignment.x * contentWidth / 2.0);
-      double y = -bounds[1] -
-          contentHeight / 2.0 -
-          (_alignment.y * contentHeight / 2.0);
-
-      double scaleX = 1.0, scaleY = 1.0;
-
-      canvas.save();
-      if (shouldClip) {
-        canvas.clipRect(offset & size);
-      }
-
-      switch (_fit) {
-        case BoxFit.fill:
-          scaleX = size.width / contentWidth;
-          scaleY = size.height / contentHeight;
-          break;
-        case BoxFit.contain:
-          double minScale =
-              min(size.width / contentWidth, size.height / contentHeight);
-          scaleX = scaleY = minScale;
-          break;
-        case BoxFit.cover:
-          double maxScale =
-              max(size.width / contentWidth, size.height / contentHeight);
-          scaleX = scaleY = maxScale;
-          break;
-        case BoxFit.fitHeight:
-          double minScale = size.height / contentHeight;
-          scaleX = scaleY = minScale;
-          break;
-        case BoxFit.fitWidth:
-          double minScale = size.width / contentWidth;
-          scaleX = scaleY = minScale;
-          break;
-        case BoxFit.none:
-          scaleX = scaleY = 1.0;
-          break;
-        case BoxFit.scaleDown:
-          double minScale =
-              min(size.width / contentWidth, size.height / contentHeight);
-          scaleX = scaleY = minScale < 1.0 ? minScale : 1.0;
-          break;
-      }
-
-      if (_controller != null) {
-        Mat2D transform = Mat2D();
-        transform[4] =
-            offset.dx + size.width / 2.0 + (_alignment.x * size.width / 2.0);
-        transform[5] =
-            offset.dy + size.height / 2.0 + (_alignment.y * size.height / 2.0);
-        Mat2D.scale(transform, transform, Vec2D.fromValues(scaleX, scaleY));
-        Mat2D center = Mat2D();
-        center[4] = x;
-        center[5] = y;
-        Mat2D.multiply(transform, transform, center);
-        _controller.setViewTransform(transform);
-      }
-
-      canvas.translate(
-        offset.dx + size.width / 2.0 + (_alignment.x * size.width / 2.0),
-        offset.dy + size.height / 2.0 + (_alignment.y * size.height / 2.0),
-      );
-
-      canvas.scale(scaleX, scaleY);
-      canvas.translate(x, y);
-      _artboard.draw(canvas);
-      canvas.restore();
+  @override
+  void prePaint(Canvas canvas, Offset offset) {
+    if (shouldClip) {
+      canvas.clipRect(offset & size);
     }
+  }
+
+  @override
+  void paintFlare(Canvas canvas, Mat2D viewTransform) {
+    if (_artboard == null) {
+      return;
+    }
+    _artboard.draw(canvas);
   }
 
   void _updateAnimation({bool onlyWhenMissing = false}) {
@@ -478,7 +334,6 @@ class FlareActorRenderObject extends RenderBox {
         animation.apply(0.0, _artboard, 1.0);
         _artboard.advance(0.0);
       }
-      updatePlayState();
     }
   }
 }

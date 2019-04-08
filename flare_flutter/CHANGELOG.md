@@ -1,3 +1,7 @@
+## [1.3.8] - 2019-04-08 08:48:57
+
+Using the latest Flare Dart which fixed an issue with trim path instances.
+
 ## [1.3.7] - 2019-04-06 19:28:48
 
 New features for caching, custom renderers, and better support for overriding paint operations (allows for mutating paint to add things like color filters).

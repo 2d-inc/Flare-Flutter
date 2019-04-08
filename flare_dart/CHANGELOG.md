@@ -1,3 +1,7 @@
+## [1.3.6] - 2019-04-08 08:46:05
+
+Fixed an issue with instanced copies not including trim path values.
+
 ## [1.3.5] - 2019-04-06 19:04:55
 
 Allow overriding instance nodes so that custom paint effects and operations can be applied to Images and Shapes.

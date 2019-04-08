@@ -199,6 +199,10 @@ abstract class ActorStroke {
     width = node.width;
     _cap = node._cap;
     _join = node._join;
+	_trim = node._trim;
+	_trimStart = node._trimStart;
+    _trimEnd = node._trimEnd;
+    _trimOffset = node._trimOffset;
   }
 
   void initializeGraphics();

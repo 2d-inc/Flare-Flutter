@@ -81,7 +81,7 @@ class FlareActor extends LeafRenderObjectWidget {
 class FlareAnimationLayer {
   String name;
   ActorAnimation animation;
-  double time = 0.0, mix = 0.0;
+  double time = 0.0, mix = 0.0, mixSeconds = 0.2;
   void apply(FlutterActorArtboard artboard) {
     animation.apply(time, artboard, mix);
   }
@@ -96,7 +96,6 @@ class FlareActorRenderObject extends FlareRenderBox {
   String _boundsNodeName;
   FlareController _controller;
   FlareCompletedCallback _completedCallback;
-  final double _mixSeconds = 0.2;
   bool snapToEnd = false;
 
   final List<FlareAnimationLayer> _animationLayers = [];
@@ -248,9 +247,9 @@ class FlareActorRenderObject extends FlareRenderBox {
           layer.time += elapsedSeconds;
         }
 
-        lastMix = (_mixSeconds == null || _mixSeconds == 0.0)
+        lastMix = (layer.mixSeconds == null || layer.mixSeconds == 0.0)
             ? 1.0
-            : min(1.0, layer.mix / _mixSeconds);
+            : min(1.0, layer.mix / layer.mixSeconds);
         if (layer.animation.isLooping) {
           layer.time %= layer.animation.duration;
         }
@@ -330,7 +329,8 @@ class FlareActorRenderObject extends FlareRenderBox {
         _animationLayers.add(FlareAnimationLayer()
           ..name = _animationName
           ..animation = animation
-          ..mix = 1.0);
+          ..mix = 1.0
+		  ..mixSeconds = 0.2);
         animation.apply(0.0, _artboard, 1.0);
         _artboard.advance(0.0);
       }

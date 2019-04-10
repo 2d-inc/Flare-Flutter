@@ -1,3 +1,7 @@
+## [1.3.9] - 2019-04-10 16:53:20
+
+Adding arguments for mix and mixSeconds to FlareControls.play().
+
 ## [1.3.8] - 2019-04-08 08:48:57
 
 Using the latest Flare Dart which fixed an issue with trim path instances.

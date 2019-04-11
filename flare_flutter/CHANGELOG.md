@@ -1,3 +1,7 @@
+## [1.3.10] - 2019-04-11 09:36:58
+
+Reloading when re-attaching a FlareRenderBox widget.
+
 ## [1.3.9] - 2019-04-10 16:53:20
 
 Adding arguments for mix and mixSeconds to FlareControls.play().

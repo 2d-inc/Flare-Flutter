@@ -90,10 +90,12 @@ abstract class FlareRenderBox extends RenderBox {
   void attach(PipelineOwner owner) {
     super.attach(owner);
     _updatePlayState();
+    if (_assets.isEmpty && assetBundle != null) {
+      load();
+    }
   }
 
   void dispose() {
-    _isPlaying = false;
     _updatePlayState();
     _unload();
   }
@@ -207,9 +209,8 @@ abstract class FlareRenderBox extends RenderBox {
   bool advance(double elapsedSeconds);
 
   /// Perform any loading logic necessary for this scene.
-  void load()
-  {
-	  _unload();
+  void load() {
+    _unload();
   }
 
   void _unload() {
@@ -217,7 +218,7 @@ abstract class FlareRenderBox extends RenderBox {
       asset.deref();
     }
     _assets.clear();
-	onUnload();
+    onUnload();
   }
 
   void onUnload() {}

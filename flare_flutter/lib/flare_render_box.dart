@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -17,8 +18,6 @@ abstract class FlareRenderBox extends RenderBox {
   Alignment _alignment;
   int _frameCallbackID;
   double _lastFrameTime = 0.0;
-  bool _isPlaying = false;
-
   final List<FlareCacheAsset> _assets = [];
 
   AssetBundle get assetBundle => _assetBundle;
@@ -32,13 +31,7 @@ abstract class FlareRenderBox extends RenderBox {
     }
   }
 
-  bool get isPlaying => _isPlaying;
-  set isPlaying(bool value) {
-    if (value != _isPlaying) {
-      _isPlaying = value;
-      _updatePlayState();
-    }
-  }
+  bool get isPlaying;
 
   BoxFit get fit => _fit;
   set fit(BoxFit value) {
@@ -48,16 +41,14 @@ abstract class FlareRenderBox extends RenderBox {
     }
   }
 
-  void _updatePlayState() {
-    if (_isPlaying && attached) {
-      _frameCallbackID ??=
-          SchedulerBinding.instance.scheduleFrameCallback(_beginFrame);
+  void updatePlayState() {
+    if (isPlaying && attached) {
+      markNeedsPaint();
     } else {
+      _lastFrameTime = 0;
       if (_frameCallbackID != null) {
         SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
-        _frameCallbackID = null;
       }
-      _lastFrameTime = 0.0;
     }
   }
 
@@ -89,14 +80,14 @@ abstract class FlareRenderBox extends RenderBox {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _updatePlayState();
+    updatePlayState();
     if (_assets.isEmpty && assetBundle != null) {
       load();
     }
   }
 
   void dispose() {
-    _updatePlayState();
+    updatePlayState();
     _unload();
   }
 
@@ -104,18 +95,10 @@ abstract class FlareRenderBox extends RenderBox {
     _frameCallbackID = null;
     final double t =
         timestamp.inMicroseconds / Duration.microsecondsPerMillisecond / 1000.0;
-    if (_lastFrameTime == 0) {
-      _lastFrameTime = t;
-      _updatePlayState();
-      return;
-    }
-
-    double elapsedSeconds = t - _lastFrameTime;
+    double elapsedSeconds = _lastFrameTime == 0.0 ? 0.0 : t - _lastFrameTime;
     _lastFrameTime = t;
 
-    if (advance(elapsedSeconds)) {
-      _updatePlayState();
-    }
+    advance(elapsedSeconds);
 
     markNeedsPaint();
   }
@@ -129,6 +112,15 @@ abstract class FlareRenderBox extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    if (isPlaying) {
+      // Paint again
+      if (_frameCallbackID != null) {
+        SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
+      }
+      _frameCallbackID =
+          SchedulerBinding.instance.scheduleFrameCallback(_beginFrame);
+    }
+
     final Canvas canvas = context.canvas;
 
     AABB bounds = aabb;
@@ -206,7 +198,7 @@ abstract class FlareRenderBox extends RenderBox {
   }
 
   /// Advance animations, physics, etc by elapsedSeconds.
-  bool advance(double elapsedSeconds);
+  void advance(double elapsedSeconds);
 
   /// Perform any loading logic necessary for this scene.
   void load() {

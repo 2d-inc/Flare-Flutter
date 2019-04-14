@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 
 List<Color> exampleColors = <Color>[Colors.red, Colors.green, Colors.blue];
 
-class _MyHomePageState extends State<MyHomePage> implements FlareController {
+class _MyHomePageState extends State<MyHomePage> with FlareController {
   FlutterColorFill _fill;
   void initialize(FlutterActorArtboard artboard) {
     // Find our "Num 2" shape and get its fill so we can change it programmatically.
@@ -42,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> implements FlareController {
 
   bool advance(FlutterActorArtboard artboard, double elapsed) {
     // advance is called whenever the flare artboard is about to update (before it draws).
-    Color nextColor = exampleColors[(_counter++) % exampleColors.length];
+    Color nextColor = exampleColors[_counter % exampleColors.length];
     if (_fill != null) {
       _fill.uiColor = nextColor;
     }

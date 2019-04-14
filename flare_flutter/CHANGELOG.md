@@ -1,3 +1,9 @@
+## [1.3.11] - 2019-04-13 17:38:08
+
+We've updated the advance logic (which drives the animations and custom controllers) to work in tandem with painting. This prevents advancing from continuing when the widget is no longer painting. It solves the issue of animations advancing when navigated away from a page containing a FlareActor widget. This was due to the widget still being attached to the widget tree, which would cause the FlareActor to think it would need to continue advancing.
+
+N.B. Breaking Change: if you are implementing FlareController, consider using it as a mixin to avoid having to add your own isActive ValueNotifier. For most cases simply swapping the ```extends FlareController``` to ```with FlareController``` will suffice.
+
 ## [1.3.10] - 2019-04-11 09:36:58
 
 Reloading when re-attaching a FlareRenderBox widget.

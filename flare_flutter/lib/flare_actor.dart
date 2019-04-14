@@ -48,7 +48,7 @@ class FlareActor extends LeafRenderObjectWidget {
       ..alignment = alignment
       ..animationName = animation
       ..snapToEnd = snapToEnd
-      ..isPlaying = !isPaused
+      ..isPaused = isPaused
       ..controller = controller
       ..completed = callback
       ..color = color
@@ -66,7 +66,7 @@ class FlareActor extends LeafRenderObjectWidget {
       ..alignment = alignment
       ..animationName = animation
       ..snapToEnd = snapToEnd
-      ..isPlaying = !isPaused
+      ..isPaused = isPaused
       ..color = color
       ..shouldClip = shouldClip
       ..boundsNodeName = boundsNode;
@@ -97,6 +97,15 @@ class FlareActorRenderObject extends FlareRenderBox {
   FlareController _controller;
   FlareCompletedCallback _completedCallback;
   bool snapToEnd = false;
+  bool _isPaused = false;
+  bool get isPaused => _isPaused;
+  set isPaused(bool value) {
+    if (_isPaused == value) {
+      return;
+    }
+    _isPaused = value;
+    updatePlayState();
+  }
 
   final List<FlareAnimationLayer> _animationLayers = [];
   bool shouldClip;
@@ -164,10 +173,24 @@ class FlareActorRenderObject extends FlareRenderBox {
     }
   }
 
+  /// We're playing if we're not paused and our controller is active (or
+  /// there's no controller) or there are animations running.
+  bool get isPlaying =>
+      !_isPaused &&
+      (_controller == null
+          ? _animationLayers.isNotEmpty
+          : _controller.isActive.value);
+
+  void onControllerActiveChange() {
+    updatePlayState();
+  }
+
   FlareController get controller => _controller;
   set controller(FlareController c) {
     if (_controller != c) {
+      _controller?.isActive?.removeListener(onControllerActiveChange);
       _controller = c;
+      _controller?.isActive?.addListener(onControllerActiveChange);
       if (_controller != null && _artboard != null) {
         _controller.initialize(_artboard);
       }
@@ -229,7 +252,7 @@ class FlareActorRenderObject extends FlareRenderBox {
   }
 
   @override
-  bool advance(double elapsedSeconds) {
+  void advance(double elapsedSeconds) {
     if (isPlaying) {
       int lastFullyMixed = -1;
       double lastMix = 0.0;
@@ -279,26 +302,14 @@ class FlareActorRenderObject extends FlareRenderBox {
       }
     }
 
-    bool stopPlaying = true;
-    if (_animationLayers.isNotEmpty) {
-      stopPlaying = false;
-    }
-
-    if (_controller != null) {
-      if (_controller.advance(_artboard, elapsedSeconds)) {
-        stopPlaying = false;
-      }
+    if (_controller != null &&
+        !_controller.advance(_artboard, elapsedSeconds)) {
+      _controller?.isActive?.value = false;
     }
 
     if (_artboard != null) {
       _artboard.advance(elapsedSeconds);
     }
-
-    if (stopPlaying) {
-      isPlaying = false;
-    }
-
-    return !stopPlaying;
   }
 
   @override
@@ -330,7 +341,7 @@ class FlareActorRenderObject extends FlareRenderBox {
           ..name = _animationName
           ..animation = animation
           ..mix = 1.0
-		  ..mixSeconds = 0.2);
+          ..mixSeconds = 0.2);
         animation.apply(0.0, _artboard, 1.0);
         _artboard.advance(0.0);
       }

@@ -40,7 +40,8 @@ class FlareControls extends FlareController {
           ..name = _animationName
           ..animation = animation
           ..mix = mix
-		  ..mixSeconds = mixSeconds);
+          ..mixSeconds = mixSeconds);
+        isActive.value = true;
       }
     }
   }
@@ -111,6 +112,6 @@ class FlareControls extends FlareController {
       _animationLayers.remove(animation);
       onCompleted(animation.name);
     }
-    return true;
+    return _animationLayers.isNotEmpty;
   }
 }

@@ -1,3 +1,7 @@
+## [1.3.12] - 2019-04-13 18:12:09
+
+Fixes a condition where animations would not advance if they were using an animation driven by FlareActor and one from FlareController.
+
 ## [1.3.11] - 2019-04-13 17:38:08
 
 We've updated the advance logic (which drives the animations and custom controllers) to work in tandem with painting. This prevents advancing from continuing when the widget is no longer painting. It solves the issue of animations advancing when navigated away from a page containing a FlareActor widget. This was due to the widget still being attached to the widget tree, which would cause the FlareActor to think it would need to continue advancing.

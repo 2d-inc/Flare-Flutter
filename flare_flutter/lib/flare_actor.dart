@@ -177,9 +177,7 @@ class FlareActorRenderObject extends FlareRenderBox {
   /// there's no controller) or there are animations running.
   bool get isPlaying =>
       !_isPaused &&
-      (_controller == null
-          ? _animationLayers.isNotEmpty
-          : _controller.isActive.value);
+      ((_controller?.isActive?.value ?? false) || _animationLayers.isNotEmpty);
 
   void onControllerActiveChange() {
     updatePlayState();

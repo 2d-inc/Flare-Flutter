@@ -342,6 +342,7 @@ class FlareActorRenderObject extends FlareRenderBox {
           ..mixSeconds = 0.2);
         animation.apply(0.0, _artboard, 1.0);
         _artboard.advance(0.0);
+		updatePlayState();
       }
     }
   }

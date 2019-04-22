@@ -1,3 +1,7 @@
+## [1.3.13] - 2019-04-22 09:39:15
+
+Fixes a condition where elapsed time counters were not resetting to 0 when animation stopped. This would cause the elapsed time to be really high when starting to play a subsequent animation.
+
 ## [1.3.12] - 2019-04-13 18:12:09
 
 Fixes a condition where animations would not advance if they were using an animation driven by FlareActor and one from FlareController.

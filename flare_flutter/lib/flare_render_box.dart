@@ -99,7 +99,9 @@ abstract class FlareRenderBox extends RenderBox {
     _lastFrameTime = t;
 
     advance(elapsedSeconds);
-
+    if (!isPlaying) {
+      _lastFrameTime = 0.0;
+    }
     markNeedsPaint();
   }
 

@@ -12,7 +12,7 @@ dependencies:
     git: 
       url: git://github.com/2d-inc/Flare-Flutter.git
       ref: dev
-      path: flare_flutter
+      path: flare_dart
 dev_dependencies:
   flutter_test:
     sdk: flutter

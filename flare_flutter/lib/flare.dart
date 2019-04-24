@@ -653,11 +653,6 @@ class FlutterActor extends Actor {
     return actor;
   }
 
-//   static Future<FlutterActor> backgroundLoad(
-//       AssetBundle assetBundle, String filename) async {
-//     return compute(_backgroundLoad, AssetBundleContext(assetBundle, filename));
-//   }
-
   Future<bool> loadFromBundle(AssetBundle assetBundle, String filename) async {
     ByteData data = await assetBundle.load(filename);
     return super.load(data, AssetBundleContext(assetBundle, filename));

@@ -6,8 +6,31 @@
 ## Libraries
 There are two Dart packages provided in this repository. [flare_dart](flare_dart) and [flare_flutter](flare_flutter). Most of the time you'll want only [flare_flutter](flare_flutter), especially if you're just starting out with Flare. Please read the details in [flare_flutter](flare_flutter) for how to get your Flare animations running in Flutter!
 
-## Breaking changes in 1.1.0
-Now that the base library is located in the flare_dart package, you'll need to patch up old imports that were referencing ```'package:flare_flutter/flare/...'``` to simply use ```'package:flare_dart/...'```. For example, if you were using the mat2d class from ```import 'package:flare_flutter/flare/math/mat2d.dart';``` you should now change it to ```import 'package:flare_dart/math/mat2d.dart';```
+## Flutter Channel
+This repository has three primary branches: 
+- stable
+  - This is the branch we publish to pub from. 
+  - This branch and the associated pub packages are guaranteed to work on the flutter stable channel.
+  ```
+  flare_flutter: ^1.5.0
+  ```
+- dev
+  - This branch has the latest changes should work with the flutter dev channel.
+  - You can point to this branch directly from your pubspec with the following syntax.
+  ```
+  flare_flutter:
+    git: 
+      url: git://github.com/2d-inc/Flare-Flutter.git
+      ref: dev
+      path: flare_flutter
+  ```
+- master
+  - This is the branch we work off of for development and the community submits PRs to.
+  - The references in the pubspec here are local, meaning that the intention is to use this library as local reference:
+  ```
+  flare_flutter:
+    path: ~/my/repos/flare_flutter
+  ```
 
 ## Examples
 Take a look at the provided [example applications](https://github.com/2d-inc/Flare-Flutter/tree/master/example).

@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+
 import 'asset_bundle_cache.dart';
 import 'cache.dart';
 import 'cache_asset.dart';
@@ -14,7 +16,7 @@ class FlareCacheAsset extends CacheAsset {
     super.load(cache, filename);
     if (cache is AssetBundleCache) {
       cache.bundle.load(filename).then((ByteData data) {
-        FlutterActor.loadFromByteData(data).then((FlutterActor actor) {
+        compute(FlutterActor.loadFromByteData, data).then((FlutterActor actor) {
           actor.loadImages().then((_) {
             if (actor != null) {
               _actor = actor;

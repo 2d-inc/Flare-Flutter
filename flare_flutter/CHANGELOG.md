@@ -1,3 +1,8 @@
+## [1.5.0] - 2019-04-23 19:41:56
+
+- New system in place to prevent breaking stable builds.
+- Revert compute load for stable, please see https://github.com/2d-inc/Flare-Flutter for how to use the latest bleeding edge work with dev/master Flutter channels.
+
 ## [1.4.0] - 2019-04-23 19:41:56
 
 - Improving load jank by loading the Flare file in an Isolate. This now requires calling Actor.loadImages once the Flare file has been loaded. FlareActor already handles this for you.

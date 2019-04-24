@@ -318,7 +318,6 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       // 		weightOffset += vertexStride;
       // 	}
       // }
-      //print("VERTEX STRIDE $stride, $vertexStride, $_vertexCount, ${_vertices.length}");
       int boneIndexOffset = vertexBoneIndexOffset;
       int weightOffset = vertexBoneWeightOffset;
       for (int i = 0; i < _vertexCount; i++) {
@@ -346,13 +345,10 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 
           int boneTransformIndex = boneIndex * 6;
           if (boneIndex <= connectedBones.length) {
-            //print("BONE TRANSFORMS ${boneTransforms.length} $boneIndex $boneTransformIndex ${connectedBones.length} $boneIndexOffset $wi");
             for (int j = 0; j < 6; j++) {
               influenceMatrix[j] +=
                   boneTransforms[boneTransformIndex + j] * weight;
             }
-          } else {
-            //print("BAD BONE INDEX $boneIndex ${connectedBones.length} ${name}");
           }
         }
 
@@ -379,6 +375,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     }
   }
 
+  @override
   AABB computeAABB() {
     // Todo: implement for image.
     Mat2D worldTransform = this.worldTransform;

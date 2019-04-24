@@ -143,15 +143,13 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       int numVertices = reader.readUint32("numVertices");
 
       node._vertexCount = numVertices;
-      node._vertices = Float32List(numVertices * node.vertexStride);
-      reader.readFloat32ArrayOffset(
-          node._vertices, node._vertices.length, 0, "vertices");
+      node._vertices =
+          reader.readFloat32Array(numVertices * node.vertexStride, "vertices");
 
       int numTris = reader.readUint32("numTriangles");
       node._triangles = Uint16List(numTris * 3);
       node._triangleCount = numTris;
-      reader.readUint16Array(
-          node._triangles, node._triangles.length, 0, "triangles");
+      node._triangles = reader.readUint16Array(numTris * 3, "triangles");
     }
     return node;
   }

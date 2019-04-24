@@ -221,8 +221,10 @@ class FlareActorRenderObject extends FlareRenderBox {
       if (actor == null || actor.artboard == null) {
         return;
       }
-      _artboard = actor.artboard.makeInstance() as FlutterActorArtboard;
-      _artboard.initializeGraphics();
+      FlutterActorArtboard artboard =
+          actor.artboard.makeInstance() as FlutterActorArtboard;
+      artboard.initializeGraphics();
+      _artboard = artboard;
       _artboard.overrideColor = _color == null
           ? null
           : Float32List.fromList([
@@ -300,7 +302,7 @@ class FlareActorRenderObject extends FlareRenderBox {
       }
     }
 
-    if (_controller != null &&
+    if (_artboard != null && _controller != null &&
         !_controller.advance(_artboard, elapsedSeconds)) {
       _controller?.isActive?.value = false;
     }
@@ -342,7 +344,7 @@ class FlareActorRenderObject extends FlareRenderBox {
           ..mixSeconds = 0.2);
         animation.apply(0.0, _artboard, 1.0);
         _artboard.advance(0.0);
-		updatePlayState();
+        updatePlayState();
       }
     }
   }

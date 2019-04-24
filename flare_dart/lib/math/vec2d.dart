@@ -34,6 +34,11 @@ class Vec2D {
     o[1] = a[1];
   }
 
+  static void copyFromList(Vec2D o, Float32List a) {
+    o[0] = a[0];
+    o[1] = a[1];
+  }
+
   static Vec2D transformMat2D(Vec2D o, Vec2D a, Mat2D m) {
     double x = a[0];
     double y = a[1];

@@ -67,6 +67,15 @@ class Mat2D {
     o[5] = f[5];
   }
 
+  static void copyFromList(Mat2D o, Float32List f) {
+    o[0] = f[0];
+    o[1] = f[1];
+    o[2] = f[2];
+    o[3] = f[3];
+    o[4] = f[4];
+    o[5] = f[5];
+  }
+
   static void scale(Mat2D o, Mat2D a, Vec2D v) {
     double a0 = a[0],
         a1 = a[1],

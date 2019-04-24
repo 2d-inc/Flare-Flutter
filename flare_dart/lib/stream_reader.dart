@@ -30,20 +30,16 @@ abstract class StreamReader {
   int readUint32Length();
 
   int readUint8(String label);
-  Uint8List readUint8Array(
-      Uint8List list, int length, int offset, String label);
+  Uint8List readUint8Array(int length, String label);
   int readInt8(String label);
   int readUint16(String label);
-  Uint16List readUint16Array(
-      Uint16List ar, int length, int offset, String label);
+  Uint16List readUint16Array(int length, String label);
   int readInt16(String label);
   int readInt32(String label);
   int readUint32(String label);
   int readVersion();
   double readFloat32(String label);
-  Float32List readFloat32Array(Float32List ar, String label);
-  Float32List readFloat32ArrayOffset(
-      Float32List ar, int length, int offset, String label);
+  Float32List readFloat32Array(int length, String label);
   double readFloat64(String label);
 
   String readString(String label);

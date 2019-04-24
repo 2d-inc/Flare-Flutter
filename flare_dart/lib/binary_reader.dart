@@ -6,9 +6,18 @@ abstract class BinaryReader implements StreamReader {
   ByteData _raw;
   int _readIndex;
 
+  ByteData get raw => _raw;
+  int get readIndex => _readIndex;
+
   BinaryReader(ByteData data) {
     _raw = data;
     _readIndex = 0;
+  }
+
+  ByteData readBytes(int length) {
+    int offset = _readIndex + raw.offsetInBytes;
+    _readIndex += length;
+    return raw.buffer.asByteData(offset, length);
   }
 
   @override
@@ -17,17 +26,6 @@ abstract class BinaryReader implements StreamReader {
     _readIndex += 4;
 
     return value;
-  }
-
-  @override
-  Float32List readFloat32ArrayOffset(Float32List list, int length, int offset,
-      [String label]) {
-    int end = offset + length;
-    for (int i = offset; i < end; i++) {
-      list[i] = _raw.getFloat32(_readIndex, Endian.little);
-      _readIndex += 4;
-    }
-    return list;
   }
 
   @override
@@ -62,14 +60,17 @@ abstract class BinaryReader implements StreamReader {
   }
 
   @override
-  Uint16List readUint16Array(Uint16List list, int length, int offset,
-      [String label]) {
-    int end = offset + length;
-    for (int i = offset; i < end; i++) {
+  Uint16List readUint16Array(int length, [String label]) {
+    Uint16List list = Uint16List(length);
+    for (int i = 0; i < length; i++) {
       list[i] = _raw.getUint16(_readIndex, Endian.little);
       _readIndex += 2;
     }
     return list;
+    // int offset = _readIndex;
+    // _readIndex += length * 2;
+    // // TODO: endianness?
+    // return _raw.buffer.asUint16List(offset + _raw.offsetInBytes, length);
   }
 
   @override
@@ -123,18 +124,14 @@ abstract class BinaryReader implements StreamReader {
         stringBuffer.writeCharCode((c1 & 15) << 12 | (c2 & 63) << 6 | c3 & 63);
       }
     }
-
     return stringBuffer.toString();
   }
 
   @override
-  Uint8List readUint8Array(Uint8List list, int length, int offset,
-      [String label]) {
-    int end = offset + length;
-    for (int i = offset; i < end; i++) {
-      list[i] = _raw.getUint8(_readIndex++);
-    }
-    return list;
+  Uint8List readUint8Array(int length, [String label]) {
+    int offset = _readIndex + _raw.offsetInBytes;
+    _readIndex += length;
+    return _raw.buffer.asUint8List(offset, length);
   }
 
   @override
@@ -163,8 +160,15 @@ abstract class BinaryReader implements StreamReader {
   }
 
   @override
-  Float32List readFloat32Array(Float32List ar, String label) {
-    return readFloat32ArrayOffset(ar, ar.length, 0, label);
+  Float32List readFloat32Array(int length, String label) {
+    Float32List list = Float32List(length);
+    for (int i = 0; i < length; i++) {
+      list[i] = _raw.getFloat32(_readIndex, Endian.little);
+      _readIndex += 4;
+    }
+    return list;
+    //int offset = _readIndex;
+    //return _raw.buffer.asFloat32List(offset+_raw.offsetInBytes, length);
   }
 
   @override
@@ -175,9 +179,7 @@ abstract class BinaryReader implements StreamReader {
   @override
   Uint8List readAsset() {
     int length = readUint32();
-    Uint8List bytes = Uint8List(length);
-    readUint8Array(bytes, length, 0);
-    return bytes;
+    return readUint8Array(length);
   }
 
   @override

@@ -8,6 +8,7 @@ import 'dart:ui' as ui;
 import 'package:flare_dart/actor_flags.dart';
 import 'package:flare_dart/actor_image.dart';
 import 'package:flare_dart/math/aabb.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
@@ -167,8 +168,20 @@ abstract class FlutterStroke {
 }
 
 class FlutterActorShape extends ActorShape with FlutterActorDrawable {
-  final ui.Path _path = ui.Path();
+  ui.Path _path;
   bool _isValid = false;
+
+  @override
+  void initializeGraphics() {
+    super.initializeGraphics();
+    _path = ui.Path();
+    for (final ActorNode node in children) {
+      FlutterPath flutterPath = node as FlutterPath;
+      if (flutterPath != null) {
+        flutterPath.initializeGraphics();
+      }
+    }
+  }
 
   @override
   void invalidateShape() {
@@ -346,7 +359,8 @@ class FlutterGradientFill extends GradientFill with FlutterFill {
     if (artboard.overrideColor == null) {
       paintColor = Colors.white.withOpacity(
           (artboard.modulateOpacity * opacity * shape.renderOpacity)
-              .clamp(0.0, 1.0));
+              .clamp(0.0, 1.0)
+              .toDouble());
     } else {
       Float32List overrideColor = artboard.overrideColor;
       paintColor = ui.Color.fromRGBO(
@@ -544,10 +558,10 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
   }
 }
 
-class _AssetBundleContext {
+class AssetBundleContext {
   final String filename;
   final AssetBundle bundle;
-  _AssetBundleContext(this.bundle, this.filename);
+  AssetBundleContext(this.bundle, this.filename);
 }
 
 class FlutterActor extends Actor {
@@ -632,9 +646,21 @@ class FlutterActor extends Actor {
     return FlutterRadialStroke();
   }
 
+  static Future<FlutterActor> loadFromByteData(ByteData data) async {
+    //ByteData data = await context.bundle.load(context.filename);
+    FlutterActor actor = FlutterActor();
+    await actor.load(data, null);
+    return actor;
+  }
+
+//   static Future<FlutterActor> backgroundLoad(
+//       AssetBundle assetBundle, String filename) async {
+//     return compute(_backgroundLoad, AssetBundleContext(assetBundle, filename));
+//   }
+
   Future<bool> loadFromBundle(AssetBundle assetBundle, String filename) async {
     ByteData data = await assetBundle.load(filename);
-    return super.load(data, _AssetBundleContext(assetBundle, filename));
+    return super.load(data, AssetBundleContext(assetBundle, filename));
   }
 
   void copyFlutterActor(FlutterActor actor) {
@@ -644,10 +670,21 @@ class FlutterActor extends Actor {
 
   void dispose() {}
 
+  List<Uint8List> _rawAtlasData;
   @override
   Future<bool> loadAtlases(List<Uint8List> rawAtlases) async {
+    _rawAtlasData = rawAtlases;
+    return true;
+  }
+
+  Future<bool> loadImages() async {
+    if (_rawAtlasData == null) {
+      return false;
+    }
+	List<Uint8List> data = _rawAtlasData;
+	_rawAtlasData = null;
     List<ui.Codec> codecs =
-        await Future.wait(rawAtlases.map(ui.instantiateImageCodec));
+        await Future.wait(data.map(ui.instantiateImageCodec));
     List<ui.FrameInfo> frames =
         await Future.wait(codecs.map((ui.Codec codec) => codec.getNextFrame()));
     _images =
@@ -658,7 +695,7 @@ class FlutterActor extends Actor {
   @override
   Future<Uint8List> readOutOfBandAsset(
       String assetFilename, dynamic context) async {
-    _AssetBundleContext bundleContext = context;
+    AssetBundleContext bundleContext = context as AssetBundleContext;
     int pathIdx = bundleContext.filename.lastIndexOf('/') + 1;
     String basePath = bundleContext.filename.substring(0, pathIdx);
     ByteData data = await bundleContext.bundle.load(basePath + assetFilename);
@@ -738,6 +775,7 @@ class FlutterActorTriangle extends ActorTriangle with FlutterPathPointsPath {
 /// regenerates, no concrete logic
 abstract class FlutterPath {
   ui.Path get path;
+  void initializeGraphics();
 }
 
 /// Abstract path that uses Actor PathPoints, slightly higher level
@@ -745,11 +783,17 @@ abstract class FlutterPath {
 /// use a different procedural backing call, they should implement
 /// FlutterPath and generate the path another way.
 abstract class FlutterPathPointsPath implements FlutterPath {
-  final ui.Path _path = ui.Path();
+  ui.Path _path;
   List<PathPoint> get deformedPoints;
   bool get isClosed;
   bool _isValid = false;
 
+  @override
+  void initializeGraphics() {
+    _path = ui.Path();
+  }
+
+  @override
   ui.Path get path {
     if (_isValid) {
       return _path;
@@ -896,13 +940,13 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
 
   set textureIndex(int value) {
     if (textureIndex != value) {
+      List<ui.Image> images = (artboard.actor as FlutterActor).images;
       _paint = ui.Paint()
         ..blendMode = blendMode
-        ..shader = ui.ImageShader(
-            (artboard.actor as FlutterActor).images[textureIndex],
-            ui.TileMode.clamp,
-            ui.TileMode.clamp,
-            _identityMatrix)
+        ..shader = images != null
+            ? ui.ImageShader(images[textureIndex], ui.TileMode.clamp,
+                ui.TileMode.clamp, _identityMatrix)
+            : null
         ..filterQuality = ui.FilterQuality.low
         ..isAntiAlias = true;
       onPaintUpdated(_paint);
@@ -937,30 +981,33 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     updateVertexUVBuffer(_uvBuffer);
     int count = vertexCount;
     int idx = 0;
-    ui.Image image = (artboard.actor as FlutterActor).images[textureIndex];
+    List<ui.Image> images = (artboard.actor as FlutterActor).images;
+    ui.Image image;
+    if (images != null) {
+      image = (artboard.actor as FlutterActor).images[textureIndex];
 
-    // SKIA requires texture coordinates in full image space, not traditional
-    // normalized uv coordinates.
-    for (int i = 0; i < count; i++) {
-      _uvBuffer[idx] = _uvBuffer[idx] * image.width;
-      _uvBuffer[idx + 1] = _uvBuffer[idx + 1] * image.height;
-      idx += 2;
-    }
+      // SKIA requires texture coordinates in full image space, not traditional
+      // normalized uv coordinates.
+      for (int i = 0; i < count; i++) {
+        _uvBuffer[idx] = _uvBuffer[idx] * image.width;
+        _uvBuffer[idx + 1] = _uvBuffer[idx + 1] * image.height;
+        idx += 2;
+      }
 
-    if (sequenceUVs != null) {
-      for (int i = 0; i < sequenceUVs.length; i++) {
-        sequenceUVs[i++] *= image.width;
-        sequenceUVs[i] *= image.height;
+      if (sequenceUVs != null) {
+        for (int i = 0; i < sequenceUVs.length; i++) {
+          sequenceUVs[i++] *= image.width;
+          sequenceUVs[i] *= image.height;
+        }
       }
     }
 
     _paint = ui.Paint()
       ..blendMode = blendMode
-      ..shader = ui.ImageShader(
-          (artboard.actor as FlutterActor).images[textureIndex],
-          ui.TileMode.clamp,
-          ui.TileMode.clamp,
-          _identityMatrix);
+      ..shader = image != null
+          ? ui.ImageShader(
+              image, ui.TileMode.clamp, ui.TileMode.clamp, _identityMatrix)
+          : null;
     _paint.filterQuality = ui.FilterQuality.low;
     _paint.isAntiAlias = true;
     onPaintUpdated(_paint);
@@ -1006,7 +1053,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
       }
     }
 
-    _paint.color = _paint.color.withOpacity(renderOpacity);
+    _paint.color = _paint.color.withOpacity(renderOpacity.clamp(0.0, 1.0).toDouble());
 
     if (imageTransform != null) {
       canvas.transform(imageTransform.mat4);

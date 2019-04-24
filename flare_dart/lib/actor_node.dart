@@ -181,7 +181,7 @@ class ActorNode extends ActorComponent {
     ActorNode clipSearch = this;
     while (clipSearch != null) {
       if (clipSearch.clips != null) {
-		  all.add(clipSearch.clips);
+        all.add(clipSearch.clips);
       }
       clipSearch = clipSearch.parent;
     }
@@ -233,10 +233,10 @@ class ActorNode extends ActorComponent {
       node = ActorNode();
     }
     ActorComponent.read(artboard, reader, node);
-    reader.readFloat32ArrayOffset(
-        node._translation.values, 2, 0, "translation");
+    Vec2D.copyFromList(
+        node._translation, reader.readFloat32Array(2, "translation"));
     node._rotation = reader.readFloat32("rotation");
-    reader.readFloat32ArrayOffset(node._scale.values, 2, 0, "scale");
+    Vec2D.copyFromList(node._scale, reader.readFloat32Array(2, "scale"));
     node._opacity = reader.readFloat32("opacity");
     node._isCollapsedVisibility = reader.readBool("isCollapsed");
 

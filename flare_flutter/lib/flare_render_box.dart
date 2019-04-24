@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -129,9 +128,10 @@ abstract class FlareRenderBox extends RenderBox {
     if (bounds != null) {
       double contentWidth = bounds[2] - bounds[0];
       double contentHeight = bounds[3] - bounds[1];
-      double x =
-          -bounds[0] - contentWidth / 2.0 - (_alignment.x * contentWidth / 2.0);
-      double y = -bounds[1] -
+      double x = -1 * bounds[0] -
+          contentWidth / 2.0 -
+          (_alignment.x * contentWidth / 2.0);
+      double y = -1 * bounds[1] -
           contentHeight / 2.0 -
           (_alignment.y * contentHeight / 2.0);
 

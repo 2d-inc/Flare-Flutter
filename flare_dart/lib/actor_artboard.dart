@@ -272,8 +272,8 @@ class ActorArtboard {
       int count = _dependencyOrder.length;
       while ((_flags & ActorFlags.IsDirty) != 0 && step < maxSteps) {
         _flags &= ~ActorFlags.IsDirty;
-        // Track dirt depth here so that if something else marks 
-		// dirty, we restart.
+        // Track dirt depth here so that if something else marks
+        // dirty, we restart.
         for (int i = 0; i < count; i++) {
           ActorComponent component = _dependencyOrder[i];
           _dirtDepth = i;
@@ -305,12 +305,17 @@ class ActorArtboard {
 
   void read(StreamReader reader) {
     _name = reader.readString("name");
-    reader.readFloat32Array(_translation.values, "translation");
+    Vec2D.copyFromList(_translation, reader.readFloat32Array(2, "translation"));
     _width = reader.readFloat32("width");
     _height = reader.readFloat32("height");
-    reader.readFloat32Array(_origin.values, "origin");
+    Vec2D.copyFromList(_origin, reader.readFloat32Array(2, "origin"));
     _clipContents = reader.readBool("clipContents");
-    reader.readFloat32Array(_color, "color");
+
+    Float32List color = reader.readFloat32Array(4, "color");
+    _color[0] = color[0];
+    _color[1] = color[1];
+    _color[2] = color[2];
+    _color[3] = color[3];
 
     StreamReader block;
     while ((block = reader.readNextBlock(BlockTypesMap)) != null) {
@@ -533,8 +538,9 @@ class ActorArtboard {
 
     for (int i = 1; i <= componentCount; i++) {
       ActorComponent c = _components[i];
+
       /// Nodes can be null if we read from a file version that contained
-	  /// nodes that we don't interpret in this runtime.
+      /// nodes that we don't interpret in this runtime.
       if (c != null) {
         c.resolveComponentIndices(_components);
       }
@@ -595,7 +601,7 @@ class ActorArtboard {
     AABB aabb;
     for (final ActorDrawable drawable in _drawableNodes) {
       // This is the axis aligned bounding box in the space
-	  // of the parent (this case our shape).
+      // of the parent (this case our shape).
       AABB pathAABB = drawable.computeAABB();
       if (pathAABB == null) {
         continue;

@@ -1,3 +1,7 @@
+## [1.4.0] - 2019-04-23 19:43:01
+
+Improving load times by using ByteData views when possible in favor of reading data in tight loops.
+
 ## [1.3.6] - 2019-04-08 08:46:05
 
 Fixed an issue with instanced copies not including trim path values.

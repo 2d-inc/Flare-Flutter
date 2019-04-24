@@ -37,25 +37,13 @@ abstract class JSONReader implements StreamReader {
 
   // Reads the array into ar
   @override
-  readFloat32Array(Float32List ar, String label) {
+  Float32List readFloat32Array(int length, String label) {
+    var ar = Float32List(length);
     this._readArray(ar, label);
+	return ar;
   }
 
-  @override
-  readFloat32ArrayOffset(Float32List ar, int length, int offset, String label) {
-    this._readArrayOffset(ar, length, offset, label);
-  }
-
-  _readArrayOffset(List ar, int length, int offset, String label) {
-    List array = this.readProp(label);
-    num listElement = ar.first;
-    for (int i = 0; i < length; i++) {
-      num val = array[i];
-      ar[offset + i] = listElement is double ? val.toDouble() : val.toInt();
-    }
-  }
-
-  _readArray(List ar, String label) {
+  void _readArray(List ar, String label) {
     List array = this.readProp(label);
     for (int i = 0; i < ar.length; i++) {
       num val = array[i];
@@ -64,18 +52,18 @@ abstract class JSONReader implements StreamReader {
   }
 
   @override
-  readFloat64(label) {
+  double readFloat64(label) {
     num f = this.readProp(label);
     return f.toDouble();
   }
 
   @override
-  readUint8(label) {
+  int readUint8(label) {
     return this.readProp(label);
   }
 
   @override
-  readUint8Length() {
+  int readUint8Length() {
     return this._readLength();
   }
 
@@ -85,47 +73,51 @@ abstract class JSONReader implements StreamReader {
   }
 
   @override
-  readInt8(label) {
+  int readInt8(label) {
     return this.readProp(label);
   }
 
   @override
-  readUint16(label) {
+  int readUint16(label) {
     return this.readProp(label);
   }
 
   @override
-  readUint8Array(Uint8List ar, int length, int offset, String label) {
-    return this._readArrayOffset(ar, length, offset, label);
+  Uint8List readUint8Array(int length, String label) {
+	  var ar = Uint8List(length);
+	  this._readArray(ar, label);
+    return ar;
   }
 
   @override
-  readUint16Array(Uint16List ar, int length, int offset, String label) {
-    return this._readArrayOffset(ar, length, offset, label);
+  Uint16List readUint16Array(int length, String label) {
+	  var ar = Uint16List(length);
+    this._readArray(ar, label);
+	return ar;
   }
 
   @override
-  readInt16(label) {
+  int readInt16(label) {
     return this.readProp(label);
   }
 
   @override
-  readUint16Length() {
+  int readUint16Length() {
     return this._readLength();
   }
 
   @override
-  readUint32Length() {
+  int readUint32Length() {
     return this._readLength();
   }
 
   @override
-  readUint32(label) {
+  int readUint32(label) {
     return this.readProp(label);
   }
 
   @override
-  readInt32(label) {
+  int readInt32(label) {
     return this.readProp(label);
   }
 

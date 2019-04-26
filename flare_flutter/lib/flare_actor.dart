@@ -147,12 +147,6 @@ class FlareActorRenderObject extends FlareRenderBox {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _controller = null;
-  }
-
   void updateBounds() {
     if (_artboard != null) {
       ActorNode node;
@@ -175,6 +169,7 @@ class FlareActorRenderObject extends FlareRenderBox {
 
   /// We're playing if we're not paused and our controller is active (or
   /// there's no controller) or there are animations running.
+  @override
   bool get isPlaying =>
       !_isPaused &&
       ((_controller?.isActive?.value ?? false) || _animationLayers.isNotEmpty);

@@ -216,6 +216,9 @@ class FlareActorRenderObject extends FlareRenderBox {
 
   @override
   void load() {
+    if (_filename == null) {
+      return;
+    }
     super.load();
     loadFlare(_filename).then((FlutterActor actor) {
       if (actor == null || actor.artboard == null) {
@@ -302,7 +305,8 @@ class FlareActorRenderObject extends FlareRenderBox {
       }
     }
 
-    if (_artboard != null && _controller != null &&
+    if (_artboard != null &&
+        _controller != null &&
         !_controller.advance(_artboard, elapsedSeconds)) {
       _controller?.isActive?.value = false;
     }

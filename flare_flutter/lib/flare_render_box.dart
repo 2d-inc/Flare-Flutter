@@ -26,7 +26,7 @@ abstract class FlareRenderBox extends RenderBox {
     }
     _assetBundle = value;
     if (_assetBundle != null) {
-      load();
+      _load();
     }
   }
 
@@ -81,7 +81,7 @@ abstract class FlareRenderBox extends RenderBox {
     super.attach(owner);
     updatePlayState();
     if (_assets.isEmpty && assetBundle != null) {
-      load();
+      _load();
     }
   }
 
@@ -202,10 +202,21 @@ abstract class FlareRenderBox extends RenderBox {
   /// Advance animations, physics, etc by elapsedSeconds.
   void advance(double elapsedSeconds);
 
-  /// Perform any loading logic necessary for this scene.
-  void load() {
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  void _load() async {
+    if (_isLoading) {
+      return;
+    }
+    _isLoading = true;
     _unload();
+    await load();
+    _isLoading = false;
   }
+
+  /// Perform any loading logic necessary for this scene.
+  void load() async {}
 
   void _unload() {
     for (final FlareCacheAsset asset in _assets) {

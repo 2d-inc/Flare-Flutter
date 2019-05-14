@@ -9,7 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   flare_dart:
-    path: ../flare_dart
+    path: flare_dart
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,3 +1,7 @@
+## [1.5.1] - 2019-05-20 10:38:30
+
+Added missing call to setViewTransform for controllers. This is now done more efficiently as it is only called when the view transform changes.
+
 ## [1.5.0] - 2019-04-23 19:41:56
 
 - New system in place to prevent breaking stable builds.

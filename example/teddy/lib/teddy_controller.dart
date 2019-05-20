@@ -88,7 +88,7 @@ class TeddyController extends FlareControls {
     play("idle");
   }
 
-  // Called every frame by the wrapping [FlareActor].
+  // Called by [FlareActor] when the view transform changes.
   // Updates the matrix that transforms Global-Flutter-coordinates into Flare-World-coordinates.
   @override
   void setViewTransform(Mat2D viewTransform) {

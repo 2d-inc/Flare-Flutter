@@ -2,12 +2,9 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:flare_flutter/flare_render_box.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flare_dart/actor_drawable.dart';
 import 'package:flare_dart/math/mat2d.dart';
-import 'package:flare_dart/math/vec2d.dart';
 import 'package:flare_dart/math/aabb.dart';
 import 'flare.dart';
 import 'flare_controller.dart';
@@ -91,6 +88,7 @@ class FlareAnimationLayer {
 }
 
 class FlareActorRenderObject extends FlareRenderBox {
+  Mat2D _lastControllerViewTransform;
   String _filename;
   String _animationName;
   String _boundsNodeName;
@@ -181,6 +179,7 @@ class FlareActorRenderObject extends FlareRenderBox {
   FlareController get controller => _controller;
   set controller(FlareController c) {
     if (_controller != c) {
+      _lastControllerViewTransform = c == null ? null : Mat2D();
       _controller?.isActive?.removeListener(onControllerActiveChange);
       _controller = c;
       _controller?.isActive?.addListener(onControllerActiveChange);
@@ -326,6 +325,12 @@ class FlareActorRenderObject extends FlareRenderBox {
     if (_artboard == null) {
       return;
     }
+    if (controller != null &&
+        !Mat2D.areEqual(_lastControllerViewTransform, viewTransform)) {
+      Mat2D.copy(_lastControllerViewTransform, viewTransform);
+      controller?.setViewTransform(viewTransform);
+    }
+
     _artboard.draw(canvas);
   }
 

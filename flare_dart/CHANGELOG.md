@@ -1,3 +1,7 @@
+## [1.4.1] - 2019-05-20 10:40:04
+
+Adding an areEquals method to Mat2D.
+
 ## [1.4.0] - 2019-04-23 19:43:01
 
 Improving load times by using ByteData views when possible in favor of reading data in tight loops.

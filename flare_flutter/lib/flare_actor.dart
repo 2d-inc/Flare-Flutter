@@ -204,7 +204,8 @@ class FlareActorRenderObject extends FlareRenderBox {
     if (_filename == null) {
       markNeedsPaint();
     }
-
+	// file will change, let's clear out old animations.
+	_animationLayers.clear();
     load();
   }
 

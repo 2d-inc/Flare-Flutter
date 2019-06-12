@@ -611,10 +611,12 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
 
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     ActorColor ac = component as ActorColor;
@@ -623,6 +625,9 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
     int l = _value.length;
 
     double f = (time - _time) / (toFrame.time - _time);
+    if (_interpolator != null) {
+      f = _interpolator.getEasedMix(f);
+    }
     double fi = 1.0 - f;
     if (mix == 1.0) {
       for (int i = 0; i < l; i++) {
@@ -698,10 +703,12 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
 
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     ActorPath path = component as ActorPath;
@@ -710,6 +717,9 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     int l = _vertices.length;
 
     double f = (time - _time) / (toFrame.time - _time);
+    if(_interpolator != null) {
+      f = _interpolator.getEasedMix(f);
+    }
     double fi = 1.0 - f;
     if (mix == 1.0) {
       for (int i = 0; i < l; i++) {
@@ -778,7 +788,7 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
   }
 
   @override
-  applyInterpolation(
+  void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     ColorStroke cs = component as ColorStroke;
     Float32List wr = cs.color;
@@ -786,6 +796,9 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
     int len = _value.length;
 
     double f = (time - _time) / (toFrame.time - _time);
+    if (_interpolator != null) {
+      f = _interpolator.getEasedMix(f);
+    }
     double fi = 1.0 - f;
     if (mix == 1.0) {
       for (int i = 0; i < len; i++) {

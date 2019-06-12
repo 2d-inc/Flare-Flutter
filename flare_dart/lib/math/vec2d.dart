@@ -1,6 +1,6 @@
-import "dart:typed_data";
-import "dart:math";
-import "mat2d.dart";
+import 'dart:math';
+import 'dart:typed_data';
+import 'mat2d.dart';
 
 class Vec2D {
   Float32List _buffer;
@@ -34,6 +34,11 @@ class Vec2D {
   }
 
   static void copy(Vec2D o, Vec2D a) {
+    o[0] = a[0];
+    o[1] = a[1];
+  }
+
+  static void copyFromList(Vec2D o, Float32List a) {
     o[0] = a[0];
     o[1] = a[1];
   }

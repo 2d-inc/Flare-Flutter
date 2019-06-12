@@ -399,7 +399,7 @@ class ActorAnimation {
   }
 
   void apply(double time, ActorArtboard artboard, double mix) {
-    for (ComponentAnimation componentAnimation in _components) {
+    for (final ComponentAnimation componentAnimation in _components) {
       componentAnimation.apply(time, artboard.components, mix);
     }
   }
@@ -414,10 +414,10 @@ class ActorAnimation {
 
     reader.openArray("keyed");
     int numKeyedComponents = reader.readUint16Length();
-    //animation._components = new ComponentAnimation[numKeyedComponents];
 
-    // We distinguish between animated and triggered components as ActorEvents are currently only used to trigger events and don't need
-    // the full animation cycle. This lets them optimize them out of the regular animation cycle.
+    // We distinguish between animated and triggered components as ActorEvents 
+	// are currently only used to trigger events and don't need the full animation
+	// cycle. This lets them optimize them out of the regular animation cycle.
     int animatedComponentCount = 0;
     int triggerComponentCount = 0;
 

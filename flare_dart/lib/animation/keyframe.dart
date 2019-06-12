@@ -469,30 +469,13 @@ class KeyFrameImageVertices extends KeyFrameWithInterpolation {
     }
 
     ActorImage imageNode = component as ActorImage;
-    frame._vertices = Float32List(imageNode.vertexCount * 2);
-    reader.readFloat32ArrayOffset(
-        frame._vertices, frame._vertices.length, 0, "value");
+    frame._vertices =
+        reader.readFloat32Array(imageNode.vertexCount * 2, "value");
 
     imageNode.doesAnimationVertexDeform = true;
 
     return frame;
   }
-
-//   void transformVertices(Mat2D wt) {
-//     int aiVertexCount = _vertices.length ~/ 2;
-//     Float32List fv = _vertices;
-
-//     int vidx = 0;
-//     for (int j = 0; j < aiVertexCount; j++) {
-//       double x = fv[vidx];
-//       double y = fv[vidx + 1];
-
-//       fv[vidx] = wt[0] * x + wt[2] * y + wt[4];
-//       fv[vidx + 1] = wt[1] * x + wt[3] * y + wt[5];
-
-//       vidx += 2;
-//     }
-//   }
 
   void setNext(KeyFrame frame) {
     // Do nothing.
@@ -624,8 +607,7 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
       return null;
     }
 
-    frame._value = Float32List(4);
-    reader.readFloat32ArrayOffset(frame._value, 4, 0, "value");
+    frame._value = reader.readFloat32Array(4, "value");
     return frame;
   }
 
@@ -791,8 +773,7 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
     if (!KeyFrameWithInterpolation.read(reader, frame)) {
       return null;
     }
-    frame._value = Float32List(4);
-    reader.readFloat32ArrayOffset(frame._value, 4, 0, "value");
+    frame._value = reader.readFloat32Array(4, "value");
     return frame;
   }
 
@@ -865,8 +846,7 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
       return null;
     }
     int len = reader.readUint16("length");
-    frame._value = Float32List(len);
-    reader.readFloat32Array(frame._value, "value");
+    frame._value = reader.readFloat32Array(len, "value");
     return frame;
   }
 
@@ -967,8 +947,7 @@ class KeyFrameRadial extends KeyFrameWithInterpolation {
       return null;
     }
     int len = reader.readUint16("length");
-    frame._value = Float32List(len);
-    reader.readFloat32Array(frame._value, "value");
+    frame._value = reader.readFloat32Array(len, "value");
     return frame;
   }
 

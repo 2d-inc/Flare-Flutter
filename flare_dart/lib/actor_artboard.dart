@@ -51,12 +51,12 @@ class ActorArtboard {
   List<ActorComponent> _dependencyOrder;
   Actor _actor;
   String _name;
-  Vec2D _translation = Vec2D();
+  final Vec2D _translation = Vec2D();
   double _width = 0.0;
   double _height = 0.0;
-  Vec2D _origin = Vec2D();
+  final Vec2D _origin = Vec2D();
   bool _clipContents = true;
-  Float32List _color = Float32List(4);
+  final Float32List _color = Float32List(4);
   double _modulateOpacity = 1.0;
   Float32List _overrideColor;
 
@@ -71,14 +71,14 @@ class ActorArtboard {
 
   set overrideColor(Float32List value) {
     _overrideColor = value;
-    for (ActorDrawable drawable in _drawableNodes) {
+    for (final ActorDrawable drawable in _drawableNodes) {
       addDirt(drawable, DirtyFlags.PaintDirty, true);
     }
   }
 
   set modulateOpacity(double value) {
     _modulateOpacity = value;
-    for (ActorDrawable drawable in _drawableNodes) {
+    for (final ActorDrawable drawable in _drawableNodes) {
       addDirt(drawable, DirtyFlags.PaintDirty, true);
     }
   }
@@ -106,7 +106,7 @@ class ActorArtboard {
   bool addDependency(ActorComponent a, ActorComponent b) {
     List<ActorComponent> dependents = b.dependents;
     if (dependents == null) {
-      b.dependents = dependents = List<ActorComponent>();
+      b.dependents = dependents = <ActorComponent>[];
     }
     if (dependents.contains(a)) {
       return false;
@@ -119,7 +119,7 @@ class ActorArtboard {
     DependencySorter sorter = DependencySorter();
     _dependencyOrder = sorter.sort(_root);
     int graphOrder = 0;
-    for (ActorComponent component in _dependencyOrder) {
+    for (final ActorComponent component in _dependencyOrder) {
       component.graphOrder = graphOrder++;
       component.dirtMask = 255;
     }
@@ -140,8 +140,9 @@ class ActorArtboard {
 
     component.onDirty(dirt);
 
-    // If the order of this component is less than the current dirt depth, update the dirt depth
-    // so that the update loop can break out early and re-run (something up the tree is dirty).
+    /// If the order of this component is less than the current dirt depth,
+    /// update the dirt depth so that the update loop can break out early
+    /// and re-run (something up the tree is dirty).
     if (component.graphOrder < _dirtDepth) {
       _dirtDepth = component.graphOrder;
     }
@@ -159,7 +160,7 @@ class ActorArtboard {
   }
 
   ActorAnimation getAnimation(String name) {
-    for (ActorAnimation a in _animations) {
+    for (final ActorAnimation a in _animations) {
       if (a.name == name) {
         return a;
       }
@@ -168,7 +169,7 @@ class ActorArtboard {
   }
 
   ActorNode getNode(String name) {
-    for (ActorNode node in _nodes) {
+    for (final ActorNode node in _nodes) {
       if (node != null && node.name == name) {
         return node;
       }
@@ -181,7 +182,13 @@ class ActorArtboard {
   }
 
   ActorArtboard makeInstance() {
-    ActorArtboard artboardInstance = ActorArtboard(_actor);
+    ActorArtboard artboardInstance = _actor.makeArtboard();
+    artboardInstance.copyArtboard(this);
+    return artboardInstance;
+  }
+
+  ActorArtboard makeInstanceWithActor(Actor actor) {
+    ActorArtboard artboardInstance = actor.makeArtboard();
     artboardInstance.copyArtboard(this);
     return artboardInstance;
   }
@@ -199,7 +206,7 @@ class ActorArtboard {
     _color[2] = artboard._color[2];
     _color[3] = artboard._color[3];
 
-    _actor = artboard._actor;
+    //_actor = artboard._actor;
     _animations = artboard._animations;
     _drawableNodeCount = artboard._drawableNodeCount;
     _nodeCount = artboard._nodeCount;
@@ -220,7 +227,7 @@ class ActorArtboard {
       int drwIdx = 0;
       int ndIdx = 0;
 
-      for (ActorComponent component in artboard.components) {
+      for (final ActorComponent component in artboard.components) {
         if (component == null) {
           _components[idx++] = null;
           continue;
@@ -245,14 +252,14 @@ class ActorArtboard {
 
     _root = _components[0] as ActorNode;
 
-    for (ActorComponent component in _components) {
+    for (final ActorComponent component in _components) {
       if (_root == component || component == null) {
         continue;
       }
       component.resolveComponentIndices(_components);
     }
 
-    for (ActorComponent component in _components) {
+    for (final ActorComponent component in _components) {
       if (_root == component || component == null) {
         continue;
       }
@@ -283,12 +290,13 @@ class ActorArtboard {
 
   void advance(double seconds) {
     if ((_flags & ActorFlags.IsDirty) != 0) {
-      const int MaxSteps = 100;
+      const int maxSteps = 100;
       int step = 0;
       int count = _dependencyOrder.length;
-      while ((_flags & ActorFlags.IsDirty) != 0 && step < MaxSteps) {
+      while ((_flags & ActorFlags.IsDirty) != 0 && step < maxSteps) {
         _flags &= ~ActorFlags.IsDirty;
-        // Track dirt depth here so that if something else marks dirty, we restart.
+        // Track dirt depth here so that if something else marks
+        // dirty, we restart.
         for (int i = 0; i < count; i++) {
           ActorComponent component = _dependencyOrder[i];
           _dirtDepth = i;
@@ -325,12 +333,17 @@ class ActorArtboard {
 
   void read(StreamReader reader) {
     _name = reader.readString("name");
-    reader.readFloat32Array(_translation.values, "translation");
+    Vec2D.copyFromList(_translation, reader.readFloat32Array(2, "translation"));
     _width = reader.readFloat32("width");
     _height = reader.readFloat32("height");
-    reader.readFloat32Array(_origin.values, "origin");
+    Vec2D.copyFromList(_origin, reader.readFloat32Array(2, "origin"));
     _clipContents = reader.readBool("clipContents");
-    reader.readFloat32Array(_color, "color");
+
+    Float32List color = reader.readFloat32Array(4, "color");
+    _color[0] = color[0];
+    _color[1] = color[1];
+    _color[2] = color[2];
+    _color[3] = color[3];
 
     StreamReader block;
     while ((block = reader.readNextBlock(BlockTypesMap)) != null) {
@@ -378,7 +391,7 @@ class ActorArtboard {
           component = ActorRootBone.read(this, nodeBlock, null);
           break;
 
-        // Todo: fix sequences for flare.
+        // TODO: fix sequences for flare.
         // case BlockTypes.ActorImageSequence:
         //   component =
         //       ActorImage.readSequence(this, nodeBlock, actor.makeImageNode());
@@ -558,7 +571,9 @@ class ActorArtboard {
 
     for (int i = 1; i <= componentCount; i++) {
       ActorComponent c = _components[i];
-      // Nodes can be null if we read from a file version that contained nodes that we don't interpret in this runtime.
+
+      /// Nodes can be null if we read from a file version that contained
+      /// nodes that we don't interpret in this runtime.
       if (c != null) {
         c.resolveComponentIndices(_components);
       }
@@ -639,8 +654,9 @@ class ActorArtboard {
 
   AABB computeAABB() {
     AABB aabb;
-    for (ActorDrawable drawable in _drawableNodes) {
-      // This is the axis aligned bounding box in the space of the parent (this case our shape).
+    for (final ActorDrawable drawable in _drawableNodes) {
+      // This is the axis aligned bounding box in the space
+      // of the parent (this case our shape).
       AABB pathAABB = drawable.computeAABB();
       if (pathAABB == null) {
         continue;

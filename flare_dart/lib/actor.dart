@@ -19,12 +19,11 @@ import 'actor_artboard.dart';
 abstract class Actor {
   int maxTextureIndex = 0;
   int _version = 0;
-  int _artboardCount = 0;
   List<ActorArtboard> _artboards;
 
   Actor();
 
-  ActorArtboard get artboard => _artboards.length > 0 ? _artboards.first : null;
+  ActorArtboard get artboard => _artboards.isNotEmpty ? _artboards.first : null;
 
   int get version {
     return _version;
@@ -36,16 +35,16 @@ abstract class Actor {
 
   void copyActor(Actor actor) {
     maxTextureIndex = actor.maxTextureIndex;
-    _artboardCount = actor._artboardCount;
-    if (_artboardCount > 0) {
+    int artboardCount = actor._artboards.length;
+    if (artboardCount > 0) {
       int idx = 0;
-      _artboards = List<ActorArtboard>(_artboardCount);
-      for (ActorArtboard artboard in actor._artboards) {
+      _artboards = List<ActorArtboard>(artboardCount);
+      for (final ActorArtboard artboard in actor._artboards) {
         if (artboard == null) {
           _artboards[idx++] = null;
           continue;
         }
-        ActorArtboard instanceArtboard = artboard.makeInstance();
+        ActorArtboard instanceArtboard = artboard.makeInstanceWithActor(this);
         _artboards[idx++] = instanceArtboard;
       }
     }
@@ -180,12 +179,13 @@ abstract class Actor {
     bool isOOB = block.readBool("isOOB");
     block.openArray("data");
     int numAtlases = block.readUint16Length();
+    Future<List<Uint8List>> result;
     if (isOOB) {
       List<Future<Uint8List>> waitingFor = List<Future<Uint8List>>(numAtlases);
       for (int i = 0; i < numAtlases; i++) {
         waitingFor[i] = readOutOfBandAsset(block.readString("data"), context);
       }
-      return Future.wait(waitingFor);
+      result = Future.wait(waitingFor);
     } else {
       // This is sync.
       List<Uint8List> inBandAssets = List<Uint8List>(numAtlases);
@@ -194,22 +194,9 @@ abstract class Actor {
       }
       Completer<List<Uint8List>> completer = Completer<List<Uint8List>>();
       completer.complete(inBandAssets);
-      return completer.future;
+      result = completer.future;
     }
-
-    // for(int i = 0; i < numAtlases; i++)
-    // {
-    //   if(isOOB)
-    //   {
-
-    // 	  // Read from assets
-    //   }
-    //   else
-    //   {
-    // 	  // Read from data block.
-    // 	  block.readUint32("length");
-    //   }
-    // }
     block.closeArray();
+    return result;
   }
 }

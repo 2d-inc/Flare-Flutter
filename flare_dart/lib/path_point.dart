@@ -47,14 +47,15 @@ abstract class PathPoint {
   }
 
   void read(StreamReader reader, bool isConnectedToBones) {
-    reader.readFloat32ArrayOffset(_translation.values, 2, 0, "translation");
-    readPoint(reader, isConnectedToBones);
-    if (_weights != null) {
-      reader.readFloat32Array(_weights, "weights");
+    Vec2D.copyFromList(_translation, reader.readFloat32Array(2, "translation"));
+
+    int weightLength = readPoint(reader, isConnectedToBones);
+    if (weightLength != 0) {
+      _weights = reader.readFloat32Array(weightLength, "weights");
     }
   }
 
-  void readPoint(StreamReader reader, bool isConnectedToBones);
+  int readPoint(StreamReader reader, bool isConnectedToBones);
 
   PathPoint transformed(Mat2D transform) {
     PathPoint result = makeInstance();
@@ -92,11 +93,13 @@ class StraightPathPoint extends PathPoint {
     radius = from.radius;
   }
 
-  void readPoint(StreamReader reader, bool isConnectedToBones) {
+  @override
+  int readPoint(StreamReader reader, bool isConnectedToBones) {
     radius = reader.readFloat32("radius");
     if (isConnectedToBones) {
-      _weights = Float32List(8);
+      return 8;
     }
+    return 0;
   }
 
   @override
@@ -166,12 +169,13 @@ class CubicPathPoint extends PathPoint {
     Vec2D.copy(_out, from._out);
   }
 
-  void readPoint(StreamReader reader, bool isConnectedToBones) {
-    reader.readFloat32ArrayOffset(_in.values, 2, 0, "in");
-    reader.readFloat32ArrayOffset(_out.values, 2, 0, "out");
+  int readPoint(StreamReader reader, bool isConnectedToBones) {
+    Vec2D.copyFromList(_in, reader.readFloat32Array(2, "in"));
+    Vec2D.copyFromList(_out, reader.readFloat32Array(2, "out"));
     if (isConnectedToBones) {
-      _weights = Float32List(24);
+      return 24;
     }
+    return 0;
   }
 
   PathPoint transformed(Mat2D transform) {

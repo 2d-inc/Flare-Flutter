@@ -33,15 +33,14 @@ abstract class ActorSkinnable {
         SkinnedBone bc = SkinnedBone();
         reader.openObject("bone");
         bc.boneIdx = reader.readId("component");
-        reader.readFloat32ArrayOffset(bc.bind.values, 6, 0, "bind");
+		Mat2D.copyFromList(bc.bind, reader.readFloat32Array(6, "bind"));
         reader.closeObject();
         Mat2D.invert(bc.inverseBind, bc.bind);
         node._connectedBones[i] = bc;
       }
       reader.closeArray();
       Mat2D worldOverride = Mat2D();
-      reader.readFloat32ArrayOffset(
-          worldOverride.values, 6, 0, "worldTransform");
+	  Mat2D.copyFromList(worldOverride, reader.readFloat32Array(6, "worldTransform"));
       node.worldTransformOverride = worldOverride;
     } else {
       reader.closeArray();

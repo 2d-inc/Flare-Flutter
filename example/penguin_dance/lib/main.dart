@@ -26,7 +26,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> implements FlareController {
+class _MyHomePageState extends State<MyHomePage> with FlareController {
   double _rockAmount = 0.5;
   double _speed = 1.0;
   double _rockTime = 0.0;

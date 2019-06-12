@@ -1,1 +1,5 @@
 .DS_Store
+pubspec.lock
+Generated.xcconfig
+.packages
+

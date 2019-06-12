@@ -1,3 +1,47 @@
+## [1.5.1] - 2019-05-20 10:38:30
+
+Added missing call to setViewTransform for controllers. This is now done more efficiently as it is only called when the view transform changes.
+
+## [1.5.0] - 2019-04-23 19:41:56
+
+- New system in place to prevent breaking stable builds.
+- Revert compute load for stable, please see https://github.com/2d-inc/Flare-Flutter for how to use the latest bleeding edge work with dev/master Flutter channels.
+
+## [1.4.0] - 2019-04-23 19:41:56
+
+- Improving load jank by loading the Flare file in an Isolate. This now requires calling Actor.loadImages once the Flare file has been loaded. FlareActor already handles this for you.
+- Bug fix for opacity values going out of 0-1 range.
+
+## [1.3.13] - 2019-04-22 09:39:15
+
+Fixes a condition where elapsed time counters were not resetting to 0 when animation stopped. This would cause the elapsed time to be really high when starting to play a subsequent animation.
+
+## [1.3.12] - 2019-04-13 18:12:09
+
+Fixes a condition where animations would not advance if they were using an animation driven by FlareActor and one from FlareController.
+
+## [1.3.11] - 2019-04-13 17:38:08
+
+We've updated the advance logic (which drives the animations and custom controllers) to work in tandem with painting. This prevents advancing from continuing when the widget is no longer painting. It solves the issue of animations advancing when navigated away from a page containing a FlareActor widget. This was due to the widget still being attached to the widget tree, which would cause the FlareActor to think it would need to continue advancing.
+
+N.B. Breaking Change: if you are implementing FlareController, consider using it as a mixin to avoid having to add your own isActive ValueNotifier. For most cases simply swapping the ```extends FlareController``` to ```with FlareController``` will suffice.
+
+## [1.3.10] - 2019-04-11 09:36:58
+
+Reloading when re-attaching a FlareRenderBox widget.
+
+## [1.3.9] - 2019-04-10 16:53:20
+
+Adding arguments for mix and mixSeconds to FlareControls.play().
+
+## [1.3.8] - 2019-04-08 08:48:57
+
+Using the latest Flare Dart which fixed an issue with trim path instances.
+
+## [1.3.7] - 2019-04-06 19:28:48
+
+New features for caching, custom renderers, and better support for overriding paint operations (allows for mutating paint to add things like color filters).
+
 ## [1.3.6] - 2019-03-26 15:56:34
 
 Making new snapToEnd functionality default to false to support backwards compatibility.

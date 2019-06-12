@@ -31,7 +31,7 @@ class FlareControls extends FlareController {
 
   /// Add the [FlareAnimationLayer] of the animation named [name],
   /// to the end of the list of currently playing animation layers.
-  void play(String name) {
+  void play(String name, {double mix = 1.0, double mixSeconds = 0.2}) {
     _animationName = name;
     if (_animationName != null && _artboard != null) {
       ActorAnimation animation = _artboard.getAnimation(_animationName);
@@ -39,7 +39,9 @@ class FlareControls extends FlareController {
         _animationLayers.add(FlareAnimationLayer()
           ..name = _animationName
           ..animation = animation
-          ..mix = 0.0);
+          ..mix = mix
+          ..mixSeconds = mixSeconds);
+        isActive.value = true;
       }
     }
   }
@@ -110,6 +112,6 @@ class FlareControls extends FlareController {
       _animationLayers.remove(animation);
       onCompleted(animation.name);
     }
-    return true;
+    return _animationLayers.isNotEmpty;
   }
 }

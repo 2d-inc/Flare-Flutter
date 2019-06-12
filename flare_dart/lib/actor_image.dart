@@ -10,26 +10,17 @@ import "actor_drawable.dart";
 import "math/aabb.dart";
 
 class SequenceFrame {
-  int _atlasIndex;
-  int _offset;
+  final int _atlasIndex;
+  final int _offset;
   SequenceFrame(this._atlasIndex, this._offset);
 
   @override
   String toString() {
-    return "(" +
-        this._atlasIndex.toString() +
-        ", " +
-        this._offset.toString() +
-        ")";
+    return "(" + _atlasIndex.toString() + ", " + _offset.toString() + ")";
   }
 
-  int get atlasIndex {
-    return this._atlasIndex;
-  }
-
-  int get offset {
-    return this._offset;
-  }
+  int get atlasIndex => _atlasIndex;
+  int get offset => _offset;
 }
 
 class ActorImage extends ActorDrawable with ActorSkinnable {
@@ -50,20 +41,14 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
   Float32List _sequenceUVs;
   int _sequenceFrame = 0;
 
-  int get sequenceFrame {
-    return this._sequenceFrame;
-  }
+  int get sequenceFrame => _sequenceFrame;
 
-  Float32List get sequenceUVs {
-    return this._sequenceUVs;
-  }
+  Float32List get sequenceUVs => _sequenceUVs;
 
-  List<SequenceFrame> get sequenceFrames {
-    return this._sequenceFrames;
-  }
+  List<SequenceFrame> get sequenceFrames => _sequenceFrames;
 
   set sequenceFrame(int value) {
-    this._sequenceFrame = value;
+    _sequenceFrame = value;
   }
 
   int get textureIndex {
@@ -159,17 +144,14 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       int numVertices = reader.readUint32("numVertices");
 
       node._vertexCount = numVertices;
-      node._vertices = Float32List(numVertices * node.vertexStride);
-      reader.readFloat32ArrayOffset(
-          node._vertices, node._vertices.length, 0, "vertices");
+      node._vertices =
+          reader.readFloat32Array(numVertices * node.vertexStride, "vertices");
 
       int numTris = reader.readUint32("numTriangles");
       node._triangles = Uint16List(numTris * 3);
       node._triangleCount = numTris;
-      reader.readUint16Array(
-          node._triangles, node._triangles.length, 0, "triangles");
+      node._triangles = reader.readUint16Array(numTris * 3, "triangles");
     }
-
     return node;
   }
 
@@ -225,7 +207,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
   }
 
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ActorImage instanceNode = ActorImage();
+    ActorImage instanceNode = resetArtboard.actor.makeImageNode();
     instanceNode.copyImage(this, resetArtboard);
     return instanceNode;
   }

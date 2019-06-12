@@ -22,7 +22,7 @@ class CupertinoRefreshControlDemo extends StatefulWidget {
 }
 
 class _CupertinoRefreshControlDemoState
-    extends State<CupertinoRefreshControlDemo> implements FlareController {
+    extends State<CupertinoRefreshControlDemo> with FlareController {
   List<List<String>> randomizedContacts;
 
   ActorAnimation _loadingAnimation;

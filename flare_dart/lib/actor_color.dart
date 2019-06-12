@@ -114,7 +114,7 @@ abstract class ActorColor extends ActorPaint {
       ActorArtboard artboard, StreamReader reader, ActorColor component) {
     ActorPaint.read(artboard, reader, component);
 
-    reader.readFloat32ArrayOffset(component._color, 4, 0, "color");
+    component._color = reader.readFloat32Array(4, "color");
 
     return component;
   }
@@ -212,7 +212,7 @@ abstract class ActorStroke {
     width = node.width;
     _cap = node._cap;
     _join = node._join;
-	_trim = node._trim;
+    _trim = node._trim;
     _trimStart = node._trimStart;
     _trimEnd = node._trimEnd;
     _trimOffset = node._trimOffset;
@@ -299,12 +299,11 @@ abstract class GradientColor extends ActorPaint {
     ActorPaint.read(artboard, reader, component);
 
     int numStops = reader.readUint8("numColorStops");
-    Float32List stops = Float32List(numStops * 5);
-    reader.readFloat32ArrayOffset(stops, numStops * 5, 0, "colorStops");
+    Float32List stops = reader.readFloat32Array(numStops * 5, "colorStops");
     component._colorStops = stops;
 
-    reader.readFloat32ArrayOffset(component._start.values, 2, 0, "start");
-    reader.readFloat32ArrayOffset(component._end.values, 2, 0, "end");
+    Vec2D.copyFromList(component._start, reader.readFloat32Array(2, "start"));
+    Vec2D.copyFromList(component._end, reader.readFloat32Array(2, "end"));
 
     return component;
   }
@@ -312,7 +311,7 @@ abstract class GradientColor extends ActorPaint {
   void onDirty(int dirt) {}
   void update(int dirt) {
     super.update(dirt);
-    ActorShape shape = parent;
+    ActorShape shape = parent as ActorShape;
     if (dirt & DirtyFlags.WorldTransformDirty ==
         DirtyFlags.WorldTransformDirty) {
       Mat2D world = shape.worldTransform;

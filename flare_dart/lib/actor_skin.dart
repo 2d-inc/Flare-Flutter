@@ -72,6 +72,8 @@ class ActorSkin extends ActorComponent {
       return;
     }
     skinnable.skin = this;
+	// TODO: figure out if this is neccessary
+	// don't we already set the parent dependency in actor_component.resolveComponentIndices?
     artboard.addDependency(this, skinnable as ActorComponent);
     if (skinnable.isConnectedToBones) {
       List<SkinnedBone> connectedBones = skinnable.connectedBones;

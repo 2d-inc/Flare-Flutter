@@ -212,6 +212,10 @@ abstract class ActorStroke {
     width = node.width;
     _cap = node._cap;
     _join = node._join;
+	_trim = node._trim;
+    _trimStart = node._trimStart;
+    _trimEnd = node._trimEnd;
+    _trimOffset = node._trimOffset;
   }
 
   void initializeGraphics();
@@ -271,7 +275,7 @@ abstract class GradientColor extends ActorPaint {
   Vec2D _end = Vec2D();
   Vec2D _renderStart = Vec2D();
   Vec2D _renderEnd = Vec2D();
-  double opacity = 1.0;
+  //double opacity = 1.0;
 
   Vec2D get start => _start;
   Vec2D get end => _end;
@@ -287,7 +291,7 @@ abstract class GradientColor extends ActorPaint {
     _colorStops = Float32List.fromList(node._colorStops);
     Vec2D.copy(_start, node._start);
     Vec2D.copy(_end, node._end);
-    opacity = node.opacity;
+    //opacity = node.opacity;
   }
 
   static GradientColor read(
@@ -335,7 +339,7 @@ abstract class GradientFill extends GradientColor with ActorFill {
   static GradientFill read(
       ActorArtboard artboard, StreamReader reader, GradientFill component) {
     GradientColor.read(artboard, reader, component);
-    component._fillRule = fillRuleLookup[reader.readUint8("fillRule")];
+	ActorFill.read(artboard, reader, component);
     return component;
   }
 

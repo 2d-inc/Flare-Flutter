@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
+import 'package:flutter_web/services.dart';
 
 import 'asset_bundle_cache.dart';
 import 'flare_cache_asset.dart';

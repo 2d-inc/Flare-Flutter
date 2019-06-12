@@ -189,7 +189,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
   }
 
   @override
-  Mat2D get pathTransform => isConnectedToBones ? null : worldTransform;
+  Mat2D get pathTransform => null; //isConnectedToBones ? null : worldTransform;
 
   static const int VertexDeformDirty = 1 << 1;
 
@@ -199,12 +199,18 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
   @override
   List<PathPoint> get deformedPoints {
     if (!isConnectedToBones || skin == null) {
-      return _points;
+      //return _points;
+      // put in world space
+      List<PathPoint> deformed = <PathPoint>[];
+      for (final PathPoint point in _points) {
+        deformed.add(point.transformed(worldTransform));
+      }
+      return deformed;
     }
 
     Float32List boneMatrices = skin.boneMatrices;
     List<PathPoint> deformed = <PathPoint>[];
-    for (PathPoint point in _points) {
+    for (final PathPoint point in _points) {
       deformed.add(point.skin(worldTransform, boneMatrices));
     }
     return deformed;
@@ -289,7 +295,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     if (component == null) {
       component = ActorPath();
     }
-	ActorNode.read(artboard, reader, component);
+    ActorNode.read(artboard, reader, component);
     ActorSkinnable.read(artboard, reader, component);
 
     component._isHidden = !reader.readBool("isVisible");
@@ -333,14 +339,14 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     return instanceEvent;
   }
 
-	@override
+  @override
   void resolveComponentIndices(List<ActorComponent> components) {
-	  super.resolveComponentIndices(components);
-	  resolveSkinnable(components);
+    super.resolveComponentIndices(components);
+    resolveSkinnable(components);
   }
 
   void copyPath(ActorPath node, ActorArtboard resetArtboard) {
-	copyNode(node, resetArtboard);
+    copyNode(node, resetArtboard);
     copySkinnable(node, resetArtboard);
     _isHidden = node._isHidden;
     _isClosed = node._isClosed;

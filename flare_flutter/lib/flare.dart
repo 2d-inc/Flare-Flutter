@@ -3,15 +3,16 @@ library flare_flutter;
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
+//import 'dart:ui' as ui;
+import 'package:flutter_web_ui/ui.dart' as ui;
 
 import 'package:flare_dart/actor_flags.dart';
 import 'package:flare_dart/actor_image.dart';
 import 'package:flare_dart/math/aabb.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_web/foundation.dart';
+import 'package:flutter_web/services.dart';
 
-import 'package:flutter/material.dart';
+import 'package:flutter_web/material.dart';
 import 'package:flare_dart/actor_component.dart';
 import 'package:flare_dart/actor.dart';
 import 'package:flare_dart/actor_artboard.dart';
@@ -63,16 +64,16 @@ abstract class FlutterFill {
   void onPaintUpdated(ui.Paint paint) {}
 
   void initializeGraphics() {
-    _paint = ui.Paint()..style = PaintingStyle.fill;
+    _paint = ui.Paint()..style = ui.PaintingStyle.fill;
     onPaintUpdated(_paint);
   }
 
   void paint(ActorFill fill, ui.Canvas canvas, ui.Path path) {
     switch (fill.fillRule) {
-      case FillRule.EvenOdd:
+      case FlareFillRule.EvenOdd:
         path.fillType = ui.PathFillType.evenOdd;
         break;
-      case FillRule.NonZero:
+      case FlareFillRule.NonZero:
         path.fillType = ui.PathFillType.nonZero;
         break;
     }
@@ -97,25 +98,25 @@ abstract class FlutterStroke {
     onPaintUpdated(_paint);
   }
 
-  static ui.StrokeCap getStrokeCap(StrokeCap cap) {
+  static ui.StrokeCap getStrokeCap(FlareStrokeCap cap) {
     switch (cap) {
-      case StrokeCap.Butt:
+      case FlareStrokeCap.Butt:
         return ui.StrokeCap.butt;
-      case StrokeCap.Round:
+      case FlareStrokeCap.Round:
         return ui.StrokeCap.round;
-      case StrokeCap.Square:
+      case FlareStrokeCap.Square:
         return ui.StrokeCap.square;
     }
     return ui.StrokeCap.butt;
   }
 
-  static ui.StrokeJoin getStrokeJoin(StrokeJoin join) {
+  static ui.StrokeJoin getStrokeJoin(FlareStrokeJoin join) {
     switch (join) {
-      case StrokeJoin.Miter:
+      case FlareStrokeJoin.Miter:
         return ui.StrokeJoin.miter;
-      case StrokeJoin.Round:
+      case FlareStrokeJoin.Round:
         return ui.StrokeJoin.round;
-      case StrokeJoin.Bevel:
+      case FlareStrokeJoin.Bevel:
         return ui.StrokeJoin.bevel;
     }
     return ui.StrokeJoin.miter;
@@ -128,7 +129,7 @@ abstract class FlutterStroke {
 
     if (stroke.isTrimmed) {
       if (effectPath == null) {
-        bool isSequential = stroke.trim == TrimPath.Sequential;
+        bool isSequential = stroke.trim == FlareTrimPath.Sequential;
         double start = stroke.trimStart;
         double end = stroke.trimEnd;
         double offset = stroke.trimOffset;
@@ -215,8 +216,7 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
         FlutterPath flutterPath = node as FlutterPath;
         if (flutterPath != null) {
           Mat2D transform = (node as ActorBasePath).pathTransform;
-          _path.addPath(flutterPath.path, ui.Offset.zero,
-              matrix4: transform?.mat4);
+          _path.addPath(flutterPath.path, ui.Offset.zero);
         }
       }
     }
@@ -938,10 +938,10 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
       List<ui.Image> images = (artboard.actor as FlutterActor).images;
       _paint = ui.Paint()
         ..blendMode = blendMode
-        ..shader = images != null
-            ? ui.ImageShader(images[textureIndex], ui.TileMode.clamp,
-                ui.TileMode.clamp, _identityMatrix)
-            : null
+        // ..shader = images != null
+        //     ? ui.ImageShader(images[textureIndex], ui.TileMode.clamp,
+        //         ui.TileMode.clamp, _identityMatrix)
+        //     : null
         ..filterQuality = ui.FilterQuality.low
         ..isAntiAlias = true;
       onPaintUpdated(_paint);
@@ -997,11 +997,11 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     }
 
     _paint = ui.Paint()
-      ..blendMode = blendMode
-      ..shader = image != null
-          ? ui.ImageShader(
-              image, ui.TileMode.clamp, ui.TileMode.clamp, _identityMatrix)
-          : null;
+      ..blendMode = blendMode;
+    //   ..shader = image != null
+    //       ? ui.ImageShader(
+    //           image, ui.TileMode.clamp, ui.TileMode.clamp, _identityMatrix)
+    //       : null;
     _paint.filterQuality = ui.FilterQuality.low;
     _paint.isAntiAlias = true;
     onPaintUpdated(_paint);

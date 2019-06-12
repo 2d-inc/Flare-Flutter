@@ -1,8 +1,8 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_web/material.dart';
+import 'package:flutter_web/rendering.dart';
+import 'package:flutter_web/scheduler.dart';
+import 'package:flutter_web/services.dart';
 import 'package:flare_dart/math/aabb.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_dart/math/vec2d.dart';

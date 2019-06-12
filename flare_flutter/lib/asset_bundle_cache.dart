@@ -1,4 +1,4 @@
-import 'package:flutter/services.dart';
+import 'package:flutter_web/services.dart';
 
 import 'cache.dart';
 import 'cache_asset.dart';

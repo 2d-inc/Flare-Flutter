@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flare_flutter/flare_render_box.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter_web/material.dart';
+import 'package:flutter_web/rendering.dart';
 import 'package:flare_dart/actor_drawable.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_dart/math/aabb.dart';

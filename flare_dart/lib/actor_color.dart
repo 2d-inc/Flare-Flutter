@@ -11,23 +11,23 @@ import "stream_reader.dart";
 import "math/vec2d.dart";
 import "actor_flags.dart";
 
-enum FillRule { EvenOdd, NonZero }
-enum StrokeCap { Butt, Round, Square }
-enum StrokeJoin { Miter, Round, Bevel }
-enum TrimPath { Off, Sequential, Synced }
+enum FlareFillRule { EvenOdd, NonZero }
+enum FlareStrokeCap { Butt, Round, Square }
+enum FlareStrokeJoin { Miter, Round, Bevel }
+enum FlareTrimPath { Off, Sequential, Synced }
 
-final HashMap<int, FillRule> fillRuleLookup =
-    HashMap<int, FillRule>.fromIterables(
-        [0, 1], [FillRule.EvenOdd, FillRule.NonZero]);
-final HashMap<int, StrokeCap> strokeCapLookup =
-    HashMap<int, StrokeCap>.fromIterables(
-        [0, 1, 2], [StrokeCap.Butt, StrokeCap.Round, StrokeCap.Square]);
-final HashMap<int, StrokeJoin> strokeJoinLookup =
-    HashMap<int, StrokeJoin>.fromIterables(
-        [0, 1, 2], [StrokeJoin.Miter, StrokeJoin.Round, StrokeJoin.Bevel]);
-final HashMap<int, TrimPath> trimPathLookup =
-    HashMap<int, TrimPath>.fromIterables(
-        [0, 1, 2], [TrimPath.Off, TrimPath.Sequential, TrimPath.Synced]);
+final HashMap<int, FlareFillRule> fillRuleLookup =
+    HashMap<int, FlareFillRule>.fromIterables(
+        [0, 1], [FlareFillRule.EvenOdd, FlareFillRule.NonZero]);
+final HashMap<int, FlareStrokeCap> strokeCapLookup =
+    HashMap<int, FlareStrokeCap>.fromIterables(
+        [0, 1, 2], [FlareStrokeCap.Butt, FlareStrokeCap.Round, FlareStrokeCap.Square]);
+final HashMap<int, FlareStrokeJoin> strokeJoinLookup =
+    HashMap<int, FlareStrokeJoin>.fromIterables(
+        [0, 1, 2], [FlareStrokeJoin.Miter, FlareStrokeJoin.Round, FlareStrokeJoin.Bevel]);
+final HashMap<int, FlareTrimPath> trimPathLookup =
+    HashMap<int, FlareTrimPath>.fromIterables(
+        [0, 1, 2], [FlareTrimPath.Off, FlareTrimPath.Sequential, FlareTrimPath.Synced]);
 
 abstract class ActorPaint extends ActorComponent {
   double _opacity = 1.0;
@@ -108,8 +108,8 @@ abstract class ActorColor extends ActorPaint {
 }
 
 abstract class ActorFill {
-  FillRule _fillRule = FillRule.EvenOdd;
-  FillRule get fillRule => _fillRule;
+  FlareFillRule _fillRule = FlareFillRule.EvenOdd;
+  FlareFillRule get fillRule => _fillRule;
 
   static void read(
       ActorArtboard artboard, StreamReader reader, ActorFill component) {
@@ -134,15 +134,15 @@ abstract class ActorStroke {
     markPaintDirty();
   }
 
-  StrokeCap _cap = StrokeCap.Butt;
-  StrokeJoin _join = StrokeJoin.Miter;
-  StrokeCap get cap => _cap;
-  StrokeJoin get join => _join;
+  FlareStrokeCap _cap = FlareStrokeCap.Butt;
+  FlareStrokeJoin _join = FlareStrokeJoin.Miter;
+  FlareStrokeCap get cap => _cap;
+  FlareStrokeJoin get join => _join;
 
-  TrimPath _trim = TrimPath.Off;
+  FlareTrimPath _trim = FlareTrimPath.Off;
 
-  TrimPath get trim => _trim;
-  bool get isTrimmed => _trim != TrimPath.Off;
+  FlareTrimPath get trim => _trim;
+  bool get isTrimmed => _trim != FlareTrimPath.Off;
 
   double _trimStart = 0.0;
   double get trimStart => _trimStart;
@@ -185,7 +185,7 @@ abstract class ActorStroke {
       component._join = strokeJoinLookup[reader.readUint8("join")];
       if (artboard.actor.version >= 20) {
         component._trim =
-            trimPathLookup[reader.readUint8("trim")] ?? TrimPath.Off;
+            trimPathLookup[reader.readUint8("trim")] ?? FlareTrimPath.Off;
         if (component.isTrimmed) {
           component._trimStart = reader.readFloat32("start");
           component._trimEnd = reader.readFloat32("end");

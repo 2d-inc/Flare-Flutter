@@ -1,9 +1,10 @@
-import "../stream_reader.dart";
+import "../actor_artboard.dart";
 import "../actor_component.dart";
 import "../actor_event.dart";
-import "../actor_artboard.dart";
-import "property_types.dart";
+import "../stream_reader.dart";
 import "keyframe.dart";
+import "property_types.dart";
+
 
 typedef KeyFrame KeyFrameReader(StreamReader reader, ActorComponent component);
 
@@ -26,13 +27,6 @@ class PropertyAnimation {
     }
     PropertyAnimation propertyAnimation = PropertyAnimation();
     int type = propertyBlock.blockType;
-    // Wish there were a way do to this in Dart without having to create my own hash set.
-    // if(!Enum.IsDefined(typeof(PropertyTypes), type))
-    // {
-    // 	return null;
-    // }
-    // else
-    // {
     propertyAnimation._type = type;
 
     KeyFrameReader keyFrameReader;
@@ -167,7 +161,7 @@ class PropertyAnimation {
   }
 
   void apply(double time, ActorComponent component, double mix) {
-    if (_keyFrames.length == 0) {
+    if (_keyFrames.isEmpty) {
       return;
     }
 
@@ -180,7 +174,7 @@ class PropertyAnimation {
       int end = _keyFrames.length - 1;
 
       while (start <= end) {
-        mid = ((start + end) >> 1);
+        mid = (start + end) >> 1;
         element = _keyFrames[mid].time;
         if (element < time) {
           start = mid + 1;
@@ -243,7 +237,7 @@ class ComponentAnimation {
   }
 
   void apply(double time, List<ActorComponent> components, double mix) {
-    for (PropertyAnimation propertyAnimation in _properties) {
+    for (final PropertyAnimation propertyAnimation in _properties) {
       if (propertyAnimation != null) {
         propertyAnimation.apply(time, components[_componentIndex], mix);
       }
@@ -296,34 +290,21 @@ class ActorAnimation {
   List<ComponentAnimation> _components;
   List<ComponentAnimation> _triggerComponents;
 
-  String get name {
-    return _name;
-  }
+  String get name => _name;
 
-  bool get isLooping {
-    return _isLooping;
-  }
+  int get fps => _fps;
 
-  double get duration {
-    return _duration;
-  }
+  bool get isLooping => _isLooping;
 
-  List<ComponentAnimation> get animatedComponents {
-    return _components;
-  }
+  double get duration => _duration;
 
-  //Animation.prototype.triggerEvents = function(actorComponents, fromTime, toTime, triggered)
-  /*
-								name:component._Name,
-								component:component,
-								propertyType:property._Type,
-								keyFrameTime:toTime,
-								elapsed:0*/
+  List<ComponentAnimation> get animatedComponents => _components;
+
   void triggerEvents(List<ActorComponent> components, double fromTime,
       double toTime, List<AnimationEventArgs> triggerEvents) {
     for (int i = 0; i < _triggerComponents.length; i++) {
       ComponentAnimation keyedComponent = _triggerComponents[i];
-      for (PropertyAnimation property in keyedComponent.properties) {
+      for (final PropertyAnimation property in keyedComponent.properties) {
         switch (property.propertyType) {
           case PropertyTypes.Trigger:
             List<KeyFrame> keyFrames = property.keyFrames;
@@ -342,7 +323,7 @@ class ActorAnimation {
               int end = kfl - 1;
 
               while (start <= end) {
-                mid = ((start + end) >> 1);
+                mid = (start + end) >> 1;
                 element = keyFrames[mid].time;
                 if (element < toTime) {
                   start = mid + 1;
@@ -357,7 +338,6 @@ class ActorAnimation {
               idx = start;
             }
 
-            //int idx = keyFrameLocation(toTime, keyFrames, 0, keyFrames.length-1);
             if (idx == 0) {
               if (kfl > 0 && keyFrames[0].time == toTime) {
                 ActorComponent component =
@@ -408,6 +388,7 @@ class ActorAnimation {
       StreamReader reader, List<ActorComponent> components) {
     ActorAnimation animation = ActorAnimation();
     animation._name = reader.readString("name");
+    print("NAME ${animation._name}");
     animation._fps = reader.readUint8("fps");
     animation._duration = reader.readFloat32("duration");
     animation._isLooping = reader.readBool("isLooping");
@@ -415,9 +396,10 @@ class ActorAnimation {
     reader.openArray("keyed");
     int numKeyedComponents = reader.readUint16Length();
 
-    // We distinguish between animated and triggered components as ActorEvents 
-	// are currently only used to trigger events and don't need the full animation
-	// cycle. This lets them optimize them out of the regular animation cycle.
+    // We distinguish between animated and triggered components as ActorEvents
+    // are currently only used to trigger events and don't need the full 
+	// animation cycle. This lets them optimize them out of the regular animation 
+	// cycle.
     int animatedComponentCount = 0;
     int triggerComponentCount = 0;
 
@@ -468,142 +450,3 @@ class ActorAnimation {
     return animation;
   }
 }
-
-// class ActorAnimationInstance
-// {
-// 	Actor _actor;
-// 	ActorAnimation _animation;
-// 	double _time;
-// 	double _min;
-// 	double _max;
-// 	double _range;
-// 	bool loop;
-
-// 			event EventHandler<AnimationEventArgs> AnimationEvent;
-
-// 	ActorAnimationInstance(Actor actor, ActorAnimation animation)
-// 	{
-// 		_actor = actor;
-// 		_animation = animation;
-// 		_time = 0.0;
-// 		_min = 0.0;
-// 		_max = animation.Duration;
-// 		_range = _max - _min;
-// 		loop = animation.IsLooping;
-// 	}
-
-// 	double get minTime
-// 	{
-// 		return _min;
-// 	}
-
-// 	double get maxTime
-// 	{
-// 		return _max;
-// 	}
-
-// 	double get time
-// 	{
-// 		return _time;
-// 	}
-
-// 	set time(double value)
-// 	{
-// 		double delta = value - _time;
-// 		double time = _time + (delta % _range);
-
-// 		if(time < _min)
-// 		{
-// 			if(loop)
-// 			{
-// 				time = _max - (_min - time);
-// 			}
-// 			else
-// 			{
-// 				time = _min;
-// 			}
-// 		}
-// 		else if(time > _max)
-// 		{
-// 			if(loop)
-// 			{
-// 				time = _min + (time - _max);
-// 			}
-// 			else
-// 			{
-// 				time = _max;
-// 			}
-// 		}
-// 		_time = time;
-// 	}
-
-// 	void advance(float seconds)
-// 	{
-// 		List<AnimationEventArgs> triggeredEvents = new List<AnimationEventArgs>();
-// 		float time = _time;
-// 		time += seconds % _range;
-// 		if(time < _min)
-// 		{
-// 			if(loop)
-// 			{
-// 				_animation.TriggerEvents(_actor.components, time, _time, triggeredEvents);
-// 				time = _max - (_min - time);
-// 				_animation.TriggerEvents(_actor.components, time, _max, triggeredEvents);
-// 			}
-// 			else
-// 			{
-// 				time = _min;
-// 				if(_time != time)
-// 				{
-// 					_animation.TriggerEvents(_actor.components, _min, _time, triggeredEvents);
-// 				}
-// 			}
-// 		}
-// 		else if(time > _max)
-// 		{
-// 			if(loop)
-// 			{
-// 				_animation.TriggerEvents(_actor.components, time, _time, triggeredEvents);
-// 				time = _min + (time - _max);
-// 				_animation.TriggerEvents(_actor.components, _min-0.001f, time, triggeredEvents);
-// 			}
-// 			else
-// 			{
-// 				time = _max;
-// 				if(_time != time)
-// 				{
-// 					_animation.TriggerEvents(_actor.components, _time, _max, triggeredEvents);
-// 				}
-// 			}
-// 		}
-// 		else if(time > _time)
-// 		{
-// 			_animation.TriggerEvents(_actor.components, _time, time, triggeredEvents);
-// 		}
-// 		else
-// 		{
-// 			_animation.TriggerEvents(_actor.components, time, _time, triggeredEvents);
-// 		}
-
-// 		for(AnimationEventArgs ev in triggeredEvents)
-// 		{
-// 						if (AnimationEvent != null)
-// 						{
-// 								AnimationEvent(this, ev);
-// 						}
-// 						_actor.OnAnimationEvent(ev);
-// 		}
-// 		/*for(var i = 0; i < triggeredEvents.length; i++)
-// 		{
-// 			var event = triggeredEvents[i];
-// 			this.dispatch("animationEvent", event);
-// 			_actor.dispatch("animationEvent", event);
-// 		}*/
-// 		_time = time;
-// 	}
-
-// 	void Apply(float mix)
-// 	{
-// 		_animation.apply(_time, _actor, mix);
-// 	}
-// }

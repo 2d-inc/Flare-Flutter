@@ -1,10 +1,11 @@
 import "./interpolator.dart";
 
 class HoldInterpolator extends Interpolator {
-  static get instance {
+  static Interpolator get instance {
     return _instance;
   }
 
+  @override
   double getEasedMix(double mix) {
     return 0.0;
   }

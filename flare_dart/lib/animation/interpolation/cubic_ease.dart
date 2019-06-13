@@ -23,7 +23,7 @@ double getSlope(double aT, double aA1, double aA2) {
       (3.0 * aA1);
 }
 
-double newtonRaphsonIterate(aX, aGuessT, mX1, mX2) {
+double newtonRaphsonIterate(double aX, double aGuessT, double mX1, double mX2) {
   for (int i = 0; i < NewtonIterations; ++i) {
     double currentSlope = getSlope(aGuessT, mX1, mX2);
     if (currentSlope == 0.0) {
@@ -113,6 +113,7 @@ class Cubic extends CubicEase {
     }
   }
 
+  @override
   double ease(double mix) {
     return calcBezier(getT(mix), y1, y2);
   }

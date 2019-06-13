@@ -1,24 +1,24 @@
-import '../actor_drawable.dart';
-import "../stream_reader.dart";
-import "../actor_component.dart";
-import "../actor_node.dart";
-import "../actor_bone_base.dart";
-import "../actor_constraint.dart";
-import "../actor_image.dart";
-import "../actor_artboard.dart";
-import "../actor_node_solo.dart";
-import "../actor_star.dart";
-import "../actor_rectangle.dart";
-import "../math/mat2d.dart";
-import "./interpolation/interpolator.dart";
-import "./interpolation/hold.dart";
-import "./interpolation/linear.dart";
-import "./interpolation/cubic.dart";
 import "dart:collection";
 import "dart:typed_data";
-import "../actor_path.dart";
-import "../path_point.dart";
+
+import "../actor_artboard.dart";
+import "../actor_bone_base.dart";
 import "../actor_color.dart";
+import "../actor_component.dart";
+import "../actor_constraint.dart";
+import '../actor_drawable.dart';
+import "../actor_image.dart";
+import "../actor_node.dart";
+import "../actor_node_solo.dart";
+import "../actor_path.dart";
+import "../actor_rectangle.dart";
+import "../actor_star.dart";
+import "../path_point.dart";
+import "../stream_reader.dart";
+import "./interpolation/cubic.dart";
+import "./interpolation/hold.dart";
+import "./interpolation/interpolator.dart";
+import "./interpolation/linear.dart";
 
 enum InterpolationTypes { Hold, Linear, Cubic }
 
@@ -66,9 +66,7 @@ abstract class KeyFrameWithInterpolation extends KeyFrame {
     int type = reader.readUint8("interpolatorType");
 
     InterpolationTypes actualType = interpolationTypesLookup[type];
-    if (actualType == null) {
-      actualType = InterpolationTypes.Linear;
-    }
+    actualType ??= InterpolationTypes.Linear;
 
     switch (actualType) {
       case InterpolationTypes.Hold:
@@ -91,6 +89,7 @@ abstract class KeyFrameWithInterpolation extends KeyFrame {
     return true;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Null out the interpolator if the next frame doesn't validate.
     // if(_interpolator != null && !_interpolator.setNextFrame(this, frame))
@@ -112,18 +111,10 @@ abstract class KeyFrameNumeric extends KeyFrameWithInterpolation {
       return false;
     }
     frame._value = reader.readFloat32("value");
-    /*if(frame._interpolator != null)
-		{
-			// TODO: in the future, this could also be a progression curve.
-			ValueTimeCurveInterpolator vtci = frame._interpolator as ValueTimeCurveInterpolator;
-			if(vtci != null)
-			{
-			vtci.SetKeyFrameValue(m_Value);
-			}
-		}*/
     return true;
   }
 
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     KeyFrameNumeric to = toFrame as KeyFrameNumeric;
@@ -134,6 +125,7 @@ abstract class KeyFrameNumeric extends KeyFrameWithInterpolation {
     setValue(component, _value * (1.0 - f) + to._value * f, mix);
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     setValue(component, _value, mix);
   }
@@ -156,6 +148,7 @@ abstract class KeyFrameInt extends KeyFrameWithInterpolation {
     return true;
   }
 
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     KeyFrameNumeric to = toFrame as KeyFrameNumeric;
@@ -166,6 +159,7 @@ abstract class KeyFrameInt extends KeyFrameWithInterpolation {
     setValue(component, _value * (1.0 - f) + to._value * f, mix);
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     setValue(component, _value, mix);
   }
@@ -182,6 +176,7 @@ class KeyFrameIntProperty extends KeyFrameInt {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     // TODO
     //CustomIntProperty node = component as CustomIntProperty;
@@ -198,6 +193,7 @@ class KeyFrameFloatProperty extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     // TODO
     // CustomFloatProperty node = component as CustomFloatProperty;
@@ -216,15 +212,17 @@ class KeyFrameStringProperty extends KeyFrame {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
-
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     apply(component, mix);
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     // CustomStringProperty prop = component as CustomStringProperty;
     // prop.value = _value;
@@ -242,15 +240,17 @@ class KeyFrameBooleanProperty extends KeyFrame {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
-
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     apply(component, mix);
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     // CustomBooleanProperty prop = component as CustomBooleanProperty;
     // prop.value = _value;
@@ -268,15 +268,18 @@ class KeyFrameCollisionEnabledProperty extends KeyFrame {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
 
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     apply(component, mix);
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     // ActorCollider collider = component as ActorCollider;
     // collider.isCollisionEnabled = _value;
@@ -292,6 +295,7 @@ class KeyFramePosX extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorNode node = component as ActorNode;
     node.x = node.x * (1.0 - mix) + value * mix;
@@ -307,6 +311,7 @@ class KeyFramePosY extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorNode node = component as ActorNode;
     node.y = node.y * (1.0 - mix) + value * mix;
@@ -322,6 +327,7 @@ class KeyFrameScaleX extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorNode node = component as ActorNode;
     node.scaleX = node.scaleX * (1.0 - mix) + value * mix;
@@ -337,6 +343,7 @@ class KeyFrameScaleY extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorNode node = component as ActorNode;
     node.scaleY = node.scaleY * (1.0 - mix) + value * mix;
@@ -352,6 +359,7 @@ class KeyFrameRotation extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorNode node = component as ActorNode;
     node.rotation = node.rotation * (1.0 - mix) + value * mix;
@@ -367,6 +375,7 @@ class KeyFrameOpacity extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorNode node = component as ActorNode;
     node.opacity = node.opacity * (1.0 - mix) + value * mix;
@@ -382,6 +391,7 @@ class KeyFrameLength extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorBoneBase bone = component as ActorBoneBase;
     if (bone == null) {
@@ -400,6 +410,7 @@ class KeyFrameConstraintStrength extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorConstraint constraint = component as ActorConstraint;
     constraint.strength = constraint.strength * (1.0 - mix) + value * mix;
@@ -434,19 +445,21 @@ class KeyFrameDrawOrder extends KeyFrame {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
-
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     apply(component, mix);
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     ActorArtboard artboard = component.artboard;
 
-    for (DrawOrderIndex doi in _orderedNodes) {
+    for (final DrawOrderIndex doi in _orderedNodes) {
       ActorComponent component = artboard[doi.componentIndex];
       if (component is ActorDrawable) {
         component.drawOrder = doi.order;
@@ -477,10 +490,11 @@ class KeyFrameImageVertices extends KeyFrameWithInterpolation {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
-
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     ActorImage imageNode = component as ActorImage;
@@ -510,6 +524,7 @@ class KeyFrameImageVertices extends KeyFrameWithInterpolation {
     imageNode.invalidateDrawable();
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     ActorImage imageNode = component as ActorImage;
     int l = _vertices.length;
@@ -538,13 +553,16 @@ class KeyFrameTrigger extends KeyFrame {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
 
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {}
 
+  @override
   void apply(ActorComponent component, double mix) {}
 }
 
@@ -560,15 +578,17 @@ class KeyFrameActiveChild extends KeyFrame {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // No Interpolation
   }
-
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     apply(component, mix);
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     ActorNodeSolo soloNode = component as ActorNodeSolo;
     soloNode.activeChildIndex = _value;
@@ -584,6 +604,7 @@ class KeyFrameSequence extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorImage node = component as ActorImage;
     int frameIndex = value.floor() % node.sequenceFrames.length;
@@ -611,10 +632,11 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
-
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     ActorColor ac = component as ActorColor;
@@ -623,6 +645,9 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
     int l = _value.length;
 
     double f = (time - _time) / (toFrame.time - _time);
+    if (_interpolator != null) {
+      f = _interpolator.getEasedMix(f);
+    }
     double fi = 1.0 - f;
     if (mix == 1.0) {
       for (int i = 0; i < l; i++) {
@@ -639,6 +664,7 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
     ac.markPaintDirty();
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     ActorColor ac = component as ActorColor;
     int l = _value.length;
@@ -678,7 +704,7 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     frame._vertices = Float32List(length);
     int readIdx = 0;
     reader.openArray("value");
-    for (PathPoint point in pathNode.points) {
+    for (final PathPoint point in pathNode.points) {
       frame._vertices[readIdx++] = reader.readFloat32("translationX");
       frame._vertices[readIdx++] = reader.readFloat32("translationY");
       if (point.pointType == PointType.Straight) {
@@ -698,10 +724,11 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     return frame;
   }
 
+  @override
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
-
+  @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     ActorPath path = component as ActorPath;
@@ -710,6 +737,9 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     int l = _vertices.length;
 
     double f = (time - _time) / (toFrame.time - _time);
+    if (_interpolator != null) {
+      f = _interpolator.getEasedMix(f);
+    }
     double fi = 1.0 - f;
     if (mix == 1.0) {
       for (int i = 0; i < l; i++) {
@@ -727,6 +757,7 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     path.markVertexDeformDirty();
   }
 
+  @override
   void apply(ActorComponent component, double mix) {
     ActorPath path = component as ActorPath;
     int l = _vertices.length;
@@ -755,6 +786,7 @@ class KeyFramePaintOpacity extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorPaint node = component as ActorPaint;
     node.opacity = node.opacity * (1.0 - mix) + value * mix;
@@ -778,7 +810,7 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
   }
 
   @override
-  applyInterpolation(
+  void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     ColorStroke cs = component as ColorStroke;
     Float32List wr = cs.color;
@@ -786,6 +818,9 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
     int len = _value.length;
 
     double f = (time - _time) / (toFrame.time - _time);
+    if (_interpolator != null) {
+      f = _interpolator.getEasedMix(f);
+    }
     double fi = 1.0 - f;
     if (mix == 1.0) {
       for (int i = 0; i < len; i++) {
@@ -803,7 +838,7 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
   }
 
   @override
-  apply(ActorComponent component, double mix) {
+  void apply(ActorComponent component, double mix) {
     ColorStroke node = component as ColorStroke;
     Float32List wr = node.color;
     int len = wr.length;
@@ -830,6 +865,7 @@ class KeyFrameCornerRadius extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     ActorRectangle node = component as ActorRectangle;
     node.radius = node.radius * (1.0 - mix) + value * mix;
@@ -838,7 +874,7 @@ class KeyFrameCornerRadius extends KeyFrameNumeric {
 
 class KeyFrameGradient extends KeyFrameWithInterpolation {
   Float32List _value;
-  get value => _value;
+  Float32List get value => _value;
 
   static KeyFrame read(StreamReader reader, ActorComponent component) {
     KeyFrameGradient frame = KeyFrameGradient();
@@ -851,7 +887,7 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
   }
 
   @override
-  applyInterpolation(
+  void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     GradientColor gradient = component as GradientColor;
     Float32List v = (toFrame as KeyFrameGradient)._value;
@@ -877,7 +913,8 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
     } else {
       double imix = 1.0 - mix;
 
-      // Mix : first interpolate the KeyFrames, and then mix on top of the current value.
+      // Mix : first interpolate the KeyFrames,
+      //  and then mix on top of the current value.
       double val = _value[ridx] * fi + v[ridx] * f;
       gradient.start[0] = gradient.start[0] * imix + val * mix;
       ridx++;
@@ -906,7 +943,7 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
   }
 
   @override
-  apply(ActorComponent component, double mix) {
+  void apply(ActorComponent component, double mix) {
     GradientColor gradient = component as GradientColor;
 
     int ridx = 0;
@@ -940,7 +977,7 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
 
 class KeyFrameRadial extends KeyFrameWithInterpolation {
   Float32List _value;
-  get value => _value;
+  Float32List get value => _value;
 
   static KeyFrame read(StreamReader reader, ActorComponent component) {
     KeyFrameRadial frame = KeyFrameRadial();
@@ -953,7 +990,7 @@ class KeyFrameRadial extends KeyFrameWithInterpolation {
   }
 
   @override
-  applyInterpolation(
+  void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
     RadialGradientColor radial = component as RadialGradientColor;
     Float32List v = (toFrame as KeyFrameRadial)._value;
@@ -980,7 +1017,8 @@ class KeyFrameRadial extends KeyFrameWithInterpolation {
     } else {
       double imix = 1.0 - mix;
 
-      // Mix : first interpolate the KeyFrames, and then mix on top of the current value.
+      // Mix : first interpolate the KeyFrames,
+      //  and then mix on top of the current value.
       double val = _value[ridx] * fi + v[ridx] * f;
       radial.secondaryRadiusScale = _value[ridx] * fi + v[ridx++] * f;
       val = _value[ridx] * fi + v[ridx] * f;
@@ -1004,7 +1042,7 @@ class KeyFrameRadial extends KeyFrameWithInterpolation {
   }
 
   @override
-  apply(ActorComponent component, double mix) {
+  void apply(ActorComponent component, double mix) {
     RadialGradientColor radial = component as RadialGradientColor;
 
     int ridx = 0;
@@ -1047,6 +1085,7 @@ class KeyFrameShapeWidth extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     if (component == null) return;
 
@@ -1065,6 +1104,7 @@ class KeyFrameShapeHeight extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     if (component == null) return;
 
@@ -1083,6 +1123,7 @@ class KeyFrameStrokeWidth extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     if (component == null) return;
     ActorStroke stroke = component as ActorStroke;
@@ -1099,6 +1140,7 @@ class KeyFrameInnerRadius extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     if (component == null) return;
 
@@ -1116,6 +1158,7 @@ class KeyFrameStrokeStart extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     if (component == null) return;
 
@@ -1133,6 +1176,7 @@ class KeyFrameStrokeEnd extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     if (component == null) return;
 
@@ -1150,6 +1194,7 @@ class KeyFrameStrokeOffset extends KeyFrameNumeric {
     return null;
   }
 
+  @override
   void setValue(ActorComponent component, double value, double mix) {
     if (component == null) return;
 

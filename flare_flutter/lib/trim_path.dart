@@ -2,10 +2,11 @@ library flare_flutter;
 
 import 'dart:ui';
 
-double _appendPathSegmentSequential(
-    PathMetrics metrics, Path to, double offset, double start, double stop) {
+double _appendPathSegmentSequential(Iterator<PathMetric> metricsIterator,
+    Path to, double offset, double start, double stop) {
   double nextOffset = offset;
-  for (final PathMetric metric in metrics) {
+  do {
+    PathMetric metric = metricsIterator.current;
     nextOffset = offset + metric.length;
     if (start < nextOffset) {
       Path extracted = metric.extractPath(start - offset, stop - offset);
@@ -17,7 +18,7 @@ double _appendPathSegmentSequential(
       }
     }
     offset = nextOffset;
-  }
+  } while (metricsIterator.moveNext());
   return offset;
 }
 
@@ -49,19 +50,21 @@ Path _trimPathSequential(
   double trimStop = totalLength * stopT;
   double offset = 0.0;
 
+  Iterator<PathMetric> metricsIterator = metrics.iterator;
+  metricsIterator.moveNext();
   if (complement) {
     if (trimStart > 0.0) {
-      offset =
-          _appendPathSegmentSequential(metrics, result, offset, 0.0, trimStart);
+      offset = _appendPathSegmentSequential(
+          metricsIterator, result, offset, 0.0, trimStart);
     }
     if (trimStop < totalLength) {
       offset = _appendPathSegmentSequential(
-          metrics, result, offset, trimStop, totalLength);
+          metricsIterator, result, offset, trimStop, totalLength);
     }
   } else {
     if (trimStart < trimStop) {
       offset = _appendPathSegmentSequential(
-          metrics, result, offset, trimStart, trimStop);
+          metricsIterator, result, offset, trimStart, trimStop);
     }
   }
 

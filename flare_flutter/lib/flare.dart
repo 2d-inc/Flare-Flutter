@@ -8,7 +8,6 @@ import 'dart:ui' as ui;
 import 'package:flare_dart/actor_flags.dart';
 import 'package:flare_dart/actor_image.dart';
 import 'package:flare_dart/math/aabb.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';

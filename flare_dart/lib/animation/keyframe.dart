@@ -66,9 +66,7 @@ abstract class KeyFrameWithInterpolation extends KeyFrame {
     int type = reader.readUint8("interpolatorType");
 
     InterpolationTypes actualType = interpolationTypesLookup[type];
-    if (actualType == null) {
-      actualType = InterpolationTypes.Linear;
-    }
+    actualType ??= InterpolationTypes.Linear;
 
     switch (actualType) {
       case InterpolationTypes.Hold:
@@ -559,9 +557,11 @@ class KeyFrameTrigger extends KeyFrame {
   void setNext(KeyFrame frame) {
     // Do nothing.
   }
+
   @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {}
+
   @override
   void apply(ActorComponent component, double mix) {}
 }
@@ -645,6 +645,9 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
     int l = _value.length;
 
     double f = (time - _time) / (toFrame.time - _time);
+    if (_interpolator != null) {
+      f = _interpolator.getEasedMix(f);
+    }
     double fi = 1.0 - f;
     if (mix == 1.0) {
       for (int i = 0; i < l; i++) {
@@ -734,6 +737,9 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     int l = _vertices.length;
 
     double f = (time - _time) / (toFrame.time - _time);
+    if (_interpolator != null) {
+      f = _interpolator.getEasedMix(f);
+    }
     double fi = 1.0 - f;
     if (mix == 1.0) {
       for (int i = 0; i < l; i++) {
@@ -812,6 +818,9 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
     int len = _value.length;
 
     double f = (time - _time) / (toFrame.time - _time);
+    if (_interpolator != null) {
+      f = _interpolator.getEasedMix(f);
+    }
     double fi = 1.0 - f;
     if (mix == 1.0) {
       for (int i = 0; i < len; i++) {
@@ -904,8 +913,8 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
     } else {
       double imix = 1.0 - mix;
 
-      // Mix : first interpolate the KeyFrames, and then mix on top
-      // of the current value.
+      // Mix : first interpolate the KeyFrames,
+      //  and then mix on top of the current value.
       double val = _value[ridx] * fi + v[ridx] * f;
       gradient.start[0] = gradient.start[0] * imix + val * mix;
       ridx++;
@@ -1008,8 +1017,8 @@ class KeyFrameRadial extends KeyFrameWithInterpolation {
     } else {
       double imix = 1.0 - mix;
 
-      // Mix : first interpolate the KeyFrames, and then mix on top of the
-      // current value.
+      // Mix : first interpolate the KeyFrames,
+      //  and then mix on top of the current value.
       double val = _value[ridx] * fi + v[ridx] * f;
       radial.secondaryRadiusScale = _value[ridx] * fi + v[ridx++] * f;
       val = _value[ridx] * fi + v[ridx] * f;

@@ -66,4 +66,11 @@ class ActorLayerNode extends ActorDrawable {
     super.completeResolve();
     sortDrawables();
   }
+
+  @override
+  void initializeGraphics() {
+    for (final ActorDrawable drawable in _drawables) {
+      drawable.initializeGraphics();
+    }
+  }
 }

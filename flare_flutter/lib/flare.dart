@@ -5,8 +5,10 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flare_dart/actor_bone.dart';
 import 'package:flare_dart/actor_flags.dart';
 import 'package:flare_dart/actor_image.dart';
+import 'package:flare_dart/actor_jelly_bone.dart';
 import 'package:flare_dart/embedded_flare_asset.dart';
 import 'package:flare_dart/math/aabb.dart';
 import 'package:flutter/services.dart';
@@ -590,7 +592,7 @@ class FlutterActor extends Actor {
 
   @override
   ActorLayerNode makeLayerNode() {
-    return ActorLayerNode();
+    return FlutterLayerNode();
   }
 
   @override
@@ -714,6 +716,23 @@ class FlutterActorArtboard extends ActorArtboard {
         (drawable as FlutterActorDrawable).draw(canvas);
       }
     }
+/*
+    bool drawBones = false;
+    Paint debugPaint = Paint()
+	..strokeWidth = 15
+      ..style = PaintingStyle.stroke
+      ..color = Colors.red;
+    for (final ActorComponent component in components) {
+		if (drawBones && component is ActorJellyBone && !component.renderCollapsed) {
+      //if (component.name == "belly_jelly_bone_v2_01" && drawBones && component is ActorJellyBone && !component.renderCollapsed) {
+		//if (component.name == "belly_v2" && drawBones && component is ActorBone && !component.renderCollapsed) {
+        Vec2D start = Vec2D(), end = Vec2D();
+        component.getWorldTranslation(start);
+        component.getTipWorldTranslation(end);
+        canvas.drawLine(
+            Offset(start[0], start[1]), Offset(end[0], end[1]), debugPaint);
+      }
+    }*/
   }
 
   void dispose() {}
@@ -1125,7 +1144,7 @@ class FlutterFlareNode extends ActorFlareNode with FlutterActorDrawable {
 
   @override
   void initializeGraphics() {
-	  super.initializeGraphics();
+    super.initializeGraphics();
     if (!usingExistingInstance && instance != null) {
       instance.initializeGraphics();
       instance.advance(0);
@@ -1136,9 +1155,11 @@ class FlutterFlareNode extends ActorFlareNode with FlutterActorDrawable {
 class FlutterLayerNode extends ActorLayerNode with FlutterActorDrawable {
   @override
   void draw(ui.Canvas canvas) {
+	  
     if (renderCollapsed) {
       return;
     }
+	
     List<ActorDrawable> drawables = this.drawables;
     for (final ActorDrawable drawable in drawables) {
       (drawable as FlutterActorDrawable).draw(canvas);

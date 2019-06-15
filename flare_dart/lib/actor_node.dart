@@ -222,7 +222,7 @@ class ActorNode extends ActorComponent {
       if (!_overrideWorldTransform) {
         Mat2D.multiply(_worldTransform, parent._worldTransform, _transform);
       }
-    } else {
+    } else if(!_overrideWorldTransform) {
       Mat2D.copy(_worldTransform, _transform);
     }
   }

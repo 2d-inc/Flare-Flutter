@@ -232,7 +232,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     });
     Float32List vertices = Float32List(length);
     int readIdx = 0;
-    for (PathPoint point in points) {
+    for (final PathPoint point in points) {
       vertices[readIdx++] = point.translation[0];
       vertices[readIdx++] = point.translation[1];
       if (point.pointType == PointType.Straight) {
@@ -257,11 +257,12 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     artboard.addDirt(this, VertexDeformDirty, false);
   }
 
+  @override
   void update(int dirt) {
     if (vertexDeform != null &&
         (dirt & VertexDeformDirty) == VertexDeformDirty) {
       int readIdx = 0;
-      for (PathPoint point in _points) {
+      for (final PathPoint point in _points) {
         point.translation[0] = vertexDeform[readIdx++];
         point.translation[1] = vertexDeform[readIdx++];
         switch (point.pointType) {

@@ -19,6 +19,7 @@ abstract class ActorConstraint extends ActorComponent {
     markDirty();
   }
 
+  @override
   void onDirty(int dirt) {
     super.onDirty(dirt);
     markDirty();
@@ -42,6 +43,7 @@ abstract class ActorConstraint extends ActorComponent {
 
   void constrain(ActorNode node);
 
+  @override
   void resolveComponentIndices(List<ActorComponent> components) {
     super.resolveComponentIndices(components);
     if (parent != null) {

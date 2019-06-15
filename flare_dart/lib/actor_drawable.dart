@@ -97,14 +97,16 @@ abstract class ActorDrawable extends ActorNode {
     if (_layerId == 0) {
       return;
     }
-    ActorComponent layer = components[_layerId];
-    if (layer is ActorFlareNode) {
-      ActorComponent embeddedComponent = layer.getEmbeddedComponent(_layerName);
+    ActorComponent layerComponent = components[_layerId];
+    if (layerComponent is ActorFlareNode) {
+      // layer is in an embedded flare asset
+      ActorComponent embeddedComponent =
+          layerComponent.getEmbeddedComponent(_layerName);
       if (embeddedComponent is ActorLayerNode) {
-        _layer = embeddedComponent;
+        layer = embeddedComponent;
       }
-    } else if (layer is ActorLayerNode) {
-      _layer = layer;
+    } else if (layerComponent is ActorLayerNode) {
+      layer = layer;
     }
   }
 

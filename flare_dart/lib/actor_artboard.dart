@@ -13,6 +13,7 @@ import "actor_flare_node.dart";
 import "actor_ik_constraint.dart";
 import "actor_image.dart";
 import "actor_jelly_bone.dart";
+import 'actor_layer_node.dart';
 import "actor_node.dart";
 import "actor_node_solo.dart";
 import "actor_path.dart";
@@ -38,13 +39,13 @@ import "stream_reader.dart";
 
 class ActorArtboard {
   int _flags = ActorFlags.IsDrawOrderDirty;
-  int _drawableNodeCount = 0;
   int _nodeCount = 0;
   int _dirtDepth = 0;
   ActorNode _root;
   List<ActorComponent> _components;
   List<ActorNode> _nodes;
-  List<ActorDrawable> _drawableNodes;
+  final List<ActorDrawable> _drawableNodes = [];
+  final List<ActorLayerNode> _layerNodes = [];
   List<ActorAnimation> _animations;
   List<ActorComponent> _dependencyOrder;
   Actor _actor;
@@ -98,7 +99,7 @@ class ActorArtboard {
 
   int get componentCount => _components.length;
   int get nodeCount => _nodeCount;
-  int get drawNodeCount => _drawableNodeCount;
+  int get drawNodeCount => _drawableNodes.length;
   ActorNode get root => _root;
 
   bool addDependency(ActorComponent a, ActorComponent b) {
@@ -206,7 +207,6 @@ class ActorArtboard {
 
     //_actor = artboard._actor;
     _animations = artboard._animations;
-    _drawableNodeCount = artboard._drawableNodeCount;
     _nodeCount = artboard._nodeCount;
 
     if (artboard.componentCount != 0) {
@@ -215,9 +215,6 @@ class ActorArtboard {
     if (_nodeCount != 0) // This will always be at least 1.
     {
       _nodes = List<ActorNode>(_nodeCount);
-    }
-    if (_drawableNodeCount != 0) {
-      _drawableNodes = List<ActorDrawable>(_drawableNodeCount);
     }
 
     if (artboard.componentCount != 0) {
@@ -241,9 +238,10 @@ class ActorArtboard {
 
   void resolveHierarchy() {
     // Resolve nodes.
-    int drwIdx = 0;
     int anIdx = 0;
 
+    _drawableNodes.clear();
+    _layerNodes.clear();
     int componentCount = this.componentCount;
     for (int i = 1; i < componentCount; i++) {
       ActorComponent c = _components[i];
@@ -254,8 +252,11 @@ class ActorArtboard {
         c.resolveComponentIndices(_components);
       }
 
-      if (c is ActorDrawable) {
-        _drawableNodes[drwIdx++] = c;
+      if (c is ActorDrawable && c.layer == null) {
+        _drawableNodes.add(c);
+      }
+      if (c is ActorLayerNode && c.layer == null) {
+        _layerNodes.add(c);
       }
 
       if (c is ActorNode) {
@@ -277,13 +278,7 @@ class ActorArtboard {
     }
 
     sortDependencies();
-
-    if (_drawableNodes != null) {
-      _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
-      for (int i = 0; i < _drawableNodes.length; i++) {
-        _drawableNodes[i].drawIndex = i;
-      }
-    }
+    sortDrawOrder();
   }
 
   void advance(double seconds) {
@@ -314,13 +309,17 @@ class ActorArtboard {
 
     if ((_flags & ActorFlags.IsDrawOrderDirty) != 0) {
       _flags &= ~ActorFlags.IsDrawOrderDirty;
+      sortDrawOrder();
+    }
+  }
 
-      if (_drawableNodes != null) {
-        _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
-        for (int i = 0; i < _drawableNodes.length; i++) {
-          _drawableNodes[i].drawIndex = i;
-        }
-      }
+  void sortDrawOrder() {
+    _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
+    for (int i = 0; i < _drawableNodes.length; i++) {
+      _drawableNodes[i].drawIndex = i;
+    }
+    for (final ActorLayerNode layer in _layerNodes) {
+      layer.sortDrawables();
     }
   }
 
@@ -551,9 +550,6 @@ class ActorArtboard {
           component = ActorComponent.read(this, nodeBlock, ActorSkin());
           break;
       }
-      if (component is ActorDrawable) {
-        _drawableNodeCount++;
-      }
 
       if (component is ActorNode) {
         _nodeCount++;
@@ -564,7 +560,6 @@ class ActorArtboard {
       }
     }
 
-    _drawableNodes = List<ActorDrawable>(_drawableNodeCount);
     _nodes = List<ActorNode>(_nodeCount);
     _nodes[0] = _root;
   }

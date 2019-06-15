@@ -1,38 +1,40 @@
-import "actor_flags.dart";
-import "block_types.dart";
-import "actor_node.dart";
+import "dart:math";
+import "dart:typed_data";
+import "actor.dart";
 import "actor_bone.dart";
+import "actor_color.dart";
 import "actor_component.dart";
 import "actor_distance_constraint.dart";
-import "actor_event.dart";
-import "actor_node_solo.dart";
-import "actor_root_bone.dart";
-import "actor_jelly_bone.dart";
-import "actor_scale_constraint.dart";
-import "actor_skin.dart";
-import "actor_path.dart";
-import "actor_transform_constraint.dart";
-import "actor_translation_constraint.dart";
-import "jelly_component.dart";
-import "actor_ik_constraint.dart";
-import "actor_rotation_constraint.dart";
-import "actor_image.dart";
 import "actor_drawable.dart";
-import "actor_shape.dart";
 import "actor_ellipse.dart";
+import "actor_event.dart";
+import "actor_flags.dart";
+import "actor_flare_node.dart";
+import "actor_ik_constraint.dart";
+import "actor_image.dart";
+import "actor_jelly_bone.dart";
+import "actor_node.dart";
+import "actor_node_solo.dart";
+import "actor_path.dart";
 import "actor_polygon.dart";
 import "actor_rectangle.dart";
+import "actor_root_bone.dart";
+import "actor_rotation_constraint.dart";
+import "actor_scale_constraint.dart";
+import "actor_shape.dart";
+import "actor_skin.dart";
 import "actor_star.dart";
+import "actor_target_node.dart";
+import "actor_transform_constraint.dart";
+import "actor_translation_constraint.dart";
 import "actor_triangle.dart";
-import "actor_color.dart";
 import "animation/actor_animation.dart";
+import "block_types.dart";
 import "dependency_sorter.dart";
-import "actor.dart";
-import "stream_reader.dart";
-import "math/vec2d.dart";
-import "dart:typed_data";
+import "jelly_component.dart";
 import "math/aabb.dart";
-import "dart:math";
+import "math/vec2d.dart";
+import "stream_reader.dart";
 
 class ActorArtboard {
   int _flags = ActorFlags.IsDrawOrderDirty;
@@ -64,6 +66,7 @@ class ActorArtboard {
   bool get clipContents => _clipContents;
   double get modulateOpacity => _modulateOpacity;
   Float32List get overrideColor => _overrideColor;
+  final bool isInstance;
 
   set overrideColor(Float32List value) {
     _overrideColor = value;
@@ -79,7 +82,7 @@ class ActorArtboard {
     }
   }
 
-  ActorArtboard(Actor actor) {
+  ActorArtboard(Actor actor, [this.isInstance = false]) {
     _actor = actor;
     _root = ActorNode.withArtboard(this);
   }
@@ -146,7 +149,7 @@ class ActorArtboard {
     }
     List<ActorComponent> dependents = component.dependents;
     if (dependents != null) {
-      for (ActorComponent d in dependents) {
+      for (final ActorComponent d in dependents) {
         addDirt(d, value, recurse);
       }
     }
@@ -177,13 +180,13 @@ class ActorArtboard {
   }
 
   ActorArtboard makeInstance() {
-    ActorArtboard artboardInstance = _actor.makeArtboard();
+    ActorArtboard artboardInstance = _actor.makeArtboard(true);
     artboardInstance.copyArtboard(this);
     return artboardInstance;
   }
 
   ActorArtboard makeInstanceWithActor(Actor actor) {
-    ActorArtboard artboardInstance = actor.makeArtboard();
+    ActorArtboard artboardInstance = actor.makeArtboard(true);
     artboardInstance.copyArtboard(this);
     return artboardInstance;
   }
@@ -219,8 +222,6 @@ class ActorArtboard {
 
     if (artboard.componentCount != 0) {
       int idx = 0;
-      int drwIdx = 0;
-      int ndIdx = 0;
 
       for (final ActorComponent component in artboard.components) {
         if (component == null) {
@@ -229,30 +230,50 @@ class ActorArtboard {
         }
         ActorComponent instanceComponent = component.makeInstance(this);
         _components[idx++] = instanceComponent;
-        if (instanceComponent is ActorNode) {
-          _nodes[ndIdx++] = instanceComponent;
-        }
-
-        if (instanceComponent is ActorDrawable) {
-          _drawableNodes[drwIdx++] = instanceComponent;
-        }
       }
     }
 
     _root = _components[0] as ActorNode;
 
-    for (final ActorComponent component in _components) {
-      if (_root == component || component == null) {
-        continue;
-      }
-      component.resolveComponentIndices(_components);
-    }
+    resolveHierarchy();
+    completeResolveHierarchy();
+  }
 
-    for (final ActorComponent component in _components) {
-      if (_root == component || component == null) {
-        continue;
+  void resolveHierarchy() {
+    // Resolve nodes.
+    int drwIdx = 0;
+    int anIdx = 0;
+
+    int componentCount = this.componentCount;
+    for (int i = 1; i < componentCount; i++) {
+      ActorComponent c = _components[i];
+
+      /// Nodes can be null if we read from a file version that contained
+      /// nodes that we don't interpret in this runtime.
+      if (c != null) {
+        c.resolveComponentIndices(_components);
       }
-      component.completeResolve();
+
+      if (c is ActorDrawable) {
+        _drawableNodes[drwIdx++] = c;
+      }
+
+      if (c is ActorNode) {
+        ActorNode an = c;
+        if (an != null) {
+          _nodes[anIdx++] = an;
+        }
+      }
+    }
+  }
+
+  void completeResolveHierarchy() {
+    int componentCount = this.componentCount;
+    for (int i = 1; i < componentCount; i++) {
+      ActorComponent c = components[i];
+      if (c != null) {
+        c.completeResolve();
+      }
     }
 
     sortDependencies();
@@ -347,7 +368,22 @@ class ActorArtboard {
       ActorComponent component;
       switch (nodeBlock.blockType) {
         case BlockTypes.ActorNode:
-          component = ActorNode.read(this, nodeBlock, null);
+        case BlockTypes.ActorCacheNode:
+          component = ActorNode.read(this, nodeBlock, ActorNode());
+          break;
+
+        case BlockTypes.ActorTargetNode:
+          component = ActorNode.read(this, nodeBlock, ActorTargetNode());
+          break;
+
+        case BlockTypes.ActorFlareNode:
+          component =
+              ActorFlareNode.read(this, nodeBlock, actor.makeFlareNode());
+          break;
+
+        case BlockTypes.ActorLayerNode:
+          component =
+              ActorDrawable.read(this, nodeBlock, actor.makeLayerNode());
           break;
 
         case BlockTypes.ActorBone:
@@ -531,40 +567,6 @@ class ActorArtboard {
     _drawableNodes = List<ActorDrawable>(_drawableNodeCount);
     _nodes = List<ActorNode>(_nodeCount);
     _nodes[0] = _root;
-
-    // Resolve nodes.
-    int drwIdx = 0;
-    int anIdx = 0;
-
-    for (int i = 1; i <= componentCount; i++) {
-      ActorComponent c = _components[i];
-
-      /// Nodes can be null if we read from a file version that contained
-      /// nodes that we don't interpret in this runtime.
-      if (c != null) {
-        c.resolveComponentIndices(_components);
-      }
-
-      if (c is ActorDrawable) {
-        _drawableNodes[drwIdx++] = c;
-      }
-
-      if (c is ActorNode) {
-        ActorNode an = c;
-        if (an != null) {
-          _nodes[anIdx++] = an;
-        }
-      }
-    }
-
-    for (int i = 1; i <= componentCount; i++) {
-      ActorComponent c = components[i];
-      if (c != null) {
-        c.completeResolve();
-      }
-    }
-
-    sortDependencies();
   }
 
   void initializeGraphics() {
@@ -592,8 +594,8 @@ class ActorArtboard {
   }
 
   AABB artboardAABB() {
-    double minX = -_origin[0] * width;
-    double minY = -_origin[1] * height;
+    double minX = -1 * _origin[0] * width;
+    double minY = -1 * _origin[1] * height;
     return AABB.fromValues(minX, minY, minX + _width, minY + height);
   }
 

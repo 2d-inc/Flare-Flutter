@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 import 'package:flare_dart/actor_skinnable.dart';
 
-import "stream_reader.dart";
-import "math/mat2d.dart";
 import "actor_artboard.dart";
 import "actor_component.dart";
 import "actor_drawable.dart";
 import "math/aabb.dart";
+import "math/mat2d.dart";
+import "stream_reader.dart";
 
 class SequenceFrame {
   final int _atlasIndex;

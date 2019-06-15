@@ -38,8 +38,8 @@ abstract class PathPoint {
 
   PathPoint makeInstance();
 
-  copy(PathPoint from) {
-    this._type = from._type;
+  void copy(PathPoint from) {
+    _type = from._type;
     Vec2D.copy(_translation, from._translation);
     if (from._weights != null) {
       _weights = Float32List.fromList(from._weights);
@@ -73,7 +73,7 @@ class StraightPathPoint extends PathPoint {
 
   StraightPathPoint.fromTranslation(Vec2D translation)
       : super(PointType.Straight) {
-    this._translation = translation;
+    _translation = translation;
   }
 
   StraightPathPoint.fromValues(Vec2D translation, double r)
@@ -82,13 +82,14 @@ class StraightPathPoint extends PathPoint {
     radius = r;
   }
 
+  @override
   PathPoint makeInstance() {
     StraightPathPoint node = StraightPathPoint();
     node.copyStraight(this);
     return node;
   }
 
-  copyStraight(StraightPathPoint from) {
+  void copyStraight(StraightPathPoint from) {
     super.copy(from);
     radius = from.radius;
   }
@@ -163,12 +164,13 @@ class CubicPathPoint extends PathPoint {
     return node;
   }
 
-  copyCubic(from) {
+  void copyCubic(CubicPathPoint from) {
     super.copy(from);
     Vec2D.copy(_in, from._in);
     Vec2D.copy(_out, from._out);
   }
 
+  @override
   int readPoint(StreamReader reader, bool isConnectedToBones) {
     Vec2D.copyFromList(_in, reader.readFloat32Array(2, "in"));
     Vec2D.copyFromList(_out, reader.readFloat32Array(2, "out"));
@@ -178,6 +180,7 @@ class CubicPathPoint extends PathPoint {
     return 0;
   }
 
+  @override
   PathPoint transformed(Mat2D transform) {
     CubicPathPoint result = super.transformed(transform) as CubicPathPoint;
     Vec2D.transformMat2D(result.inPoint, result.inPoint, transform);

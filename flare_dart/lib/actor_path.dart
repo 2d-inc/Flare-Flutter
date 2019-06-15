@@ -64,7 +64,7 @@ abstract class ActorBasePath {
     return AABB.fromValues(minX, minY, maxX, maxY);
   }
 
-  invalidateDrawable() {
+  void invalidateDrawable() {
     invalidatePath();
     if (parent is ActorShape) {
       parent.invalidateShape();
@@ -78,7 +78,7 @@ abstract class ActorBasePath {
     double maxY = -double.maxFinite;
 
     List<PathPoint> renderPoints = points;
-    for (PathPoint point in renderPoints) {
+    for (final PathPoint point in renderPoints) {
       Vec2D t = point.translation;
       double x = t[0];
       double y = t[1];
@@ -289,7 +289,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     if (component == null) {
       component = ActorPath();
     }
-	ActorNode.read(artboard, reader, component);
+    ActorNode.read(artboard, reader, component);
     ActorSkinnable.read(artboard, reader, component);
 
     component._isHidden = !reader.readBool("isVisible");
@@ -327,20 +327,21 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     return component;
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorPath instanceEvent = ActorPath();
     instanceEvent.copyPath(this, resetArtboard);
     return instanceEvent;
   }
 
-	@override
+  @override
   void resolveComponentIndices(List<ActorComponent> components) {
-	  super.resolveComponentIndices(components);
-	  resolveSkinnable(components);
+    super.resolveComponentIndices(components);
+    resolveSkinnable(components);
   }
 
   void copyPath(ActorPath node, ActorArtboard resetArtboard) {
-	copyNode(node, resetArtboard);
+    copyNode(node, resetArtboard);
     copySkinnable(node, resetArtboard);
     _isHidden = node._isHidden;
     _isClosed = node._isClosed;

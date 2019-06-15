@@ -11,14 +11,14 @@ import "math/vec2d.dart";
 import "math/aabb.dart";
 
 class ActorShape extends ActorDrawable {
-  List<ActorStroke> _strokes = List<ActorStroke>();
-  List<ActorFill> _fills = List<ActorFill>();
+  final List<ActorStroke> _strokes = <ActorStroke>[];
+  final List<ActorFill> _fills = <ActorFill>[];
 
-  ActorFill get fill => _fills.length > 0 ? _fills.first : null;
-  ActorStroke get stroke => _strokes.length > 0 ? _strokes.first : null;
+  ActorFill get fill => _fills.isNotEmpty ? _fills.first : null;
+  ActorStroke get stroke => _strokes.isNotEmpty ? _strokes.first : null;
   List<ActorFill> get fills => _fills;
   List<ActorStroke> get strokes => _strokes;
-
+  @override
   void update(int dirt) {
     super.update(dirt);
     invalidateShape();
@@ -35,6 +35,7 @@ class ActorShape extends ActorDrawable {
     return component;
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorShape instanceEvent = ActorShape();
     instanceEvent.copyShape(this, resetArtboard);
@@ -45,10 +46,11 @@ class ActorShape extends ActorDrawable {
     copyDrawable(node, resetArtboard);
   }
 
+  @override
   AABB computeAABB() {
     AABB aabb;
-    for (List<ActorShape> clips in clipShapes) {
-      for (ActorShape node in clips) {
+    for (final List<ActorShape> clips in clipShapes) {
+      for (final ActorShape node in clips) {
         AABB bounds = node.computeAABB();
         if (bounds == null) {
           continue;
@@ -80,7 +82,8 @@ class ActorShape extends ActorDrawable {
       if (path == null) {
         continue;
       }
-      // This is the axis aligned bounding box in the space of the parent (this case our shape).
+      // This is the axis aligned bounding box in
+      // the space of the parent (this case our shape).
       AABB pathAABB = path.getPathAABB();
 
       if (aabb == null) {
@@ -107,7 +110,7 @@ class ActorShape extends ActorDrawable {
 
     if (_strokes != null) {
       double maxStroke = 0.0;
-      for (ActorStroke stroke in _strokes) {
+      for (final ActorStroke stroke in _strokes) {
         if (stroke.width > maxStroke) {
           maxStroke = stroke.width;
         }
@@ -153,11 +156,12 @@ class ActorShape extends ActorDrawable {
     _fills.add(fill);
   }
 
+  @override
   void initializeGraphics() {
-    for (ActorStroke stroke in _strokes) {
+    for (final ActorStroke stroke in _strokes) {
       stroke.initializeGraphics();
     }
-    for (ActorFill fill in _fills) {
+    for (final ActorFill fill in _fills) {
       fill.initializeGraphics();
     }
   }

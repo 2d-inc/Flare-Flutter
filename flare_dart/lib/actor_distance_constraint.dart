@@ -1,9 +1,9 @@
 import "actor_artboard.dart";
 import "actor_node.dart";
 import "actor_targeted_constraint.dart";
-import "stream_reader.dart";
-import "math/vec2d.dart";
 import "math/mat2d.dart";
+import "math/vec2d.dart";
+import "stream_reader.dart";
 
 class DistanceMode {
   static const int Closer = 0;
@@ -45,13 +45,13 @@ class ActorDistanceConstraint extends ActorTargetedConstraint {
   }
 
   @override
-  constrain(ActorNode node) {
-    ActorNode t = this.target;
+  void constrain(ActorNode node) {
+    ActorNode t = target as ActorNode;
     if (t == null) {
       return;
     }
 
-    ActorNode p = this.parent;
+    ActorNode p = parent;
     Vec2D targetTranslation = t.getWorldTranslation(Vec2D());
     Vec2D ourTranslation = p.getWorldTranslation(Vec2D());
 
@@ -85,23 +85,26 @@ class ActorDistanceConstraint extends ActorTargetedConstraint {
     world[5] = position[1];
   }
 
+  @override
   void update(int dirt) {}
+
+  @override
   void completeResolve() {}
 
-  get distance => _distance;
-  get mode => _mode;
+  double get distance => _distance;
+  int get mode => _mode;
 
   set distance(double d) {
     if (_distance != d) {
       _distance = d;
-      this.markDirty();
+      markDirty();
     }
   }
 
   set mode(int m) {
     if (_mode != m) {
       _mode = m;
-      this.markDirty();
+      markDirty();
     }
   }
 }

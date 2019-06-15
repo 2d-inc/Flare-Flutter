@@ -1,12 +1,14 @@
-import 'package:flare_dart/actor_skin.dart';
-
-import "stream_reader.dart";
 import "actor_artboard.dart";
-import "math/mat2d.dart";
-import "actor_node.dart";
 import "actor_component.dart";
+import "actor_flare_node.dart";
+import "actor_node.dart";
+import "actor_skin.dart";
+import "math/mat2d.dart";
+import "stream_reader.dart";
 
 class SkinnedBone {
+  String ename;
+  ActorFlareNode flareNode;
   int boneIdx;
   ActorNode node;
   Mat2D bind = Mat2D();
@@ -20,7 +22,7 @@ abstract class ActorSkinnable {
 
   List<SkinnedBone> get connectedBones => _connectedBones;
   bool get isConnectedToBones =>
-      _connectedBones != null && _connectedBones.length > 0;
+      _connectedBones != null && _connectedBones.isNotEmpty;
 
   static ActorSkinnable read(
       ActorArtboard artboard, StreamReader reader, ActorSkinnable node) {
@@ -32,15 +34,19 @@ abstract class ActorSkinnable {
       for (int i = 0; i < numConnectedBones; i++) {
         SkinnedBone bc = SkinnedBone();
         reader.openObject("bone");
+        if (reader.readBool("isEmbedded")) {
+          bc.ename = reader.readString("name");
+        }
         bc.boneIdx = reader.readId("component");
-		Mat2D.copyFromList(bc.bind, reader.readFloat32Array(6, "bind"));
+        Mat2D.copyFromList(bc.bind, reader.readFloat32Array(6, "bind"));
         reader.closeObject();
         Mat2D.invert(bc.inverseBind, bc.bind);
         node._connectedBones[i] = bc;
       }
       reader.closeArray();
       Mat2D worldOverride = Mat2D();
-	  Mat2D.copyFromList(worldOverride, reader.readFloat32Array(6, "worldTransform"));
+      Mat2D.copyFromList(
+          worldOverride, reader.readFloat32Array(6, "worldTransform"));
       node.worldTransformOverride = worldOverride;
     } else {
       reader.closeArray();
@@ -53,7 +59,13 @@ abstract class ActorSkinnable {
     if (_connectedBones != null) {
       for (int i = 0; i < _connectedBones.length; i++) {
         SkinnedBone bc = _connectedBones[i];
-        bc.node = components[bc.boneIdx] as ActorNode;
+        if (bc.ename != null) {
+          ActorFlareNode flareNode = components[bc.boneIdx] as ActorFlareNode;
+          bc.node = flareNode.getEmbeddedComponent(bc.ename) as ActorNode;
+          bc.flareNode = flareNode;
+        } else {
+          bc.node = components[bc.boneIdx] as ActorNode;
+        }
       }
     }
   }
@@ -64,6 +76,7 @@ abstract class ActorSkinnable {
       for (int i = 0; i < node._connectedBones.length; i++) {
         SkinnedBone from = node._connectedBones[i];
         SkinnedBone bc = SkinnedBone();
+        bc.ename = from.ename;
         bc.boneIdx = from.boneIdx;
         Mat2D.copy(bc.bind, from.bind);
         Mat2D.copy(bc.inverseBind, from.inverseBind);

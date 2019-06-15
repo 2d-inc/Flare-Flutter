@@ -20,6 +20,7 @@ abstract class ActorConstraint extends ActorComponent {
   }
 
   void onDirty(int dirt) {
+    super.onDirty(dirt);
     markDirty();
   }
 

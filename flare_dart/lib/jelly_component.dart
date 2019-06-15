@@ -162,8 +162,8 @@ class JellyComponent extends ActorComponent {
         artboard.addDependency(this, firstBone);
         dependencyConstraints += firstBone.allConstraints;
 
-        // If we don't have an out target and the child jelly does have an in target
-        // we are dependent on that target's position.
+        // If we don't have an out target and the child jelly does have an
+        // in target we are dependent on that target's position.
         if (_outTarget == null &&
             firstBone.jelly != null &&
             firstBone.jelly.inTarget != null) {
@@ -172,7 +172,7 @@ class JellyComponent extends ActorComponent {
         }
       }
       if (bone.parent is ActorBone) {
-        ActorBone parentBone = bone.parent;
+        ActorBone parentBone = bone.parent as ActorBone;
         JellyComponent parentBoneJelly = parentBone.jelly;
         if (parentBoneJelly != null && parentBoneJelly.outTarget != null) {
           artboard.addDependency(this, parentBoneJelly.outTarget);
@@ -193,11 +193,12 @@ class JellyComponent extends ActorComponent {
     // We want to depend on any and all constraints that our dependents have.
     Set<ActorConstraint> constraints =
         Set<ActorConstraint>.from(dependencyConstraints);
-    for (ActorConstraint constraint in constraints) {
+    for (final ActorConstraint constraint in constraints) {
       artboard.addDependency(this, constraint);
     }
   }
 
+  @override
   void completeResolve() {
     //super.completeResolve();
     ActorBone bone = parent as ActorBone;
@@ -209,11 +210,12 @@ class JellyComponent extends ActorComponent {
       return;
     }
 
-    _bones = List<ActorJellyBone>();
-    for (ActorNode child in children) {
+    _bones = <ActorJellyBone>[];
+    for (final ActorNode child in children) {
       if (child is ActorJellyBone) {
         _bones.add(child);
-        // Make sure the jelly doesn't update until the jelly component has updated
+        // Make sure the jelly doesn't update until the jelly component 
+		// has updated
         artboard.addDependency(child, this);
       }
     }
@@ -285,11 +287,6 @@ class JellyComponent extends ActorComponent {
       jelly.rotation = atan2(diff[1], diff[0]);
       lastPoint = p;
     }
-  }
-
-  @override
-  void onDirty(int dirt) {
-    // Intentionally empty. Doesn't throw dirt around.
   }
 
   @override

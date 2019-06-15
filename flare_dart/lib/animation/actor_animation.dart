@@ -5,7 +5,6 @@ import "../stream_reader.dart";
 import "keyframe.dart";
 import "property_types.dart";
 
-
 typedef KeyFrame KeyFrameReader(StreamReader reader, ActorComponent component);
 
 class PropertyAnimation {
@@ -388,7 +387,6 @@ class ActorAnimation {
       StreamReader reader, List<ActorComponent> components) {
     ActorAnimation animation = ActorAnimation();
     animation._name = reader.readString("name");
-    print("NAME ${animation._name}");
     animation._fps = reader.readUint8("fps");
     animation._duration = reader.readFloat32("duration");
     animation._isLooping = reader.readBool("isLooping");
@@ -397,9 +395,9 @@ class ActorAnimation {
     int numKeyedComponents = reader.readUint16Length();
 
     // We distinguish between animated and triggered components as ActorEvents
-    // are currently only used to trigger events and don't need the full 
-	// animation cycle. This lets them optimize them out of the regular animation 
-	// cycle.
+    // are currently only used to trigger events and don't need the full
+    // animation cycle. This lets them optimize them out of the regular 
+	// animation cycle.
     int animatedComponentCount = 0;
     int triggerComponentCount = 0;
 

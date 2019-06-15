@@ -1,5 +1,5 @@
-import "actor_component.dart";
 import "actor_artboard.dart";
+import "actor_component.dart";
 import "stream_reader.dart";
 
 class ActorEvent extends ActorComponent {
@@ -14,13 +14,16 @@ class ActorEvent extends ActorComponent {
     return component;
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorEvent instanceEvent = ActorEvent();
     instanceEvent.copyComponent(this, resetArtboard);
     return instanceEvent;
   }
 
+  @override
   void completeResolve() {}
-  void onDirty(int dirt) {}
+
+  @override
   void update(int dirt) {}
 }

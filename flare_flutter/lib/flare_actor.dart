@@ -204,42 +204,40 @@ class FlareActorRenderObject extends FlareRenderBox {
     if (_filename == null) {
       markNeedsPaint();
     }
-	// file will change, let's clear out old animations.
-	_animationLayers.clear();
+    // file will change, let's clear out old animations.
+    _animationLayers.clear();
     load();
   }
 
   @override
-  void load() {
+  Future<void> load() async {
     if (_filename == null) {
       return;
     }
-    super.load();
-    loadFlare(_filename).then((FlutterActor actor) {
-      if (actor == null || actor.artboard == null) {
-        return;
-      }
-      FlutterActorArtboard artboard =
-          actor.artboard.makeInstance() as FlutterActorArtboard;
-      artboard.initializeGraphics();
-      _artboard = artboard;
-      _artboard.overrideColor = _color == null
-          ? null
-          : Float32List.fromList([
-              _color.red / 255.0,
-              _color.green / 255.0,
-              _color.blue / 255.0,
-              _color.opacity
-            ]);
-      _artboard.advance(0.0);
-      updateBounds();
+    FlutterActor actor = await loadFlare(_filename);
+    if (actor == null || actor.artboard == null) {
+      return;
+    }
+    FlutterActorArtboard artboard =
+        actor.artboard.makeInstance() as FlutterActorArtboard;
+    artboard.initializeGraphics();
+    _artboard = artboard;
+    _artboard.overrideColor = _color == null
+        ? null
+        : Float32List.fromList([
+            _color.red / 255.0,
+            _color.green / 255.0,
+            _color.blue / 255.0,
+            _color.opacity
+          ]);
+    _artboard.advance(0.0);
+    updateBounds();
 
-      if (_controller != null) {
-        _controller.initialize(_artboard);
-      }
-      _updateAnimation(onlyWhenMissing: true);
-      markNeedsPaint();
-    });
+    if (_controller != null) {
+      _controller.initialize(_artboard);
+    }
+    _updateAnimation(onlyWhenMissing: true);
+    markNeedsPaint();
   }
 
   FlareCompletedCallback get completed => _completedCallback;

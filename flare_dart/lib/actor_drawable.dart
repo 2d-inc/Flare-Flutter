@@ -2,8 +2,11 @@ import 'package:flare_dart/actor_artboard.dart';
 import 'package:flare_dart/actor_shape.dart';
 import 'package:flare_dart/stream_reader.dart';
 
-import "math/aabb.dart";
+import 'actor_component.dart';
+import 'actor_flare_node.dart';
+import 'actor_layer_node.dart';
 import "actor_node.dart";
+import "math/aabb.dart";
 
 enum BlendModes { Normal, Multiply, Screen, Additive }
 
@@ -22,6 +25,20 @@ abstract class ActorDrawable extends ActorNode {
     artboard.markDrawOrderDirty();
   }
 
+  ActorLayerNode _layer;
+  ActorLayerNode get layer => _layer;
+  set layer(ActorLayerNode value) {
+    if (_layer == value) {
+      return;
+    }
+    _layer?.removeDrawable(this);
+    _layer = value;
+    _layer?.addDrawable(this);
+  }
+
+  int _layerId = 0;
+  String _layerName;
+
   // Computed draw index in the draw list.
   int drawIndex;
   bool isHidden;
@@ -38,8 +55,24 @@ abstract class ActorDrawable extends ActorNode {
     ActorNode.read(artboard, reader, component);
 
     component.isHidden = !reader.readBool("isVisible");
-    component.blendModeId = artboard.actor.version < 21 ? 3 : reader.readUint8("blendMode");
+    component.blendModeId =
+        artboard.actor.version < 21 ? 3 : reader.readUint8("blendMode");
     component.drawOrder = reader.readUint16("drawOrder");
+
+    reader.openObject("layer");
+    int layerType = reader.readUint8("type");
+    switch (layerType) {
+      case 1:
+        component._layerId = reader.readId("component");
+        break;
+      case 2:
+        component._layerId = reader.readId("component");
+        component._layerName = reader.readString("name");
+        break;
+      default:
+        break;
+    }
+    reader.closeObject();
 
     return component;
   }
@@ -50,24 +83,46 @@ abstract class ActorDrawable extends ActorNode {
     drawOrder = node.drawOrder;
     blendModeId = node.blendModeId;
     isHidden = node.isHidden;
+    _layerId = node._layerId;
+    _layerName = node._layerName;
   }
 
   AABB computeAABB();
   void initializeGraphics() {}
 
+  @override
+  void resolveComponentIndices(List<ActorComponent> components) {
+    super.resolveComponentIndices(components);
+
+    if (_layerId == 0) {
+      return;
+    }
+    ActorComponent layer = components[_layerId];
+    if (layer is ActorFlareNode) {
+      ActorComponent embeddedComponent = layer.getEmbeddedComponent(_layerName);
+      if (embeddedComponent is ActorLayerNode) {
+        _layer = embeddedComponent;
+      }
+    } else if (layer is ActorLayerNode) {
+      _layer = layer;
+    }
+  }
+
+  @override
   void completeResolve() {
-    _clipShapes = List<List<ActorShape>>();
+    _clipShapes = <List<ActorShape>>[];
     List<List<ActorClip>> clippers = allClips;
-    for (List<ActorClip> clips in clippers) {
-      List<ActorShape> shapes = List<ActorShape>();
-      for (ActorClip clip in clips) {
+    for (final List<ActorClip> clips in clippers) {
+      List<ActorShape> shapes = <ActorShape>[];
+      for (final ActorClip clip in clips) {
         clip.node.all((ActorNode node) {
           if (node is ActorShape) {
             shapes.add(node);
           }
+          return true;
         });
       }
-      if (shapes.length > 0) {
+      if (shapes.isNotEmpty) {
         _clipShapes.add(shapes);
       }
     }

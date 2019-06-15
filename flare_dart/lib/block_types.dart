@@ -23,6 +23,9 @@ const Map<String, int> BlockTypesMap = {
   "imageSequence": BlockTypes.ActorImageSequence,
   "solo": BlockTypes.ActorNodeSolo,
   "jelly": BlockTypes.JellyComponent,
+  "embeddedAssets": BlockTypes.EmbeddedAssets,
+  "flareAsset": BlockTypes.EmbeddedFlareAsset,
+  "flareNode": BlockTypes.ActorFlareNode,
   "jellyBone": BlockTypes.ActorJellyBone,
   "ikConstraint": BlockTypes.ActorIKConstraint,
   "distanceConstraint": BlockTypes.ActorDistanceConstraint,
@@ -44,7 +47,10 @@ const Map<String, int> BlockTypesMap = {
   "star": BlockTypes.ActorStar,
   "polygon": BlockTypes.ActorPolygon,
   "artboards": BlockTypes.Artboards,
-  "artboard": BlockTypes.ActorArtboard
+  "artboard": BlockTypes.ActorArtboard,
+  "cacheNode": BlockTypes.ActorCacheNode,
+  "targetNode": BlockTypes.ActorTargetNode,
+  "layerNode": BlockTypes.ActorLayerNode
 };
 
 class BlockTypes {
@@ -72,6 +78,9 @@ class BlockTypes {
   static const int ActorColliderLine = 21;
   static const int ActorImageSequence = 22;
   static const int ActorNodeSolo = 23;
+  static const int ActorFlareNode = 24;
+  static const int EmbeddedAssets = 25;
+  static const int EmbeddedFlareAsset = 26;
   static const int JellyComponent = 28;
   static const int ActorJellyBone = 29;
   static const int ActorIKConstraint = 30;
@@ -96,4 +105,7 @@ class BlockTypes {
   static const int ActorSkin = 113;
   static const int ActorArtboard = 114;
   static const int Artboards = 115;
+  static const int ActorCacheNode = 116;
+  static const int ActorTargetNode = 117;
+  static const int ActorLayerNode = 118;
 }

@@ -103,7 +103,7 @@ abstract class ActorColor extends ActorPaint {
     return component;
   }
 
-  void onDirty(int dirt) {}
+  @override
   void update(int dirt) {}
 }
 
@@ -293,9 +293,9 @@ abstract class GradientColor extends ActorPaint {
     return component;
   }
 
-  void onDirty(int dirt) {}
+  @override
   void update(int dirt) {
-    ActorShape shape = parent;
+    ActorShape shape = parent as ActorShape;
     Mat2D world = shape.worldTransform;
     Vec2D.transformMat2D(_renderStart, _start, world);
     Vec2D.transformMat2D(_renderEnd, _end, world);

@@ -4,7 +4,7 @@ version: 1.5.1
 author: "2Dimensions Team <info@2dimensions.com>"
 homepage: https://github.com/2d-inc/Flare-Flutter
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.0 <3.0.0"
 dependencies:
   flutter:
     sdk: flutter

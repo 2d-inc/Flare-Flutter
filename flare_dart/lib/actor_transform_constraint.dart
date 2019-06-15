@@ -1,19 +1,20 @@
 import "dart:math";
 import "actor_artboard.dart";
+import 'actor_component.dart';
 import "actor_node.dart";
 import "actor_targeted_constraint.dart";
 import "math/mat2d.dart";
 import "math/transform_components.dart";
-import "transform_space.dart";
 import "stream_reader.dart";
+import "transform_space.dart";
 
 const pi2 = pi * 2;
 
 class ActorTransformConstraint extends ActorTargetedConstraint {
   int _sourceSpace = TransformSpace.World;
   int _destSpace = TransformSpace.World;
-  TransformComponents _componentsA = TransformComponents();
-  TransformComponents _componentsB = TransformComponents();
+  final TransformComponents _componentsA = TransformComponents();
+  final TransformComponents _componentsB = TransformComponents();
 
   ActorTransformConstraint() : super();
 
@@ -31,13 +32,13 @@ class ActorTransformConstraint extends ActorTargetedConstraint {
   }
 
   @override
-  makeInstance(ActorArtboard resetArtboard) {
+  ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorTransformConstraint node = ActorTransformConstraint();
     node.copyTransformConstraint(this, resetArtboard);
     return node;
   }
 
-  copyTransformConstraint(
+  void copyTransformConstraint(
       ActorTransformConstraint node, ActorArtboard resetArtboard) {
     copyTargetedConstraint(node, resetArtboard);
     _sourceSpace = node._sourceSpace;
@@ -45,8 +46,8 @@ class ActorTransformConstraint extends ActorTargetedConstraint {
   }
 
   @override
-  constrain(ActorNode node) {
-    ActorNode t = this.target;
+  void constrain(ActorNode node) {
+    ActorNode t = target as ActorNode;
     if (t == null) {
       return;
     }
@@ -81,14 +82,14 @@ class ActorTransformConstraint extends ActorTargetedConstraint {
       diff += pi2;
     }
 
-    double ti = 1.0 - this.strength;
+    double ti = 1.0 - strength;
 
-    _componentsB[4] = angleA + diff * this.strength;
-    _componentsB[0] = _componentsA[0] * ti + _componentsB[0] * this.strength;
-    _componentsB[1] = _componentsA[1] * ti + _componentsB[1] * this.strength;
-    _componentsB[2] = _componentsA[2] * ti + _componentsB[2] * this.strength;
-    _componentsB[3] = _componentsA[3] * ti + _componentsB[3] * this.strength;
-    _componentsB[5] = _componentsA[5] * ti + _componentsB[5] * this.strength;
+    _componentsB[4] = angleA + diff * strength;
+    _componentsB[0] = _componentsA[0] * ti + _componentsB[0] * strength;
+    _componentsB[1] = _componentsA[1] * ti + _componentsB[1] * strength;
+    _componentsB[2] = _componentsA[2] * ti + _componentsB[2] * strength;
+    _componentsB[3] = _componentsA[3] * ti + _componentsB[3] * strength;
+    _componentsB[5] = _componentsA[5] * ti + _componentsB[5] * strength;
 
     Mat2D.compose(parent.worldTransform, _componentsB);
   }

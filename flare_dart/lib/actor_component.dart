@@ -1,6 +1,8 @@
-import "stream_reader.dart";
 import "actor_artboard.dart";
 import "actor_node.dart";
+import "stream_reader.dart";
+
+typedef void DirtListenerCallback(ActorComponent component, int dirt);
 
 abstract class ActorComponent {
   String _name = "Unnamed";
@@ -11,12 +13,11 @@ abstract class ActorComponent {
   int graphOrder = 0;
   int dirtMask = 0;
   List<ActorComponent> dependents;
+  Set<ActorComponent> _extDependents;
+  //final Set<DirtListenerCallback> _dirtListeners = <DirtListenerCallback>{};
 
-  ActorComponent.withArtboard(ActorArtboard artboard) {
-    this.artboard = artboard;
-  }
-
-  ActorComponent() {}
+  ActorComponent();
+  ActorComponent.withArtboard(this.artboard);
 
   String get name {
     return _name;
@@ -36,7 +37,13 @@ abstract class ActorComponent {
 
   void completeResolve();
   ActorComponent makeInstance(ActorArtboard resetArtboard);
-  void onDirty(int dirt);
+
+  void onDirty(int dirt) {
+    // for (final DirtListenerCallback listener in _dirtListeners) {
+    //   listener(this, dirt);
+    // }
+  }
+
   void update(int dirt);
 
   static ActorComponent read(
@@ -54,4 +61,24 @@ abstract class ActorComponent {
     _parentIdx = component._parentIdx;
     idx = component.idx;
   }
+
+  bool addExternalDirt(int dirt, bool recurse) =>
+      artboard?.addDirt(this, dirt, recurse);
+
+  bool addExternalDependency(ActorComponent component) {
+    _extDependents ??= <ActorComponent>{};
+    _extDependents.add(component);
+    return true;
+  }
+
+  bool removeExternalDependency(ActorComponent component) =>
+      _extDependents?.remove(component) ?? false;
+
+//   bool addDirtyListener(DirtListenerCallback listener) =>
+//       _dirtListeners.add(listener);
+
+//   bool removeDirtyListener(DirtListenerCallback listener) =>
+//       _dirtListeners.remove(listener);
+
+//   void removeDirtyListeners() => _dirtListeners.clear();
 }

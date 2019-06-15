@@ -7,6 +7,7 @@ import 'dart:ui' as ui;
 
 import 'package:flare_dart/actor_flags.dart';
 import 'package:flare_dart/actor_image.dart';
+import 'package:flare_dart/embedded_flare_asset.dart';
 import 'package:flare_dart/math/aabb.dart';
 import 'package:flutter/services.dart';
 
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flare_dart/actor_component.dart';
 import 'package:flare_dart/actor.dart';
 import 'package:flare_dart/actor_artboard.dart';
+import 'package:flare_dart/actor_flare_node.dart';
 import 'package:flare_dart/actor_shape.dart';
 import 'package:flare_dart/actor_path.dart';
 import 'package:flare_dart/actor_ellipse.dart';
@@ -23,6 +25,7 @@ import 'package:flare_dart/actor_star.dart';
 import 'package:flare_dart/actor_triangle.dart';
 import 'package:flare_dart/actor_color.dart';
 import 'package:flare_dart/actor_node.dart';
+import 'package:flare_dart/actor_layer_node.dart';
 import 'package:flare_dart/actor_drawable.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_dart/math/vec2d.dart';
@@ -568,12 +571,6 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
   }
 }
 
-class AssetBundleContext {
-  final String filename;
-  final AssetBundle bundle;
-  AssetBundleContext(this.bundle, this.filename);
-}
-
 class FlutterActor extends Actor {
   List<ui.Image> _images;
 
@@ -582,13 +579,23 @@ class FlutterActor extends Actor {
   }
 
   @override
-  ActorArtboard makeArtboard() {
-    return FlutterActorArtboard(this);
+  ActorArtboard makeArtboard(bool isInstance) {
+    return FlutterActorArtboard(this, isInstance);
   }
 
   @override
   ActorShape makeShapeNode() {
     return FlutterActorShape();
+  }
+
+  @override
+  ActorLayerNode makeLayerNode() {
+    return ActorLayerNode();
+  }
+
+  @override
+  ActorFlareNode makeFlareNode() {
+    return FlutterFlareNode();
   }
 
   @override
@@ -656,17 +663,16 @@ class FlutterActor extends Actor {
     return FlutterRadialStroke();
   }
 
-  static Future<FlutterActor> loadFromByteData(ByteData data) async {
-    //ByteData data = await context.bundle.load(context.filename);
-    FlutterActor actor = FlutterActor();
-    await actor.load(data, null);
-    return actor;
-  }
+//   static Future<FlutterActor> loadFromByteData(ByteData data) async {
+//     FlutterActor actor = FlutterActor();
+//     await actor.load(data, null);
+//     return actor;
+//   }
 
-  Future<bool> loadFromBundle(AssetBundle assetBundle, String filename) async {
-    ByteData data = await assetBundle.load(filename);
-    return super.load(data, AssetBundleContext(assetBundle, filename));
-  }
+//   Future<bool> loadFromBundle(AssetBundle assetBundle, String filename) async {
+//     ByteData data = await assetBundle.load(filename);
+//     return super.load(data, AssetBundleContext(assetBundle, filename));
+//   }
 
   void copyFlutterActor(FlutterActor actor) {
     copyActor(actor);
@@ -696,20 +702,11 @@ class FlutterActor extends Actor {
         frames.map((ui.FrameInfo frame) => frame.image).toList(growable: false);
     return true;
   }
-
-  @override
-  Future<Uint8List> readOutOfBandAsset(
-      String assetFilename, dynamic context) async {
-    AssetBundleContext bundleContext = context as AssetBundleContext;
-    int pathIdx = bundleContext.filename.lastIndexOf('/') + 1;
-    String basePath = bundleContext.filename.substring(0, pathIdx);
-    ByteData data = await bundleContext.bundle.load(basePath + assetFilename);
-    return Uint8List.view(data.buffer);
-  }
 }
 
 class FlutterActorArtboard extends ActorArtboard {
-  FlutterActorArtboard(FlutterActor actor) : super(actor);
+  FlutterActorArtboard(FlutterActor actor, bool isInstance)
+      : super(actor, isInstance);
 
   void draw(ui.Canvas canvas) {
     for (final ActorDrawable drawable in drawableNodes) {
@@ -1110,5 +1107,46 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     if (dirt & DirtyFlags.PaintDirty != 0) {
       onPaintUpdated(_paint);
     }
+  }
+}
+
+class FlutterFlareNode extends ActorFlareNode with FlutterActorDrawable {
+  @override
+  void draw(ui.Canvas canvas) {
+    if (!usingExistingInstance && instance != null) {
+      (instance as FlutterActorArtboard).draw(canvas);
+    }
+  }
+
+  @override
+  void onBlendModeChanged(ui.BlendMode blendMode) {
+    // intentionally blank
+  }
+
+  @override
+  void initializeGraphics() {
+	  super.initializeGraphics();
+    if (!usingExistingInstance && instance != null) {
+      instance.initializeGraphics();
+      instance.advance(0);
+    }
+  }
+}
+
+class FlutterLayerNode extends ActorLayerNode with FlutterActorDrawable {
+  @override
+  void draw(ui.Canvas canvas) {
+    if (renderCollapsed) {
+      return;
+    }
+    List<ActorDrawable> drawables = this.drawables;
+    for (final ActorDrawable drawable in drawables) {
+      (drawable as FlutterActorDrawable).draw(canvas);
+    }
+  }
+
+  @override
+  void onBlendModeChanged(ui.BlendMode blendMode) {
+    // intentionally blank
   }
 }

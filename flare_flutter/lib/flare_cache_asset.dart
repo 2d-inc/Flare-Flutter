@@ -57,7 +57,6 @@ class _FlareCacheContext extends ActorLoadingContext {
     int pathIdx = _filename.lastIndexOf('/') + 1;
     String basePath = _filename.substring(0, pathIdx);
 	String filename = basePath + asset.name + ".flr";
-	print("STARTING TO LOAD EMBEDD ${filename}");
 
     FlareCacheAsset cached =
         await cachedActor(_cache.bundle, filename);

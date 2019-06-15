@@ -67,11 +67,12 @@ class ActorSkin extends ActorComponent {
     }
     skinnable.skin = this;
     artboard.addDependency(this, skinnable as ActorComponent);
+
     if (skinnable.isConnectedToBones) {
       List<SkinnedBone> connectedBones = skinnable.connectedBones;
       for (final SkinnedBone skinnedBone in connectedBones) {
         if (skinnedBone.flareNode != null) {
-			skinnedBone.node?.addExternalDependency(this);
+          skinnedBone.node?.addExternalDependency(this);
         } else {
           artboard.addDependency(this, skinnedBone.node);
           List<ActorConstraint> constraints = skinnedBone.node.allConstraints;
@@ -81,6 +82,24 @@ class ActorSkin extends ActorComponent {
               artboard.addDependency(this, constraint);
             }
           }
+        }
+      }
+    }
+  }
+
+  /// Disconnect skin from embedded references.
+  void dislodge() {
+    // remove external dependencies
+    ActorSkinnable skinnable = parent as ActorSkinnable;
+    if (skinnable == null) {
+      return;
+    }
+
+    if (skinnable.isConnectedToBones) {
+      List<SkinnedBone> connectedBones = skinnable.connectedBones;
+      for (final SkinnedBone skinnedBone in connectedBones) {
+        if (skinnedBone.flareNode != null) {
+          skinnedBone.node?.removeExternalDependency(this);
         }
       }
     }

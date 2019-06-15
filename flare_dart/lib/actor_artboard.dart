@@ -1,5 +1,7 @@
 import "dart:math";
 import "dart:typed_data";
+import 'package:flare_dart/actor_targeted_constraint.dart';
+
 import "actor.dart";
 import "actor_bone.dart";
 import "actor_color.dart";
@@ -148,13 +150,8 @@ class ActorArtboard {
     if (!recurse) {
       return true;
     }
-    List<ActorComponent> dependents = component.dependents;
-    if (dependents != null) {
-      for (final ActorComponent d in dependents) {
-        addDirt(d, value, recurse);
-      }
-    }
-
+    component.dependents?.forEach((d) => addDirt(d, value, recurse));
+    component.extDependents?.forEach((d) => d.addExternalDirt(value, recurse));
     return true;
   }
 
@@ -565,8 +562,27 @@ class ActorArtboard {
   }
 
   void initializeGraphics() {
-    for (final ActorDrawable drawable in _drawableNodes) {
-      drawable.initializeGraphics();
+    // Iterate components as some drawables may end up in other layers.
+    for (final ActorComponent component in _components) {
+      if (component is ActorDrawable) {
+        component.initializeGraphics();
+      }
+    }
+  }
+
+  void dislodge()
+  {
+	  // remove from whatever we're bound to on embedded files.
+	  for (final ActorComponent component in _components) {
+      if (component is ActorDrawable) {
+          component.layer?.removeDrawable(component);
+        }
+		else if(component is ActorSkin){
+			component.dislodge();
+		}
+		else if(component is ActorTargetedConstraint){
+			component.dislodge();
+		}
     }
   }
 

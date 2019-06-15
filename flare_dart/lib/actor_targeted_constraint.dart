@@ -49,4 +49,15 @@ abstract class ActorTargetedConstraint extends ActorConstraint {
     _targetIdx = node._targetIdx;
     _targetName = node._targetName;
   }
+
+  /// Disconnect dependencies if we're targetting an embedded references.
+  void dislodge() {
+    var components = artboard.components;
+    if (_targetIdx != 0) {
+      var target = components[_targetIdx];
+      if (target != null && _targetName != null && target is ActorFlareNode) {
+        _target.removeExternalDependency(parent);
+      }
+    }
+  }
 }

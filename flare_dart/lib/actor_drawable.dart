@@ -14,15 +14,43 @@ abstract class ActorDrawable extends ActorNode {
   List<List<ActorShape>> _clipShapes;
   List<List<ActorShape>> get clipShapes => _clipShapes;
 
-  // Editor set draw index.
-  int _drawOrder;
-  int get drawOrder => _drawOrder;
-  set drawOrder(int value) {
-    if (_drawOrder == value) {
+  /// Editor set draw index.
+  int _drawOrder = 0;
+
+  /// Offset which can be used to manually move items in bulk but retain
+  /// animation/editor values.
+  int _drawOrderOffset = 0;
+  int get drawOrderOffset => _drawOrderOffset;
+  set drawOrderOffset(int value) {
+    if (_drawOrderOffset == value) {
       return;
     }
-    _drawOrder = value;
-    artboard.markDrawOrderDirty();
+
+    int lastOffset = _drawOrderOffset;
+
+    _drawOrderOffset = value;
+    // Set draw order to new value.
+    setDrawOrder(_drawOrder - lastOffset);
+  }
+
+  // Using a function as there was some odd compiler bug where
+  // the setter wasn't called.
+  void setDrawOrder(int value) {
+    int actualValue = value + _drawOrderOffset;
+    if (_drawOrder == actualValue) {
+      return;
+    }
+    _drawOrder = actualValue;
+    if (_layer != null) {
+      _layer.artboard.markDrawOrderDirty();
+    } else {
+      artboard.markDrawOrderDirty();
+    }
+  }
+
+  int get drawOrder => _drawOrder;
+  set drawOrder(int value) {
+    setDrawOrder(value);
   }
 
   ActorLayerNode _layer;
@@ -128,5 +156,11 @@ abstract class ActorDrawable extends ActorNode {
         _clipShapes.add(shapes);
       }
     }
+  }
+
+  void dislodge() {
+    // Should we do this only do this if we're looking at an embedded layer?
+    // Might not matter...
+    layer?.removeDrawable(this);
   }
 }

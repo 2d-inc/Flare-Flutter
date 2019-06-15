@@ -462,7 +462,7 @@ class KeyFrameDrawOrder extends KeyFrame {
     for (final DrawOrderIndex doi in _orderedNodes) {
       ActorComponent component = artboard[doi.componentIndex];
       if (component is ActorDrawable) {
-        component.drawOrder = doi.order;
+        component.setDrawOrder(doi.order);
       }
     }
   }

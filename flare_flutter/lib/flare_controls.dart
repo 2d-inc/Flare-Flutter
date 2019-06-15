@@ -12,6 +12,7 @@ import 'package:flare_dart/math/mat2d.dart';
 class FlareControls extends FlareController {
   /// The current [FlutterActorArtboard].
   FlutterActorArtboard _artboard;
+  FlutterActorArtboard get artboard => _artboard;
 
   /// The current [ActorAnimation].
   String _animationName;

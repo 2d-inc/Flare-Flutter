@@ -14,6 +14,7 @@ abstract class ActorComponent {
   int dirtMask = 0;
   List<ActorComponent> dependents;
   Set<ActorComponent> _extDependents;
+  Set<ActorComponent> get extDependents => _extDependents;
   //final Set<DirtListenerCallback> _dirtListeners = <DirtListenerCallback>{};
 
   ActorComponent();

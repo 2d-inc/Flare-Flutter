@@ -11,24 +11,34 @@ class Mat2D {
   }
 
   Float64List get mat4 {
-    return Float64List.fromList([
-      _buffer[0],
-      _buffer[1],
-      0.0,
-      0.0,
-      _buffer[2],
-      _buffer[3],
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      1.0,
-      0.0,
-      _buffer[4],
-      _buffer[5],
-      0.0,
-      1.0
-    ]);
+    final Float64List storage = Float64List(16);
+    storage[0] = _buffer[0];
+    storage[1] = _buffer[1];
+    storage[4] = _buffer[2];
+    storage[5] = _buffer[3];
+    storage[10] = 1.0;
+    storage[12] = _buffer[4];
+    storage[13] = _buffer[5];
+    storage[15] = 1.0;
+    // return Float64List.fromList([
+    //   _buffer[0],
+    //   _buffer[1],
+    //   0.0,
+    //   0.0,
+    //   _buffer[2],
+    //   _buffer[3],
+    //   0.0,
+    //   0.0,
+    //   0.0,
+    //   0.0,
+    //   1.0,
+    //   0.0,
+    //   _buffer[4],
+    //   _buffer[5],
+    //   0.0,
+    //   1.0
+    // ]);
+    return storage;
   }
 
   double operator [](int index) {
@@ -40,11 +50,20 @@ class Mat2D {
   }
 
   Mat2D() {
-    _buffer = Float32List.fromList([1.0, 0.0, 0.0, 1.0, 0.0, 0.0]);
+    _buffer = Float32List(6);
+    _buffer[0] = 1.0;
+    _buffer[3] = 1.0;
   }
 
   Mat2D.clone(Mat2D copy) {
-    _buffer = Float32List.fromList(copy.values);
+    _buffer = Float32List(6);
+    final Float32List from = copy._buffer;
+    _buffer[0] = from[0];
+    _buffer[1] = from[1];
+    _buffer[2] = from[2];
+    _buffer[3] = from[3];
+    _buffer[4] = from[4];
+    _buffer[5] = from[5];
   }
 
   static void fromRotation(Mat2D o, double rad) {

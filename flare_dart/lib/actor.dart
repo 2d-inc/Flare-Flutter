@@ -205,6 +205,10 @@ abstract class Actor {
     for (final ActorArtboard artboard in _artboards) {
       artboard.completeResolveHierarchy();
     }
+
+	// Sort dependencies last.
+	await artboard.sortDependencies();
+
     return true;
   }
 

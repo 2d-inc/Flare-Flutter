@@ -288,36 +288,8 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 
     if (skin != null) {
       Float32List boneTransforms = skin.boneMatrices;
+      Float32List influenceMatrix = Float32List(6);
 
-      //Mat2D inverseWorldTransform = Mat2D.Invert(new Mat2D(), worldTransform);
-      Float32List influenceMatrix =
-          Float32List.fromList([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
-
-      // if(this.name == "evolution_1_0001s_0003_evolution_1_weapo")
-      // {
-      // //	print("TEST!");
-      // 	int boneIndexOffset = vertexBoneIndexOffset;
-      // 	int weightOffset = vertexBoneWeightOffset;
-      // 	for(int i = 0; i < _vertexCount; i++)
-      // 	{
-      // 		for(int wi = 0; wi < 4; wi++)
-      // 		{
-      // 			int boneIndex = _vertices[boneIndexOffset+wi].toInt();
-      // 			double weight = _vertices[weightOffset+wi];
-      // 			if(boneIndex == 1)
-      // 			{
-      // 				_vertices[weightOffset+wi] = 1.0;
-      // 			}
-      // 			else if(boneIndex == 2)
-      // 			{
-      // 				_vertices[weightOffset+wi] = 0.0;
-      // 			}
-      // 			//print("BI $boneIndex $weight");
-      // 		}
-      // 		boneIndexOffset += vertexStride;
-      // 		weightOffset += vertexStride;
-      // 	}
-      // }
       int boneIndexOffset = vertexBoneIndexOffset;
       int weightOffset = vertexBoneWeightOffset;
       for (int i = 0; i < _vertexCount; i++) {

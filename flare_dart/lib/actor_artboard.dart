@@ -116,9 +116,20 @@ class ActorArtboard {
     return true;
   }
 
-  void sortDependencies() {
-    DependencySorter sorter = DependencySorter();
-    _dependencyOrder = sorter.sort(_root);
+  Future<void> sortDependencies() async {
+    DependencySorter sorter = DependencySorter(_components);
+    _dependencyOrder = await sorter.sort();
+    int graphOrder = 0;
+    for (final ActorComponent component in _dependencyOrder) {
+      component.graphOrder = graphOrder++;
+      component.dirtMask = 255;
+    }
+    _flags |= ActorFlags.IsDirty;
+  }
+
+  void sortDependenciesSync() {
+    DependencySorter sorter = DependencySorter(_components);
+    _dependencyOrder = sorter.sortSync();
     int graphOrder = 0;
     for (final ActorComponent component in _dependencyOrder) {
       component.graphOrder = graphOrder++;
@@ -202,7 +213,6 @@ class ActorArtboard {
     _color[2] = artboard._color[2];
     _color[3] = artboard._color[3];
 
-    //_actor = artboard._actor;
     _animations = artboard._animations;
     _nodeCount = artboard._nodeCount;
 
@@ -226,6 +236,14 @@ class ActorArtboard {
         _components[idx++] = instanceComponent;
       }
     }
+    // Copy dependency order.
+    _dependencyOrder = List<ActorComponent>(artboard._dependencyOrder.length);
+    for (final ActorComponent component in artboard._dependencyOrder) {
+      final ActorComponent localComponent = _components[component.idx];
+      _dependencyOrder[component.graphOrder] = localComponent;
+      localComponent.dirtMask = 255;
+    }
+    _flags |= ActorFlags.IsDirty;
 
     _root = _components[0] as ActorNode;
 
@@ -273,8 +291,6 @@ class ActorArtboard {
         c.completeResolve();
       }
     }
-
-    sortDependencies();
     sortDrawOrder();
   }
 
@@ -570,19 +586,16 @@ class ActorArtboard {
     }
   }
 
-  void dislodge()
-  {
-	  // remove from whatever we're bound to on embedded files.
-	  for (final ActorComponent component in _components) {
+  void dislodge() {
+    // remove from whatever we're bound to on embedded files.
+    for (final ActorComponent component in _components) {
       if (component is ActorDrawable) {
-          component.layer?.removeDrawable(component);
-        }
-		else if(component is ActorSkin){
-			component.dislodge();
-		}
-		else if(component is ActorTargetedConstraint){
-			component.dislodge();
-		}
+        component.layer?.removeDrawable(component);
+      } else if (component is ActorSkin) {
+        component.dislodge();
+      } else if (component is ActorTargetedConstraint) {
+        component.dislodge();
+      }
     }
   }
 

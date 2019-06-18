@@ -18,15 +18,20 @@ class Vec2D {
   }
 
   Vec2D() {
-    _buffer = Float32List.fromList([0.0, 0.0]);
+    _buffer = Float32List(2);
   }
 
   Vec2D.clone(Vec2D copy) {
-    _buffer = Float32List.fromList(copy._buffer);
+    final Float32List from = copy._buffer;
+    _buffer = Float32List(2);
+    _buffer[0] = from[0];
+    _buffer[1] = from[1];
   }
 
   Vec2D.fromValues(double x, double y) {
-    _buffer = Float32List.fromList([x, y]);
+    _buffer = Float32List(2);
+    _buffer[0] = x;
+    _buffer[1] = y;
   }
 
   static void copy(Vec2D o, Vec2D a) {

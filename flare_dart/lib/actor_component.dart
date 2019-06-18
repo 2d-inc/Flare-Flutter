@@ -61,6 +61,7 @@ abstract class ActorComponent {
     artboard = resetArtboard;
     _parentIdx = component._parentIdx;
     idx = component.idx;
+	graphOrder = component.graphOrder;
   }
 
   bool addExternalDirt(int dirt, bool recurse) =>

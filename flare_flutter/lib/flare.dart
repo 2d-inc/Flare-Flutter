@@ -235,14 +235,25 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     // Get Clips
     for (final List<ActorShape> clips in clipShapes) {
       if (clips.length == 1) {
-        canvas.clipPath((clips[0] as FlutterActorShape).path);
+        if (clips.first.renderCollapsed) {
+          continue;
+        }
+        canvas.clipPath((clips.first as FlutterActorShape).path);
       } else {
         ui.Path clippingPath = ui.Path();
+        bool empty = true;
         for (final ActorShape clipShape in clips) {
+          if (clipShape.renderCollapsed) {
+            continue;
+          }
           clippingPath.addPath(
               (clipShape as FlutterActorShape).path, ui.Offset.zero);
+          empty = false;
         }
-        canvas.clipPath(clippingPath);
+
+        if (!empty) {
+          canvas.clipPath(clippingPath);
+        }
       }
     }
     if (fills != null) {

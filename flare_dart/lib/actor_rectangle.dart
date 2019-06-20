@@ -1,12 +1,12 @@
-import "actor_artboard.dart";
-import "actor_node.dart";
-import "math/vec2d.dart";
-import "stream_reader.dart";
-import "actor_path.dart";
-import "path_point.dart";
-import "actor_component.dart";
+import 'dart:math';
 
-const double CircleConstant = 0.55;
+import "actor_artboard.dart";
+import "actor_component.dart";
+import "actor_node.dart";
+import "actor_path.dart";
+import "math/vec2d.dart";
+import "path_point.dart";
+import "stream_reader.dart";
 
 class ActorRectangle extends ActorProceduralPath {
   double _radius = 0.0;
@@ -14,6 +14,7 @@ class ActorRectangle extends ActorProceduralPath {
   @override
   void invalidatePath() {}
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorRectangle instance = ActorRectangle();
     instance.copyRectangle(this, resetArtboard);
@@ -41,17 +42,18 @@ class ActorRectangle extends ActorProceduralPath {
 
   @override
   List<PathPoint> get points {
-    double halfWidth = width / 2.0;
-    double halfHeight = height / 2.0;
+    double halfWidth = width / 2;
+    double halfHeight = height / 2;
+    double renderRadius = min(_radius, min(halfWidth, halfHeight));
     List<PathPoint> _rectanglePathPoints = <PathPoint>[];
     _rectanglePathPoints.add(StraightPathPoint.fromValues(
-        Vec2D.fromValues(-halfWidth, -halfHeight), _radius));
+        Vec2D.fromValues(-halfWidth, -halfHeight), renderRadius));
     _rectanglePathPoints.add(StraightPathPoint.fromValues(
-        Vec2D.fromValues(halfWidth, -halfHeight), _radius));
+        Vec2D.fromValues(halfWidth, -halfHeight), renderRadius));
     _rectanglePathPoints.add(StraightPathPoint.fromValues(
-        Vec2D.fromValues(halfWidth, halfHeight), _radius));
+        Vec2D.fromValues(halfWidth, halfHeight), renderRadius));
     _rectanglePathPoints.add(StraightPathPoint.fromValues(
-        Vec2D.fromValues(-halfWidth, halfHeight), _radius));
+        Vec2D.fromValues(-halfWidth, halfHeight), renderRadius));
 
     return _rectanglePathPoints;
   }

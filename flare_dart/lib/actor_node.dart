@@ -68,8 +68,8 @@ class ActorNode extends ActorComponent {
     return _worldTransform;
   }
 
-  /// N.B. this should only be done if you really know what you're doing. 
-  /// Generally you want to manipulate the local translation, rotation, 
+  /// N.B. this should only be done if you really know what you're doing.
+  /// Generally you want to manipulate the local translation, rotation,
   /// and scale of a Node.
   set worldTransform(Mat2D value) {
     Mat2D.copy(_worldTransform, value);
@@ -222,7 +222,7 @@ class ActorNode extends ActorComponent {
       if (!_overrideWorldTransform) {
         Mat2D.multiply(_worldTransform, parent._worldTransform, _transform);
       }
-    } else if(!_overrideWorldTransform) {
+    } else if (!_overrideWorldTransform) {
       Mat2D.copy(_worldTransform, _transform);
     }
   }
@@ -373,12 +373,14 @@ class ActorNode extends ActorComponent {
       return false;
     }
 
-    for (final ActorNode child in _children) {
-      if (cb(child) == false) {
-        return false;
-      }
+    if (_children != null) {
+      for (final ActorNode child in _children) {
+        if (cb(child) == false) {
+          return false;
+        }
 
-      child.eachChildRecursive(cb);
+        child.eachChildRecursive(cb);
+      }
     }
 
     return true;

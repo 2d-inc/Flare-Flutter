@@ -271,13 +271,6 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
 
     canvas.restore();
   }
-
-  @override
-  ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    FlutterActorShape instanceNode = FlutterActorShape();
-    instanceNode.copyShape(this, resetArtboard);
-    return instanceNode;
-  }
 }
 
 class FlutterColorFill extends ColorFill with FlutterFill {

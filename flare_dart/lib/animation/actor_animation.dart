@@ -388,7 +388,6 @@ class ActorAnimation {
       StreamReader reader, List<ActorComponent> components) {
     ActorAnimation animation = ActorAnimation();
     animation._name = reader.readString("name");
-    print("NAME ${animation._name}");
     animation._fps = reader.readUint8("fps");
     animation._duration = reader.readFloat32("duration");
     animation._isLooping = reader.readBool("isLooping");

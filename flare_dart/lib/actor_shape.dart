@@ -26,29 +26,27 @@ class ActorShape extends ActorDrawable {
 
   static ActorShape read(
       ActorArtboard artboard, StreamReader reader, ActorShape component) {
-    if (component == null) {
-      component = ActorShape();
-    }
-
     ActorDrawable.read(artboard, reader, component);
 
     return component;
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ActorShape instanceEvent = ActorShape();
-    instanceEvent.copyShape(this, resetArtboard);
-    return instanceEvent;
+    ActorShape instanceShape = resetArtboard.actor.makeShapeNode();
+    instanceShape.copyShape(this, resetArtboard);
+    return instanceShape;
   }
 
   void copyShape(ActorShape node, ActorArtboard resetArtboard) {
     copyDrawable(node, resetArtboard);
   }
 
+  @override
   AABB computeAABB() {
     AABB aabb;
-    for (List<ActorShape> clips in clipShapes) {
-      for (ActorShape node in clips) {
+    for (final List<ActorShape> clips in clipShapes) {
+      for (final ActorShape node in clips) {
         AABB bounds = node.computeAABB();
         if (bounds == null) {
           continue;

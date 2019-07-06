@@ -174,10 +174,12 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
   void initializeGraphics() {
     super.initializeGraphics();
     _path = ui.Path();
-    for (final ActorNode node in children) {
-      FlutterPath flutterPath = node as FlutterPath;
-      if (flutterPath != null) {
-        flutterPath.initializeGraphics();
+    if (children != null) {
+      for (final ActorNode node in children) {
+        FlutterPath flutterPath = node as FlutterPath;
+        if (flutterPath != null) {
+          flutterPath.initializeGraphics();
+        }
       }
     }
   }

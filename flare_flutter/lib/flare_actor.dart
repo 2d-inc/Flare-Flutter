@@ -23,6 +23,7 @@ class FlareActor extends LeafRenderObjectWidget {
   final FlareCompletedCallback callback;
   final Color color;
   final String boundsNode;
+  final bool sizeFromArtboard;
 
   const FlareActor(this.filename,
       {this.boundsNode,
@@ -34,7 +35,8 @@ class FlareActor extends LeafRenderObjectWidget {
       this.controller,
       this.callback,
       this.color,
-      this.shouldClip = true});
+      this.shouldClip = true,
+      this.sizeFromArtboard = false});
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -50,7 +52,8 @@ class FlareActor extends LeafRenderObjectWidget {
       ..completed = callback
       ..color = color
       ..shouldClip = shouldClip
-      ..boundsNodeName = boundsNode;
+      ..boundsNodeName = boundsNode
+      ..useIntrinsicSize = sizeFromArtboard;
   }
 
   @override
@@ -66,7 +69,8 @@ class FlareActor extends LeafRenderObjectWidget {
       ..isPaused = isPaused
       ..color = color
       ..shouldClip = shouldClip
-      ..boundsNodeName = boundsNode;
+      ..boundsNodeName = boundsNode
+      ..useIntrinsicSize = sizeFromArtboard;
   }
 
   @override
@@ -204,8 +208,8 @@ class FlareActorRenderObject extends FlareRenderBox {
     if (_filename == null) {
       markNeedsPaint();
     }
-	// file will change, let's clear out old animations.
-	_animationLayers.clear();
+    // file will change, let's clear out old animations.
+    _animationLayers.clear();
     load();
   }
 
@@ -223,6 +227,7 @@ class FlareActorRenderObject extends FlareRenderBox {
           actor.artboard.makeInstance() as FlutterActorArtboard;
       artboard.initializeGraphics();
       _artboard = artboard;
+      intrinsicSize = Size(artboard.width, artboard.height);
       _artboard.overrideColor = _color == null
           ? null
           : Float32List.fromList([

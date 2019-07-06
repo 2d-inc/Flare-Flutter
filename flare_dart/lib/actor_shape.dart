@@ -1,24 +1,25 @@
+import "dart:math";
+import "actor_artboard.dart";
 import "actor_color.dart";
 import "actor_component.dart";
-import "actor_node.dart";
 import "actor_drawable.dart";
-import "actor_artboard.dart";
-import "stream_reader.dart";
+import "actor_node.dart";
 import "actor_path.dart";
-import "dart:math";
+import "math/aabb.dart";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
-import "math/aabb.dart";
+import "stream_reader.dart";
 
 class ActorShape extends ActorDrawable {
-  List<ActorStroke> _strokes = List<ActorStroke>();
-  List<ActorFill> _fills = List<ActorFill>();
+  final List<ActorStroke> _strokes = <ActorStroke>[];
+  final List<ActorFill> _fills = <ActorFill>[];
 
-  ActorFill get fill => _fills.length > 0 ? _fills.first : null;
-  ActorStroke get stroke => _strokes.length > 0 ? _strokes.first : null;
+  ActorFill get fill => _fills.isNotEmpty ? _fills.first : null;
+  ActorStroke get stroke => _strokes.isNotEmpty ? _strokes.first : null;
   List<ActorFill> get fills => _fills;
   List<ActorStroke> get strokes => _strokes;
 
+  @override
   void update(int dirt) {
     super.update(dirt);
     invalidateShape();
@@ -73,12 +74,13 @@ class ActorShape extends ActorDrawable {
       return aabb;
     }
 
-    for (ActorNode node in children) {
+    for (final ActorNode node in children) {
       ActorBasePath path = node as ActorBasePath;
       if (path == null) {
         continue;
       }
-      // This is the axis aligned bounding box in the space of the parent (this case our shape).
+      // This is the axis aligned bounding box in the space of the
+      // parent (this case our shape).
       AABB pathAABB = path.getPathAABB();
 
       if (aabb == null) {
@@ -105,7 +107,7 @@ class ActorShape extends ActorDrawable {
 
     if (_strokes != null) {
       double maxStroke = 0.0;
-      for (ActorStroke stroke in _strokes) {
+      for (final ActorStroke stroke in _strokes) {
         if (stroke.width > maxStroke) {
           maxStroke = stroke.width;
         }
@@ -151,11 +153,12 @@ class ActorShape extends ActorDrawable {
     _fills.add(fill);
   }
 
+  @override
   void initializeGraphics() {
-    for (ActorStroke stroke in _strokes) {
+    for (final ActorStroke stroke in _strokes) {
       stroke.initializeGraphics();
     }
-    for (ActorFill fill in _fills) {
+    for (final ActorFill fill in _fills) {
       fill.initializeGraphics();
     }
   }

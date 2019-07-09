@@ -1,3 +1,17 @@
+## [1.5.4] - 2019-07-08 21:10:50
+
+ - Using Uint16List for vertex indices now that Flutter Stable has been updated.
+
+## [1.5.3] - 2019-07-06 11:09:44
+
+ - Fixing an intialization error when a node has null children.
+ - FlareActor widget can now size itself via the sizeFromArtboard named parameter, based on feedback from issue #104.
+
+ ## [1.5.2] - 2019-06-20 16:33:52
+
+ Using latest version of flare_dart which has fixes for rounded rectangles and clipping paths.
+
+
 ## [1.5.1] - 2019-05-20 10:38:30
 
 Added missing call to setViewTransform for controllers. This is now done more efficiently as it is only called when the view transform changes.

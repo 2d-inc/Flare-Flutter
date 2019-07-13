@@ -8,4 +8,7 @@ environment:
 dependencies:
   flutter_web: any
   flare_dart:
-    path: ../flare_dart
+    git: 
+      url: https://github.com/2d-inc/Flare-Flutter.git
+      ref: web
+      path: flare_dart

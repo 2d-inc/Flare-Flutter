@@ -12,7 +12,7 @@ This repository has three primary branches:
   - This is the branch we publish to pub from. 
   - This branch and the associated pub packages are guaranteed to work on the flutter stable channel.
   ```
-  flare_flutter: ^1.5.0
+  flare_flutter: ^1.5.4
   ```
 - dev
   - This branch has the latest changes should work with the flutter dev channel.

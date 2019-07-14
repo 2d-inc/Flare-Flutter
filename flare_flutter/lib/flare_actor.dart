@@ -23,6 +23,7 @@ class FlareActor extends LeafRenderObjectWidget {
   final FlareCompletedCallback callback;
   final Color color;
   final String boundsNode;
+  final bool sizeFromArtboard;
 
   const FlareActor(this.filename,
       {this.boundsNode,
@@ -34,7 +35,8 @@ class FlareActor extends LeafRenderObjectWidget {
       this.controller,
       this.callback,
       this.color,
-      this.shouldClip = true});
+      this.shouldClip = true,
+      this.sizeFromArtboard = false});
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -50,7 +52,8 @@ class FlareActor extends LeafRenderObjectWidget {
       ..completed = callback
       ..color = color
       ..shouldClip = shouldClip
-      ..boundsNodeName = boundsNode;
+      ..boundsNodeName = boundsNode
+      ..useIntrinsicSize = sizeFromArtboard;
   }
 
   @override
@@ -66,7 +69,8 @@ class FlareActor extends LeafRenderObjectWidget {
       ..isPaused = isPaused
       ..color = color
       ..shouldClip = shouldClip
-      ..boundsNodeName = boundsNode;
+      ..boundsNodeName = boundsNode
+      ..useIntrinsicSize = sizeFromArtboard;
   }
 
   @override

@@ -1,14 +1,14 @@
+import "dart:math";
+import "actor_artboard.dart";
 import "actor_color.dart";
 import "actor_component.dart";
-import "actor_node.dart";
 import "actor_drawable.dart";
-import "actor_artboard.dart";
-import "stream_reader.dart";
+import "actor_node.dart";
 import "actor_path.dart";
-import "dart:math";
+import "math/aabb.dart";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
-import "math/aabb.dart";
+import "stream_reader.dart";
 
 class ActorShape extends ActorDrawable {
   final List<ActorStroke> _strokes = <ActorStroke>[];
@@ -26,10 +26,6 @@ class ActorShape extends ActorDrawable {
 
   static ActorShape read(
       ActorArtboard artboard, StreamReader reader, ActorShape component) {
-    if (component == null) {
-      component = ActorShape();
-    }
-
     ActorDrawable.read(artboard, reader, component);
 
     return component;
@@ -37,9 +33,9 @@ class ActorShape extends ActorDrawable {
 
   @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ActorShape instanceEvent = ActorShape();
-    instanceEvent.copyShape(this, resetArtboard);
-    return instanceEvent;
+    ActorShape instanceShape = resetArtboard.actor.makeShapeNode();
+    instanceShape.copyShape(this, resetArtboard);
+    return instanceShape;
   }
 
   void copyShape(ActorShape node, ActorArtboard resetArtboard) {
@@ -77,13 +73,13 @@ class ActorShape extends ActorDrawable {
       return aabb;
     }
 
-    for (ActorNode node in children) {
+    for (final ActorNode node in children) {
       ActorBasePath path = node as ActorBasePath;
       if (path == null) {
         continue;
       }
-      // This is the axis aligned bounding box in
-      // the space of the parent (this case our shape).
+      // This is the axis aligned bounding box in the space of the
+      // parent (this case our shape).
       AABB pathAABB = path.getPathAABB();
 
       if (aabb == null) {

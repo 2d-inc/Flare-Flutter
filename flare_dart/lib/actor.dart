@@ -195,7 +195,8 @@ abstract class Actor {
     // the read operation.
     if (_embeddedAssets?.isNotEmpty ?? false) {
       if (!await _loadEmbeddedAssets(context)) {
-        return false;
+        // TODO: figure out how we want to handle not being able to load embedded assets.
+        //return false;
       }
     }
     // Resolve now.
@@ -206,8 +207,8 @@ abstract class Actor {
       artboard.completeResolveHierarchy();
     }
 
-	// Sort dependencies last.
-	await artboard.sortDependencies();
+    // Sort dependencies last.
+    await artboard.sortDependencies();
 
     return true;
   }

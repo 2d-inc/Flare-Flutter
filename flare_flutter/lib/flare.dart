@@ -179,10 +179,12 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
   void initializeGraphics() {
     super.initializeGraphics();
     _path = ui.Path();
-    for (final ActorNode node in children) {
-      FlutterPath flutterPath = node as FlutterPath;
-      if (flutterPath != null) {
-        flutterPath.initializeGraphics();
+    if (children != null) {
+      for (final ActorNode node in children) {
+        FlutterPath flutterPath = node as FlutterPath;
+        if (flutterPath != null) {
+          flutterPath.initializeGraphics();
+        }
       }
     }
   }
@@ -1155,11 +1157,10 @@ class FlutterFlareNode extends ActorFlareNode with FlutterActorDrawable {
 class FlutterLayerNode extends ActorLayerNode with FlutterActorDrawable {
   @override
   void draw(ui.Canvas canvas) {
-	  
     if (renderCollapsed) {
       return;
     }
-	
+
     List<ActorDrawable> drawables = this.drawables;
     for (final ActorDrawable drawable in drawables) {
       (drawable as FlutterActorDrawable).draw(canvas);

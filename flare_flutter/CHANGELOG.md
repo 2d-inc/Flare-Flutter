@@ -7,7 +7,7 @@
  - Fixing an intialization error when a node has null children.
  - FlareActor widget can now size itself via the sizeFromArtboard named parameter, based on feedback from issue #104.
 
- ## [1.5.2] - 2019-06-20 16:33:52
+## [1.5.2] - 2019-06-20 16:33:52
 
  Using latest version of flare_dart which has fixes for rounded rectangles and clipping paths.
 

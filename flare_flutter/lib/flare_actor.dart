@@ -58,6 +58,9 @@ class FlareActor extends LeafRenderObjectWidget {
   /// dimensions of this widget.
   final bool sizeFromArtboard;
 
+  /// Package of the Flare file to be loaded from the flutter plugin.
+  final String package;
+
   const FlareActor(
     this.filename, {
     this.boundsNode,
@@ -72,12 +75,14 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
+    this.package,
   });
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return FlareActorRenderObject()
       ..assetBundle = DefaultAssetBundle.of(context)
+      ..package = package
       ..filename = filename
       ..fit = fit
       ..alignment = alignment
@@ -133,6 +138,7 @@ class FlareActorRenderObject extends FlareRenderBox {
   Mat2D _lastControllerViewTransform;
   String _filename;
   String _artboardName;
+  String _package;
   String _animationName;
   String _boundsNodeName;
   FlareController _controller;
@@ -292,12 +298,24 @@ class FlareActorRenderObject extends FlareRenderBox {
     return true;
   }
 
-  @override
-  Future<void> load() async {
-    if (_filename == null) {
+  String get package => _package;
+  set package(String value) {
+    if (value == _package) {
       return;
     }
-    _actor = await loadFlare(_filename);
+    _package = value;
+  }
+
+  String get keyName =>
+      _package == null ? _filename : 'packages/$_package/$_filename';
+
+
+  @override
+  Future<void> load() async {
+    if (keyName == null) {
+      return;
+    }
+    _actor = await loadFlare(keyName);
     if (_actor == null || _actor.artboard == null) {
       return;
     }

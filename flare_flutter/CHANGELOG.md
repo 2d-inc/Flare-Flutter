@@ -1,3 +1,9 @@
+## [1.5.5] - 2019-07-24 11:44:36
+
+ - Adding artboard option to FlareActor. Use this to change which artboard gets displayed by the FlareActor widget.
+ - Fixed incorrect signature of load method. If you were deriving FlareRenderBox, you'll need to update it to match. It's a minor change from void to Future<void>.
+ - Added some documentation to the FlareActor parameters.
+
 ## [1.5.4] - 2019-07-08 21:10:50
 
  - Using Uint16List for vertex indices now that Flutter Stable has been updated.

@@ -22,6 +22,10 @@ abstract class Actor {
   Actor();
 
   ActorArtboard get artboard => _artboards.isNotEmpty ? _artboards.first : null;
+  ActorArtboard getArtboard(String name) => name == null
+      ? artboard
+      : _artboards.firstWhere((artboard) => artboard?.name == name,
+          orElse: () => null);
 
   int get version {
     return _version;

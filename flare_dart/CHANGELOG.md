@@ -1,3 +1,7 @@
+## [1.4.4] - 2019-07-24 11:43:51
+
+Adding getArtboard method to Actor class. Allows finding artboards by name.
+
 ## [1.4.3] - 2019-07-06 11:08:53
 
 Some cleanup done while fixing issue #104 (using intrinsic artboard size as an option).

@@ -236,7 +236,7 @@ abstract class FlareRenderBox extends RenderBox {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  void _load() async {
+  Future<void> _load() async {
     if (_isLoading) {
       return;
     }
@@ -247,7 +247,7 @@ abstract class FlareRenderBox extends RenderBox {
   }
 
   /// Perform any loading logic necessary for this scene.
-  void load() async {}
+  Future<void> load() async {}
 
   void _unload() {
     for (final FlareCacheAsset asset in _assets) {

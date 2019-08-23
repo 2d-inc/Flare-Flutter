@@ -397,8 +397,8 @@ class ActorAnimation {
 
     // We distinguish between animated and triggered components as ActorEvents
     // are currently only used to trigger events and don't need the full 
-	// animation cycle. This lets them optimize them out of the regular animation 
-	// cycle.
+	  // animation cycle. This lets them optimize them out of the regular 
+    // animation cycle.
     int animatedComponentCount = 0;
     int triggerComponentCount = 0;
 

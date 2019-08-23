@@ -111,6 +111,10 @@ abstract class KeyFrameNumeric extends KeyFrameWithInterpolation {
       return false;
     }
     frame._value = reader.readFloat32("value");
+    if (frame._value.isNaN) {
+      // Do we want to warn the user the animation contains invalid values?
+      frame._value = 1.0;
+    }
     return true;
   }
 

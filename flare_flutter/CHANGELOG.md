@@ -1,3 +1,7 @@
+## [1.5.6] - 2019-08-23 09:52:13
+
+- Clamp opacity values into 0..1 range before creating color for paint.
+
 ## [1.5.5] - 2019-07-24 11:44:36
 
  - Adding artboard option to FlareActor. Use this to change which artboard gets displayed by the FlareActor widget.

@@ -1,3 +1,7 @@
+## [1.4.5] - 2019-08-23 09:51:30
+
+Small changes to fix warnings caught by the Dart static analyzer.
+
 ## [1.4.4] - 2019-07-24 11:43:51
 
 Adding getArtboard method to Actor class. Allows finding artboards by name.

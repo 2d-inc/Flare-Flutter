@@ -285,11 +285,11 @@ class FlutterColorFill extends ColorFill with FlutterFill {
 
   Color get uiColor {
     Float32List c = displayColor;
-    return Color.fromRGBO(
-        (c[0] * 255.0).round(),
-        (c[1] * 255.0).round(),
-        (c[2] * 255.0).round(),
-        c[3] * artboard.modulateOpacity * opacity * shape.renderOpacity);
+    double o = (artboard.modulateOpacity * opacity * shape.renderOpacity)
+        .clamp(0.0, 1.0)
+        .toDouble();
+    return Color.fromRGBO((c[0] * 255.0).round(), (c[1] * 255.0).round(),
+        (c[2] * 255.0).round(), c[3] * o);
   }
 
   set uiColor(Color c) {
@@ -317,11 +317,11 @@ class FlutterColorStroke extends ColorStroke with FlutterStroke {
 
   Color get uiColor {
     Float32List c = displayColor;
-    return Color.fromRGBO(
-        (c[0] * 255.0).round(),
-        (c[1] * 255.0).round(),
-        (c[2] * 255.0).round(),
-        c[3] * artboard.modulateOpacity * opacity * shape.renderOpacity);
+    double o = (artboard.modulateOpacity * opacity * shape.renderOpacity)
+        .clamp(0.0, 1.0)
+        .toDouble();
+    return Color.fromRGBO((c[0] * 255.0).round(), (c[1] * 255.0).round(),
+        (c[2] * 255.0).round(), c[3] * o);
   }
 
   set uiColor(Color c) {
@@ -350,11 +350,12 @@ class FlutterGradientFill extends GradientFill with FlutterFill {
 
     int idx = 0;
     for (int i = 0; i < numStops; i++) {
+      double o = colorStops[idx + 3].clamp(0.0, 1.0).toDouble();
       ui.Color color = ui.Color.fromRGBO(
           (colorStops[idx] * 255.0).round(),
           (colorStops[idx + 1] * 255.0).round(),
           (colorStops[idx + 2] * 255.0).round(),
-          colorStops[idx + 3]);
+          o);
       colors.add(color);
       stops.add(colorStops[idx + 4]);
       idx += 5;
@@ -368,14 +369,17 @@ class FlutterGradientFill extends GradientFill with FlutterFill {
               .toDouble());
     } else {
       Float32List overrideColor = artboard.overrideColor;
+      double o = (overrideColor[3] *
+              artboard.modulateOpacity *
+              opacity *
+              shape.renderOpacity)
+          .clamp(0.0, 1.0)
+          .toDouble();
       paintColor = ui.Color.fromRGBO(
           (overrideColor[0] * 255.0).round(),
           (overrideColor[1] * 255.0).round(),
           (overrideColor[2] * 255.0).round(),
-          overrideColor[3] *
-              artboard.modulateOpacity *
-              opacity *
-              shape.renderOpacity);
+          o);
     }
     _paint
       ..color = paintColor
@@ -403,11 +407,12 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
 
     int idx = 0;
     for (int i = 0; i < numStops; i++) {
+      double o = colorStops[idx + 3].clamp(0.0, 1.0).toDouble();
       ui.Color color = ui.Color.fromRGBO(
           (colorStops[idx] * 255.0).round(),
           (colorStops[idx + 1] * 255.0).round(),
           (colorStops[idx + 2] * 255.0).round(),
-          colorStops[idx + 3]);
+          o);
       colors.add(color);
       stops.add(colorStops[idx + 4]);
       idx += 5;
@@ -421,14 +426,17 @@ class FlutterGradientStroke extends GradientStroke with FlutterStroke {
               .toDouble());
     } else {
       Float32List overrideColor = artboard.overrideColor;
+      double o = (overrideColor[3] *
+              artboard.modulateOpacity *
+              opacity *
+              shape.renderOpacity)
+          .clamp(0.0, 1.0)
+          .toDouble();
       paintColor = ui.Color.fromRGBO(
           (overrideColor[0] * 255.0).round(),
           (overrideColor[1] * 255.0).round(),
           (overrideColor[2] * 255.0).round(),
-          overrideColor[3] *
-              artboard.modulateOpacity *
-              opacity *
-              shape.renderOpacity);
+          o);
     }
     _paint
       ..color = paintColor
@@ -458,11 +466,12 @@ class FlutterRadialFill extends RadialGradientFill with FlutterFill {
 
     int idx = 0;
     for (int i = 0; i < numStops; i++) {
+      double o = colorStops[idx + 3].clamp(0.0, 1.0).toDouble();
       ui.Color color = ui.Color.fromRGBO(
           (colorStops[idx] * 255.0).round(),
           (colorStops[idx + 1] * 255.0).round(),
           (colorStops[idx + 2] * 255.0).round(),
-          colorStops[idx + 3]);
+          o);
       colors.add(color);
       stops.add(colorStops[idx + 4]);
       idx += 5;
@@ -482,14 +491,17 @@ class FlutterRadialFill extends RadialGradientFill with FlutterFill {
               .toDouble());
     } else {
       Float32List overrideColor = artboard.overrideColor;
+      double o = (overrideColor[3] *
+              artboard.modulateOpacity *
+              opacity *
+              shape.renderOpacity)
+          .clamp(0.0, 1.0)
+          .toDouble();
       paintColor = ui.Color.fromRGBO(
           (overrideColor[0] * 255.0).round(),
           (overrideColor[1] * 255.0).round(),
           (overrideColor[2] * 255.0).round(),
-          overrideColor[3] *
-              artboard.modulateOpacity *
-              opacity *
-              shape.renderOpacity);
+          o);
     }
 
     _paint
@@ -518,11 +530,12 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
 
     int idx = 0;
     for (int i = 0; i < numStops; i++) {
+      double o = colorStops[idx + 3].clamp(0.0, 1.0).toDouble();
       ui.Color color = ui.Color.fromRGBO(
           (colorStops[idx] * 255.0).round(),
           (colorStops[idx + 1] * 255.0).round(),
           (colorStops[idx + 2] * 255.0).round(),
-          colorStops[idx + 3]);
+          o);
       colors.add(color);
       stops.add(colorStops[idx + 4]);
       idx += 5;
@@ -536,14 +549,17 @@ class FlutterRadialStroke extends RadialGradientStroke with FlutterStroke {
               .toDouble());
     } else {
       Float32List overrideColor = artboard.overrideColor;
+      double o = (overrideColor[3] *
+              artboard.modulateOpacity *
+              opacity *
+              shape.renderOpacity)
+          .clamp(0.0, 1.0)
+          .toDouble();
       paintColor = ui.Color.fromRGBO(
           (overrideColor[0] * 255.0).round(),
           (overrideColor[1] * 255.0).round(),
           (overrideColor[2] * 255.0).round(),
-          overrideColor[3] *
-              artboard.modulateOpacity *
-              opacity *
-              shape.renderOpacity);
+          o);
     }
 
     _paint

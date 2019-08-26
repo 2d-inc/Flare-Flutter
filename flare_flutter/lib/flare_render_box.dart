@@ -247,7 +247,7 @@ abstract class FlareRenderBox extends RenderBox {
   }
 
   /// Perform any loading logic necessary for this scene.
-  Future<void> load();
+  Future<void> load() async {}
 
   void _unload() {
     for (final FlareCacheAsset asset in _assets) {

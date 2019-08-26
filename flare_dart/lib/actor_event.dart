@@ -23,7 +23,6 @@ class ActorEvent extends ActorComponent {
 
   @override
   void completeResolve() {}
-
   @override
   void update(int dirt) {}
 }

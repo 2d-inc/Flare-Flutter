@@ -1,3 +1,7 @@
+## [1.5.7] - 2019-08-26 10:39:49
+
+- Clip the artboard based on settings from Flare.
+
 ## [1.5.6] - 2019-08-23 09:52:13
 
 - Clamp opacity values into 0..1 range before creating color for paint.

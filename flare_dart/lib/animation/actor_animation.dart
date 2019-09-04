@@ -5,7 +5,6 @@ import "../stream_reader.dart";
 import "keyframe.dart";
 import "property_types.dart";
 
-
 typedef KeyFrame KeyFrameReader(StreamReader reader, ActorComponent component);
 
 class PropertyAnimation {
@@ -228,6 +227,7 @@ class ComponentAnimation {
     int numProperties = reader.readUint16Length();
     componentAnimation._properties = List<PropertyAnimation>(numProperties);
     for (int i = 0; i < numProperties; i++) {
+      assert(componentAnimation._componentIndex < components.length);
       componentAnimation._properties[i] = PropertyAnimation.read(
           reader, components[componentAnimation._componentIndex]);
     }
@@ -396,8 +396,8 @@ class ActorAnimation {
     int numKeyedComponents = reader.readUint16Length();
 
     // We distinguish between animated and triggered components as ActorEvents
-    // are currently only used to trigger events and don't need the full 
-	  // animation cycle. This lets them optimize them out of the regular 
+    // are currently only used to trigger events and don't need the full
+    // animation cycle. This lets them optimize them out of the regular
     // animation cycle.
     int animatedComponentCount = 0;
     int triggerComponentCount = 0;
@@ -408,7 +408,8 @@ class ActorAnimation {
       ComponentAnimation componentAnimation =
           ComponentAnimation.read(reader, components);
       animatedComponents[i] = componentAnimation;
-      if (componentAnimation != null) {
+      if (componentAnimation != null &&
+          componentAnimation.componentIndex < components.length) {
         ActorComponent actorComponent =
             components[componentAnimation.componentIndex];
         if (actorComponent != null) {

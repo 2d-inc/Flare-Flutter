@@ -1,3 +1,7 @@
+## [1.4.6] - 2019-09-04 08:48:11
+
+- Prevent iterating null children. Fixes issue #146.
+
 ## [1.4.5] - 2019-08-23 09:51:30
 
 Small changes to fix warnings caught by the Dart static analyzer.

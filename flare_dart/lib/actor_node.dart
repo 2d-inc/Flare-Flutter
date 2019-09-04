@@ -378,12 +378,14 @@ class ActorNode extends ActorComponent {
       return false;
     }
 
-    for (ActorNode child in _children) {
-      if (cb(child) == false) {
-        return false;
-      }
+    if (_children != null) {
+      for (final ActorNode child in _children) {
+        if (cb(child) == false) {
+          return false;
+        }
 
-      child.eachChildRecursive(cb);
+        child.eachChildRecursive(cb);
+      }
     }
 
     return true;

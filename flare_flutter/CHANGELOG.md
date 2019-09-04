@@ -1,3 +1,7 @@
+## [1.5.8] - 2019-09-04 08:47:31
+
+- Bump flare_dart dependency version to get fix for iterating null children. Issue #146.
+
 ## [1.5.7] - 2019-08-26 10:39:49
 
 - Clip the artboard based on settings from Flare.

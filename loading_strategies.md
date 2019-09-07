@@ -39,7 +39,7 @@ void main() {
 You'll note that this will keep all Flare files warmed up in the cache via ```FlareCache.doesPrune = false;```. See Strategy 3 for a way to get around that. 
 
 ## Stratgey 2 - Warmup + Sync
-This strategy requires cloning (best via submodule) this branch into your project and using it as the path for flare_flutter in your pubspec.
+This strategy requires cloning (best via submodule) this branch into your project and using it as the path for flare_flutter in your pubspec. Note that the branch is called ```sync_load```.
 
 You'll need to do everything in **Strategy 1** but then also add the ```loadSync: true``` named parameter to the FlareActor:
 ```dart

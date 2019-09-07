@@ -58,25 +58,31 @@ class FlareActor extends LeafRenderObjectWidget {
   /// dimensions of this widget.
   final bool sizeFromArtboard;
 
-  const FlareActor(
-    this.filename, {
-    this.boundsNode,
-    this.animation,
-    this.fit = BoxFit.contain,
-    this.alignment = Alignment.center,
-    this.isPaused = false,
-    this.snapToEnd = false,
-    this.controller,
-    this.callback,
-    this.color,
-    this.shouldClip = true,
-    this.sizeFromArtboard = false,
-    this.artboard,
-  });
+  /// Set this to true to force a sync load of the Flare file.
+  /// This can be helpful for layouts where the dimensions of the
+  /// Flare file are necessary immediately to prevent pop/swimming.
+  /// Consider using a custom widget to have better control of the
+  /// lifecycle of your Flare files.
+  final bool loadSync;
+
+  const FlareActor(this.filename,
+      {this.boundsNode,
+      this.animation,
+      this.fit = BoxFit.contain,
+      this.alignment = Alignment.center,
+      this.isPaused = false,
+      this.snapToEnd = false,
+      this.controller,
+      this.callback,
+      this.color,
+      this.shouldClip = true,
+      this.sizeFromArtboard = false,
+      this.artboard,
+      this.loadSync = false});
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return FlareActorRenderObject()
+    return FlareActorRenderObject(loadSync)
       ..assetBundle = DefaultAssetBundle.of(context)
       ..filename = filename
       ..fit = fit
@@ -140,6 +146,8 @@ class FlareActorRenderObject extends FlareRenderBox {
   bool snapToEnd = false;
   bool _isPaused = false;
   FlutterActor _actor;
+
+  FlareActorRenderObject(bool isSync) : super(isSync: isSync);
 
   String get artboardName => _artboardName;
   set artboardName(String name) {
@@ -293,12 +301,27 @@ class FlareActorRenderObject extends FlareRenderBox {
   }
 
   @override
-  Future<void> load() async {
+  Future<void> loadAsync() async {
     if (_filename == null) {
       return;
     }
     _actor = await loadFlare(_filename);
     if (_actor == null || _actor.artboard == null) {
+      return;
+    }
+    _instanceArtboard();
+  }
+
+  @override
+  void loadSync() {
+    if (_filename == null) {
+      return;
+    }
+    _actor = loadFlareSync(_filename);
+    if (_actor == null || _actor.artboard == null) {
+      // If the sync load fails (meaning the file wasn't in cache, 
+	  // fallback to async)
+      loadAsync();
       return;
     }
     _instanceArtboard();

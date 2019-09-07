@@ -19,6 +19,8 @@ abstract class FlareRenderBox extends RenderBox {
   double _lastFrameTime = 0.0;
   final List<FlareCacheAsset> _assets = [];
   bool _useIntrinsicSize = false;
+  final bool isSync;
+  FlareRenderBox({this.isSync = false});
 
   bool get useIntrinsicSize => _useIntrinsicSize;
   set useIntrinsicSize(bool value) {
@@ -50,7 +52,7 @@ abstract class FlareRenderBox extends RenderBox {
     }
     _assetBundle = value;
     if (_assetBundle != null) {
-      _load();
+      load();
     }
   }
 
@@ -83,8 +85,8 @@ abstract class FlareRenderBox extends RenderBox {
     }
   }
 
-   @override
-   bool get sizedByParent => !_useIntrinsicSize || _intrinsicSize == null;
+  @override
+  bool get sizedByParent => !_useIntrinsicSize || _intrinsicSize == null;
 
   @override
   void performLayout() {
@@ -112,7 +114,7 @@ abstract class FlareRenderBox extends RenderBox {
     super.attach(owner);
     updatePlayState();
     if (_assets.isEmpty && assetBundle != null) {
-      _load();
+      load();
     }
   }
 
@@ -236,18 +238,37 @@ abstract class FlareRenderBox extends RenderBox {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  Future<void> _load() async {
+  void load() {
+    if (isSync) {
+      _loadSync();
+    } else {
+      _loadAsync();
+    }
+  }
+
+  void _loadSync() {
     if (_isLoading) {
       return;
     }
     _isLoading = true;
     _unload();
-    await load();
+    loadSync();
+    _isLoading = false;
+  }
+
+  Future<void> _loadAsync() async {
+    if (_isLoading) {
+      return;
+    }
+    _isLoading = true;
+    _unload();
+    await loadAsync();
     _isLoading = false;
   }
 
   /// Perform any loading logic necessary for this scene.
-  Future<void> load() async {}
+  Future<void> loadAsync() async {}
+  void loadSync() {}
 
   void _unload() {
     for (final FlareCacheAsset asset in _assets) {
@@ -266,6 +287,22 @@ abstract class FlareRenderBox extends RenderBox {
     }
 
     FlareCacheAsset asset = await cachedActor(assetBundle, filename);
+
+    if (!attached || asset == null) {
+      return null;
+    }
+    _assets.add(asset);
+    asset.ref();
+    return asset.actor;
+  }
+
+  /// Load a flare file from cache
+  FlutterActor loadFlareSync(String filename) {
+    if (assetBundle == null || filename == null) {
+      return null;
+    }
+
+    FlareCacheAsset asset = cachedActorSync(assetBundle, filename);
 
     if (!attached || asset == null) {
       return null;

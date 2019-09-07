@@ -34,3 +34,13 @@ Future<FlareCacheAsset> cachedActor(AssetBundle bundle, String filename) async {
   }
   return cache.getAsset(filename);
 }
+
+/// Get a cached Flare actor synchronously, fails if the file isn't already 
+/// cached.
+FlareCacheAsset cachedActorSync(AssetBundle bundle, String filename) {
+  FlareCache cache = _cache[bundle];
+  if (cache == null) {
+    _cache[bundle] = cache = FlareCache(bundle);
+  }
+  return null;
+}

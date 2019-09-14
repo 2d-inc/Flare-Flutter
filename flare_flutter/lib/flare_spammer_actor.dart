@@ -141,7 +141,7 @@ class _FlareSpammerRenderObject extends FlareRenderBox {
   @override
   void onUnload() {
     _repaintAnimations.clear();
-    controller.removeListener(fireHeart);
+    controller?.removeListener(fireHeart);
   }
 
   String get filename => _filename;

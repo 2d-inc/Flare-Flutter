@@ -11,4 +11,5 @@ export 'flare.dart';
 export 'flare_actor.dart';
 export 'flare_controller.dart';
 export 'flare_controls.dart';
+export 'flare_progress_controller.dart';
 export 'flare_spammer_actor.dart';

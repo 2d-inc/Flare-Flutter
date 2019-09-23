@@ -65,7 +65,7 @@ abstract class Actor {
     return ActorPath();
   }
 
-  ActorShape makeShapeNode() {
+  ActorShape makeShapeNode(ActorShape source) {
     return ActorShape();
   }
 

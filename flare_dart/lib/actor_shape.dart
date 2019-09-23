@@ -13,6 +13,8 @@ import "stream_reader.dart";
 class ActorShape extends ActorDrawable {
   final List<ActorStroke> _strokes = <ActorStroke>[];
   final List<ActorFill> _fills = <ActorFill>[];
+  bool _transformAffectsStroke = false;
+  bool get transformAffectsStroke => _transformAffectsStroke;
 
   ActorFill get fill => _fills.isNotEmpty ? _fills.first : null;
   ActorStroke get stroke => _strokes.isNotEmpty ? _strokes.first : null;
@@ -28,19 +30,24 @@ class ActorShape extends ActorDrawable {
   static ActorShape read(
       ActorArtboard artboard, StreamReader reader, ActorShape component) {
     ActorDrawable.read(artboard, reader, component);
+    if (artboard.actor.version >= 22) {
+      component._transformAffectsStroke =
+          reader.readBool("transformAffectsStroke");
+    }
 
     return component;
   }
 
   @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ActorShape instanceShape = resetArtboard.actor.makeShapeNode();
+    ActorShape instanceShape = resetArtboard.actor.makeShapeNode(this);
     instanceShape.copyShape(this, resetArtboard);
     return instanceShape;
   }
 
   void copyShape(ActorShape node, ActorArtboard resetArtboard) {
     copyDrawable(node, resetArtboard);
+	node._transformAffectsStroke = _transformAffectsStroke;
   }
 
   @override

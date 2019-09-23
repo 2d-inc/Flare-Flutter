@@ -456,7 +456,8 @@ class ActorArtboard {
           break;
 
         case BlockTypes.ActorShape:
-          component = ActorShape.read(this, nodeBlock, actor.makeShapeNode());
+          component =
+              ActorShape.read(this, nodeBlock, actor.makeShapeNode(null));
           break;
 
         case BlockTypes.ActorPath:

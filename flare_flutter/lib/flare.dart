@@ -224,6 +224,10 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     return _path;
   }
 
+  ui.Path getRenderPath(ui.Canvas canvas) {
+    return path;
+  }
+
   @override
   void draw(ui.Canvas canvas) {
     if (!doesDraw) {
@@ -231,8 +235,6 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     }
 
     canvas.save();
-
-    ui.Path renderPath = path;
 
     // Get Clips
     for (final List<ActorShape> clips in clipShapes) {
@@ -258,6 +260,9 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
         }
       }
     }
+
+    ui.Path renderPath = getRenderPath(canvas);
+
     if (fills != null) {
       for (final ActorFill actorFill in fills) {
         FlutterFill fill = actorFill as FlutterFill;
@@ -272,6 +277,60 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     }
 
     canvas.restore();
+  }
+}
+
+class FlutterActorShapeWithTransformedStroke extends FlutterActorShape {
+  ui.Path _localPath;
+  bool _isLocalValid = false;
+
+  @override
+  void initializeGraphics() {
+    super.initializeGraphics();
+    _localPath = ui.Path();
+  }
+
+  @override
+  void invalidateShape() {
+    _isLocalValid = false;
+    super.invalidateShape();
+  }
+
+  ui.Path get localPath {
+    if (_isLocalValid) {
+      return _localPath;
+    }
+    _isLocalValid = true;
+    _localPath.reset();
+
+    Mat2D inverseWorld = Mat2D();
+    if (!Mat2D.invert(inverseWorld, worldTransform)) {
+      Mat2D.identity(inverseWorld);
+    }
+
+    if (children != null) {
+      for (final ActorNode node in children) {
+        FlutterPath flutterPath = node as FlutterPath;
+        if (flutterPath != null) {
+          Mat2D transform = (node as ActorBasePath).pathTransform;
+
+          Mat2D localTransform;
+          if (transform != null) {
+            localTransform = Mat2D();
+            Mat2D.multiply(localTransform, inverseWorld, transform);
+          }
+          _localPath.addPath(flutterPath.path, ui.Offset.zero,
+              matrix4: localTransform?.mat4);
+        }
+      }
+    }
+    return _localPath;
+  }
+
+  @override
+  ui.Path getRenderPath(ui.Canvas canvas) {
+    canvas.transform(worldTransform.mat4);
+    return localPath;
   }
 }
 
@@ -598,8 +657,10 @@ class FlutterActor extends Actor {
   }
 
   @override
-  ActorShape makeShapeNode() {
-    return FlutterActorShape();
+  ActorShape makeShapeNode(ActorShape source) {
+    return source?.transformAffectsStroke ?? false
+        ? FlutterActorShapeWithTransformedStroke()
+        : FlutterActorShape();
   }
 
   @override
@@ -723,7 +784,7 @@ class FlutterActorArtboard extends ActorArtboard {
   FlutterActorArtboard(FlutterActor actor) : super(actor);
 
   void draw(ui.Canvas canvas) {
-    if(clipContents) {
+    if (clipContents) {
       canvas.save();
       AABB aabb = artboardAABB();
       canvas.clipRect(Rect.fromLTRB(aabb[0], aabb[1], aabb[2], aabb[3]));
@@ -733,7 +794,7 @@ class FlutterActorArtboard extends ActorArtboard {
         (drawable as FlutterActorDrawable).draw(canvas);
       }
     }
-    if(clipContents) {
+    if (clipContents) {
       canvas.restore();
     }
   }

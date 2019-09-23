@@ -1,3 +1,7 @@
+## [1.4.7] - 2019-09-23 16:42:53
+
+- Added support for transformAffectsStroke property on ActorShape.
+
 ## [1.4.6] - 2019-09-04 08:48:11
 
 - Prevent iterating null children. Fixes issue #146.

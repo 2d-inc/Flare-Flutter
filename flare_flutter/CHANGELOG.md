@@ -1,3 +1,7 @@
+## [1.5.10] - 2019-09-30 21:20:50
+
+- Bump flare_dart dependency.
+
 ## [1.5.9] - 2019-09-23 16:43:42
 
 - Added support for transformAffectsStroke property on ActorShape. Internally this requires a new concrete type for the FlutterActorShape as the transformAffectsStroke property requires a slightly more complex version of FlutterActorShape. In order to keep existing animations (and future ones that don't use this) streamlined, a new FlutterActorShapeWithTransformedStroke class was added that extends from FlutterActorShape.

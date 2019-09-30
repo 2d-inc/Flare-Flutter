@@ -65,6 +65,7 @@ abstract class ActorDrawable extends ActorNode {
           if (node is ActorShape) {
             shapes.add(node);
           }
+          return true;
         });
       }
       if (shapes.length > 0) {

@@ -1,5 +1,4 @@
 import "dart:typed_data";
-import "actor_path.dart";
 import "actor_skinnable.dart";
 import "actor_artboard.dart";
 import "actor_component.dart";

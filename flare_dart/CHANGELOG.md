@@ -1,3 +1,7 @@
+## [1.4.8] - 2019-09-30 21:19:37
+
+- Fixing linting problems in ActorDrawable and ActorSkin.
+
 ## [1.4.7] - 2019-09-23 16:42:53
 
 - Added support for transformAffectsStroke property on ActorShape.

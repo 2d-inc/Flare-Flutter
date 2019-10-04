@@ -1,3 +1,7 @@
+## [1.5.11] - 2019-10-04 13:44:04
+
+- Clamping trim start/end values to 0-1.
+
 ## [1.5.10] - 2019-09-30 21:20:50
 
 - Bump flare_dart dependency.

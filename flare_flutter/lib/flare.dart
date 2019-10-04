@@ -128,8 +128,8 @@ abstract class FlutterStroke {
     if (stroke.isTrimmed) {
       if (effectPath == null) {
         bool isSequential = stroke.trim == TrimPath.Sequential;
-        double start = stroke.trimStart;
-        double end = stroke.trimEnd;
+        double start = stroke.trimStart.clamp(0, 1).toDouble();
+        double end = stroke.trimEnd.clamp(0, 1).toDouble();
         double offset = stroke.trimOffset;
         bool inverted = start > end;
         if ((start - end).abs() != 1.0) {

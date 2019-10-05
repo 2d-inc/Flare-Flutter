@@ -11,21 +11,34 @@ class FlareCacheAsset extends CacheAsset {
   FlutterActor _actor;
   FlutterActor get actor => _actor;
 
+  static bool useCompute = true;
+
+  void loadedActor(FlutterActor actor, String filename) {
+    actor.loadImages().then((_) {
+      if (actor != null) {
+        _actor = actor;
+        completeLoad();
+      } else {
+        print("Failed to load flare file from $filename.");
+      }
+    });
+  }
+
   @override
   void load(Cache cache, String filename) {
     super.load(cache, filename);
     if (cache is AssetBundleCache) {
       cache.bundle.load(filename).then((ByteData data) {
-        compute(FlutterActor.loadFromByteData, data).then((FlutterActor actor) {
-          actor.loadImages().then((_) {
-            if (actor != null) {
-              _actor = actor;
-              completeLoad();
-            } else {
-              print("Failed to load flare file from $filename.");
-            }
+        if (useCompute) {
+          compute(FlutterActor.loadFromByteData, data)
+              .then((FlutterActor actor) {
+            loadedActor(actor, filename);
           });
-        });
+        } else {
+          FlutterActor.loadFromByteData(data).then((FlutterActor actor) {
+            loadedActor(actor, filename);
+          });
+        }
       });
     }
   }

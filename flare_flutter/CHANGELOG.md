@@ -1,3 +1,7 @@
+## [1.5.12] - 2019-10-04 17:56:54
+
+- Introduce FlareTesting.setup(); call this prior to running any tests using Flare content.
+
 ## [1.5.11] - 2019-10-04 13:44:04
 
 - Clamping trim start/end values to 0-1.

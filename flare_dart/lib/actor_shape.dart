@@ -11,6 +11,7 @@ import "math/vec2d.dart";
 import "stream_reader.dart";
 
 class ActorShape extends ActorDrawable {
+  final List<ActorBasePath> _paths = <ActorBasePath>[];
   final List<ActorStroke> _strokes = <ActorStroke>[];
   final List<ActorFill> _fills = <ActorFill>[];
   bool _transformAffectsStroke = false;
@@ -20,6 +21,7 @@ class ActorShape extends ActorDrawable {
   ActorStroke get stroke => _strokes.isNotEmpty ? _strokes.first : null;
   List<ActorFill> get fills => _fills;
   List<ActorStroke> get strokes => _strokes;
+  List<ActorBasePath> get paths => _paths;
 
   @override
   void update(int dirt) {
@@ -47,7 +49,7 @@ class ActorShape extends ActorDrawable {
 
   void copyShape(ActorShape node, ActorArtboard resetArtboard) {
     copyDrawable(node, resetArtboard);
-	node._transformAffectsStroke = _transformAffectsStroke;
+    node._transformAffectsStroke = _transformAffectsStroke;
   }
 
   @override
@@ -177,4 +179,16 @@ class ActorShape extends ActorDrawable {
 
   @override
   set blendModeId(int value) {}
+
+  bool addPath(ActorBasePath path) {
+    if (_paths.contains(path)) {
+      return false;
+    }
+    _paths.add(path);
+    return true;
+  }
+
+  bool removePath(ActorBasePath path) {
+    return _paths.remove(path);
+  }
 }

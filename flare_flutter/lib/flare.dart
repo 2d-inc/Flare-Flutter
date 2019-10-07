@@ -174,13 +174,8 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
   void initializeGraphics() {
     super.initializeGraphics();
     _path = ui.Path();
-    if (children != null) {
-      for (final ActorNode node in children) {
-        FlutterPath flutterPath = node as FlutterPath;
-        if (flutterPath != null) {
-          flutterPath.initializeGraphics();
-        }
-      }
+    for (final ActorBasePath path in paths) {
+      (path as FlutterPath).initializeGraphics();
     }
   }
 
@@ -211,15 +206,10 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     _isValid = true;
     _path.reset();
 
-    if (children != null) {
-      for (final ActorNode node in children) {
-        FlutterPath flutterPath = node as FlutterPath;
-        if (flutterPath != null) {
-          Mat2D transform = (node as ActorBasePath).pathTransform;
-          _path.addPath(flutterPath.path, ui.Offset.zero,
-              matrix4: transform?.mat4);
-        }
-      }
+    for (final ActorBasePath path in paths) {
+      Mat2D transform = path.pathTransform;
+      _path.addPath((path as FlutterPath).path, ui.Offset.zero,
+          matrix4: transform?.mat4);
     }
     return _path;
   }
@@ -308,21 +298,16 @@ class FlutterActorShapeWithTransformedStroke extends FlutterActorShape {
       Mat2D.identity(inverseWorld);
     }
 
-    if (children != null) {
-      for (final ActorNode node in children) {
-        FlutterPath flutterPath = node as FlutterPath;
-        if (flutterPath != null) {
-          Mat2D transform = (node as ActorBasePath).pathTransform;
+    for (final ActorBasePath path in paths) {
+      Mat2D transform = path.pathTransform;
 
-          Mat2D localTransform;
-          if (transform != null) {
-            localTransform = Mat2D();
-            Mat2D.multiply(localTransform, inverseWorld, transform);
-          }
-          _localPath.addPath(flutterPath.path, ui.Offset.zero,
-              matrix4: localTransform?.mat4);
-        }
+      Mat2D localTransform;
+      if (transform != null) {
+        localTransform = Mat2D();
+        Mat2D.multiply(localTransform, inverseWorld, transform);
       }
+      _localPath.addPath((path as FlutterPath).path, ui.Offset.zero,
+          matrix4: localTransform?.mat4);
     }
     return _localPath;
   }

@@ -342,6 +342,7 @@ class ActorNode extends ActorComponent {
     }
   }
 
+  @override
   void resolveComponentIndices(List<ActorComponent> components) {
     super.resolveComponentIndices(components);
 
@@ -349,18 +350,22 @@ class ActorNode extends ActorComponent {
       return;
     }
 
-    for (ActorClip clip in _clips) {
-      clip.node = components[clip.clipIdx];
+    for (final ActorClip clip in _clips) {
+      final ActorComponent component = components[clip.clipIdx];
+      if (component is ActorNode) {
+        clip.node = component;
+      }
     }
   }
 
+  @override
   void completeResolve() {
     // Nothing to complete for actornode.
   }
 
   bool eachChildRecursive(NodeWalkCallback cb) {
     if (_children != null) {
-      for (ActorNode child in _children) {
+      for (final ActorNode child in _children) {
         if (cb(child) == false) {
           return false;
         }

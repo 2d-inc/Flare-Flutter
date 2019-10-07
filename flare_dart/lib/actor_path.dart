@@ -1,23 +1,27 @@
 import "dart:typed_data";
-import "actor_shape.dart";
+import "actor_artboard.dart";
 import "actor_component.dart";
 import "actor_node.dart";
+import "actor_shape.dart";
 import "actor_skinnable.dart";
-import "actor_artboard.dart";
-import "stream_reader.dart";
-import "path_point.dart";
-import "math/vec2d.dart";
-import "math/mat2d.dart";
 import "math/aabb.dart";
+import "math/mat2d.dart";
+import "math/vec2d.dart";
+import "path_point.dart";
+import "stream_reader.dart";
 
 abstract class ActorBasePath {
-  //bool get isClosed;
+  ActorShape _shape;
+  ActorShape get shape => _shape;
+  bool _isRootPath = false;
+  bool get isRootPath => _isRootPath;
   List<PathPoint> get points;
   ActorNode get parent;
   void invalidatePath();
   bool get isPathInWorldSpace => false;
   Mat2D get pathTransform;
   Mat2D get transform;
+  Mat2D get worldTransform;
   List<List<ActorClip>> get allClips;
   List<PathPoint> get deformedPoints => points;
 
@@ -41,11 +45,16 @@ abstract class ActorBasePath {
       //  convert the path coordinates into local parent space.
       localTransform = Mat2D();
       Mat2D.invert(localTransform, parent.worldTransform);
+    } else if (!_isRootPath) {
+      // Path isn't root, so get transform in shape space.
+      if (Mat2D.invert(localTransform, shape.worldTransform)) {
+        Mat2D.multiply(localTransform, localTransform, worldTransform);
+      }
     } else {
       localTransform = transform;
     }
 
-    for (Vec2D p in pts) {
+    for (final Vec2D p in pts) {
       Vec2D wp = Vec2D.transformMat2D(p, p, localTransform);
       if (wp[0] < minX) {
         minX = wp[0];
@@ -64,10 +73,10 @@ abstract class ActorBasePath {
     return AABB.fromValues(minX, minY, maxX, maxY);
   }
 
-  invalidateDrawable() {
+  void invalidateDrawable() {
     invalidatePath();
-    if (parent is ActorShape) {
-      parent.invalidateShape();
+    if (shape != null) {
+      shape.invalidateShape();
     }
   }
 
@@ -78,7 +87,7 @@ abstract class ActorBasePath {
     double maxY = -double.maxFinite;
 
     List<PathPoint> renderPoints = points;
-    for (PathPoint point in renderPoints) {
+    for (final PathPoint point in renderPoints) {
       Vec2D t = point.translation;
       double x = t[0];
       double y = t[1];
@@ -132,6 +141,27 @@ abstract class ActorBasePath {
 
     return AABB.fromValues(minX, minY, maxX, maxY);
   }
+
+  void updateShape() {
+    if (_shape != null) {
+      _shape.removePath(this);
+    }
+    ActorNode possibleShape = parent;
+    while (possibleShape != null && possibleShape is! ActorShape) {
+      possibleShape = possibleShape.parent;
+    }
+    if (possibleShape != null) {
+      _shape = possibleShape as ActorShape;
+      _shape.addPath(this);
+    } else {
+      _shape = null;
+    }
+    _isRootPath = _shape == parent;
+  }
+
+  void completeResolve() {
+    updateShape();
+  }
 }
 
 abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
@@ -168,8 +198,8 @@ abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
   void onDirty(int dirt) {
     super.onDirty(dirt);
     // We transformed, make sure parent is invalidated.
-    if (parent is ActorShape) {
-      parent.invalidateShape();
+    if (shape != null) {
+      shape.invalidateShape();
     }
   }
 }
@@ -204,7 +234,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
 
     Float32List boneMatrices = skin.boneMatrices;
     List<PathPoint> deformed = <PathPoint>[];
-    for (PathPoint point in _points) {
+    for (final PathPoint point in _points) {
       deformed.add(point.skin(worldTransform, boneMatrices));
     }
     return deformed;
@@ -218,8 +248,8 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
   void onDirty(int dirt) {
     super.onDirty(dirt);
     // We transformed, make sure parent is invalidated.
-    if (parent is ActorShape) {
-      parent.invalidateShape();
+    if (shape != null) {
+      shape.invalidateShape();
     }
   }
 
@@ -232,7 +262,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     });
     Float32List vertices = Float32List(length);
     int readIdx = 0;
-    for (PathPoint point in points) {
+    for (final PathPoint point in points) {
       vertices[readIdx++] = point.translation[0];
       vertices[readIdx++] = point.translation[1];
       if (point.pointType == PointType.Straight) {
@@ -257,11 +287,12 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     artboard.addDirt(this, VertexDeformDirty, false);
   }
 
+  @override
   void update(int dirt) {
     if (vertexDeform != null &&
         (dirt & VertexDeformDirty) == VertexDeformDirty) {
       int readIdx = 0;
-      for (PathPoint point in _points) {
+      for (final PathPoint point in _points) {
         point.translation[0] = vertexDeform[readIdx++];
         point.translation[1] = vertexDeform[readIdx++];
         switch (point.pointType) {
@@ -286,10 +317,8 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
 
   static ActorPath read(
       ActorArtboard artboard, StreamReader reader, ActorPath component) {
-    if (component == null) {
-      component = ActorPath();
-    }
-	ActorNode.read(artboard, reader, component);
+    component ??= ActorPath();
+    ActorNode.read(artboard, reader, component);
     ActorSkinnable.read(artboard, reader, component);
 
     component._isHidden = !reader.readBool("isVisible");
@@ -333,14 +362,14 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     return instanceEvent;
   }
 
-	@override
+  @override
   void resolveComponentIndices(List<ActorComponent> components) {
-	  super.resolveComponentIndices(components);
-	  resolveSkinnable(components);
+    super.resolveComponentIndices(components);
+    resolveSkinnable(components);
   }
 
   void copyPath(ActorPath node, ActorArtboard resetArtboard) {
-	copyNode(node, resetArtboard);
+    copyNode(node, resetArtboard);
     copySkinnable(node, resetArtboard);
     _isHidden = node._isHidden;
     _isClosed = node._isClosed;

@@ -1,3 +1,7 @@
+## [1.5.13] - 2019-10-07 11:21:29
+
+- Using latest flare_dart with support for Nodes inside of Shapes (Paths with multiple transform spaces).
+
 ## [1.5.12] - 2019-10-04 17:56:54
 
 - Introduce FlareTesting.setup(); call this prior to running any tests using Flare content.

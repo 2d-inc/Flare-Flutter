@@ -20,7 +20,7 @@ class PropertyAnimation {
   }
 
   static PropertyAnimation read(StreamReader reader, ActorComponent component) {
-    StreamReader propertyBlock = reader.readNextBlock(PropertyTypesMap);
+    StreamReader propertyBlock = reader.readNextBlock(propertyTypesMap);
     if (propertyBlock == null) {
       return null;
     }
@@ -30,107 +30,107 @@ class PropertyAnimation {
 
     KeyFrameReader keyFrameReader;
     switch (propertyAnimation._type) {
-      case PropertyTypes.PosX:
+      case PropertyTypes.posX:
         keyFrameReader = KeyFramePosX.read;
         break;
-      case PropertyTypes.PosY:
+      case PropertyTypes.posY:
         keyFrameReader = KeyFramePosY.read;
         break;
-      case PropertyTypes.ScaleX:
+      case PropertyTypes.scaleX:
         keyFrameReader = KeyFrameScaleX.read;
         break;
-      case PropertyTypes.ScaleY:
+      case PropertyTypes.scaleY:
         keyFrameReader = KeyFrameScaleY.read;
         break;
-      case PropertyTypes.Rotation:
+      case PropertyTypes.rotation:
         keyFrameReader = KeyFrameRotation.read;
         break;
-      case PropertyTypes.Opacity:
+      case PropertyTypes.opacity:
         keyFrameReader = KeyFrameOpacity.read;
         break;
-      case PropertyTypes.DrawOrder:
+      case PropertyTypes.drawOrder:
         keyFrameReader = KeyFrameDrawOrder.read;
         break;
-      case PropertyTypes.Length:
+      case PropertyTypes.length:
         keyFrameReader = KeyFrameLength.read;
         break;
-      case PropertyTypes.ImageVertices:
+      case PropertyTypes.imageVertices:
         keyFrameReader = KeyFrameImageVertices.read;
         break;
-      case PropertyTypes.ConstraintStrength:
+      case PropertyTypes.constraintStrength:
         keyFrameReader = KeyFrameConstraintStrength.read;
         break;
-      case PropertyTypes.Trigger:
+      case PropertyTypes.trigger:
         keyFrameReader = KeyFrameTrigger.read;
         break;
-      case PropertyTypes.IntProperty:
+      case PropertyTypes.intProperty:
         keyFrameReader = KeyFrameIntProperty.read;
         break;
-      case PropertyTypes.FloatProperty:
+      case PropertyTypes.floatProperty:
         keyFrameReader = KeyFrameFloatProperty.read;
         break;
-      case PropertyTypes.StringProperty:
+      case PropertyTypes.stringProperty:
         keyFrameReader = KeyFrameStringProperty.read;
         break;
-      case PropertyTypes.BooleanProperty:
+      case PropertyTypes.booleanProperty:
         keyFrameReader = KeyFrameBooleanProperty.read;
         break;
-      case PropertyTypes.CollisionEnabled:
+      case PropertyTypes.collisionEnabled:
         keyFrameReader = KeyFrameCollisionEnabledProperty.read;
         break;
-      case PropertyTypes.ActiveChildIndex:
+      case PropertyTypes.activeChildIndex:
         keyFrameReader = KeyFrameActiveChild.read;
         break;
-      case PropertyTypes.Sequence:
+      case PropertyTypes.sequence:
         keyFrameReader = KeyFrameSequence.read;
         break;
-      case PropertyTypes.PathVertices:
+      case PropertyTypes.pathVertices:
         keyFrameReader = KeyFramePathVertices.read;
         break;
-      case PropertyTypes.FillColor:
+      case PropertyTypes.fillColor:
         keyFrameReader = KeyFrameFillColor.read;
         break;
-      case PropertyTypes.FillGradient:
+      case PropertyTypes.fillGradient:
         keyFrameReader = KeyFrameGradient.read;
         break;
-      case PropertyTypes.StrokeGradient:
+      case PropertyTypes.strokeGradient:
         keyFrameReader = KeyFrameGradient.read;
         break;
-      case PropertyTypes.FillRadial:
+      case PropertyTypes.fillRadial:
         keyFrameReader = KeyFrameRadial.read;
         break;
-      case PropertyTypes.StrokeRadial:
+      case PropertyTypes.strokeRadial:
         keyFrameReader = KeyFrameRadial.read;
         break;
-      case PropertyTypes.StrokeColor:
+      case PropertyTypes.strokeColor:
         keyFrameReader = KeyFrameStrokeColor.read;
         break;
-      case PropertyTypes.StrokeWidth:
+      case PropertyTypes.strokeWidth:
         keyFrameReader = KeyFrameStrokeWidth.read;
         break;
-      case PropertyTypes.StrokeOpacity:
-      case PropertyTypes.FillOpacity:
+      case PropertyTypes.strokeOpacity:
+      case PropertyTypes.fillOpacity:
         keyFrameReader = KeyFramePaintOpacity.read;
         break;
-      case PropertyTypes.ShapeWidth:
+      case PropertyTypes.shapeWidth:
         keyFrameReader = KeyFrameShapeWidth.read;
         break;
-      case PropertyTypes.ShapeHeight:
+      case PropertyTypes.shapeHeight:
         keyFrameReader = KeyFrameShapeHeight.read;
         break;
-      case PropertyTypes.CornerRadius:
+      case PropertyTypes.cornerRadius:
         keyFrameReader = KeyFrameCornerRadius.read;
         break;
-      case PropertyTypes.InnerRadius:
+      case PropertyTypes.innerRadius:
         keyFrameReader = KeyFrameInnerRadius.read;
         break;
-      case PropertyTypes.StrokeStart:
+      case PropertyTypes.strokeStart:
         keyFrameReader = KeyFrameStrokeStart.read;
         break;
-      case PropertyTypes.StrokeEnd:
+      case PropertyTypes.strokeEnd:
         keyFrameReader = KeyFrameStrokeEnd.read;
         break;
-      case PropertyTypes.StrokeOffset:
+      case PropertyTypes.strokeOffset:
         keyFrameReader = KeyFrameStrokeOffset.read;
         break;
     }
@@ -306,7 +306,7 @@ class ActorAnimation {
       ComponentAnimation keyedComponent = _triggerComponents[i];
       for (final PropertyAnimation property in keyedComponent.properties) {
         switch (property.propertyType) {
-          case PropertyTypes.Trigger:
+          case PropertyTypes.trigger:
             List<KeyFrame> keyFrames = property.keyFrames;
 
             int kfl = keyFrames.length;

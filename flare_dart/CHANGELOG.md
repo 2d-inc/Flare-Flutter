@@ -1,3 +1,8 @@
+## [2.0.0] - 2019-10-08 13:38:26
+
+- Fixing up various static analysis issues.
+- Need to bump version to 2.0.0 due to breaking changes between flare_flutter and flare_dart caused by resolving analysis issues.
+
 ## [1.4.9] - 2019-10-07 11:20:58
 
 - Supporting Nodes inside of Shapes, effectively adding multiple transform spaces inside of a shape.

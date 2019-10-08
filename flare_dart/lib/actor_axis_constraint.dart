@@ -1,7 +1,7 @@
 import "actor_artboard.dart";
 import "actor_targeted_constraint.dart";
-import "transform_space.dart";
 import "stream_reader.dart";
+import "transform_space.dart";
 
 abstract class ActorAxisConstraint extends ActorTargetedConstraint {
   bool _copyX = false;
@@ -19,9 +19,9 @@ abstract class ActorAxisConstraint extends ActorTargetedConstraint {
   double _minY = 0.0;
   double _maxY = 0.0;
 
-  int _sourceSpace = TransformSpace.World;
-  int _destSpace = TransformSpace.World;
-  int _minMaxSpace = TransformSpace.World;
+  int _sourceSpace = TransformSpace.world;
+  int _destSpace = TransformSpace.world;
+  int _minMaxSpace = TransformSpace.world;
 
   ActorAxisConstraint() : super();
 
@@ -91,24 +91,24 @@ abstract class ActorAxisConstraint extends ActorTargetedConstraint {
   }
 
   @override
-  onDirty(int dirt) {
+  void onDirty(int dirt) {
     markDirty();
   }
 
-  get copyX => _copyX;
-  get copyY => _copyY;
-  get destSpace => _destSpace;
-  get enableMaxX => _enableMaxX;
-  get enableMaxY => _enableMaxY;
-  get enableMinX => _enableMinX;
-  get enableMinY => _enableMinY;
-  get maxX => _maxX;
-  get maxY => _maxY;
-  get minMaxSpace => _minMaxSpace;
-  get minX => _minX;
-  get minY => _minY;
-  get offset => _offset;
-  get scaleX => _scaleX;
-  get scaleY => _scaleY;
-  get sourceSpace => _sourceSpace;
+  bool get copyX => _copyX;
+  bool get copyY => _copyY;
+  int get destSpace => _destSpace;
+  bool get enableMaxX => _enableMaxX;
+  bool get enableMaxY => _enableMaxY;
+  bool get enableMinX => _enableMinX;
+  bool get enableMinY => _enableMinY;
+  double get maxX => _maxX;
+  double get maxY => _maxY;
+  int get minMaxSpace => _minMaxSpace;
+  double get minX => _minX;
+  double get minY => _minY;
+  bool get offset => _offset;
+  double get scaleX => _scaleX;
+  double get scaleY => _scaleY;
+  int get sourceSpace => _sourceSpace;
 }

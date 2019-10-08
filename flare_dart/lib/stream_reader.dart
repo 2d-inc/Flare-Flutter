@@ -7,7 +7,7 @@ abstract class StreamReader {
   int blockType = 0;
 
   // Instantiate the right type of Reader based on the input values
-  factory StreamReader(data) {
+  factory StreamReader(dynamic data) {
     StreamReader reader;
     if (data is ByteData) {
       reader = BlockReader(data);

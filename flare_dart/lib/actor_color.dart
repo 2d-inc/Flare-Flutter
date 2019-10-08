@@ -10,23 +10,23 @@ import 'math/mat2d.dart';
 import "math/vec2d.dart";
 import "stream_reader.dart";
 
-enum FillRule { EvenOdd, NonZero }
-enum StrokeCap { Butt, Round, Square }
-enum StrokeJoin { Miter, Round, Bevel }
-enum TrimPath { Off, Sequential, Synced }
+enum FillRule { evenOdd, nonZero }
+enum StrokeCap { butt, round, square }
+enum StrokeJoin { miter, round, bevel }
+enum TrimPath { off, sequential, synced }
 
 final HashMap<int, FillRule> fillRuleLookup =
     HashMap<int, FillRule>.fromIterables(
-        [0, 1], [FillRule.EvenOdd, FillRule.NonZero]);
+        [0, 1], [FillRule.evenOdd, FillRule.nonZero]);
 final HashMap<int, StrokeCap> strokeCapLookup =
     HashMap<int, StrokeCap>.fromIterables(
-        [0, 1, 2], [StrokeCap.Butt, StrokeCap.Round, StrokeCap.Square]);
+        [0, 1, 2], [StrokeCap.butt, StrokeCap.round, StrokeCap.square]);
 final HashMap<int, StrokeJoin> strokeJoinLookup =
     HashMap<int, StrokeJoin>.fromIterables(
-        [0, 1, 2], [StrokeJoin.Miter, StrokeJoin.Round, StrokeJoin.Bevel]);
+        [0, 1, 2], [StrokeJoin.miter, StrokeJoin.round, StrokeJoin.bevel]);
 final HashMap<int, TrimPath> trimPathLookup =
     HashMap<int, TrimPath>.fromIterables(
-        [0, 1, 2], [TrimPath.Off, TrimPath.Sequential, TrimPath.Synced]);
+        [0, 1, 2], [TrimPath.off, TrimPath.sequential, TrimPath.synced]);
 
 abstract class ActorPaint extends ActorComponent {
   double _opacity = 1.0;
@@ -60,7 +60,7 @@ abstract class ActorPaint extends ActorComponent {
   ActorShape get shape => parent as ActorShape;
 
   void markPaintDirty() {
-    artboard.addDirt(this, DirtyFlags.PaintDirty, false);
+    artboard.addDirt(this, DirtyFlags.paintDirty, false);
   }
 }
 
@@ -111,7 +111,7 @@ abstract class ActorColor extends ActorPaint {
 }
 
 abstract class ActorFill {
-  FillRule _fillRule = FillRule.EvenOdd;
+  FillRule _fillRule = FillRule.evenOdd;
   FillRule get fillRule => _fillRule;
 
   static void read(
@@ -137,15 +137,15 @@ abstract class ActorStroke {
     markPaintDirty();
   }
 
-  StrokeCap _cap = StrokeCap.Butt;
-  StrokeJoin _join = StrokeJoin.Miter;
+  StrokeCap _cap = StrokeCap.butt;
+  StrokeJoin _join = StrokeJoin.miter;
   StrokeCap get cap => _cap;
   StrokeJoin get join => _join;
 
-  TrimPath _trim = TrimPath.Off;
+  TrimPath _trim = TrimPath.off;
 
   TrimPath get trim => _trim;
-  bool get isTrimmed => _trim != TrimPath.Off;
+  bool get isTrimmed => _trim != TrimPath.off;
 
   double _trimStart = 0.0;
   double get trimStart => _trimStart;
@@ -188,7 +188,7 @@ abstract class ActorStroke {
       component._join = strokeJoinLookup[reader.readUint8("join")];
       if (artboard.actor.version >= 20) {
         component._trim =
-            trimPathLookup[reader.readUint8("trim")] ?? TrimPath.Off;
+            trimPathLookup[reader.readUint8("trim")] ?? TrimPath.off;
         if (component.isTrimmed) {
           component._trimStart = reader.readFloat32("start");
           component._trimEnd = reader.readFloat32("end");

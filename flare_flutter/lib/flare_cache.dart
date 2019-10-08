@@ -9,7 +9,7 @@ class FlareCache extends AssetBundleCache<FlareCacheAsset> {
   FlareCache(AssetBundle bundle) : super(bundle);
 
   static bool doesPrune = true;
-  static Duration pruneDelay = Duration(seconds: 2);
+  static Duration pruneDelay = const Duration(seconds: 2);
 
   @override
   bool get isPruningEnabled => doesPrune;

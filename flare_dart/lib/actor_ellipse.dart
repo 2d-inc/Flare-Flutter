@@ -1,14 +1,15 @@
-import "actor_component.dart";
 import "actor_artboard.dart";
+import "actor_component.dart";
 import "actor_node.dart";
-import "math/vec2d.dart";
-import "stream_reader.dart";
 import "actor_path.dart";
+import "math/vec2d.dart";
 import "path_point.dart";
+import "stream_reader.dart";
 
-const double CircleConstant = 0.55;
+const double circleConstant = 0.55;
 
 class ActorEllipse extends ActorProceduralPath {
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorEllipse instance = ActorEllipse();
     instance.copyPath(this, resetArtboard);
@@ -20,9 +21,7 @@ class ActorEllipse extends ActorProceduralPath {
 
   static ActorEllipse read(
       ActorArtboard artboard, StreamReader reader, ActorEllipse component) {
-    if (component == null) {
-      component = ActorEllipse();
-    }
+    component ??= ActorEllipse();
 
     ActorNode.read(artboard, reader, component);
 
@@ -36,20 +35,20 @@ class ActorEllipse extends ActorProceduralPath {
     List<PathPoint> _ellipsePathPoints = <PathPoint>[];
     _ellipsePathPoints.add(CubicPathPoint.fromValues(
         Vec2D.fromValues(0.0, -radiusY),
-        Vec2D.fromValues(-radiusX * CircleConstant, -radiusY),
-        Vec2D.fromValues(radiusX * CircleConstant, -radiusY)));
+        Vec2D.fromValues(-radiusX * circleConstant, -radiusY),
+        Vec2D.fromValues(radiusX * circleConstant, -radiusY)));
     _ellipsePathPoints.add(CubicPathPoint.fromValues(
         Vec2D.fromValues(radiusX, 0.0),
-        Vec2D.fromValues(radiusX, CircleConstant * -radiusY),
-        Vec2D.fromValues(radiusX, CircleConstant * radiusY)));
+        Vec2D.fromValues(radiusX, circleConstant * -radiusY),
+        Vec2D.fromValues(radiusX, circleConstant * radiusY)));
     _ellipsePathPoints.add(CubicPathPoint.fromValues(
         Vec2D.fromValues(0.0, radiusY),
-        Vec2D.fromValues(radiusX * CircleConstant, radiusY),
-        Vec2D.fromValues(-radiusX * CircleConstant, radiusY)));
+        Vec2D.fromValues(radiusX * circleConstant, radiusY),
+        Vec2D.fromValues(-radiusX * circleConstant, radiusY)));
     _ellipsePathPoints.add(CubicPathPoint.fromValues(
         Vec2D.fromValues(-radiusX, 0.0),
-        Vec2D.fromValues(-radiusX, radiusY * CircleConstant),
-        Vec2D.fromValues(-radiusX, -radiusY * CircleConstant)));
+        Vec2D.fromValues(-radiusX, radiusY * circleConstant),
+        Vec2D.fromValues(-radiusX, -radiusY * circleConstant)));
 
     return _ellipsePathPoints;
   }
@@ -57,9 +56,9 @@ class ActorEllipse extends ActorProceduralPath {
   bool get isClosed => true;
 
   bool get doesDraw {
-    return !this.renderCollapsed;
+    return !renderCollapsed;
   }
 
-  double get radiusX => this.width / 2;
-  double get radiusY => this.height / 2;
+  double get radiusX => width / 2;
+  double get radiusY => height / 2;
 }

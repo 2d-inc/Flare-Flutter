@@ -1,10 +1,10 @@
-import "stream_reader.dart";
 import "actor_artboard.dart";
-import "math/mat2d.dart";
-import "math/vec2d.dart";
 import "actor_component.dart";
 import "actor_constraint.dart";
 import "actor_flags.dart";
+import "math/mat2d.dart";
+import "math/vec2d.dart";
+import "stream_reader.dart";
 
 typedef bool NodeWalkCallback(ActorNode node);
 
@@ -12,9 +12,7 @@ class ActorClip {
   int clipIdx;
   ActorNode node;
 
-  ActorClip(int idx) {
-    clipIdx = idx;
-  }
+  ActorClip(this.clipIdx);
 }
 
 class ActorNode extends ActorComponent {
@@ -38,8 +36,8 @@ class ActorNode extends ActorComponent {
   List<ActorConstraint> _constraints;
   List<ActorConstraint> _peerConstraints;
 
-  static const int TransformDirty = DirtyFlags.TransformDirty;
-  static const int WorldTransformDirty = DirtyFlags.WorldTransformDirty;
+  static const int transformDirty = DirtyFlags.transformDirty;
+  static const int worldTransformDirty = DirtyFlags.worldTransformDirty;
 
   ActorNode();
   ActorNode.withArtboard(ActorArtboard artboard) : super.withArtboard(artboard);
@@ -70,7 +68,9 @@ class ActorNode extends ActorComponent {
     return _worldTransform;
   }
 
-  // N.B. this should only be done if you really know what you're doing. Generally you want to manipulate the local translation, rotation, and scale of a Node.
+  // N.B. this should only be done if you really know what you're doing.
+  // Generally you want to manipulate the local translation, rotation,
+  // and scale of a Node.
   set worldTransform(Mat2D value) {
     Mat2D.copy(_worldTransform, value);
   }
@@ -177,7 +177,7 @@ class ActorNode extends ActorComponent {
 
   List<List<ActorClip>> get allClips {
     // Find clips.
-    List<List<ActorClip>> all = List<List<ActorClip>>();
+    List<List<ActorClip>> all = <List<ActorClip>>[];
     ActorNode clipSearch = this;
     while (clipSearch != null) {
       if (clipSearch.clips != null) {
@@ -194,10 +194,10 @@ class ActorNode extends ActorComponent {
       // Still loading?
       return;
     }
-    if (!artboard.addDirt(this, TransformDirty, false)) {
+    if (!artboard.addDirt(this, transformDirty, false)) {
       return;
     }
-    artboard.addDirt(this, WorldTransformDirty, true);
+    artboard.addDirt(this, worldTransformDirty, true);
   }
 
   void updateTransform() {
@@ -229,9 +229,7 @@ class ActorNode extends ActorComponent {
 
   static ActorNode read(
       ActorArtboard artboard, StreamReader reader, ActorNode node) {
-    if (node == null) {
-      node = ActorNode();
-    }
+    node ??= ActorNode();
     ActorComponent.read(artboard, reader, node);
     Vec2D.copyFromList(
         node._translation, reader.readFloat32Array(2, "translation"));
@@ -257,9 +255,7 @@ class ActorNode extends ActorComponent {
       node.parent._children.remove(node);
     }
     node.parent = this;
-    if (_children == null) {
-      _children = List<ActorNode>();
-    }
+    _children ??= <ActorNode>[];
     _children.add(node);
   }
 
@@ -267,6 +263,7 @@ class ActorNode extends ActorComponent {
     return _children;
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorNode instanceNode = ActorNode();
     instanceNode.copyNode(this, resetArtboard);
@@ -294,12 +291,11 @@ class ActorNode extends ActorComponent {
     }
   }
 
+  @override
   void onDirty(int dirt) {}
 
   bool addConstraint(ActorConstraint constraint) {
-    if (_constraints == null) {
-      _constraints = List<ActorConstraint>();
-    }
+    _constraints ??= <ActorConstraint>[];
     if (_constraints.contains(constraint)) {
       return false;
     }
@@ -308,9 +304,7 @@ class ActorNode extends ActorComponent {
   }
 
   bool addPeerConstraint(ActorConstraint constraint) {
-    if (_peerConstraints == null) {
-      _peerConstraints = List<ActorConstraint>();
-    }
+    _peerConstraints ??= <ActorConstraint>[];
     if (_peerConstraints.contains(constraint)) {
       return false;
     }
@@ -326,14 +320,15 @@ class ActorNode extends ActorComponent {
               : _constraints + _peerConstraints) ??
       <ActorConstraint>[];
 
+  @override
   void update(int dirt) {
-    if ((dirt & TransformDirty) == TransformDirty) {
+    if ((dirt & transformDirty) == transformDirty) {
       updateTransform();
     }
-    if ((dirt & WorldTransformDirty) == WorldTransformDirty) {
+    if ((dirt & worldTransformDirty) == worldTransformDirty) {
       updateWorldTransform();
       if (_constraints != null) {
-        for (ActorConstraint constraint in _constraints) {
+        for (final ActorConstraint constraint in _constraints) {
           if (constraint.isEnabled) {
             constraint.constrain(this);
           }

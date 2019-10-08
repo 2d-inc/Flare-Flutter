@@ -1,37 +1,36 @@
 import "actor_artboard.dart";
-import "actor_node.dart";
-import "stream_reader.dart";
 import "actor_axis_constraint.dart";
+import 'actor_component.dart';
+import "actor_node.dart";
 import "math/mat2d.dart";
 import "math/transform_components.dart";
+import "stream_reader.dart";
 import "transform_space.dart";
 
 class ActorScaleConstraint extends ActorAxisConstraint {
-  TransformComponents _componentsA = TransformComponents();
-  TransformComponents _componentsB = TransformComponents();
+  final TransformComponents _componentsA = TransformComponents();
+  final TransformComponents _componentsB = TransformComponents();
 
   ActorScaleConstraint() : super();
 
   static ActorScaleConstraint read(ActorArtboard artboard, StreamReader reader,
       ActorScaleConstraint component) {
-    if (component == null) {
-      component = ActorScaleConstraint();
-    }
+    component ??= ActorScaleConstraint();
     ActorAxisConstraint.read(artboard, reader, component);
     return component;
   }
 
   @override
-  makeInstance(ActorArtboard resetArtboard) {
+  ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorScaleConstraint node = ActorScaleConstraint();
     node.copyAxisConstraint(this, resetArtboard);
     return node;
   }
 
   @override
-  constrain(ActorNode node) {
-    ActorNode t = this.target;
-    ActorNode p = this.parent;
+  void constrain(ActorNode node) {
+    ActorNode t = target as ActorNode;
+    ActorNode p = parent;
     ActorNode grandParent = p.parent;
 
     Mat2D transformA = parent.worldTransform;
@@ -47,7 +46,7 @@ class ActorScaleConstraint extends ActorAxisConstraint {
       _componentsB[5] = _componentsA[5];
     } else {
       Mat2D.copy(transformB, t.worldTransform);
-      if (sourceSpace == TransformSpace.Local) {
+      if (sourceSpace == TransformSpace.local) {
         ActorNode sourceGrandParent = t.parent;
         if (sourceGrandParent != null) {
           Mat2D inverse = Mat2D();
@@ -57,30 +56,31 @@ class ActorScaleConstraint extends ActorAxisConstraint {
       }
       Mat2D.decompose(transformB, _componentsB);
 
-      if (!this.copyX) {
+      if (!copyX) {
         _componentsB[2] =
-            this.destSpace == TransformSpace.Local ? 1.0 : _componentsA[2];
+            destSpace == TransformSpace.local ? 1.0 : _componentsA[2];
       } else {
-        _componentsB[2] *= this.scaleX;
-        if (this.offset) {
+        _componentsB[2] *= scaleX;
+        if (offset) {
           _componentsB[2] *= parent.scaleX;
         }
       }
 
-      if (!this.copyY) {
+      if (!copyY) {
         _componentsB[3] =
-            this.destSpace == TransformSpace.Local ? 0.0 : _componentsA[3];
+            destSpace == TransformSpace.local ? 0.0 : _componentsA[3];
       } else {
-        _componentsB[3] *= this.scaleY;
+        _componentsB[3] *= scaleY;
 
-        if (this.offset) {
+        if (offset) {
           _componentsB[3] *= parent.scaleY;
         }
       }
 
-      if (destSpace == TransformSpace.Local) {
+      if (destSpace == TransformSpace.local) {
         // Destination space is in parent transform coordinates.
-        // Recompose the parent local transform and get it in world, then decompose the world for interpolation.
+        // Recompose the parent local transform and get it in world,
+        // then decompose the world for interpolation.
         if (grandParent != null) {
           Mat2D.compose(transformB, _componentsB);
           Mat2D.multiply(transformB, grandParent.worldTransform, transformB);
@@ -90,7 +90,7 @@ class ActorScaleConstraint extends ActorAxisConstraint {
     }
 
     bool clampLocal =
-        (minMaxSpace == TransformSpace.Local && grandParent != null);
+        minMaxSpace == TransformSpace.local && grandParent != null;
     if (clampLocal) {
       // Apply min max in local space, so transform to local coordinates first.
       Mat2D.compose(transformB, _componentsB);
@@ -99,17 +99,17 @@ class ActorScaleConstraint extends ActorAxisConstraint {
       Mat2D.multiply(transformB, inverse, transformB);
       Mat2D.decompose(transformB, _componentsB);
     }
-    if (this.enableMaxX && _componentsB[2] > this.maxX) {
-      _componentsB[2] = this.maxX;
+    if (enableMaxX && _componentsB[2] > maxX) {
+      _componentsB[2] = maxX;
     }
-    if (this.enableMinX && _componentsB[2] < this.minX) {
-      _componentsB[2] = this.minX;
+    if (enableMinX && _componentsB[2] < minX) {
+      _componentsB[2] = minX;
     }
-    if (this.enableMaxY && _componentsB[3] > this.maxY) {
-      _componentsB[3] = this.maxY;
+    if (enableMaxY && _componentsB[3] > maxY) {
+      _componentsB[3] = maxY;
     }
-    if (this.enableMinY && _componentsB[3] < this.minY) {
-      _componentsB[3] = this.minY;
+    if (enableMinY && _componentsB[3] < minY) {
+      _componentsB[3] = minY;
     }
     if (clampLocal) {
       // Transform back to world.
@@ -118,13 +118,13 @@ class ActorScaleConstraint extends ActorAxisConstraint {
       Mat2D.decompose(transformB, _componentsB);
     }
 
-    double ti = 1.0 - this.strength;
+    double ti = 1.0 - strength;
 
     _componentsB[4] = _componentsA[4];
     _componentsB[0] = _componentsA[0];
     _componentsB[1] = _componentsA[1];
-    _componentsB[2] = _componentsA[2] * ti + _componentsB[2] * this.strength;
-    _componentsB[3] = _componentsA[3] * ti + _componentsB[3] * this.strength;
+    _componentsB[2] = _componentsA[2] * ti + _componentsB[2] * strength;
+    _componentsB[3] = _componentsA[3] * ti + _componentsB[3] * strength;
     _componentsB[5] = _componentsA[5];
 
     Mat2D.compose(parent.worldTransform, _componentsB);

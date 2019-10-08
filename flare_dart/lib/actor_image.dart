@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 import 'package:flare_dart/actor_skinnable.dart';
 
-import "stream_reader.dart";
-import "math/mat2d.dart";
 import "actor_artboard.dart";
 import "actor_component.dart";
 import "actor_drawable.dart";
 import "math/aabb.dart";
+import "math/mat2d.dart";
+import "stream_reader.dart";
 
 class SequenceFrame {
   final int _atlasIndex;
@@ -23,9 +23,6 @@ class SequenceFrame {
 }
 
 class ActorImage extends ActorDrawable with ActorSkinnable {
-  @override
-  int drawIndex;
-
   @override
   int drawOrder;
 
@@ -130,9 +127,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 
   static ActorImage read(
       ActorArtboard artboard, StreamReader reader, ActorImage node) {
-    if (node == null) {
-      node = ActorImage();
-    }
+    node ??= ActorImage();
 
     ActorDrawable.read(artboard, reader, node);
     ActorSkinnable.read(artboard, reader, node);
@@ -200,11 +195,13 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 //     return node;
 //   }
 
+  @override
   void resolveComponentIndices(List<ActorComponent> components) {
     super.resolveComponentIndices(components);
     resolveSkinnable(components);
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorImage instanceNode = resetArtboard.actor.makeImageNode();
     instanceNode.copyImage(this, resetArtboard);

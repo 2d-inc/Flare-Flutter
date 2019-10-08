@@ -22,7 +22,6 @@ import 'package:flare_dart/actor_rectangle.dart';
 import 'package:flare_dart/actor_star.dart';
 import 'package:flare_dart/actor_triangle.dart';
 import 'package:flare_dart/actor_color.dart';
-import 'package:flare_dart/actor_node.dart';
 import 'package:flare_dart/actor_drawable.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_dart/math/vec2d.dart';

@@ -1,8 +1,8 @@
 import 'dart:math';
+import 'package:flare_dart/math/mat2d.dart';
 import 'flare.dart';
 import 'flare_actor.dart';
 import 'flare_controller.dart';
-import 'package:flare_dart/math/mat2d.dart';
 
 /// [FlareControls] is a concrete implementation of the [FlareController].
 ///
@@ -15,13 +15,14 @@ class FlareControls extends FlareController {
 
   /// The current [ActorAnimation].
   String _animationName;
-  double _mixSeconds = 0.1;
+  final double _mixSeconds = 0.1;
 
   /// The [FlareAnimationLayer]s currently active.
-  List<FlareAnimationLayer> _animationLayers = [];
+  final List<FlareAnimationLayer> _animationLayers = [];
 
   /// Called at initialization time, it stores the reference
   /// to the current [FlutterActorArtboard].
+  @override
   void initialize(FlutterActorArtboard artboard) {
     _artboard = artboard;
   }
@@ -46,6 +47,7 @@ class FlareControls extends FlareController {
     }
   }
 
+  @override
   void setViewTransform(Mat2D viewTransform) {}
 
   /// Advance all the [FlareAnimationLayer]s that are currently controlled
@@ -53,6 +55,7 @@ class FlareControls extends FlareController {
   ///
   /// If an animation completes during the current frame (and doesn't loop),
   /// the [onCompleted()] callback will be triggered.
+  @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
     int lastFullyMixed = -1;
     double lastMix = 0.0;
@@ -61,8 +64,8 @@ class FlareControls extends FlareController {
     List<FlareAnimationLayer> completed = [];
 
     /// This loop will mix all the currently active animation layers so that,
-    /// if an animation is played on top of the current one, it'll smoothly mix between
-    /// the two instead of immediately switching to the new one.
+    /// if an animation is played on top of the current one, it'll smoothly mix
+	///  between the two instead of immediately switching to the new one.
     for (int i = 0; i < _animationLayers.length; i++) {
       FlareAnimationLayer layer = _animationLayers[i];
       layer.mix += elapsed;
@@ -92,8 +95,8 @@ class FlareControls extends FlareController {
       }
     }
 
-    /// Removes the last fully mixed animation, if more than one animation is present.
-    /// If only one animation is playing (e.g. idle), nothing happens.
+    /// Removes the last fully mixed animation, if more than one animation is
+	///  present. If only one animation is playing (e.g. idle), nothing happens.
     /// Since animations are added to the end of [_animationLayers],
     /// everything before the last fully mixed animation can be
     /// assumed to be also fully mixed too.
@@ -108,7 +111,7 @@ class FlareControls extends FlareController {
     }
 
     /// Notify of the completed animations.
-    for (FlareAnimationLayer animation in completed) {
+    for (final FlareAnimationLayer animation in completed) {
       _animationLayers.remove(animation);
       onCompleted(animation.name);
     }

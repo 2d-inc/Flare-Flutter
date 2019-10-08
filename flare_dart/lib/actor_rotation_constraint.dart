@@ -1,34 +1,32 @@
-import "actor_targeted_constraint.dart";
-import "actor_node.dart";
-import "actor_component.dart";
-import "actor_artboard.dart";
-import "stream_reader.dart";
-import "math/transform_components.dart";
-import "math/mat2d.dart";
 import "dart:math";
+import "actor_artboard.dart";
+import "actor_component.dart";
+import "actor_node.dart";
+import "actor_targeted_constraint.dart";
+import "math/mat2d.dart";
+import "math/transform_components.dart";
+import "stream_reader.dart";
 import "transform_space.dart";
 
 class ActorRotationConstraint extends ActorTargetedConstraint {
-  static const double PI2 = pi * 2.0;
+  static const double pi2 = pi * 2.0;
 
   bool _copy = false;
   double _scale = 1.0;
   bool _enableMin = false;
   bool _enableMax = false;
-  double _max = PI2;
-  double _min = -PI2;
+  double _max = pi2;
+  double _min = -pi2;
   bool _offset = false;
-  int _sourceSpace = TransformSpace.World;
-  int _destSpace = TransformSpace.World;
-  int _minMaxSpace = TransformSpace.World;
-  TransformComponents _componentsA = TransformComponents();
-  TransformComponents _componentsB = TransformComponents();
+  int _sourceSpace = TransformSpace.world;
+  int _destSpace = TransformSpace.world;
+  int _minMaxSpace = TransformSpace.world;
+  final TransformComponents _componentsA = TransformComponents();
+  final TransformComponents _componentsB = TransformComponents();
 
   static ActorRotationConstraint read(ActorArtboard artboard,
       StreamReader reader, ActorRotationConstraint component) {
-    if (component == null) {
-      component = ActorRotationConstraint();
-    }
+    component ??= ActorRotationConstraint();
     ActorTargetedConstraint.read(artboard, reader, component);
     component._copy = reader.readBool("copy");
     if (component._copy) {
@@ -51,8 +49,9 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
     return component;
   }
 
+  @override
   void constrain(ActorNode node) {
-    ActorNode target = this.target;
+    ActorNode target = this.target as ActorNode;
     ActorNode grandParent = parent.parent;
 
     Mat2D transformA = parent.worldTransform;
@@ -68,7 +67,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
       _componentsB[5] = _componentsA[5];
     } else {
       Mat2D.copy(transformB, target.worldTransform);
-      if (_sourceSpace == TransformSpace.Local) {
+      if (_sourceSpace == TransformSpace.local) {
         ActorNode sourceGrandParent = target.parent;
         if (sourceGrandParent != null) {
           Mat2D inverse = Mat2D();
@@ -82,7 +81,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
 
       if (!_copy) {
         _componentsB.rotation =
-            _destSpace == TransformSpace.Local ? 1.0 : _componentsA.rotation;
+            _destSpace == TransformSpace.local ? 1.0 : _componentsA.rotation;
       } else {
         _componentsB.rotation *= _scale;
         if (_offset) {
@@ -90,9 +89,10 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
         }
       }
 
-      if (_destSpace == TransformSpace.Local) {
+      if (_destSpace == TransformSpace.local) {
         // Destination space is in parent transform coordinates.
-        // Recompose the parent local transform and get it in world, then decompose the world for interpolation.
+        // Recompose the parent local transform and get it in world,
+        // then decompose the world for interpolation.
         if (grandParent != null) {
           Mat2D.compose(transformB, _componentsB);
           Mat2D.multiply(transformB, grandParent.worldTransform, transformB);
@@ -102,7 +102,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
     }
 
     bool clampLocal =
-        _minMaxSpace == TransformSpace.Local && grandParent != null;
+        _minMaxSpace == TransformSpace.local && grandParent != null;
     if (clampLocal) {
       // Apply min max in local space, so transform to local coordinates first.
       Mat2D.compose(transformB, _componentsB);
@@ -126,14 +126,14 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
       Mat2D.decompose(transformB, _componentsB);
     }
 
-    double angleA = _componentsA.rotation % PI2;
-    double angleB = _componentsB.rotation % PI2;
+    double angleA = _componentsA.rotation % pi2;
+    double angleB = _componentsB.rotation % pi2;
     double diff = angleB - angleA;
 
     if (diff > pi) {
-      diff -= PI2;
+      diff -= pi2;
     } else if (diff < -pi) {
-      diff += PI2;
+      diff += pi2;
     }
     _componentsB.rotation = _componentsA.rotation + diff * strength;
     _componentsB.x = _componentsA.x;
@@ -145,6 +145,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
     Mat2D.compose(parent.worldTransform, _componentsB);
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorRotationConstraint instance = ActorRotationConstraint();
     instance.copyRotationConstraint(this, resetArtboard);
@@ -168,6 +169,8 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
     _minMaxSpace = node._minMaxSpace;
   }
 
+  @override
   void update(int dirt) {}
+  @override
   void completeResolve() {}
 }

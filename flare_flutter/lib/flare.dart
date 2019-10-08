@@ -22,7 +22,6 @@ import 'package:flare_dart/actor_rectangle.dart';
 import 'package:flare_dart/actor_star.dart';
 import 'package:flare_dart/actor_triangle.dart';
 import 'package:flare_dart/actor_color.dart';
-import 'package:flare_dart/actor_node.dart';
 import 'package:flare_dart/actor_drawable.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_dart/math/vec2d.dart';
@@ -68,10 +67,10 @@ abstract class FlutterFill {
 
   void paint(ActorFill fill, ui.Canvas canvas, ui.Path path) {
     switch (fill.fillRule) {
-      case FillRule.EvenOdd:
+      case FillRule.evenOdd:
         path.fillType = ui.PathFillType.evenOdd;
         break;
-      case FillRule.NonZero:
+      case FillRule.nonZero:
         path.fillType = ui.PathFillType.nonZero;
         break;
     }
@@ -98,11 +97,11 @@ abstract class FlutterStroke {
 
   static ui.StrokeCap getStrokeCap(StrokeCap cap) {
     switch (cap) {
-      case StrokeCap.Butt:
+      case StrokeCap.butt:
         return ui.StrokeCap.butt;
-      case StrokeCap.Round:
+      case StrokeCap.round:
         return ui.StrokeCap.round;
-      case StrokeCap.Square:
+      case StrokeCap.square:
         return ui.StrokeCap.square;
     }
     return ui.StrokeCap.butt;
@@ -110,11 +109,11 @@ abstract class FlutterStroke {
 
   static ui.StrokeJoin getStrokeJoin(StrokeJoin join) {
     switch (join) {
-      case StrokeJoin.Miter:
+      case StrokeJoin.miter:
         return ui.StrokeJoin.miter;
-      case StrokeJoin.Round:
+      case StrokeJoin.round:
         return ui.StrokeJoin.round;
-      case StrokeJoin.Bevel:
+      case StrokeJoin.bevel:
         return ui.StrokeJoin.bevel;
     }
     return ui.StrokeJoin.miter;
@@ -127,7 +126,7 @@ abstract class FlutterStroke {
 
     if (stroke.isTrimmed) {
       if (effectPath == null) {
-        bool isSequential = stroke.trim == TrimPath.Sequential;
+        bool isSequential = stroke.trim == TrimPath.sequential;
         double start = stroke.trimStart.clamp(0, 1).toDouble();
         double end = stroke.trimEnd.clamp(0, 1).toDouble();
         double offset = stroke.trimOffset;
@@ -892,7 +891,7 @@ abstract class FlutterPathPointsPath implements FlutterPath {
     for (int i = 0; i < pl; i++) {
       PathPoint point = pts[i];
       switch (point.pointType) {
-        case PointType.Straight:
+        case PointType.straight:
           {
             StraightPathPoint straightPoint = point as StraightPathPoint;
             double radius = straightPoint.radius;
@@ -1172,7 +1171,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
   @override
   void update(int dirt) {
     super.update(dirt);
-    if (dirt & DirtyFlags.PaintDirty != 0) {
+    if (dirt & DirtyFlags.paintDirty != 0) {
       onPaintUpdated(_paint);
     }
   }

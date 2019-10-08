@@ -28,9 +28,7 @@ class ActorRectangle extends ActorProceduralPath {
 
   static ActorRectangle read(
       ActorArtboard artboard, StreamReader reader, ActorRectangle component) {
-    if (component == null) {
-      component = ActorRectangle();
-    }
+    component ??= ActorRectangle();
 
     ActorNode.read(artboard, reader, component);
 

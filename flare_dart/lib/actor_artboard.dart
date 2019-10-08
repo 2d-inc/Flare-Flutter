@@ -36,7 +36,7 @@ import "math/vec2d.dart";
 import "stream_reader.dart";
 
 class ActorArtboard {
-  int _flags = ActorFlags.IsDrawOrderDirty;
+  int _flags = ActorFlags.isDrawOrderDirty;
   int _drawableNodeCount = 0;
   int _nodeCount = 0;
   int _dirtDepth = 0;
@@ -69,14 +69,14 @@ class ActorArtboard {
   set overrideColor(Float32List value) {
     _overrideColor = value;
     for (final ActorDrawable drawable in _drawableNodes) {
-      addDirt(drawable, DirtyFlags.PaintDirty, true);
+      addDirt(drawable, DirtyFlags.paintDirty, true);
     }
   }
 
   set modulateOpacity(double value) {
     _modulateOpacity = value;
     for (final ActorDrawable drawable in _drawableNodes) {
-      addDirt(drawable, DirtyFlags.PaintDirty, true);
+      addDirt(drawable, DirtyFlags.paintDirty, true);
     }
   }
 
@@ -119,7 +119,7 @@ class ActorArtboard {
       component.graphOrder = graphOrder++;
       component.dirtMask = 255;
     }
-    _flags |= ActorFlags.IsDirty;
+    _flags |= ActorFlags.isDirty;
   }
 
   bool addDirt(ActorComponent component, int value, bool recurse) {
@@ -132,7 +132,7 @@ class ActorArtboard {
     int dirt = component.dirtMask | value;
     component.dirtMask = dirt;
 
-    _flags |= ActorFlags.IsDirty;
+    _flags |= ActorFlags.isDirty;
 
     component.onDirty(dirt);
 
@@ -147,7 +147,7 @@ class ActorArtboard {
     }
     List<ActorComponent> dependents = component.dependents;
     if (dependents != null) {
-      for (ActorComponent d in dependents) {
+      for (final ActorComponent d in dependents) {
         addDirt(d, value, recurse);
       }
     }
@@ -174,7 +174,7 @@ class ActorArtboard {
   }
 
   void markDrawOrderDirty() {
-    _flags |= ActorFlags.IsDrawOrderDirty;
+    _flags |= ActorFlags.isDrawOrderDirty;
   }
 
   ActorArtboard makeInstance() {
@@ -267,12 +267,12 @@ class ActorArtboard {
   }
 
   void advance(double seconds) {
-    if ((_flags & ActorFlags.IsDirty) != 0) {
+    if ((_flags & ActorFlags.isDirty) != 0) {
       const int maxSteps = 100;
       int step = 0;
       int count = _dependencyOrder.length;
-      while ((_flags & ActorFlags.IsDirty) != 0 && step < maxSteps) {
-        _flags &= ~ActorFlags.IsDirty;
+      while ((_flags & ActorFlags.isDirty) != 0 && step < maxSteps) {
+        _flags &= ~ActorFlags.isDirty;
         // Track dirt depth here so that if something else marks
         // dirty, we restart.
         for (int i = 0; i < count; i++) {
@@ -292,8 +292,8 @@ class ActorArtboard {
       }
     }
 
-    if ((_flags & ActorFlags.IsDrawOrderDirty) != 0) {
-      _flags &= ~ActorFlags.IsDrawOrderDirty;
+    if ((_flags & ActorFlags.isDrawOrderDirty) != 0) {
+      _flags &= ~ActorFlags.isDrawOrderDirty;
 
       if (_drawableNodes != null) {
         _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
@@ -319,12 +319,12 @@ class ActorArtboard {
     _color[3] = color[3];
 
     StreamReader block;
-    while ((block = reader.readNextBlock(BlockTypesMap)) != null) {
+    while ((block = reader.readNextBlock(blockTypesMap)) != null) {
       switch (block.blockType) {
-        case BlockTypes.Components:
+        case BlockTypes.components:
           readComponentsBlock(block);
           break;
-        case BlockTypes.Animations:
+        case BlockTypes.animations:
           readAnimationsBlock(block);
           break;
       }
@@ -341,21 +341,21 @@ class ActorArtboard {
     for (int componentIndex = 1, end = componentCount + 1;
         componentIndex < end;
         componentIndex++) {
-      StreamReader nodeBlock = block.readNextBlock(BlockTypesMap);
+      StreamReader nodeBlock = block.readNextBlock(blockTypesMap);
       if (nodeBlock == null) {
         break;
       }
       ActorComponent component;
       switch (nodeBlock.blockType) {
-        case BlockTypes.ActorNode:
+        case BlockTypes.actorNode:
           component = ActorNode.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorBone:
+        case BlockTypes.actorBone:
           component = ActorBone.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorRootBone:
+        case BlockTypes.actorRootBone:
           component = ActorRootBone.read(this, nodeBlock, null);
           break;
 
@@ -368,152 +368,152 @@ class ActorArtboard {
         //       .sequenceFrames.last.atlasIndex; // Last atlasIndex is the biggest
         //   break;
 
-        case BlockTypes.ActorImage:
+        case BlockTypes.actorImage:
           component = ActorImage.read(this, nodeBlock, actor.makeImageNode());
           if ((component as ActorImage).textureIndex > actor.maxTextureIndex) {
             actor.maxTextureIndex = (component as ActorImage).textureIndex;
           }
           break;
 
-        case BlockTypes.ActorIKTarget:
+        case BlockTypes.actorIKTarget:
           //component = ActorIKTarget.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.ActorEvent:
+        case BlockTypes.actorEvent:
           component = ActorEvent.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.CustomIntProperty:
+        case BlockTypes.customIntProperty:
           //component = CustomIntProperty.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.CustomFloatProperty:
+        case BlockTypes.customFloatProperty:
           //component = CustomFloatProperty.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.CustomStringProperty:
+        case BlockTypes.customStringProperty:
           //component = CustomStringProperty.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.CustomBooleanProperty:
+        case BlockTypes.customBooleanProperty:
           //component = CustomBooleanProperty.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.ActorColliderRectangle:
+        case BlockTypes.actorColliderRectangle:
           //component = ActorColliderRectangle.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.ActorColliderTriangle:
+        case BlockTypes.actorColliderTriangle:
           //component = ActorColliderTriangle.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.ActorColliderCircle:
+        case BlockTypes.actorColliderCircle:
           //component = ActorColliderCircle.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.ActorColliderPolygon:
+        case BlockTypes.actorColliderPolygon:
           //component = ActorColliderPolygon.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.ActorColliderLine:
+        case BlockTypes.actorColliderLine:
           //component = ActorColliderLine.Read(this, nodeBlock);
           break;
 
-        case BlockTypes.ActorNodeSolo:
+        case BlockTypes.actorNodeSolo:
           component = ActorNodeSolo.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorJellyBone:
+        case BlockTypes.actorJellyBone:
           component = ActorJellyBone.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.JellyComponent:
+        case BlockTypes.jellyComponent:
           component = JellyComponent.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorIKConstraint:
+        case BlockTypes.actorIKConstraint:
           component = ActorIKConstraint.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorDistanceConstraint:
+        case BlockTypes.actorDistanceConstraint:
           component = ActorDistanceConstraint.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorTranslationConstraint:
+        case BlockTypes.actorTranslationConstraint:
           component = ActorTranslationConstraint.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorScaleConstraint:
+        case BlockTypes.actorScaleConstraint:
           component = ActorScaleConstraint.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorRotationConstraint:
+        case BlockTypes.actorRotationConstraint:
           component = ActorRotationConstraint.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorTransformConstraint:
+        case BlockTypes.actorTransformConstraint:
           component = ActorTransformConstraint.read(this, nodeBlock, null);
           break;
 
-        case BlockTypes.ActorShape:
+        case BlockTypes.actorShape:
           component =
               ActorShape.read(this, nodeBlock, actor.makeShapeNode(null));
           break;
 
-        case BlockTypes.ActorPath:
+        case BlockTypes.actorPath:
           component = ActorPath.read(this, nodeBlock, actor.makePathNode());
           break;
 
-        case BlockTypes.ColorFill:
+        case BlockTypes.colorFill:
           component = ColorFill.read(this, nodeBlock, actor.makeColorFill());
           break;
 
-        case BlockTypes.ColorStroke:
+        case BlockTypes.colorStroke:
           component =
               ColorStroke.read(this, nodeBlock, actor.makeColorStroke());
           break;
 
-        case BlockTypes.GradientFill:
+        case BlockTypes.gradientFill:
           component =
               GradientFill.read(this, nodeBlock, actor.makeGradientFill());
           break;
 
-        case BlockTypes.GradientStroke:
+        case BlockTypes.gradientStroke:
           component =
               GradientStroke.read(this, nodeBlock, actor.makeGradientStroke());
           break;
 
-        case BlockTypes.RadialGradientFill:
+        case BlockTypes.radialGradientFill:
           component =
               RadialGradientFill.read(this, nodeBlock, actor.makeRadialFill());
           break;
 
-        case BlockTypes.RadialGradientStroke:
+        case BlockTypes.radialGradientStroke:
           component = RadialGradientStroke.read(
               this, nodeBlock, actor.makeRadialStroke());
           break;
 
-        case BlockTypes.ActorEllipse:
+        case BlockTypes.actorEllipse:
           component = ActorEllipse.read(this, nodeBlock, actor.makeEllipse());
           break;
 
-        case BlockTypes.ActorRectangle:
+        case BlockTypes.actorRectangle:
           component =
               ActorRectangle.read(this, nodeBlock, actor.makeRectangle());
           break;
 
-        case BlockTypes.ActorTriangle:
+        case BlockTypes.actorTriangle:
           component = ActorTriangle.read(this, nodeBlock, actor.makeTriangle());
           break;
 
-        case BlockTypes.ActorStar:
+        case BlockTypes.actorStar:
           component = ActorStar.read(this, nodeBlock, actor.makeStar());
           break;
 
-        case BlockTypes.ActorPolygon:
+        case BlockTypes.actorPolygon:
           component = ActorPolygon.read(this, nodeBlock, actor.makePolygon());
           break;
-        case BlockTypes.ActorSkin:
+        case BlockTypes.actorSkin:
           component = ActorComponent.read(this, nodeBlock, ActorSkin());
           break;
       }
@@ -582,9 +582,9 @@ class ActorArtboard {
     StreamReader animationBlock;
     int animationIndex = 0;
 
-    while ((animationBlock = block.readNextBlock(BlockTypesMap)) != null) {
+    while ((animationBlock = block.readNextBlock(blockTypesMap)) != null) {
       switch (animationBlock.blockType) {
-        case BlockTypes.Animation:
+        case BlockTypes.animation:
           ActorAnimation anim =
               ActorAnimation.read(animationBlock, _components);
           _animations[animationIndex++] = anim;
@@ -594,8 +594,8 @@ class ActorArtboard {
   }
 
   AABB artboardAABB() {
-    double minX = -_origin[0] * width;
-    double minY = -_origin[1] * height;
+    double minX = -1 * _origin[0] * width;
+    double minY = -1 * _origin[1] * height;
     return AABB.fromValues(minX, minY, minX + _width, minY + height);
   }
 

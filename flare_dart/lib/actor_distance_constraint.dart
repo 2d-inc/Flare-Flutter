@@ -1,27 +1,25 @@
 import "actor_artboard.dart";
 import "actor_node.dart";
 import "actor_targeted_constraint.dart";
-import "stream_reader.dart";
-import "math/vec2d.dart";
 import "math/mat2d.dart";
+import "math/vec2d.dart";
+import "stream_reader.dart";
 
 class DistanceMode {
-  static const int Closer = 0;
-  static const int Further = 1;
-  static const int Exact = 2;
+  static const int closer = 0;
+  static const int further = 1;
+  static const int exact = 2;
 }
 
 class ActorDistanceConstraint extends ActorTargetedConstraint {
   double _distance = 100.0;
-  int _mode = DistanceMode.Closer;
+  int _mode = DistanceMode.closer;
 
   ActorDistanceConstraint() : super();
 
   static ActorDistanceConstraint read(ActorArtboard artboard,
       StreamReader reader, ActorDistanceConstraint component) {
-    if (component == null) {
-      component = ActorDistanceConstraint();
-    }
+    component ??= ActorDistanceConstraint();
     ActorTargetedConstraint.read(artboard, reader, component);
 
     component._distance = reader.readFloat32("distance");
@@ -45,26 +43,26 @@ class ActorDistanceConstraint extends ActorTargetedConstraint {
   }
 
   @override
-  constrain(ActorNode node) {
-    ActorNode t = this.target;
+  void constrain(ActorNode node) {
+    ActorNode t = target as ActorNode;
     if (t == null) {
       return;
     }
 
-    ActorNode p = this.parent;
+    ActorNode p = parent;
     Vec2D targetTranslation = t.getWorldTranslation(Vec2D());
     Vec2D ourTranslation = p.getWorldTranslation(Vec2D());
 
     Vec2D toTarget = Vec2D.subtract(Vec2D(), ourTranslation, targetTranslation);
     double currentDistance = Vec2D.length(toTarget);
     switch (_mode) {
-      case DistanceMode.Closer:
+      case DistanceMode.closer:
         if (currentDistance < _distance) {
           return;
         }
         break;
 
-      case DistanceMode.Further:
+      case DistanceMode.further:
         if (currentDistance > _distance) {
           return;
         }
@@ -85,23 +83,26 @@ class ActorDistanceConstraint extends ActorTargetedConstraint {
     world[5] = position[1];
   }
 
-  void update(int dirt) {}
-  void completeResolve() {}
-
-  get distance => _distance;
-  get mode => _mode;
+  double get distance => _distance;
+  int get mode => _mode;
 
   set distance(double d) {
     if (_distance != d) {
       _distance = d;
-      this.markDirty();
+      markDirty();
     }
   }
 
   set mode(int m) {
     if (_mode != m) {
       _mode = m;
-      this.markDirty();
+      markDirty();
     }
   }
+
+  @override
+  void completeResolve() {}
+
+  @override
+  void update(int dirt) {}
 }

@@ -1,8 +1,8 @@
-import "stream_reader.dart";
 import "actor_artboard.dart";
 import "actor_node.dart";
-import "math/vec2d.dart";
 import "math/mat2d.dart";
+import "math/vec2d.dart";
+import "stream_reader.dart";
 
 class ActorBoneBase extends ActorNode {
   double _length;
@@ -19,7 +19,7 @@ class ActorBoneBase extends ActorNode {
     if (children == null) {
       return;
     }
-    for (ActorNode node in children) {
+    for (final ActorNode node in children) {
       if (node is ActorBoneBase) {
         node.x = value;
       }

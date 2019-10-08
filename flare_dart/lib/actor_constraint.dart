@@ -1,6 +1,6 @@
+import "actor_artboard.dart";
 import "actor_component.dart";
 import "actor_node.dart";
-import "actor_artboard.dart";
 import "stream_reader.dart";
 
 abstract class ActorConstraint extends ActorComponent {
@@ -19,6 +19,7 @@ abstract class ActorConstraint extends ActorComponent {
     markDirty();
   }
 
+  @override
   void onDirty(int dirt) {
     markDirty();
   }
@@ -41,10 +42,12 @@ abstract class ActorConstraint extends ActorComponent {
 
   void constrain(ActorNode node);
 
+  @override
   void resolveComponentIndices(List<ActorComponent> components) {
     super.resolveComponentIndices(components);
     if (parent != null) {
-      // This works because nodes are exported in hierarchy order, so we are assured constraints get added in order as we resolve indices.
+      // This works because nodes are exported in hierarchy order, 
+	  // so we are assured constraints get added in order as we resolve indices.
       parent.addConstraint(this);
     }
   }

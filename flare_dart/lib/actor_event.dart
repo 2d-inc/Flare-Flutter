@@ -5,9 +5,7 @@ import "stream_reader.dart";
 class ActorEvent extends ActorComponent {
   static ActorComponent read(
       ActorArtboard artboard, StreamReader reader, ActorEvent component) {
-    if (component == null) {
-      component = ActorEvent();
-    }
+    component ??= ActorEvent();
 
     ActorComponent.read(artboard, reader, component);
 

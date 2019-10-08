@@ -33,7 +33,7 @@ class AABB {
     return _buffer[idx];
   }
 
-  operator []=(int idx, double v) {
+  void operator []=(int idx, double v) {
     _buffer[idx] = v;
   }
 

@@ -1,6 +1,6 @@
-import 'flare.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flutter/foundation.dart';
+import 'flare.dart';
 
 ///
 /// [FlareController] is a general-purpose interface for customizing
@@ -17,8 +17,8 @@ import 'package:flutter/foundation.dart';
 ///
 /// [FlareController]s can implement three methods:
 /// - [initialize()] is called when the [FlareActor] is first created.
-/// - [setViewTransform()] and [advance()] are called every time the [FlareActor]
-/// widget is repainted.
+/// - [setViewTransform()] and [advance()] are called every time the
+/// [FlareActor] widget is repainted.
 ///
 /// A basic implementation can be found in [FlareControls].
 

@@ -2,10 +2,10 @@ import 'package:flare_dart/actor_artboard.dart';
 import 'package:flare_dart/actor_shape.dart';
 import 'package:flare_dart/stream_reader.dart';
 
-import "math/aabb.dart";
 import "actor_node.dart";
+import "math/aabb.dart";
 
-enum BlendModes { Normal, Multiply, Screen, Additive }
+enum BlendModes { normal, multiply, screen, additive }
 
 abstract class ActorDrawable extends ActorNode {
   List<List<ActorShape>> _clipShapes;
@@ -38,7 +38,11 @@ abstract class ActorDrawable extends ActorNode {
     ActorNode.read(artboard, reader, component);
 
     component.isHidden = !reader.readBool("isVisible");
-    component.blendModeId = artboard.actor.version < 21 ? 3 : reader.readUint8("blendMode");
+    if (artboard.actor.version < 21) {
+      component.blendModeId = 3;
+    } else {
+      component.blendModeId = reader.readUint8("blendMode");
+    }
     component.drawOrder = reader.readUint16("drawOrder");
 
     return component;
@@ -55,12 +59,13 @@ abstract class ActorDrawable extends ActorNode {
   AABB computeAABB();
   void initializeGraphics() {}
 
+  @override
   void completeResolve() {
-    _clipShapes = List<List<ActorShape>>();
+    _clipShapes = <List<ActorShape>>[];
     List<List<ActorClip>> clippers = allClips;
-    for (List<ActorClip> clips in clippers) {
-      List<ActorShape> shapes = List<ActorShape>();
-      for (ActorClip clip in clips) {
+    for (final List<ActorClip> clips in clippers) {
+      List<ActorShape> shapes = <ActorShape>[];
+      for (final ActorClip clip in clips) {
         clip.node.all((ActorNode node) {
           if (node is ActorShape) {
             shapes.add(node);
@@ -68,7 +73,7 @@ abstract class ActorDrawable extends ActorNode {
           return true;
         });
       }
-      if (shapes.length > 0) {
+      if (shapes.isNotEmpty) {
         _clipShapes.add(shapes);
       }
     }

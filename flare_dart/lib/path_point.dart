@@ -4,7 +4,7 @@ import "math/mat2d.dart";
 import "math/vec2d.dart";
 import "stream_reader.dart";
 
-enum PointType { Straight, Mirror, Disconnected, Asymmetric }
+enum PointType { straight, mirror, disconnected, asymmetric }
 
 HashMap<int, PointType> pointTypeLookup =
     HashMap<int, PointType>.fromIterables([
@@ -13,10 +13,10 @@ HashMap<int, PointType> pointTypeLookup =
   2,
   3
 ], [
-  PointType.Straight,
-  PointType.Mirror,
-  PointType.Disconnected,
-  PointType.Asymmetric
+  PointType.straight,
+  PointType.mirror,
+  PointType.disconnected,
+  PointType.asymmetric
 ]);
 
 abstract class PathPoint {
@@ -69,15 +69,15 @@ abstract class PathPoint {
 class StraightPathPoint extends PathPoint {
   double radius = 0.0;
 
-  StraightPathPoint() : super(PointType.Straight);
+  StraightPathPoint() : super(PointType.straight);
 
   StraightPathPoint.fromTranslation(Vec2D translation)
-      : super(PointType.Straight) {
+      : super(PointType.straight) {
     _translation = translation;
   }
 
   StraightPathPoint.fromValues(Vec2D translation, this.radius)
-      : super(PointType.Straight) {
+      : super(PointType.straight) {
     _translation = translation;
   }
 
@@ -151,7 +151,7 @@ class CubicPathPoint extends PathPoint {
   }
 
   CubicPathPoint.fromValues(Vec2D translation, Vec2D inPoint, Vec2D outPoint)
-      : super(PointType.Disconnected) {
+      : super(PointType.disconnected) {
     _translation = translation;
     _in = inPoint;
     _out = outPoint;

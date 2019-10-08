@@ -1,9 +1,9 @@
 import "dart:typed_data";
-import "actor_skinnable.dart";
 import "actor_artboard.dart";
 import "actor_component.dart";
-import "math/mat2d.dart";
 import "actor_constraint.dart";
+import "actor_skinnable.dart";
+import "math/mat2d.dart";
 
 class ActorSkin extends ActorComponent {
   Float32List _boneMatrices;
@@ -39,7 +39,7 @@ class ActorSkin extends ActorComponent {
 
       Mat2D mat = Mat2D();
 
-      for (SkinnedBone cb in connectedBones) {
+      for (final SkinnedBone cb in connectedBones) {
         if (cb.node == null) {
           _boneMatrices[bidx++] = 1.0;
           _boneMatrices[bidx++] = 0.0;
@@ -74,12 +74,12 @@ class ActorSkin extends ActorComponent {
     artboard.addDependency(this, skinnable as ActorComponent);
     if (skinnable.isConnectedToBones) {
       List<SkinnedBone> connectedBones = skinnable.connectedBones;
-      for (SkinnedBone skinnedBone in connectedBones) {
+      for (final SkinnedBone skinnedBone in connectedBones) {
         artboard.addDependency(this, skinnedBone.node);
         List<ActorConstraint> constraints = skinnedBone.node.allConstraints;
 
         if (constraints != null) {
-          for (ActorConstraint constraint in constraints) {
+          for (final ActorConstraint constraint in constraints) {
             artboard.addDependency(this, constraint);
           }
         }

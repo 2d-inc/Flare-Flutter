@@ -11,8 +11,8 @@ import "transform_space.dart";
 const pi2 = pi * 2;
 
 class ActorTransformConstraint extends ActorTargetedConstraint {
-  int _sourceSpace = TransformSpace.World;
-  int _destSpace = TransformSpace.World;
+  int _sourceSpace = TransformSpace.world;
+  int _destSpace = TransformSpace.world;
   final TransformComponents _componentsA = TransformComponents();
   final TransformComponents _componentsB = TransformComponents();
 
@@ -54,7 +54,7 @@ class ActorTransformConstraint extends ActorTargetedConstraint {
 
     Mat2D transformA = parent.worldTransform;
     Mat2D transformB = Mat2D.clone(t.worldTransform);
-    if (_sourceSpace == TransformSpace.Local) {
+    if (_sourceSpace == TransformSpace.local) {
       ActorNode grandParent = target.parent;
       if (grandParent != null) {
         Mat2D inverse = Mat2D();
@@ -62,7 +62,7 @@ class ActorTransformConstraint extends ActorTargetedConstraint {
         Mat2D.multiply(transformB, inverse, transformB);
       }
     }
-    if (_destSpace == TransformSpace.Local) {
+    if (_destSpace == TransformSpace.local) {
       ActorNode grandParent = parent.parent;
       if (grandParent != null) {
         Mat2D.multiply(transformB, grandParent.worldTransform, transformB);

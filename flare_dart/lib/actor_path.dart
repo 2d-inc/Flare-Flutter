@@ -221,7 +221,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
   @override
   Mat2D get pathTransform => isConnectedToBones ? null : worldTransform;
 
-  static const int VertexDeformDirty = 1 << 1;
+  static const int vertexDeformDirty = 1 << 1;
 
   @override
   List<PathPoint> get points => _points;
@@ -258,14 +258,14 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
       return;
     }
     int length = points.fold<int>(0, (int previous, PathPoint point) {
-      return previous + 2 + (point.pointType == PointType.Straight ? 1 : 4);
+      return previous + 2 + (point.pointType == PointType.straight ? 1 : 4);
     });
     Float32List vertices = Float32List(length);
     int readIdx = 0;
     for (final PathPoint point in points) {
       vertices[readIdx++] = point.translation[0];
       vertices[readIdx++] = point.translation[1];
-      if (point.pointType == PointType.Straight) {
+      if (point.pointType == PointType.straight) {
         // radius
         vertices[readIdx++] = (point as StraightPathPoint).radius;
       } else {
@@ -284,19 +284,19 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     if (artboard == null) {
       return;
     }
-    artboard.addDirt(this, VertexDeformDirty, false);
+    artboard.addDirt(this, vertexDeformDirty, false);
   }
 
   @override
   void update(int dirt) {
     if (vertexDeform != null &&
-        (dirt & VertexDeformDirty) == VertexDeformDirty) {
+        (dirt & vertexDeformDirty) == vertexDeformDirty) {
       int readIdx = 0;
       for (final PathPoint point in _points) {
         point.translation[0] = vertexDeform[readIdx++];
         point.translation[1] = vertexDeform[readIdx++];
         switch (point.pointType) {
-          case PointType.Straight:
+          case PointType.straight:
             (point as StraightPathPoint).radius = vertexDeform[readIdx++];
             break;
 
@@ -332,7 +332,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
       PathPoint point;
       PointType type = pointTypeLookup[reader.readUint8("pointType")];
       switch (type) {
-        case PointType.Straight:
+        case PointType.straight:
           {
             point = StraightPathPoint();
             break;
@@ -356,6 +356,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     return component;
   }
 
+  @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorPath instanceEvent = ActorPath();
     instanceEvent.copyPath(this, resetArtboard);

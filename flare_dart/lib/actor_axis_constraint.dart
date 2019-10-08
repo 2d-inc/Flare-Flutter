@@ -1,7 +1,7 @@
 import "actor_artboard.dart";
 import "actor_targeted_constraint.dart";
-import "transform_space.dart";
 import "stream_reader.dart";
+import "transform_space.dart";
 
 abstract class ActorAxisConstraint extends ActorTargetedConstraint {
   bool _copyX = false;
@@ -19,9 +19,9 @@ abstract class ActorAxisConstraint extends ActorTargetedConstraint {
   double _minY = 0.0;
   double _maxY = 0.0;
 
-  int _sourceSpace = TransformSpace.World;
-  int _destSpace = TransformSpace.World;
-  int _minMaxSpace = TransformSpace.World;
+  int _sourceSpace = TransformSpace.world;
+  int _destSpace = TransformSpace.world;
+  int _minMaxSpace = TransformSpace.world;
 
   ActorAxisConstraint() : super();
 

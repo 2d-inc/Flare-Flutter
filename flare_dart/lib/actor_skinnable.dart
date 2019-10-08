@@ -1,10 +1,9 @@
 import 'package:flare_dart/actor_skin.dart';
-
-import "stream_reader.dart";
 import "actor_artboard.dart";
-import "math/mat2d.dart";
-import "actor_node.dart";
 import "actor_component.dart";
+import "actor_node.dart";
+import "math/mat2d.dart";
+import "stream_reader.dart";
 
 class SkinnedBone {
   int boneIdx;
@@ -20,7 +19,7 @@ abstract class ActorSkinnable {
 
   List<SkinnedBone> get connectedBones => _connectedBones;
   bool get isConnectedToBones =>
-      _connectedBones != null && _connectedBones.length > 0;
+      _connectedBones != null && _connectedBones.isNotEmpty;
 
   static ActorSkinnable read(
       ActorArtboard artboard, StreamReader reader, ActorSkinnable node) {
@@ -33,14 +32,15 @@ abstract class ActorSkinnable {
         SkinnedBone bc = SkinnedBone();
         reader.openObject("bone");
         bc.boneIdx = reader.readId("component");
-		Mat2D.copyFromList(bc.bind, reader.readFloat32Array(6, "bind"));
+        Mat2D.copyFromList(bc.bind, reader.readFloat32Array(6, "bind"));
         reader.closeObject();
         Mat2D.invert(bc.inverseBind, bc.bind);
         node._connectedBones[i] = bc;
       }
       reader.closeArray();
       Mat2D worldOverride = Mat2D();
-	  Mat2D.copyFromList(worldOverride, reader.readFloat32Array(6, "worldTransform"));
+      Mat2D.copyFromList(
+          worldOverride, reader.readFloat32Array(6, "worldTransform"));
       node.worldTransformOverride = worldOverride;
     } else {
       reader.closeArray();

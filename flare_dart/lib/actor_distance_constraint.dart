@@ -6,14 +6,14 @@ import "math/vec2d.dart";
 import "stream_reader.dart";
 
 class DistanceMode {
-  static const int Closer = 0;
-  static const int Further = 1;
-  static const int Exact = 2;
+  static const int closer = 0;
+  static const int further = 1;
+  static const int exact = 2;
 }
 
 class ActorDistanceConstraint extends ActorTargetedConstraint {
   double _distance = 100.0;
-  int _mode = DistanceMode.Closer;
+  int _mode = DistanceMode.closer;
 
   ActorDistanceConstraint() : super();
 
@@ -56,13 +56,13 @@ class ActorDistanceConstraint extends ActorTargetedConstraint {
     Vec2D toTarget = Vec2D.subtract(Vec2D(), ourTranslation, targetTranslation);
     double currentDistance = Vec2D.length(toTarget);
     switch (_mode) {
-      case DistanceMode.Closer:
+      case DistanceMode.closer:
         if (currentDistance < _distance) {
           return;
         }
         break;
 
-      case DistanceMode.Further:
+      case DistanceMode.further:
         if (currentDistance > _distance) {
           return;
         }

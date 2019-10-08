@@ -99,7 +99,7 @@ class ActorIKConstraint extends ActorTargetedConstraint {
     }
 
     // Finally mark dependencies.
-    for (InfluencedBone bone in _influencedBones) {
+    for (final InfluencedBone bone in _influencedBones) {
       // Don't mark dependency on parent as ActorComponent already does this.
       if (bone.bone == parent) {
         continue;
@@ -277,7 +277,7 @@ class ActorIKConstraint extends ActorTargetedConstraint {
     Vec2D pA = b1.getWorldTranslation(Vec2D());
     Vec2D pC = firstChild.bone.getWorldTranslation(Vec2D());
     Vec2D pB = b2.getTipWorldTranslation(Vec2D());
-    ;
+    
     Vec2D pBT = Vec2D.clone(worldTargetTranslation);
 
     pA = Vec2D.transformMat2D(pA, pA, iworld);

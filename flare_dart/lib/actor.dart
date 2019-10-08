@@ -131,13 +131,13 @@ abstract class Actor {
     _version = reader.readVersion();
 
     StreamReader block;
-    while ((block = reader.readNextBlock(BlockTypesMap)) != null) {
+    while ((block = reader.readNextBlock(blockTypesMap)) != null) {
       switch (block.blockType) {
-        case BlockTypes.Artboards:
+        case BlockTypes.artboards:
           readArtboardsBlock(block);
           break;
 
-        case BlockTypes.Atlases:
+        case BlockTypes.atlases:
           List<Uint8List> rawAtlases = await readAtlasesBlock(block, context);
           success = await loadAtlases(rawAtlases);
           break;
@@ -154,12 +154,12 @@ abstract class Actor {
     for (int artboardIndex = 0, end = _artboards.length;
         artboardIndex < end;
         artboardIndex++) {
-      StreamReader artboardBlock = block.readNextBlock(BlockTypesMap);
+      StreamReader artboardBlock = block.readNextBlock(blockTypesMap);
       if (artboardBlock == null) {
         break;
       }
       switch (artboardBlock.blockType) {
-        case BlockTypes.ActorArtboard:
+        case BlockTypes.actorArtboard:
           {
             ActorArtboard artboard = makeArtboard();
             artboard.read(artboardBlock);

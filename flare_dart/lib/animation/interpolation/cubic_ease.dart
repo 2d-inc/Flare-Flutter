@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 
 // Implements https://github.com/gre/bezier-easing/blob/master/src/index.js
-const int NewtonIterations = 4;
-const double NewtonMinSlope = 0.001;
-const double SubdivisionPrecision = 0.0000001;
-const int SubdivisionMaxIterations = 10;
+const int newtonIterations = 4;
+const double newtonMinSlope = 0.001;
+const double subdivisionPrecision = 0.0000001;
+const int subdivisionMaxIterations = 10;
 
-const int SplineTableSize = 11;
-const double SampleStepSize = 1.0 / (SplineTableSize - 1.0);
+const int splineTableSize = 11;
+const double sampleStepSize = 1.0 / (splineTableSize - 1.0);
 
 // Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
 double calcBezier(double aT, double aA1, double aA2) {
@@ -24,7 +24,7 @@ double getSlope(double aT, double aA1, double aA2) {
 }
 
 double newtonRaphsonIterate(double aX, double aGuessT, double mX1, double mX2) {
-  for (int i = 0; i < NewtonIterations; ++i) {
+  for (int i = 0; i < newtonIterations; ++i) {
     double currentSlope = getSlope(aGuessT, mX1, mX2);
     if (currentSlope == 0.0) {
       return aGuessT;
@@ -59,32 +59,32 @@ class Cubic extends CubicEase {
   final double x1, y1, x2, y2;
   Cubic(this.x1, this.y1, this.x2, this.y2) {
     // Precompute values table
-    _values = Float64List(SplineTableSize);
-    for (int i = 0; i < SplineTableSize; ++i) {
-      _values[i] = calcBezier(i * SampleStepSize, x1, x2);
+    _values = Float64List(splineTableSize);
+    for (int i = 0; i < splineTableSize; ++i) {
+      _values[i] = calcBezier(i * sampleStepSize, x1, x2);
     }
   }
 
   double getT(double x) {
     double intervalStart = 0.0;
     int currentSample = 1;
-    int lastSample = SplineTableSize - 1;
+    int lastSample = splineTableSize - 1;
 
     for (;
         currentSample != lastSample && _values[currentSample] <= x;
         ++currentSample) {
-      intervalStart += SampleStepSize;
+      intervalStart += sampleStepSize;
     }
     --currentSample;
 
     // Interpolate to provide an initial guess for t
     var dist = (x - _values[currentSample]) /
         (_values[currentSample + 1] - _values[currentSample]);
-    var guessForT = intervalStart + dist * SampleStepSize;
+    var guessForT = intervalStart + dist * sampleStepSize;
 
     var initialSlope = getSlope(guessForT, x1, x2);
-    if (initialSlope >= NewtonMinSlope) {
-      for (int i = 0; i < NewtonIterations; ++i) {
+    if (initialSlope >= newtonMinSlope) {
+      for (int i = 0; i < newtonIterations; ++i) {
         double currentSlope = getSlope(guessForT, x1, x2);
         if (currentSlope == 0.0) {
           return guessForT;
@@ -96,7 +96,7 @@ class Cubic extends CubicEase {
     } else if (initialSlope == 0.0) {
       return guessForT;
     } else {
-      double aB = intervalStart + SampleStepSize;
+      double aB = intervalStart + sampleStepSize;
       double currentX, currentT;
       int i = 0;
       do {
@@ -107,8 +107,8 @@ class Cubic extends CubicEase {
         } else {
           intervalStart = currentT;
         }
-      } while (currentX.abs() > SubdivisionPrecision &&
-          ++i < SubdivisionMaxIterations);
+      } while (currentX.abs() > subdivisionPrecision &&
+          ++i < subdivisionMaxIterations);
       return currentT;
     }
   }

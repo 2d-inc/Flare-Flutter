@@ -20,7 +20,7 @@ import "./interpolation/hold.dart";
 import "./interpolation/interpolator.dart";
 import "./interpolation/linear.dart";
 
-enum InterpolationTypes { Hold, Linear, Cubic }
+enum InterpolationTypes { hold, linear, cubic }
 
 HashMap<int, InterpolationTypes> interpolationTypesLookup =
     HashMap<int, InterpolationTypes>.fromIterables([
@@ -28,9 +28,9 @@ HashMap<int, InterpolationTypes> interpolationTypesLookup =
   1,
   2
 ], [
-  InterpolationTypes.Hold,
-  InterpolationTypes.Linear,
-  InterpolationTypes.Cubic
+  InterpolationTypes.hold,
+  InterpolationTypes.linear,
+  InterpolationTypes.cubic
 ]);
 
 abstract class KeyFrame {
@@ -66,16 +66,16 @@ abstract class KeyFrameWithInterpolation extends KeyFrame {
     int type = reader.readUint8("interpolatorType");
 
     InterpolationTypes actualType = interpolationTypesLookup[type];
-    actualType ??= InterpolationTypes.Linear;
+    actualType ??= InterpolationTypes.linear;
 
     switch (actualType) {
-      case InterpolationTypes.Hold:
+      case InterpolationTypes.hold:
         frame._interpolator = HoldInterpolator.instance;
         break;
-      case InterpolationTypes.Linear:
+      case InterpolationTypes.linear:
         frame._interpolator = LinearInterpolator.instance;
         break;
-      case InterpolationTypes.Cubic:
+      case InterpolationTypes.cubic:
         {
           CubicInterpolator interpolator = CubicInterpolator();
           if (interpolator.read(reader)) {
@@ -703,7 +703,7 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     ActorPath pathNode = component as ActorPath;
 
     int length = pathNode.points.fold<int>(0, (int previous, PathPoint point) {
-      return previous + 2 + (point.pointType == PointType.Straight ? 1 : 4);
+      return previous + 2 + (point.pointType == PointType.straight ? 1 : 4);
     });
     frame._vertices = Float32List(length);
     int readIdx = 0;
@@ -711,7 +711,7 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
     for (final PathPoint point in pathNode.points) {
       frame._vertices[readIdx++] = reader.readFloat32("translationX");
       frame._vertices[readIdx++] = reader.readFloat32("translationY");
-      if (point.pointType == PointType.Straight) {
+      if (point.pointType == PointType.straight) {
         // radius
         frame._vertices[readIdx++] = reader.readFloat32("radius");
       } else {

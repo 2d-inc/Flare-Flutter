@@ -121,8 +121,8 @@ abstract class Actor {
     if (F != 70 || L != 76 || A != 65 || R != 82 || E != 69) {
       Uint8List charCodes = data.buffer.asUint8List();
       String stringData = String.fromCharCodes(charCodes);
-      var jsonActor = jsonDecode(stringData);
-      Map jsonObject = Map();
+      dynamic jsonActor = jsonDecode(stringData);
+      Map jsonObject = <dynamic, dynamic>{};
       jsonObject["container"] = jsonActor;
       inputData = jsonObject;
     }

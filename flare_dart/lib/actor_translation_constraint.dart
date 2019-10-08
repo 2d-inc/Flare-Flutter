@@ -1,35 +1,34 @@
 import "actor_artboard.dart";
-import "actor_node.dart";
 import "actor_axis_constraint.dart";
-import "math/vec2d.dart";
+import "actor_component.dart";
+import "actor_node.dart";
 import "math/mat2d.dart";
-import "transform_space.dart";
+import "math/vec2d.dart";
 import "stream_reader.dart";
+import "transform_space.dart";
 
 class ActorTranslationConstraint extends ActorAxisConstraint {
   ActorTranslationConstraint() : super();
 
   static ActorTranslationConstraint read(ActorArtboard artboard,
       StreamReader reader, ActorTranslationConstraint component) {
-    if (component == null) {
-      component = ActorTranslationConstraint();
-    }
+    component ??= ActorTranslationConstraint();
     ActorAxisConstraint.read(artboard, reader, component);
 
     return component;
   }
 
   @override
-  makeInstance(ActorArtboard resetArtboard) {
+  ActorComponent makeInstance(ActorArtboard resetArtboard) {
     ActorTranslationConstraint node = ActorTranslationConstraint();
     node.copyAxisConstraint(this, resetArtboard);
     return node;
   }
 
   @override
-  constrain(ActorNode node) {
-    ActorNode t = this.target;
-    ActorNode p = this.parent;
+  void constrain(ActorNode node) {
+    ActorNode t = target as ActorNode;
+    ActorNode p = parent;
     ActorNode grandParent = p.parent;
 
     Mat2D transformA = parent.worldTransform;

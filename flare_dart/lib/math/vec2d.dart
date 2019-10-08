@@ -106,8 +106,8 @@ class Vec2D {
   }
 
   static Vec2D negate(Vec2D result, Vec2D a) {
-    result[0] = -a[0];
-    result[1] = -a[1];
+    result[0] = -1 * a[0];
+    result[1] = -1 * a[1];
 
     return result;
   }

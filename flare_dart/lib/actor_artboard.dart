@@ -147,7 +147,7 @@ class ActorArtboard {
     }
     List<ActorComponent> dependents = component.dependents;
     if (dependents != null) {
-      for (ActorComponent d in dependents) {
+      for (final ActorComponent d in dependents) {
         addDirt(d, value, recurse);
       }
     }
@@ -594,8 +594,8 @@ class ActorArtboard {
   }
 
   AABB artboardAABB() {
-    double minX = -_origin[0] * width;
-    double minY = -_origin[1] * height;
+    double minX = -1 * _origin[0] * width;
+    double minY = -1 * _origin[1] * height;
     return AABB.fromValues(minX, minY, minX + _width, minY + height);
   }
 

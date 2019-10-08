@@ -1,3 +1,7 @@
+## [1.4.10] - 2019-10-08 13:38:26
+
+- Fixing up various static analysis issues.
+
 ## [1.4.9] - 2019-10-07 11:20:58
 
 - Supporting Nodes inside of Shapes, effectively adding multiple transform spaces inside of a shape.

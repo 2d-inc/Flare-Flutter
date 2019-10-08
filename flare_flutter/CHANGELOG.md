@@ -1,3 +1,7 @@
+## [1.5.14] - 2019-10-08 13:38:55
+
+- Fixing up various static analysis issues.
+
 ## [1.5.13] - 2019-10-07 11:21:29
 
 - Using latest flare_dart with support for Nodes inside of Shapes (Paths with multiple transform spaces).

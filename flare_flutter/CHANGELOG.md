@@ -1,3 +1,7 @@
+## [1.6.1] - 2019-10-09 14:20:54
+
+- Image and Shapes share clipping logic. Fixes issue with image clipping.
+
 ## [1.6.0] - 2019-10-09 11:08:52
 
 - Using latest flare_dart with support for difference clipping.

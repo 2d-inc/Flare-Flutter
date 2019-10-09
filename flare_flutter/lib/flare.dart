@@ -53,6 +53,51 @@ abstract class FlutterActorDrawable {
   void onBlendModeChanged(ui.BlendMode blendMode);
 
   void draw(ui.Canvas canvas);
+
+  List<List<ClipShape>> get clipShapes;
+  ActorArtboard get artboard;
+
+  void clip(ui.Canvas canvas) {
+    for (final List<ClipShape> clips in clipShapes) {
+      for (final ClipShape clipShape in clips) {
+        var shape = clipShape.shape;
+        if (shape.renderCollapsed) {
+          continue;
+        }
+        if (clipShape.intersect) {
+          canvas.clipPath((shape as FlutterActorShape).path);
+        } else {
+          var artboardRect = Rect.fromLTWH(
+              artboard.origin[0] * artboard.width,
+              artboard.origin[1] * artboard.height,
+              artboard.width,
+              artboard.height);
+
+          if (shape.fill != null && shape.fill.fillRule == FillRule.evenOdd) {
+            // One single clip path with subtraction rect and all sub paths.
+            var clipPath = ui.Path();
+            clipPath.addRect(artboardRect);
+            for (final path in shape.paths) {
+              clipPath.addPath((path as FlutterPath).path, ui.Offset.zero,
+                  matrix4: path.pathTransform?.mat4);
+            }
+            clipPath.fillType = PathFillType.evenOdd;
+            canvas.clipPath(clipPath);
+          } else {
+            // One clip path with rect per shape path.
+            for (final path in shape.paths) {
+              var clipPath = ui.Path();
+              clipPath.addRect(artboardRect);
+              clipPath.addPath((path as FlutterPath).path, ui.Offset.zero,
+                  matrix4: path.pathTransform?.mat4);
+              clipPath.fillType = PathFillType.evenOdd;
+              canvas.clipPath(clipPath);
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 abstract class FlutterFill {
@@ -231,46 +276,7 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
 
     canvas.save();
 
-    // Get Clips
-    for (final List<ClipShape> clips in clipShapes) {
-      for (final ClipShape clipShape in clips) {
-        var shape = clipShape.shape;
-        if (shape.renderCollapsed) {
-          continue;
-        }
-        if (clipShape.intersect) {
-          canvas.clipPath((shape as FlutterActorShape).path);
-        } else {
-          var artboardRect = Rect.fromLTWH(
-              artboard.origin[0] * artboard.width,
-              artboard.origin[1] * artboard.height,
-              artboard.width,
-              artboard.height);
-			  
-          if (shape.fill != null && shape.fill.fillRule == FillRule.evenOdd) {
-            // One single clip path with subtraction rect and all sub paths.
-            var clipPath = ui.Path();
-            clipPath.addRect(artboardRect);
-            for (final path in shape.paths) {
-              clipPath.addPath((path as FlutterPath).path, ui.Offset.zero,
-                  matrix4: path.pathTransform?.mat4);
-            }
-            clipPath.fillType = PathFillType.evenOdd;
-            canvas.clipPath(clipPath);
-          } else {
-            // One clip path with rect per shape path.
-            for (final path in shape.paths) {
-              var clipPath = ui.Path();
-              clipPath.addRect(artboardRect);
-              clipPath.addPath((path as FlutterPath).path, ui.Offset.zero,
-                  matrix4: path.pathTransform?.mat4);
-              clipPath.fillType = PathFillType.evenOdd;
-              canvas.clipPath(clipPath);
-            }
-          }
-        }
-      }
-    }
+    clip(canvas);
 
     ui.Path renderPath = getRenderPath(canvas);
 
@@ -1129,19 +1135,8 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
       return;
     }
     canvas.save();
-    // Get Clips
-    for (final List<ClipShape> clips in clipShapes) {
-      if (clips.length == 1) {
-        canvas.clipPath((clips[0] as FlutterActorShape).path);
-      } else {
-        ui.Path clippingPath = ui.Path();
-        for (final ClipShape clipShape in clips) {
-          clippingPath.addPath(
-              (clipShape.shape as FlutterActorShape).path, ui.Offset.zero);
-        }
-        canvas.clipPath(clippingPath);
-      }
-    }
+
+    clip(canvas);
 
     _paint.color =
         _paint.color.withOpacity(renderOpacity.clamp(0.0, 1.0).toDouble());

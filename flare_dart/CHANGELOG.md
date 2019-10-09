@@ -1,3 +1,7 @@
+## [2.2.0] - 2019-10-09 11:19:06
+
+- Fix merge bug that sneaked into pub.
+
 ## [2.1.0] - 2019-10-09 11:08:05
 
 - Adding support for difference clipping.

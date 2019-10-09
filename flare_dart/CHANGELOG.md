@@ -1,3 +1,7 @@
+## [2.1.0] - 2019-10-09 11:08:05
+
+- Adding support for difference clipping.
+
 ## [2.0.0] - 2019-10-08 13:38:26
 
 - Fixing up various static analysis issues.

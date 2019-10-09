@@ -205,6 +205,12 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     _isValid = true;
     _path.reset();
 
+    if (fill != null && fill.fillRule == FillRule.evenOdd) {
+      _path.fillType = PathFillType.evenOdd;
+    } else {
+      _path.fillType = PathFillType.nonZero;
+    }
+
     for (final ActorBasePath path in paths) {
       Mat2D transform = path.pathTransform;
       _path.addPath((path as FlutterPath).path, ui.Offset.zero,
@@ -226,26 +232,42 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     canvas.save();
 
     // Get Clips
-    for (final List<ActorShape> clips in clipShapes) {
-      if (clips.length == 1) {
-        if (clips.first.renderCollapsed) {
+    for (final List<ClipShape> clips in clipShapes) {
+      for (final ClipShape clipShape in clips) {
+        var shape = clipShape.shape;
+        if (shape.renderCollapsed) {
           continue;
         }
-        canvas.clipPath((clips.first as FlutterActorShape).path);
-      } else {
-        ui.Path clippingPath = ui.Path();
-        bool empty = true;
-        for (final ActorShape clipShape in clips) {
-          if (clipShape.renderCollapsed) {
-            continue;
+        if (clipShape.intersect) {
+          canvas.clipPath((shape as FlutterActorShape).path);
+        } else {
+          var artboardRect = Rect.fromLTWH(
+              artboard.origin[0] * artboard.width,
+              artboard.origin[1] * artboard.height,
+              artboard.width,
+              artboard.height);
+			  
+          if (shape.fill != null && shape.fill.fillRule == FillRule.evenOdd) {
+            // One single clip path with subtraction rect and all sub paths.
+            var clipPath = ui.Path();
+            clipPath.addRect(artboardRect);
+            for (final path in shape.paths) {
+              clipPath.addPath((path as FlutterPath).path, ui.Offset.zero,
+                  matrix4: path.pathTransform?.mat4);
+            }
+            clipPath.fillType = PathFillType.evenOdd;
+            canvas.clipPath(clipPath);
+          } else {
+            // One clip path with rect per shape path.
+            for (final path in shape.paths) {
+              var clipPath = ui.Path();
+              clipPath.addRect(artboardRect);
+              clipPath.addPath((path as FlutterPath).path, ui.Offset.zero,
+                  matrix4: path.pathTransform?.mat4);
+              clipPath.fillType = PathFillType.evenOdd;
+              canvas.clipPath(clipPath);
+            }
           }
-          clippingPath.addPath(
-              (clipShape as FlutterActorShape).path, ui.Offset.zero);
-          empty = false;
-        }
-
-        if (!empty) {
-          canvas.clipPath(clippingPath);
         }
       }
     }
@@ -1108,14 +1130,14 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     }
     canvas.save();
     // Get Clips
-    for (final List<ActorShape> clips in clipShapes) {
+    for (final List<ClipShape> clips in clipShapes) {
       if (clips.length == 1) {
         canvas.clipPath((clips[0] as FlutterActorShape).path);
       } else {
         ui.Path clippingPath = ui.Path();
-        for (final ActorShape clipShape in clips) {
+        for (final ClipShape clipShape in clips) {
           clippingPath.addPath(
-              (clipShape as FlutterActorShape).path, ui.Offset.zero);
+              (clipShape.shape as FlutterActorShape).path, ui.Offset.zero);
         }
         canvas.clipPath(clippingPath);
       }

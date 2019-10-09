@@ -10,9 +10,13 @@ typedef bool NodeWalkCallback(ActorNode node);
 
 class ActorClip {
   int clipIdx;
+  bool intersect = true;
   ActorNode node;
 
   ActorClip(this.clipIdx);
+  ActorClip.copy(ActorClip from)
+      : clipIdx = from.clipIdx,
+        intersect = from.intersect;
 }
 
 class ActorNode extends ActorComponent {
@@ -243,7 +247,11 @@ class ActorNode extends ActorComponent {
     if (clipCount > 0) {
       node._clips = List<ActorClip>(clipCount);
       for (int i = 0; i < clipCount; i++) {
-        node._clips[i] = ActorClip(reader.readId("clip"));
+        var clip = ActorClip(reader.readId("clip"));
+        if (artboard.actor.version >= 23) {
+          clip.intersect = reader.readBool("intersect");
+        }
+        node._clips[i] = clip;
       }
     }
     reader.closeArray();
@@ -284,7 +292,7 @@ class ActorNode extends ActorComponent {
     if (node._clips != null) {
       _clips = List<ActorClip>(node._clips.length);
       for (int i = 0, l = node._clips.length; i < l; i++) {
-        _clips[i] = ActorClip(node._clips[i].clipIdx);
+        _clips[i] = ActorClip.copy(node._clips[i]);
       }
     } else {
       _clips = null;

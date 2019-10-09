@@ -55,9 +55,9 @@ class ActorShape extends ActorDrawable {
   @override
   AABB computeAABB() {
     AABB aabb;
-    for (final List<ActorShape> clips in clipShapes) {
-      for (final ActorShape node in clips) {
-        AABB bounds = node.computeAABB();
+    for (final List<ClipShape> clips in clipShapes) {
+      for (final ClipShape clipShape in clips) {
+        AABB bounds = clipShape.shape.computeAABB();
         if (bounds == null) {
           continue;
         }

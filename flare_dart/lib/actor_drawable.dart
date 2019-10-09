@@ -6,10 +6,19 @@ import "actor_node.dart";
 import "math/aabb.dart";
 
 enum BlendModes { normal, multiply, screen, additive }
+<<<<<<< HEAD
+=======
+
+class ClipShape {
+  final ActorShape shape;
+  final bool intersect;
+  ClipShape(this.shape, this.intersect);
+}
+>>>>>>> master
 
 abstract class ActorDrawable extends ActorNode {
-  List<List<ActorShape>> _clipShapes;
-  List<List<ActorShape>> get clipShapes => _clipShapes;
+  List<List<ClipShape>> _clipShapes;
+  List<List<ClipShape>> get clipShapes => _clipShapes;
 
   // Editor set draw index.
   int _drawOrder;
@@ -61,14 +70,21 @@ abstract class ActorDrawable extends ActorNode {
 
   @override
   void completeResolve() {
+<<<<<<< HEAD
     _clipShapes = <List<ActorShape>>[];
     List<List<ActorClip>> clippers = allClips;
     for (final List<ActorClip> clips in clippers) {
       List<ActorShape> shapes = <ActorShape>[];
+=======
+    _clipShapes = <List<ClipShape>>[];
+    List<List<ActorClip>> clippers = allClips;
+    for (final List<ActorClip> clips in clippers) {
+      List<ClipShape> shapes = <ClipShape>[];
+>>>>>>> master
       for (final ActorClip clip in clips) {
         clip.node.all((ActorNode node) {
           if (node is ActorShape) {
-            shapes.add(node);
+            shapes.add(ClipShape(node, clip.intersect));
           }
           return true;
         });

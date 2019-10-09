@@ -1,3 +1,11 @@
+## [1.6.0] - 2019-10-09 11:08:52
+
+- Using latest flare_dart with support for difference clipping.
+
+## [1.5.15] - 2019-10-08 13:38:55
+
+- Fixed Pub deploy bug.
+
 ## [1.5.14] - 2019-10-08 13:38:55
 
 - Fixing up various static analysis issues.

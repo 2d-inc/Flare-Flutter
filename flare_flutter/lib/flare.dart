@@ -205,15 +205,12 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
     _isValid = true;
     _path.reset();
 
-<<<<<<< HEAD
-=======
     if (fill != null && fill.fillRule == FillRule.evenOdd) {
       _path.fillType = PathFillType.evenOdd;
     } else {
       _path.fillType = PathFillType.nonZero;
     }
 
->>>>>>> master
     for (final ActorBasePath path in paths) {
       Mat2D transform = path.pathTransform;
       _path.addPath((path as FlutterPath).path, ui.Offset.zero,

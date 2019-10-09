@@ -14,12 +14,9 @@ class ActorClip {
   ActorNode node;
 
   ActorClip(this.clipIdx);
-<<<<<<< HEAD
-=======
   ActorClip.copy(ActorClip from)
       : clipIdx = from.clipIdx,
         intersect = from.intersect;
->>>>>>> master
 }
 
 class ActorNode extends ActorComponent {

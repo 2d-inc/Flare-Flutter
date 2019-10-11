@@ -1,3 +1,7 @@
+## [2.2.1] - 2019-10-11 12:38:09
+
+- Mitigate path keyframes exported for non-paths (fixing this on Flare side too).
+
 ## [2.2.0] - 2019-10-09 11:19:06
 
 - Fix merge bug that sneaked into pub.

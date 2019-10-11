@@ -1,3 +1,7 @@
+## [1.6.2] - 2019-10-11 12:38:33
+
+- Use latest flare_dart, mitigating a bad path keyframe issue.
+
 ## [1.6.1] - 2019-10-09 14:20:54
 
 - Image and Shapes share clipping logic. Fixes issue with image clipping.

@@ -696,7 +696,8 @@ class KeyFramePathVertices extends KeyFrameWithInterpolation {
 
   static KeyFrame read(StreamReader reader, ActorComponent component) {
     KeyFramePathVertices frame = KeyFramePathVertices();
-    if (!KeyFrameWithInterpolation.read(reader, frame)) {
+    if (!KeyFrameWithInterpolation.read(reader, frame) ||
+        component is! ActorPath) {
       return null;
     }
 

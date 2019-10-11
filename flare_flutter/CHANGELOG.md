@@ -1,3 +1,7 @@
+## [1.6.3] - 2019-10-11 12:58:13
+
+- Use latest flare_dart, fixing issue with reading clip nodes in JSON.
+
 ## [1.6.2] - 2019-10-11 12:38:33
 
 - Use latest flare_dart, mitigating a bad path keyframe issue.

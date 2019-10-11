@@ -1,3 +1,7 @@
+## [2.2.2] - 2019-10-11 12:55:44
+
+- Call openObject before reading clip node and intersect, closeObject after. Fixes issue with reading in new clips in JSON.
+
 ## [2.2.1] - 2019-10-11 12:38:09
 
 - Mitigate path keyframes exported for non-paths (fixing this on Flare side too).

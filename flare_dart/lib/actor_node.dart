@@ -247,10 +247,12 @@ class ActorNode extends ActorComponent {
     if (clipCount > 0) {
       node._clips = List<ActorClip>(clipCount);
       for (int i = 0; i < clipCount; i++) {
-        var clip = ActorClip(reader.readId("clip"));
+        reader.openObject("clip");
+        var clip = ActorClip(reader.readId("node"));
         if (artboard.actor.version >= 23) {
           clip.intersect = reader.readBool("intersect");
         }
+        reader.closeObject();
         node._clips[i] = clip;
       }
     }

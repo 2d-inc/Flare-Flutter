@@ -224,7 +224,8 @@ class FlareActorRenderObject extends FlareRenderBox {
   @override
   bool get isPlaying =>
       !_isPaused &&
-      ((_controller?.isActive?.value ?? false) || _animationLayers.isNotEmpty);
+      (_controller?.isActive?.value ?? true) &&
+      _animationLayers.isNotEmpty;
 
   void onControllerActiveChange() {
     updatePlayState();
@@ -260,7 +261,9 @@ class FlareActorRenderObject extends FlareRenderBox {
     }
     // file will change, let's clear out old animations.
     _animationLayers.clear();
-    load();
+    if (!loadImmediately()) {
+      load();
+    }
   }
 
   bool _instanceArtboard() {
@@ -281,13 +284,14 @@ class FlareActorRenderObject extends FlareRenderBox {
             _color.blue / 255.0,
             _color.opacity
           ]);
-    _artboard.advance(0.0);
-    updateBounds();
 
     if (_controller != null) {
       _controller.initialize(_artboard);
     }
     _updateAnimation(onlyWhenMissing: true);
+    advance(0.0);
+    updateBounds();
+
     markNeedsPaint();
     return true;
   }
@@ -302,6 +306,21 @@ class FlareActorRenderObject extends FlareRenderBox {
       return;
     }
     _instanceArtboard();
+  }
+
+  @override
+  bool loadImmediately() {
+    if (_filename == null) {
+      return false;
+    }
+
+    _actor = loadFlareFromCacheImmediately(_filename);
+    if (_actor == null || _actor.artboard == null) {
+      return false;
+    }
+
+    _instanceArtboard();
+    return true;
   }
 
   FlareCompletedCallback get completed => _completedCallback;

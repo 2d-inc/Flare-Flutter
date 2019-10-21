@@ -49,8 +49,10 @@ abstract class FlareRenderBox extends RenderBox {
       return;
     }
     _assetBundle = value;
-    if (_assetBundle != null) {
-      _load();
+    if (_assetBundle != null && attached) {
+      if (!loadImmediately()) {
+        _load();
+      }
     }
   }
 
@@ -112,7 +114,9 @@ abstract class FlareRenderBox extends RenderBox {
     super.attach(owner);
     updatePlayState();
     if (_assets.isEmpty && assetBundle != null) {
-      _load();
+      if (!loadImmediately()) {
+        _load();
+      }
     }
   }
 
@@ -248,6 +252,7 @@ abstract class FlareRenderBox extends RenderBox {
 
   /// Perform any loading logic necessary for this scene.
   Future<void> load() async {}
+  bool loadImmediately() { return false;}
 
   void _unload() {
     for (final FlareCacheAsset asset in _assets) {
@@ -258,6 +263,20 @@ abstract class FlareRenderBox extends RenderBox {
   }
 
   void onUnload() {}
+
+  FlutterActor loadFlareFromCacheImmediately(String filename) {
+    if (assetBundle == null || filename == null) {
+      return null;
+    }
+    FlareCacheAsset asset = cachedActorIfAvailable(assetBundle, filename);
+
+    if (!attached || asset == null) {
+      return null;
+    }
+    _assets.add(asset);
+    asset.ref();
+    return asset.actor;
+  }
 
   /// Load a flare file from cache
   Future<FlutterActor> loadFlare(String filename) async {

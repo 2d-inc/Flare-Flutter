@@ -34,3 +34,10 @@ Future<FlareCacheAsset> cachedActor(AssetBundle bundle, String filename) async {
   }
   return cache.getAsset(filename);
 }
+
+FlareCacheAsset cachedActorIfAvailable(AssetBundle bundle, String filename) {
+  FlareCache cache = _cache[bundle];
+  if (cache != null) {
+    return cache.getAssetIfAvailable(filename);
+  }
+}

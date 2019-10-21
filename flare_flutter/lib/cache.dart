@@ -62,4 +62,12 @@ abstract class Cache<T extends CacheAsset> {
     }
     return asset;
   }
+
+  T getAssetIfAvailable(String filename) {
+    T asset = _assets[filename];
+    if (asset != null && asset.isAvailable) {
+      return asset;
+    }
+    return null;
+  }
 }

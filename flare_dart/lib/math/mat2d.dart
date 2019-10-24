@@ -166,7 +166,7 @@ class Mat2D {
     double rotation = atan2(m1, m0);
     double denom = m0 * m0 + m1 * m1;
     double scaleX = sqrt(denom);
-    double scaleY = (m0 * m3 - m2 * m1) / scaleX;
+    double scaleY = (scaleX == 0) ? 0 : ((m0 * m3 - m2 * m1) / scaleX);
     double skewX = atan2(m0 * m2 + m1 * m3, denom);
 
     result[0] = m[4];

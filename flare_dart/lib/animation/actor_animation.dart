@@ -378,6 +378,19 @@ class ActorAnimation {
     }
   }
 
+  /// Apply the specified time to all the components of this animation.
+  /// This operation will result in the application of the keyframe values
+  /// at the given time, and perform interpolation if needed.
+  /// 
+  /// @time is the current time for this animation
+  /// @artboard is the artboard that contains it
+  /// @mix is a value [0,1]
+  ///   This is a blending parameter to allow smoothing between concurrent 
+  ///   animations. 
+  ///   By setting mix to 1, the current animation will fully  replace the 
+  ///   existing values. By ramping up mix with values between 0 and 1, the
+  ///   transition from one animation to the next will be more gradual as it
+  ///   gets mixed in, preventing poppying effects.
   void apply(double time, ActorArtboard artboard, double mix) {
     for (final ComponentAnimation componentAnimation in _components) {
       componentAnimation.apply(time, artboard.components, mix);

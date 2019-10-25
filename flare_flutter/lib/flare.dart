@@ -796,6 +796,9 @@ class FlutterActorArtboard extends ActorArtboard {
   FlutterActorArtboard(FlutterActor actor) : super(actor);
 
   void draw(ui.Canvas canvas) {
+    if (drawableNodes == null || drawableNodes.isEmpty) {
+      return;
+    }
     if (clipContents) {
       canvas.save();
       AABB aabb = artboardAABB();

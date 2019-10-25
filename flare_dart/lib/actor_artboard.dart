@@ -67,8 +67,8 @@ class ActorArtboard {
   Float32List get overrideColor => _overrideColor;
 
   set overrideColor(Float32List value) {
+    _overrideColor = value;
     if (_drawableNodes != null) {
-      _overrideColor = value;
       for (final ActorDrawable drawable in _drawableNodes) {
         addDirt(drawable, DirtyFlags.paintDirty, true);
       }

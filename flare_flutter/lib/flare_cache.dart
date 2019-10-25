@@ -34,3 +34,8 @@ Future<FlareCacheAsset> cachedActor(AssetBundle bundle, String filename) async {
   }
   return cache.getAsset(filename);
 }
+
+/// Get a warm Flare actor that's already in the cache.
+FlareCacheAsset getWarmActor(AssetBundle bundle, String filename) {
+  return _cache[bundle]?.getWarmAsset(filename);
+}

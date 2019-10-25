@@ -1,4 +1,5 @@
 import "package:flare_flutter/flare_actor.dart";
+import "package:flare_flutter/flare_cache_builder.dart";
 import "package:flutter/material.dart";
 
 void main() => runApp(MyApp());
@@ -37,12 +38,20 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Expanded(
-                  child: FlareActor(
-                "assets/Filip.flr",
-                alignment: Alignment.center,
-                fit: BoxFit.contain,
-                animation: _animationName,
-              ))
+                child: FlareCacheBuilder(
+                  ["assets/Filip.flr"],
+                  builder: (BuildContext context, bool isWarm) {
+                    return !isWarm
+                        ? Container(child:Text("NO"))
+                        : FlareActor(
+                            "assets/Filip.flr",
+                            alignment: Alignment.center,
+                            fit: BoxFit.contain,
+                            animation: _animationName,
+                          );
+                  },
+                ),
+              )
             ],
           ),
         ));

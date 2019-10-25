@@ -292,15 +292,25 @@ class FlareActorRenderObject extends FlareRenderBox {
     return true;
   }
 
+  /// Attempt a warm load, this is the optimal case when the
+  /// required asset is already in the cache.
   @override
-  Future<void> load() async {
+  bool warmLoad() {
+    if (_filename == null) {
+      return false;
+    }
+    _actor = getWarmFlare(_filename);
+    return _instanceArtboard();
+  }
+
+  /// Load the necessary Flare file specified by _filename.
+  /// this occurs when the optimal warmLoad fails to find an asset in cache.
+  @override
+  Future<void> coldLoad() async {
     if (_filename == null) {
       return;
     }
     _actor = await loadFlare(_filename);
-    if (_actor == null || _actor.artboard == null) {
-      return;
-    }
     _instanceArtboard();
   }
 

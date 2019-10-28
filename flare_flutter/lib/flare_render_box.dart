@@ -49,7 +49,7 @@ abstract class FlareRenderBox extends RenderBox {
       return;
     }
     _assetBundle = value;
-    if (_assetBundle != null) {
+    if (_assetBundle != null && attached) {
       load();
     }
   }
@@ -241,6 +241,15 @@ abstract class FlareRenderBox extends RenderBox {
     return false;
   }
 
+  /// Prevent loading when the renderbox isn't attached or the asset bundle
+  /// is yet to be set. This prevents unneccesarily hitting an async path
+  /// during load. A warmLoad would fail which then falls back to a coldLoad.
+  /// Due to the async nature, any further sync calls would be blocked as we
+  /// gate load with _isLoading.
+  bool get canLoad {
+    return attached && _assetBundle != null;
+  }
+
   Future<void> coldLoad() async {}
 
   /// Trigger the loading process. This will attempt a sync warm load,
@@ -249,6 +258,9 @@ abstract class FlareRenderBox extends RenderBox {
   /// draw any empty frames.
   ///
   void load() {
+    if (!canLoad) {
+      return;
+    }
     if (_isLoading) {
       _reloadQueued = true;
       return;
@@ -284,7 +296,7 @@ abstract class FlareRenderBox extends RenderBox {
   }
 
   void onUnload() {}
-  
+
   /// Load a flare file from cache
   FlutterActor getWarmFlare(String filename) {
     if (assetBundle == null || filename == null) {

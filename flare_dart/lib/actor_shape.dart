@@ -49,7 +49,7 @@ class ActorShape extends ActorDrawable {
 
   void copyShape(ActorShape node, ActorArtboard resetArtboard) {
     copyDrawable(node, resetArtboard);
-    node._transformAffectsStroke = _transformAffectsStroke;
+    _transformAffectsStroke = node._transformAffectsStroke;
   }
 
   @override

@@ -1,3 +1,10 @@
+## [1.6.4] - 2019-10-29 12:45:05
+
+- Use latest flare_dart, fixing issue with transformAffectsStroke in instances.
+- Implement features as suggested by PR https://github.com/2d-inc/Flare-Flutter/pull/177
+- New FlareCacheBuilder which takes an array of Flare files to warm the cache up with, builder is called with an isWarm boolean to allow displaying different content while the files are loading. Useful for loading Flare files you know you'll be using later in this view (or sub view) context and having them display immediately.
+- FlareActor will always attempt a warm load (fully sync) path when loading a Flare content, assuring that when content is warm in the cache, no visual glitches/pops occur.
+
 ## [1.6.3] - 2019-10-11 12:58:13
 
 - Use latest flare_dart, fixing issue with reading clip nodes in JSON.

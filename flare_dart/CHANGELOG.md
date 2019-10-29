@@ -1,3 +1,7 @@
+## [2.2.3] - 2019-10-29 12:44:02
+
+- Copy transformAffectsStroke from the source shape when instancing.
+
 ## [2.2.2] - 2019-10-11 12:55:44
 
 - Call openObject before reading clip node and intersect, closeObject after. Fixes issue with reading in new clips in JSON.

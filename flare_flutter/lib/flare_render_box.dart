@@ -17,7 +17,7 @@ abstract class FlareRenderBox extends RenderBox {
   Alignment _alignment;
   int _frameCallbackID;
   double _lastFrameTime = 0.0;
-  final List<FlareCacheAsset> _assets = [];
+  final Set<FlareCacheAsset> _assets = {};
   bool _useIntrinsicSize = false;
 
   bool get useIntrinsicSize => _useIntrinsicSize;
@@ -49,8 +49,8 @@ abstract class FlareRenderBox extends RenderBox {
       return;
     }
     _assetBundle = value;
-    if (_assetBundle != null) {
-      _load();
+    if (_assetBundle != null && attached) {
+      load();
     }
   }
 
@@ -83,8 +83,8 @@ abstract class FlareRenderBox extends RenderBox {
     }
   }
 
-   @override
-   bool get sizedByParent => !_useIntrinsicSize || _intrinsicSize == null;
+  @override
+  bool get sizedByParent => !_useIntrinsicSize || _intrinsicSize == null;
 
   @override
   void performLayout() {
@@ -112,7 +112,7 @@ abstract class FlareRenderBox extends RenderBox {
     super.attach(owner);
     updatePlayState();
     if (_assets.isEmpty && assetBundle != null) {
-      _load();
+      load();
     }
   }
 
@@ -234,20 +234,58 @@ abstract class FlareRenderBox extends RenderBox {
   void advance(double elapsedSeconds);
 
   bool _isLoading = false;
+  bool _reloadQueued = false;
   bool get isLoading => _isLoading;
 
-  Future<void> _load() async {
+  bool warmLoad() {
+    return false;
+  }
+
+  /// Prevent loading when the renderbox isn't attached or the asset bundle
+  /// is yet to be set. This prevents unneccesarily hitting an async path
+  /// during load. A warmLoad would fail which then falls back to a coldLoad.
+  /// Due to the async nature, any further sync calls would be blocked as we
+  /// gate load with _isLoading.
+  bool get canLoad {
+    return attached && _assetBundle != null;
+  }
+
+  Future<void> coldLoad() async {}
+
+  /// Trigger the loading process. This will attempt a sync warm load,
+  /// optimizing for the case where the assets we need are already available.
+  /// This allows widgets using this render object to draw immediately and not
+  /// draw any empty frames.
+  ///
+  void load() {
+    if (!canLoad) {
+      return;
+    }
     if (_isLoading) {
+      _reloadQueued = true;
       return;
     }
     _isLoading = true;
     _unload();
-    await load();
-    _isLoading = false;
+    // Try a sync warm load in case we already have what we need.
+    if (!warmLoad()) {
+      coldLoad().then((_) {
+        _completeLoad();
+      });
+    } else {
+      _completeLoad();
+    }
   }
 
-  /// Perform any loading logic necessary for this scene.
-  Future<void> load() async {}
+  void _completeLoad() {
+    // Load is complete, check if a reload was requested
+    // during our load, and start it up again
+    _isLoading = false;
+    if (_reloadQueued) {
+      _reloadQueued = false;
+      load();
+    }
+  }
 
   void _unload() {
     for (final FlareCacheAsset asset in _assets) {
@@ -258,6 +296,22 @@ abstract class FlareRenderBox extends RenderBox {
   }
 
   void onUnload() {}
+
+  /// Load a flare file from cache
+  FlutterActor getWarmFlare(String filename) {
+    if (assetBundle == null || filename == null) {
+      return null;
+    }
+
+    FlareCacheAsset asset = getWarmActor(assetBundle, filename);
+
+    if (!attached || asset == null) {
+      return null;
+    }
+    _assets.add(asset);
+    asset.ref();
+    return asset.actor;
+  }
 
   /// Load a flare file from cache
   Future<FlutterActor> loadFlare(String filename) async {

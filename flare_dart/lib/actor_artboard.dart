@@ -68,15 +68,19 @@ class ActorArtboard {
 
   set overrideColor(Float32List value) {
     _overrideColor = value;
-    for (final ActorDrawable drawable in _drawableNodes) {
-      addDirt(drawable, DirtyFlags.paintDirty, true);
+    if (_drawableNodes != null) {
+      for (final ActorDrawable drawable in _drawableNodes) {
+        addDirt(drawable, DirtyFlags.paintDirty, true);
+      }
     }
   }
 
   set modulateOpacity(double value) {
-    _modulateOpacity = value;
-    for (final ActorDrawable drawable in _drawableNodes) {
-      addDirt(drawable, DirtyFlags.paintDirty, true);
+    if (_drawableNodes != null) {
+      _modulateOpacity = value;
+      for (final ActorDrawable drawable in _drawableNodes) {
+        addDirt(drawable, DirtyFlags.paintDirty, true);
+      }
     }
   }
 
@@ -570,8 +574,10 @@ class ActorArtboard {
   }
 
   void initializeGraphics() {
-    for (final ActorDrawable drawable in _drawableNodes) {
-      drawable.initializeGraphics();
+    if (_drawableNodes != null) {
+      for (final ActorDrawable drawable in _drawableNodes) {
+        drawable.initializeGraphics();
+      }
     }
   }
 
@@ -600,6 +606,10 @@ class ActorArtboard {
   }
 
   AABB computeAABB() {
+    if (_drawableNodes == null) {
+      return AABB();
+    }
+
     AABB aabb;
     for (final ActorDrawable drawable in _drawableNodes) {
       // This is the axis aligned bounding box in the space

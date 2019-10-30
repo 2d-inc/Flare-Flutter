@@ -265,8 +265,6 @@ abstract class GradientColor extends ActorPaint {
   final Vec2D _end = Vec2D();
   final Vec2D _renderStart = Vec2D();
   final Vec2D _renderEnd = Vec2D();
-  @override
-  final double opacity = 1.0;
 
   Vec2D get start => _start;
   Vec2D get end => _end;

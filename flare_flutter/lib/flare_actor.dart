@@ -281,26 +281,44 @@ class FlareActorRenderObject extends FlareRenderBox {
             _color.blue / 255.0,
             _color.opacity
           ]);
-    _artboard.advance(0.0);
-    updateBounds();
 
     if (_controller != null) {
       _controller.initialize(_artboard);
     }
     _updateAnimation(onlyWhenMissing: true);
+    // Immediately update the newly instanced artboard and compute
+    // bounds so that the widget can take up the necessary space
+    advance(0.0);
+    updateBounds();
+
     markNeedsPaint();
     return true;
   }
 
   @override
-  Future<void> load() async {
+  bool get canLoad {
+    return super.canLoad && _filename != null;
+  }
+
+  /// Attempt a warm load, thfis is the optimal case when the
+  /// required asset is already in the cache.
+  @override
+  bool warmLoad() {
+    if (_filename == null) {
+      return false;
+    }
+    _actor = getWarmFlare(_filename);
+    return _instanceArtboard();
+  }
+
+  /// Load the necessary Flare file specified by _filename.
+  /// this occurs when the optimal warmLoad fails to find an asset in cache.
+  @override
+  Future<void> coldLoad() async {
     if (_filename == null) {
       return;
     }
     _actor = await loadFlare(_filename);
-    if (_actor == null || _actor.artboard == null) {
-      return;
-    }
     _instanceArtboard();
   }
 

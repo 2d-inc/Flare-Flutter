@@ -38,6 +38,7 @@ abstract class Cache<T extends CacheAsset> {
     _toPrune.remove(asset);
   }
 
+  /// Get an asset from the cache or load it.
   Future<T> getAsset(String filename) async {
     T asset = _assets[filename];
     if (asset != null) {
@@ -61,5 +62,11 @@ abstract class Cache<T extends CacheAsset> {
       }
     }
     return asset;
+  }
+
+  /// Get an asset from the cache.
+  T getWarmAsset(String filename) {
+    T asset = _assets[filename];
+    return (asset?.isAvailable ?? false) ? asset : null;
   }
 }

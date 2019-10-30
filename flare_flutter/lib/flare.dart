@@ -801,9 +801,11 @@ class FlutterActorArtboard extends ActorArtboard {
       AABB aabb = artboardAABB();
       canvas.clipRect(Rect.fromLTRB(aabb[0], aabb[1], aabb[2], aabb[3]));
     }
-    for (final ActorDrawable drawable in drawableNodes) {
-      if (drawable is FlutterActorDrawable) {
-        (drawable as FlutterActorDrawable).draw(canvas);
+    if (drawableNodes != null) {
+      for (final ActorDrawable drawable in drawableNodes) {
+        if (drawable is FlutterActorDrawable) {
+          (drawable as FlutterActorDrawable).draw(canvas);
+        }
       }
     }
     if (clipContents) {

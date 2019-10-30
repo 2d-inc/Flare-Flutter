@@ -7,7 +7,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  final List<bool> options = [false, true, false, true, true];
+  static final List<bool> options = [false, true, false, true, true];
   bool _snapToEnd = true;
 
   @override

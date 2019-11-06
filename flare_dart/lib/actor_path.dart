@@ -46,6 +46,7 @@ abstract class ActorBasePath {
       localTransform = Mat2D();
       Mat2D.invert(localTransform, parent.worldTransform);
     } else if (!_isRootPath) {
+      localTransform = Mat2D();
       // Path isn't root, so get transform in shape space.
       if (Mat2D.invert(localTransform, shape.worldTransform)) {
         Mat2D.multiply(localTransform, localTransform, worldTransform);

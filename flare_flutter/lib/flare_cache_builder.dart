@@ -23,9 +23,11 @@ class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
     if (value == _isWarm) {
       return;
     }
-    setState(() {
-      _isWarm = value;
-    });
+    if (mounted) {
+      setState(() {
+        _isWarm = value;
+      });
+    }
   }
 
   final Set<FlareCacheAsset> _assets = {};

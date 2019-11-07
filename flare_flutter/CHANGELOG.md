@@ -1,3 +1,7 @@
+## [1.6.5] - 2019-11-06 17:29:43
+
+- Fixed an issue with FlareCacheBuilder calling setState when the widget is no longer mounted.
+
 ## [1.6.4] - 2019-10-29 12:45:05
 
 - Use latest flare_dart, fixing issue with transformAffectsStroke in instances.

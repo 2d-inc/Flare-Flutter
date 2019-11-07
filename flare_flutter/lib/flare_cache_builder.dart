@@ -17,7 +17,19 @@ class FlareCacheBuilder extends StatefulWidget {
 }
 
 class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
-  bool isWarm = false;
+  bool _isWarm = false;
+  bool get isWarm => _isWarm;
+  set isWarm(bool value) {
+    if (value == _isWarm) {
+      return;
+    }
+    if (mounted) {
+      setState(() {
+        _isWarm = value;
+      });
+    }
+  }
+
   final Set<FlareCacheAsset> _assets = {};
   @override
   void initState() {
@@ -62,24 +74,21 @@ class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
   }
 
   bool _updateWarmth() {
+    if (!mounted) {
+      return true;
+    }
     var filenames = widget.filenames;
     if (filenames == null) {
-      setState(() {
-        isWarm = true;
-      });
+      isWarm = true;
       return true;
     }
     for (final filename in filenames) {
       if (getWarmActor(bundle, filename) == null) {
-        setState(() {
-          isWarm = false;
-        });
+        isWarm = false;
         return false;
       }
     }
-    setState(() {
-      isWarm = true;
-    });
+    isWarm = true;
     return true;
   }
 

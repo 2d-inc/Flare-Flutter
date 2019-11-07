@@ -1100,22 +1100,24 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
 
   /// Change the image for this node via a network url.
   /// Returns true when successful.
-  Future<bool> changeImageFromNetwork(String url) async {
-    var networkImage = NetworkImage(url);
-    var val = await networkImage.obtainKey(const ImageConfiguration());
-    var load = networkImage.load(val, (Uint8List bytes,
-        {int cacheWidth, int cacheHeight}) {
-      return PaintingBinding.instance.instantiateImageCodec(bytes,
-          cacheWidth: cacheWidth, cacheHeight: cacheHeight);
-    });
+  /// TODO: re-enable this when the changes to instantiateImageCodec
+  ///  land in stable.
+//   Future<bool> changeImageFromNetwork(String url) async {
+//     var networkImage = NetworkImage(url);
+//     var val = await networkImage.obtainKey(const ImageConfiguration());
+//     var load = networkImage.load(val, (Uint8List bytes,
+//         {int cacheWidth, int cacheHeight}) {
+//       return PaintingBinding.instance.instantiateImageCodec(bytes,
+//           cacheWidth: cacheWidth, cacheHeight: cacheHeight);
+//     });
 
-    final completer = Completer<bool>();
-    load.addListener(ImageStreamListener((ImageInfo info, bool syncCall) {
-      changeImage(info.image);
-      completer.complete(true);
-    }));
-    return completer.future;
-  }
+//     final completer = Completer<bool>();
+//     load.addListener(ImageStreamListener((ImageInfo info, bool syncCall) {
+//       changeImage(info.image);
+//       completer.complete(true);
+//     }));
+//     return completer.future;
+//   }
 
   /// Change the image for this node with one in an asset bundle.
   /// Returns true when successful.

@@ -1,3 +1,8 @@
+## [1.7.1] - 2019-11-07 15:03:39
+
+- Backing out changeImageFromNetwork until new PaintingBinding.instance.instantiateImageCodec signature lands in stable.
+- You can manually implement this function if you need it. Example here: https://gist.github.com/luigi-rosso/c50277341bd2681be072a575acbeb1fc#file-dynamic_image_swapping-dart-L60
+
 ## [1.7.0] - 2019-11-07 12:16:35
 
 - Adding support for runtime image swapping.

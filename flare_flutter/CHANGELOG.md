@@ -1,3 +1,7 @@
+## [1.7.0] - 2019-11-07 12:16:35
+
+- Adding support for runtime image swapping.
+
 ## [1.6.5] - 2019-11-06 17:29:43
 
 - Fixed an issue with FlareCacheBuilder calling setState when the widget is no longer mounted.

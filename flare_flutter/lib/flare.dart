@@ -1067,6 +1067,67 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     }
   }
 
+  /// Swap the image used to draw the mesh for this image node.
+  /// Returns true when successful.
+  bool changeImage(ui.Image image) {
+    if (triangles == null || dynamicUV == null) {
+      return false;
+    }
+    _uvBuffer = makeVertexUVBuffer();
+    int count = vertexCount;
+
+    // SKIA requires texture coordinates in full image space, not traditional
+    // normalized uv coordinates.
+    int idx = 0;
+    for (int i = 0; i < count; i++) {
+      _uvBuffer[idx] = dynamicUV[idx] * image.width;
+      _uvBuffer[idx + 1] = dynamicUV[idx + 1] * image.height;
+      idx += 2;
+    }
+
+    _paint.shader = image != null
+        ? ui.ImageShader(
+            image, ui.TileMode.clamp, ui.TileMode.clamp, _identityMatrix)
+        : null;
+
+    _canvasVertices = ui.Vertices.raw(ui.VertexMode.triangles, _vertexBuffer,
+        indices: _indices, textureCoordinates: _uvBuffer);
+
+    onPaintUpdated(_paint);
+
+    return true;
+  }
+
+  /// Change the image for this node via a network url.
+  /// Returns true when successful.
+  Future<bool> changeImageFromNetwork(String url) async {
+    var networkImage = NetworkImage(url);
+    var val = await networkImage.obtainKey(const ImageConfiguration());
+    var load = networkImage.load(val, (Uint8List bytes,
+        {int cacheWidth, int cacheHeight}) {
+      return PaintingBinding.instance.instantiateImageCodec(bytes,
+          cacheWidth: cacheWidth, cacheHeight: cacheHeight);
+    });
+
+    final completer = Completer<bool>();
+    load.addListener(ImageStreamListener((ImageInfo info, bool syncCall) {
+      changeImage(info.image);
+      completer.complete(true);
+    }));
+    return completer.future;
+  }
+
+  /// Change the image for this node with one in an asset bundle.
+  /// Returns true when successful.
+  Future<bool> changeImageFromBundle(
+      AssetBundle bundle, String filename) async {
+    ByteData data = await bundle.load(filename);
+    ui.Codec codec =
+        await ui.instantiateImageCodec(Uint8List.view(data.buffer));
+    ui.FrameInfo frame = await codec.getNextFrame();
+    return changeImage(frame.image);
+  }
+
   @override
   void initializeGraphics() {
     super.initializeGraphics();
@@ -1139,7 +1200,6 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     canvas.save();
 
     clip(canvas);
-
     _paint.color =
         _paint.color.withOpacity(renderOpacity.clamp(0.0, 1.0).toDouble());
 

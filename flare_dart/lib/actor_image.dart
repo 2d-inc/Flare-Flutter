@@ -28,6 +28,8 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 
   int _textureIndex = -1;
   Float32List _vertices;
+  Float32List _dynamicUV;
+  Float32List get dynamicUV => _dynamicUV;
   Uint16List _triangles;
   int _vertexCount = 0;
   int _triangleCount = 0;
@@ -141,6 +143,15 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       node._vertices =
           reader.readFloat32Array(numVertices * node.vertexStride, "vertices");
 
+      // In version 24 we started packing the original UV coordinates if the
+      // image was marked for dynamic runtime swapping.
+      if (artboard.actor.version >= 24) {
+        bool isDynamic = reader.readBool("isDynamic");
+        if (isDynamic) {
+          node._dynamicUV = reader.readFloat32Array(numVertices * 2, "uv");
+        }
+      }
+
       int numTris = reader.readUint32("numTriangles");
       node._triangles = Uint16List(numTris * 3);
       node._triangleCount = numTris;
@@ -217,6 +228,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     _triangleCount = node._triangleCount;
     _vertices = node._vertices;
     _triangles = node._triangles;
+	_dynamicUV = node._dynamicUV;
     if (node._animationDeformedVertices != null) {
       _animationDeformedVertices =
           Float32List.fromList(node._animationDeformedVertices);

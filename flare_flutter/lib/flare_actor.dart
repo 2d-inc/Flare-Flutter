@@ -44,7 +44,7 @@ class FlareActor extends LeafRenderObjectWidget {
   final FlareController controller;
 
   /// Callback invoked when [animation] has completed. If [animation] is looping
-  /// this callback is never invoked.
+  /// this callback is invoked at the end of each loop.
   final FlareCompletedCallback callback;
 
   /// The color to override any fills/strokes with.
@@ -58,21 +58,29 @@ class FlareActor extends LeafRenderObjectWidget {
   /// dimensions of this widget.
   final bool sizeFromArtboard;
 
+  /// Controls the speed at which the animations are played.
+  final double playSpeed;
+
+  /// Controls whether the animation should loop or not.
+  final bool loop;
+
   const FlareActor(
-    this.filename, {
-    this.boundsNode,
-    this.animation,
-    this.fit = BoxFit.contain,
-    this.alignment = Alignment.center,
-    this.isPaused = false,
-    this.snapToEnd = false,
-    this.controller,
-    this.callback,
-    this.color,
-    this.shouldClip = true,
-    this.sizeFromArtboard = false,
-    this.artboard,
-  });
+      this.filename, {
+        this.boundsNode,
+        this.animation,
+        this.fit = BoxFit.contain,
+        this.alignment = Alignment.center,
+        this.isPaused = false,
+        this.snapToEnd = false,
+        this.controller,
+        this.callback,
+        this.color,
+        this.shouldClip = true,
+        this.sizeFromArtboard = false,
+        this.artboard,
+        this.playSpeed = 1.0,
+        this.loop = false,
+      });
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -90,7 +98,9 @@ class FlareActor extends LeafRenderObjectWidget {
       ..shouldClip = shouldClip
       ..boundsNodeName = boundsNode
       ..useIntrinsicSize = sizeFromArtboard
-      ..artboardName = artboard;
+      ..artboardName = artboard
+      ..playSpeed = playSpeed
+      ..loop = loop;
   }
 
   @override
@@ -108,7 +118,9 @@ class FlareActor extends LeafRenderObjectWidget {
       ..shouldClip = shouldClip
       ..boundsNodeName = boundsNode
       ..useIntrinsicSize = sizeFromArtboard
-      ..artboardName = artboard;
+      ..artboardName = artboard
+      ..playSpeed = playSpeed
+      ..loop = loop;
   }
 
   @override
@@ -140,6 +152,8 @@ class FlareActorRenderObject extends FlareRenderBox {
   bool snapToEnd = false;
   bool _isPaused = false;
   FlutterActor _actor;
+  double playSpeed;
+  bool loop;
 
   String get artboardName => _artboardName;
   set artboardName(String name) {
@@ -175,11 +189,11 @@ class FlareActorRenderObject extends FlareRenderBox {
         _artboard.overrideColor = value == null
             ? null
             : Float32List.fromList([
-                value.red / 255.0,
-                value.green / 255.0,
-                value.blue / 255.0,
-                value.opacity
-              ]);
+          value.red / 255.0,
+          value.green / 255.0,
+          value.blue / 255.0,
+          value.opacity
+        ]);
       }
       markNeedsPaint();
     }
@@ -224,7 +238,7 @@ class FlareActorRenderObject extends FlareRenderBox {
   @override
   bool get isPlaying =>
       !_isPaused &&
-      ((_controller?.isActive?.value ?? false) || _animationLayers.isNotEmpty);
+          ((_controller?.isActive?.value ?? false) || _animationLayers.isNotEmpty);
 
   void onControllerActiveChange() {
     updatePlayState();
@@ -276,11 +290,11 @@ class FlareActorRenderObject extends FlareRenderBox {
     _artboard.overrideColor = _color == null
         ? null
         : Float32List.fromList([
-            _color.red / 255.0,
-            _color.green / 255.0,
-            _color.blue / 255.0,
-            _color.opacity
-          ]);
+      _color.red / 255.0,
+      _color.green / 255.0,
+      _color.blue / 255.0,
+      _color.opacity
+    ]);
 
     if (_controller != null) {
       _controller.initialize(_artboard);
@@ -331,6 +345,9 @@ class FlareActorRenderObject extends FlareRenderBox {
 
   @override
   void advance(double elapsedSeconds) {
+    // ignore: parameter_assignments
+    elapsedSeconds *= playSpeed;
+
     if (isPlaying) {
       int lastFullyMixed = -1;
       double lastMix = 0.0;
@@ -340,7 +357,7 @@ class FlareActorRenderObject extends FlareRenderBox {
       for (int i = 0; i < _animationLayers.length; i++) {
         FlareAnimationLayer layer = _animationLayers[i];
 
-        if (snapToEnd && !layer.animation.isLooping) {
+        if (snapToEnd && !loop) {
           layer.mix = 1.0;
           layer.time = layer.duration;
         } else {
@@ -351,7 +368,10 @@ class FlareActorRenderObject extends FlareRenderBox {
         lastMix = (layer.mixSeconds == null || layer.mixSeconds == 0.0)
             ? 1.0
             : min(1.0, layer.mix / layer.mixSeconds);
-        if (layer.animation.isLooping) {
+        if (loop) {
+          if (layer.time >= 1 && _completedCallback != null) {
+            _completedCallback(layer.animation.name);
+          }
           layer.time %= layer.animation.duration;
         }
         layer.animation.apply(layer.time, _artboard, lastMix);

@@ -57,21 +57,18 @@ class FlareControls extends FlareController {
   /// the [onCompleted()] callback will be triggered.
   @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
-    int lastFullyMixed = -1;
-    double lastMix = 0.0;
-
     /// List of completed animations during this frame.
     List<FlareAnimationLayer> completed = [];
 
     /// This loop will mix all the currently active animation layers so that,
     /// if an animation is played on top of the current one, it'll smoothly mix
-	///  between the two instead of immediately switching to the new one.
+    ///  between the two instead of immediately switching to the new one.
     for (int i = 0; i < _animationLayers.length; i++) {
       FlareAnimationLayer layer = _animationLayers[i];
       layer.mix += elapsed;
       layer.time += elapsed;
 
-      lastMix = (_mixSeconds == null || _mixSeconds == 0.0)
+      double mix = (_mixSeconds == null || _mixSeconds == 0.0)
           ? 1.0
           : min(1.0, layer.mix / _mixSeconds);
 
@@ -81,33 +78,12 @@ class FlareControls extends FlareController {
       }
 
       /// Apply the animation with the current mix.
-      layer.animation.apply(layer.time, _artboard, lastMix);
-
-      /// Update [lastFullyMixed] with the range of fully
-      /// mixed animation layers.
-      if (lastMix == 1.0) {
-        lastFullyMixed = i;
-      }
+      layer.animation.apply(layer.time, _artboard, mix);
 
       /// Add (non-looping) finished animations to the list.
       if (layer.time > layer.animation.duration) {
         completed.add(layer);
       }
-    }
-
-    /// Removes the last fully mixed animation, if more than one animation is
-	///  present. If only one animation is playing (e.g. idle), nothing happens.
-    /// Since animations are added to the end of [_animationLayers],
-    /// everything before the last fully mixed animation can be
-    /// assumed to be also fully mixed too.
-    if (lastFullyMixed != -1) {
-      _animationLayers.removeRange(0, lastFullyMixed);
-    }
-    if (_animationName == null &&
-        _animationLayers.length == 1 &&
-        lastMix == 1.0) {
-      /// Remove remaining animations.
-      _animationLayers.removeAt(0);
     }
 
     /// Notify of the completed animations.

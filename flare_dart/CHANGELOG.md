@@ -1,3 +1,7 @@
+## [2.2.5] - 2019-11-20 16:36:24
+
+- Fixed gradient transformations for shapes with transformAffectsStroke set to true.
+
 ## [2.2.4] - 2019-11-07 12:14:49
 
 - Adding support for ActorImage.isDynamic which allows Flare to pacakge source UV coordinates for the image such that it can be swapped at runtime. This requires re-exporting files from Flare after marking the image as dynamic in the Flare UI.

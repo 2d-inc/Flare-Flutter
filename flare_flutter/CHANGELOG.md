@@ -1,3 +1,11 @@
+## [1.7.3] - 2019-11-20 16:37:18
+
+- Fixed gradient transformations for shapes with transformAffectsStroke set to true.
+
+## [1.7.2] - 2019-11-18 16:30:39
+
+- Fixing FlareControls to allow for completing layered animations. FlareControls would previously remove an animation once another one played after it had fully mixed in. This would cause popping when animations didn't touch the exact same keyframes.
+
 ## [1.7.1] - 2019-11-07 15:03:39
 
 - Backing out changeImageFromNetwork until new PaintingBinding.instance.instantiateImageCodec signature lands in stable.

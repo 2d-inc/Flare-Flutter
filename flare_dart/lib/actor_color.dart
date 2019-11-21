@@ -105,7 +105,7 @@ abstract class ActorColor extends ActorPaint {
 
   @override
   void onDirty(int dirt) {}
- 
+
   @override
   void update(int dirt) {}
 }
@@ -304,8 +304,13 @@ abstract class GradientColor extends ActorPaint {
   void update(int dirt) {
     ActorShape shape = parent as ActorShape;
     Mat2D world = shape.worldTransform;
-    Vec2D.transformMat2D(_renderStart, _start, world);
-    Vec2D.transformMat2D(_renderEnd, _end, world);
+    if (shape.transformAffectsStroke) {
+      Vec2D.copy(_renderStart, _start);
+      Vec2D.copy(_renderEnd, _end);
+    } else {
+      Vec2D.transformMat2D(_renderStart, _start, world);
+      Vec2D.transformMat2D(_renderEnd, _end, world);
+    }
   }
 }
 

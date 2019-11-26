@@ -22,11 +22,7 @@ abstract class ActorComponent {
   void resolveComponentIndices(List<ActorComponent> components) {
     ActorNode node = components[_parentIdx] as ActorNode;
     if (node != null) {
-      if (this is ActorNode) {
-        node.addChild(this as ActorNode);
-      } else {
-        parent = node;
-      }
+      node.addChild(this);
       artboard.addDependency(this, node);
     }
   }

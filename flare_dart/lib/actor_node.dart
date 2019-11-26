@@ -6,7 +6,7 @@ import "math/mat2d.dart";
 import "math/vec2d.dart";
 import "stream_reader.dart";
 
-typedef bool NodeWalkCallback(ActorNode node);
+typedef bool ComopnentWalkCallback(ActorComponent component);
 
 class ActorClip {
   int clipIdx;
@@ -20,7 +20,7 @@ class ActorClip {
 }
 
 class ActorNode extends ActorComponent {
-  List<ActorNode> _children;
+  List<ActorComponent> _children;
   //List<ActorNode> m_Dependents;
   Mat2D _transform = Mat2D();
   Mat2D _worldTransform = Mat2D();
@@ -260,16 +260,16 @@ class ActorNode extends ActorComponent {
     return node;
   }
 
-  void addChild(ActorNode node) {
-    if (node.parent != null) {
-      node.parent._children.remove(node);
+  void addChild(ActorComponent component) {
+    if (component.parent != null) {
+      component.parent._children.remove(component);
     }
-    node.parent = this;
-    _children ??= <ActorNode>[];
-    _children.add(node);
+    component.parent = this;
+    _children ??= <ActorComponent>[];
+    _children.add(component);
   }
 
-  List<ActorNode> get children {
+  List<ActorComponent> get children {
     return _children;
   }
 
@@ -368,14 +368,14 @@ class ActorNode extends ActorComponent {
     // Nothing to complete for actornode.
   }
 
-  bool eachChildRecursive(NodeWalkCallback cb) {
+  bool eachChildRecursive(ComopnentWalkCallback cb) {
     if (_children != null) {
-      for (final ActorNode child in _children) {
+      for (final ActorComponent child in _children) {
         if (cb(child) == false) {
           return false;
         }
 
-        if (child.eachChildRecursive(cb) == false) {
+        if (child is ActorNode && child.eachChildRecursive(cb) == false) {
           return false;
         }
       }
@@ -383,18 +383,20 @@ class ActorNode extends ActorComponent {
     return true;
   }
 
-  bool all(NodeWalkCallback cb) {
+  bool all(ComopnentWalkCallback cb) {
     if (cb(this) == false) {
       return false;
     }
 
     if (_children != null) {
-      for (final ActorNode child in _children) {
+      for (final ActorComponent child in _children) {
         if (cb(child) == false) {
           return false;
         }
 
-        child.eachChildRecursive(cb);
+        if (child is ActorNode) {
+          child.eachChildRecursive(cb);
+        }
       }
     }
 

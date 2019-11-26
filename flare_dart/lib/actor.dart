@@ -2,10 +2,14 @@ import 'dart:async';
 import "dart:convert";
 import "dart:typed_data";
 
+import 'package:flare_dart/actor_layer_effect_renderer.dart';
+
 import "actor_artboard.dart";
 import "actor_color.dart";
+import 'actor_drop_shadow.dart';
 import "actor_ellipse.dart";
 import "actor_image.dart";
+import 'actor_inner_shadow.dart';
 import "actor_path.dart";
 import "actor_polygon.dart";
 import "actor_rectangle.dart";
@@ -101,6 +105,12 @@ abstract class Actor {
 
   RadialGradientStroke makeRadialStroke();
 
+  ActorDropShadow makeDropShadow();
+
+  ActorInnerShadow makeInnerShadow();
+
+  ActorLayerEffectRenderer makeLayerEffectRenderer();
+
   Future<bool> loadAtlases(List<Uint8List> rawAtlases);
 
   Future<bool> load(ByteData data, dynamic context) async {
@@ -143,6 +153,17 @@ abstract class Actor {
           break;
       }
     }
+
+    // Resolve now.
+    for (final ActorArtboard artboard in _artboards) {
+      artboard.resolveHierarchy();
+    }
+    for (final ActorArtboard artboard in _artboards) {
+      artboard.completeResolveHierarchy();
+    }
+
+    // Sort dependencies last.
+    artboard.sortDependencies();
 
     return success;
   }

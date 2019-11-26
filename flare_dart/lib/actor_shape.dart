@@ -83,11 +83,11 @@ class ActorShape extends ActorDrawable {
       return aabb;
     }
 
-    for (final ActorNode node in children) {
-      ActorBasePath path = node as ActorBasePath;
-      if (path == null) {
+    for (final ActorComponent component in children) {
+      if (component is! ActorBasePath) {
         continue;
       }
+      ActorBasePath path = component as ActorBasePath;
       // This is the axis aligned bounding box in the space of the
       // parent (this case our shape).
       AABB pathAABB = path.getPathAABB();

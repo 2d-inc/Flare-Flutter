@@ -26,6 +26,9 @@ import 'package:flare_dart/actor_drawable.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_dart/math/vec2d.dart';
 import 'package:flare_dart/path_point.dart';
+import 'package:flare_dart/actor_drop_shadow.dart';
+import 'package:flare_dart/actor_inner_shadow.dart';
+import 'package:flare_dart/actor_layer_effect_renderer.dart';
 import 'trim_path.dart';
 
 export 'package:flare_dart/animation/actor_animation.dart';
@@ -740,6 +743,21 @@ class FlutterActor extends Actor {
     return FlutterRadialStroke();
   }
 
+  @override
+  ActorDropShadow makeDropShadow() {
+    return FlutterActorDropShadow();
+  }
+
+  @override
+  ActorLayerEffectRenderer makeLayerEffectRenderer() {
+    return FlutterActorLayerEffectRenderer();
+  }
+
+  @override
+  ActorInnerShadow makeInnerShadow() {
+    return FlutterActorInnerShadow();
+  }
+
   static Future<FlutterActor> loadFromByteData(ByteData data) async {
     //ByteData data = await context.bundle.load(context.filename);
     FlutterActor actor = FlutterActor();
@@ -1255,5 +1273,91 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     if (dirt & DirtyFlags.paintDirty != 0) {
       onPaintUpdated(_paint);
     }
+  }
+}
+
+class FlutterActorDropShadow extends ActorDropShadow {
+  @override
+  int get blendModeId {
+    return blendMode.index;
+  }
+
+  @override
+  set blendModeId(int index) {
+    blendMode = ui.BlendMode.values[index];
+  }
+
+  ui.BlendMode blendMode;
+}
+
+class FlutterActorInnerShadow extends ActorInnerShadow {
+  @override
+  int get blendModeId {
+    return blendMode.index;
+  }
+
+  @override
+  set blendModeId(int index) {
+    blendMode = ui.BlendMode.values[index];
+  }
+
+  ui.BlendMode blendMode;
+}
+
+class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
+    with FlutterActorDrawable {
+  @override
+  void draw(ui.Canvas canvas) {
+    drawPass(canvas, Paint());
+  }
+
+  void drawPass(ui.Canvas canvas, Paint layerPaint) {
+    var aabb = artboard.artboardAABB();
+    Rect bounds = Rect.fromLTRB(aabb[0], aabb[1], aabb[2], aabb[3]);
+    canvas.saveLayer(bounds, layerPaint);
+    for (final drawable in drawables) {
+      if (drawable is FlutterActorDrawable) {
+        (drawable as FlutterActorDrawable).draw(canvas);
+      }
+    }
+
+    for (final renderMask in renderMasks) {
+      if (!renderMask.mask.isActive) {
+        continue;
+      }
+
+      // const mat = CanvasKit.SkColorFilter.MakeMatrix(new Float32Array([
+      //                           0, 0, 0, 0, 0,
+      //                           0, 0, 0, 0, 0,
+      //                           0, 0, 0, 0, 0,
+      //                           0, 0, 0, 1, 0
+      //                       ]));
+      //                       maskPaint.setColorFilter(mat);
+      var maskPaint = Paint();
+      maskPaint.colorFilter = ui.ColorFilter.matrix(
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]);
+
+      maskPaint.blendMode = BlendMode.dstIn;
+      canvas.saveLayer(bounds, maskPaint);
+      for (final drawable in renderMask.drawables) {
+        bool wasHidden = drawable.isHidden;
+        if (wasHidden) {
+          drawable.isHidden = false;
+        }
+        (drawable as FlutterActorDrawable).draw(canvas);
+        if (wasHidden) {
+          drawable.isHidden = true;
+        }
+      }
+      canvas.restore();
+    }
+
+    canvas.restore();
+  }
+
+  @override
+  void onBlendModeChanged(ui.BlendMode blendMode) {
+    // We don't currently support custom blend modes on the layer effect
+    // renderer.
   }
 }

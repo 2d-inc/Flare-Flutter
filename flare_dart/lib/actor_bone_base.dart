@@ -1,4 +1,5 @@
 import "actor_artboard.dart";
+import 'actor_component.dart';
 import "actor_node.dart";
 import "math/mat2d.dart";
 import "math/vec2d.dart";
@@ -19,9 +20,9 @@ class ActorBoneBase extends ActorNode {
     if (children == null) {
       return;
     }
-    for (final ActorNode node in children) {
-      if (node is ActorBoneBase) {
-        node.x = value;
+    for (final ActorComponent component in children) {
+      if (component is ActorBoneBase) {
+        component.x = value;
       }
     }
   }

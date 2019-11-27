@@ -1,7 +1,12 @@
+import 'package:flare_dart/actor_drop_shadow.dart';
+import 'package:flare_dart/actor_node.dart';
 import 'package:flare_dart/math/aabb.dart';
 
 import 'actor_artboard.dart';
+import 'actor_blur.dart';
+import 'actor_component.dart';
 import 'actor_drawable.dart';
+import 'actor_inner_shadow.dart';
 import 'actor_mask.dart';
 
 class ActorLayerEffectRendererMask {
@@ -15,6 +20,13 @@ class ActorLayerEffectRenderer extends ActorDrawable {
   List<ActorDrawable> get drawables => _drawables;
   final List<ActorLayerEffectRendererMask> _renderMasks = [];
   List<ActorLayerEffectRendererMask> get renderMasks => _renderMasks;
+  ActorBlur _blur;
+  List<ActorDropShadow> _dropShadows;
+  List<ActorInnerShadow> _innerShadows;
+
+  ActorBlur get blur => _blur;
+  List<ActorDropShadow> get dropShadows => _dropShadows;
+  List<ActorInnerShadow> get innerShadows => _innerShadows;
 
   bool addDrawable(ActorDrawable drawable) {
     if (_drawables.contains(drawable)) {
@@ -29,6 +41,13 @@ class ActorLayerEffectRenderer extends ActorDrawable {
   void sortDrawables() {
     _drawables
         .sort((ActorDrawable a, ActorDrawable b) => a.drawOrder - b.drawOrder);
+  }
+
+  @override
+  void onParentChanged(ActorNode from, ActorNode to) {
+    from?.findLayerEffect();
+    to?.findLayerEffect();
+    findEffects();
   }
 
   @override
@@ -52,6 +71,15 @@ class ActorLayerEffectRenderer extends ActorDrawable {
     return instanceNode;
   }
 
+  void findEffects() {
+    var blurs = parent.children.whereType<ActorBlur>();
+    _blur = blurs.isNotEmpty ? blurs.first : null;
+    _dropShadows =
+        parent.children.whereType<ActorDropShadow>().toList(growable: false);
+    _innerShadows =
+        parent.children.whereType<ActorInnerShadow>().toList(growable: false);
+  }
+
   @override
   void completeResolve() {
     super.completeResolve();
@@ -68,6 +96,7 @@ class ActorLayerEffectRenderer extends ActorDrawable {
     });
     sortDrawables();
     computeMasks();
+    findEffects();
   }
 
   void computeMasks() {

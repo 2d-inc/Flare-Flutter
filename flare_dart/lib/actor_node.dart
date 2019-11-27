@@ -1,3 +1,5 @@
+import 'package:flare_dart/actor_layer_effect_renderer.dart';
+
 import "actor_artboard.dart";
 import "actor_component.dart";
 import "actor_constraint.dart";
@@ -30,6 +32,7 @@ class ActorNode extends ActorComponent {
   Vec2D _scale = Vec2D.fromValues(1.0, 1.0);
   double _opacity = 1.0;
   double _renderOpacity = 1.0;
+  ActorLayerEffectRenderer _layerEffect;
 
   bool _overrideWorldTransform = false;
   bool _isCollapsedVisibility = false;
@@ -164,6 +167,25 @@ class ActorNode extends ActorComponent {
     return _renderOpacity;
   }
 
+  double get childOpacity {
+    return _layerEffect == null ? _renderOpacity : 1;
+  }
+
+  // Helper that looks for layer effect, this is only called by
+  // ActorLayerEffectRenderer when the parent changes. This keeps it efficient
+  // so not every ActorNode has to look for layerEffects as most won't have it.
+  void findLayerEffect() {
+    var layerEffects = children?.whereType<ActorLayerEffectRenderer>();
+    var change = layerEffects != null && layerEffects.isNotEmpty
+        ? layerEffects.first
+        : null;
+    if (_layerEffect != change) {
+      _layerEffect = change;
+      // Force update the opacity.
+      markTransformDirty();
+    }
+  }
+
   bool get renderCollapsed {
     return _renderCollapsed;
   }
@@ -222,7 +244,7 @@ class ActorNode extends ActorComponent {
 
     if (parent != null) {
       _renderCollapsed = _isCollapsedVisibility || parent._renderCollapsed;
-      _renderOpacity *= parent._renderOpacity;
+      _renderOpacity *= parent.childOpacity;
       if (!_overrideWorldTransform) {
         Mat2D.multiply(_worldTransform, parent._worldTransform, _transform);
       }
@@ -260,9 +282,13 @@ class ActorNode extends ActorComponent {
     return node;
   }
 
+  void removeChild(ActorComponent component) {
+    _children?.remove(component);
+  }
+
   void addChild(ActorComponent component) {
     if (component.parent != null) {
-      component.parent._children.remove(component);
+      component.parent.removeChild(component);
     }
     component.parent = this;
     _children ??= <ActorComponent>[];

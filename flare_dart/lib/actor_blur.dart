@@ -4,25 +4,23 @@ import 'actor_layer_effect.dart';
 import 'stream_reader.dart';
 
 class ActorBlur extends ActorLayerEffect {
-  double _blurX;
-  double _blurY;
-  double get blurX => _blurX;
-  double get blurY => _blurY;
+  double blurX;
+  double blurY;
 
   static ActorBlur read(
       ActorArtboard artboard, StreamReader reader, ActorBlur component) {
     component ??= ActorBlur();
     ActorLayerEffect.read(artboard, reader, component);
-    component._blurX = reader.readFloat32("blurX");
-    component._blurY = reader.readFloat32("blurY");
+    component.blurX = reader.readFloat32("blurX");
+    component.blurY = reader.readFloat32("blurY");
 
     return component;
   }
 
   void copyBlur(ActorBlur from, ActorArtboard resetArtboard) {
     copyLayerEffect(from, resetArtboard);
-    _blurX = from._blurX;
-    _blurY = from._blurY;
+    blurX = from.blurX;
+    blurY = from.blurY;
   }
 
   @override

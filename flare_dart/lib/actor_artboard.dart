@@ -240,6 +240,7 @@ class ActorArtboard {
       _dependencyOrder[component.graphOrder] = localComponent;
       localComponent.dirtMask = 255;
     }
+
     _flags |= ActorFlags.isDirty;
     _root = _components[0] as ActorNode;
     resolveHierarchy();

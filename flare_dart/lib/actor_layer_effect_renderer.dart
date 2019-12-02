@@ -45,6 +45,7 @@ class ActorLayerEffectRenderer extends ActorDrawable {
 
   @override
   void onParentChanged(ActorNode from, ActorNode to) {
+    super.onParentChanged(from, to);
     from?.findLayerEffect();
     to?.findLayerEffect();
     findEffects();
@@ -88,7 +89,7 @@ class ActorLayerEffectRenderer extends ActorDrawable {
     // Alternative way to do this is to have each drawable check for parent
     // layers when the parent changes. That would be more effective if nodes
     // were to get moved around at runtime.
-    parent?.eachChildRecursive((node) {
+    parent?.all((node) {
       if (node is ActorDrawable && node != this) {
         node.layerEffectRenderer = this;
       }
@@ -114,7 +115,8 @@ class ActorLayerEffectRenderer extends ActorDrawable {
       var renderMask = ActorLayerEffectRendererMask(mask);
       mask.source?.all((child) {
         if (child is ActorDrawable) {
-          if (child.layerEffectRenderer != null) {
+          if (child.layerEffectRenderer != null &&
+              child.layerEffectRenderer != this) {
             // Layer effect is direct discendant of this layer, so we want to
             // draw it with the other drawables in this layer.
             renderMask.drawables.add(child.layerEffectRenderer);

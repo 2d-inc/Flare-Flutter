@@ -4,7 +4,6 @@ import 'package:flare_dart/math/aabb.dart';
 
 import 'actor_artboard.dart';
 import 'actor_blur.dart';
-import 'actor_component.dart';
 import 'actor_drawable.dart';
 import 'actor_inner_shadow.dart';
 import 'actor_mask.dart';

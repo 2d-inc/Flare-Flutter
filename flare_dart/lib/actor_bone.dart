@@ -1,7 +1,6 @@
 import "actor_artboard.dart";
 import "actor_bone_base.dart";
 import "actor_component.dart";
-import "actor_node.dart";
 import "jelly_component.dart";
 import "stream_reader.dart";
 

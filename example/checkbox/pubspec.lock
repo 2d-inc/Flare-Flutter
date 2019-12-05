@@ -7,7 +7,7 @@ packages:
       name: archive
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.10"
+    version: "2.0.11"
   args:
     dependency: transitive
     description:
@@ -21,7 +21,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.0"
+    version: "2.4.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -67,17 +67,19 @@ packages:
   flare_dart:
     dependency: transitive
     description:
-      path: "../../flare_dart"
-      relative: true
-    source: path
-    version: "2.2.2"
+      path: flare_dart
+      ref: dev
+      resolved-ref: "393c22461e127714a3a25c986bb59a666cba72ac"
+      url: "git://github.com/2d-inc/Flare-Flutter.git"
+    source: git
+    version: "2.3.0"
   flare_flutter:
     dependency: "direct main"
     description:
       path: "../../flare_flutter"
       relative: true
     source: path
-    version: "1.6.3"
+    version: "1.8.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -101,14 +103,14 @@ packages:
       name: matcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.5"
+    version: "0.12.6"
   meta:
     dependency: transitive
     description:
       name: meta
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.7"
+    version: "1.1.8"
   path:
     dependency: transitive
     description:
@@ -183,7 +185,7 @@ packages:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.5"
+    version: "0.2.11"
   typed_data:
     dependency: transitive
     description:

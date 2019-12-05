@@ -1,3 +1,7 @@
+## [2.3.0] - 2019-12-05 17:25:03
+
+- Support for layer effects including masking, drop shadows, inner shadows, and blurs.
+
 ## [2.2.5] - 2019-11-20 16:36:24
 
 - Fixed gradient transformations for shapes with transformAffectsStroke set to true.

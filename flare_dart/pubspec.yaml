@@ -1,7 +1,7 @@
 name: flare_dart
 description: Vector design and runtime animation.
-version: 2.2.5
-author: "2Dimensions Team <info@2dimensions.com>"
+version: 2.3.0
+author: "Rive Team <info@rive.app>"
 homepage: https://github.com/2d-inc/Flare-Flutter
 environment:
   sdk: ">=2.1.0 <3.0.0"

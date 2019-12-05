@@ -3,7 +3,6 @@ import "actor_artboard.dart";
 import "actor_color.dart";
 import "actor_component.dart";
 import "actor_drawable.dart";
-import "actor_node.dart";
 import "actor_path.dart";
 import "math/aabb.dart";
 import "math/mat2d.dart";

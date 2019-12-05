@@ -44,7 +44,12 @@ const Map<String, int> blockTypesMap = {
   "star": BlockTypes.actorStar,
   "polygon": BlockTypes.actorPolygon,
   "artboards": BlockTypes.artboards,
-  "artboard": BlockTypes.actorArtboard
+  "artboard": BlockTypes.actorArtboard,
+  "effectRenderer": BlockTypes.actorLayerEffectRenderer,
+  "mask": BlockTypes.actorMask,
+  "blur": BlockTypes.actorBlur,
+  "dropShadow": BlockTypes.actorDropShadow,
+  "innerShadow": BlockTypes.actorInnerShadow
 };
 
 class BlockTypes {
@@ -96,4 +101,9 @@ class BlockTypes {
   static const int actorSkin = 113;
   static const int actorArtboard = 114;
   static const int artboards = 115;
+  static const int actorLayerEffectRenderer = 116;
+  static const int actorMask = 117;
+  static const int actorBlur = 118;
+  static const int actorDropShadow = 119;
+  static const int actorInnerShadow = 120;
 }

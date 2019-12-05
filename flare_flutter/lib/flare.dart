@@ -7,6 +7,7 @@ import 'dart:ui' as ui;
 
 import 'package:flare_dart/actor_flags.dart';
 import 'package:flare_dart/actor_image.dart';
+import 'package:flare_dart/actor_mask.dart';
 import 'package:flare_dart/math/aabb.dart';
 import 'package:flutter/services.dart';
 
@@ -26,6 +27,9 @@ import 'package:flare_dart/actor_drawable.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_dart/math/vec2d.dart';
 import 'package:flare_dart/path_point.dart';
+import 'package:flare_dart/actor_drop_shadow.dart';
+import 'package:flare_dart/actor_inner_shadow.dart';
+import 'package:flare_dart/actor_layer_effect_renderer.dart';
 import 'trim_path.dart';
 
 export 'package:flare_dart/animation/actor_animation.dart';
@@ -740,6 +744,21 @@ class FlutterActor extends Actor {
     return FlutterRadialStroke();
   }
 
+  @override
+  ActorDropShadow makeDropShadow() {
+    return FlutterActorDropShadow();
+  }
+
+  @override
+  ActorLayerEffectRenderer makeLayerEffectRenderer() {
+    return FlutterActorLayerEffectRenderer();
+  }
+
+  @override
+  ActorInnerShadow makeInnerShadow() {
+    return FlutterActorInnerShadow();
+  }
+
   static Future<FlutterActor> loadFromByteData(ByteData data) async {
     //ByteData data = await context.bundle.load(context.filename);
     FlutterActor actor = FlutterActor();
@@ -1255,5 +1274,262 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     if (dirt & DirtyFlags.paintDirty != 0) {
       onPaintUpdated(_paint);
     }
+  }
+}
+
+class FlutterActorDropShadow extends ActorDropShadow {
+  @override
+  int get blendModeId {
+    return blendMode.index;
+  }
+
+  @override
+  set blendModeId(int index) {
+    blendMode = ui.BlendMode.values[index];
+  }
+
+  ui.BlendMode blendMode;
+}
+
+class FlutterActorInnerShadow extends ActorInnerShadow {
+  @override
+  int get blendModeId {
+    return blendMode.index;
+  }
+
+  @override
+  set blendModeId(int index) {
+    blendMode = ui.BlendMode.values[index];
+  }
+
+  ui.BlendMode blendMode;
+}
+
+class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
+    with FlutterActorDrawable {
+  @override
+  void draw(ui.Canvas canvas) {
+    var aabb = artboard.artboardAABB();
+    Rect bounds = Rect.fromLTRB(aabb[0], aabb[1], aabb[2], aabb[3]);
+
+    double baseBlurX = 0;
+    double baseBlurY = 0;
+    Paint layerPaint = Paint();
+    Color layerColor = Colors.white.withOpacity(parent.renderOpacity);
+    layerPaint.color = layerColor;
+    if (blur?.isActive ?? false) {
+      baseBlurX = blur.blurX;
+      baseBlurY = blur.blurY;
+      layerPaint.imageFilter =
+          ui.ImageFilter.blur(sigmaX: baseBlurX, sigmaY: baseBlurY);
+    }
+
+    if (dropShadows.isNotEmpty) {
+      for (final dropShadow in dropShadows) {
+        if (!dropShadow.isActive) {
+          continue;
+        }
+        // DropShadow: To draw a shadow we just draw the shape (with
+        // drawPass) with a custom color and image (blur) filter before
+        // drawing the main shape.
+        canvas.save();
+        var color = dropShadow.color;
+        canvas.translate(dropShadow.offsetX, dropShadow.offsetY);
+        var shadowPaint = Paint()
+          ..color = layerColor
+          ..imageFilter = ui.ImageFilter.blur(
+              sigmaX: dropShadow.blurX + baseBlurX,
+              sigmaY: dropShadow.blurY + baseBlurY)
+          ..colorFilter = ui.ColorFilter.mode(
+              ui.Color.fromRGBO(
+                  (color[0] * 255.0).round(),
+                  (color[1] * 255.0).round(),
+                  (color[2] * 255.0).round(),
+                  color[3]),
+              ui.BlendMode.srcIn)
+          ..blendMode = ui.BlendMode.values[dropShadow.blendModeId];
+
+        drawPass(canvas, bounds, shadowPaint);
+        canvas.restore();
+        canvas.restore();
+      }
+    }
+    drawPass(canvas, bounds, layerPaint);
+    // Draw inner shadows on the main layer.
+    if (innerShadows.isNotEmpty) {
+      for (final innerShadow in innerShadows) {
+        if (!innerShadow.isActive) {
+          continue;
+        }
+        var blendMode = ui.BlendMode.values[innerShadow.blendModeId];
+        bool extraBlendPass = blendMode != ui.BlendMode.srcOver;
+        if (extraBlendPass) {
+          // if we have a custom blend mode, then we can't just srcATop with
+          // what's already been drawn. We need to draw the contents as a mask
+          // to then draw the shadow on top of with srcIn to only show the
+          // shadow and finally composite with the desired blend mode requested
+          // here.
+          var extraLayerPaint = Paint()..blendMode = blendMode;
+          drawPass(canvas, bounds, extraLayerPaint);
+        }
+
+        // because there's no way to compose image filters (use two filters in
+        // one) we have to use an extra layer to invert the alpha for the inner
+        // shadow before blurring.
+
+        var color = innerShadow.color;
+        var shadowPaint = Paint()
+          ..color = layerColor
+          ..blendMode =
+              extraBlendPass ? ui.BlendMode.srcIn : ui.BlendMode.srcATop
+          ..imageFilter = ui.ImageFilter.blur(
+              sigmaX: innerShadow.blurX + baseBlurX,
+              sigmaY: innerShadow.blurY + baseBlurY)
+          ..colorFilter = ui.ColorFilter.mode(
+              ui.Color.fromRGBO(
+                  (color[0] * 255.0).round(),
+                  (color[1] * 255.0).round(),
+                  (color[2] * 255.0).round(),
+                  color[3]),
+              ui.BlendMode.srcIn);
+
+        canvas.saveLayer(bounds, shadowPaint);
+        canvas.translate(innerShadow.offsetX, innerShadow.offsetY);
+
+        // Invert the alpha to compute inner part.
+        var invertPaint = Paint()
+          ..colorFilter = const ui.ColorFilter.matrix([
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            -1,
+            255,
+          ]);
+        drawPass(canvas, bounds, invertPaint);
+        // restore draw pass (inverted aint)
+        canvas.restore();
+        // restore save layer used to that blurs and colors the shadow
+        canvas.restore();
+
+        if (extraBlendPass) {
+          // Restore extra layer used to draw the contents to clip against (we
+          // clip by drawing with srcIn)
+          canvas.restore();
+        }
+      }
+    }
+    canvas.restore();
+  }
+
+  void drawPass(ui.Canvas canvas, Rect bounds, Paint layerPaint) {
+    canvas.saveLayer(bounds, layerPaint);
+    for (final drawable in drawables) {
+      if (drawable is FlutterActorDrawable) {
+        (drawable as FlutterActorDrawable).draw(canvas);
+      }
+    }
+
+    for (final renderMask in renderMasks) {
+      var mask = renderMask.mask;
+      if (!mask.isActive) {
+        continue;
+      }
+
+      var maskPaint = Paint();
+      switch (mask.maskType) {
+        case MaskType.invertedAlpha:
+          maskPaint.colorFilter = const ui.ColorFilter.matrix(
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 1]);
+          break;
+        case MaskType.luminance:
+          maskPaint.colorFilter = const ui.ColorFilter.matrix([
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0.33,
+            0.59,
+            0.11,
+            0,
+            0
+          ]);
+          break;
+        case MaskType.invertedLuminance:
+          maskPaint.colorFilter = const ui.ColorFilter.matrix([
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            -0.33,
+            -0.59,
+            -0.11,
+            0,
+            1
+          ]);
+          break;
+        case MaskType.alpha:
+        default:
+          maskPaint.colorFilter = const ui.ColorFilter.matrix(
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]);
+          break;
+      }
+
+      maskPaint.blendMode = BlendMode.dstIn;
+      canvas.saveLayer(bounds, maskPaint);
+      for (final drawable in renderMask.drawables) {
+        bool wasHidden = drawable.isHidden;
+        if (wasHidden) {
+          drawable.isHidden = false;
+        }
+        (drawable as FlutterActorDrawable).draw(canvas);
+        if (wasHidden) {
+          drawable.isHidden = true;
+        }
+      }
+      canvas.restore();
+    }
+  }
+
+  @override
+  void onBlendModeChanged(ui.BlendMode blendMode) {
+    // We don't currently support custom blend modes on the layer effect
+    // renderer.
   }
 }

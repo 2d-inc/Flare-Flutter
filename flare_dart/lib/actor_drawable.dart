@@ -1,4 +1,5 @@
 import 'package:flare_dart/actor_artboard.dart';
+import 'package:flare_dart/actor_layer_effect_renderer.dart';
 import 'package:flare_dart/actor_shape.dart';
 import 'package:flare_dart/stream_reader.dart';
 
@@ -72,9 +73,9 @@ abstract class ActorDrawable extends ActorNode {
     for (final List<ActorClip> clips in clippers) {
       List<ClipShape> shapes = <ClipShape>[];
       for (final ActorClip clip in clips) {
-        clip.node.all((ActorNode node) {
-          if (node is ActorShape) {
-            shapes.add(ClipShape(node, clip.intersect));
+        clip.node.all((component) {
+          if (component is ActorShape) {
+            shapes.add(ClipShape(component, clip.intersect));
           }
           return true;
         });
@@ -83,5 +84,16 @@ abstract class ActorDrawable extends ActorNode {
         _clipShapes.add(shapes);
       }
     }
+  }
+
+  ActorLayerEffectRenderer _layerEffectRenderer;
+  ActorLayerEffectRenderer get layerEffectRenderer => _layerEffectRenderer;
+  set layerEffectRenderer(ActorLayerEffectRenderer value) {
+    if (_layerEffectRenderer == value) {
+      return;
+    }
+    _layerEffectRenderer?.removeDrawable(this);
+    _layerEffectRenderer = value;
+    _layerEffectRenderer?.addDrawable(this);
   }
 }

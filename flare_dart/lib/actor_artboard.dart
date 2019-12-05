@@ -1,7 +1,10 @@
 import "dart:math";
 import "dart:typed_data";
 
+import 'package:flare_dart/actor_layer_effect_renderer.dart';
+
 import "actor.dart";
+import 'actor_blur.dart';
 import "actor_bone.dart";
 import "actor_color.dart";
 import "actor_component.dart";
@@ -13,6 +16,7 @@ import "actor_flags.dart";
 import "actor_ik_constraint.dart";
 import "actor_image.dart";
 import "actor_jelly_bone.dart";
+import 'actor_mask.dart';
 import "actor_node.dart";
 import "actor_node_solo.dart";
 import "actor_path.dart";
@@ -21,6 +25,7 @@ import "actor_rectangle.dart";
 import "actor_root_bone.dart";
 import "actor_rotation_constraint.dart";
 import "actor_scale_constraint.dart";
+import 'actor_shadow.dart';
 import "actor_shape.dart";
 import "actor_skin.dart";
 import "actor_star.dart";
@@ -43,7 +48,8 @@ class ActorArtboard {
   ActorNode _root;
   List<ActorComponent> _components;
   List<ActorNode> _nodes;
-  List<ActorDrawable> _drawableNodes;
+  final List<ActorDrawable> _drawableNodes = [];
+  final List<ActorLayerEffectRenderer> _effectRenderers = [];
   List<ActorAnimation> _animations;
   List<ActorComponent> _dependencyOrder;
   Actor _actor;
@@ -68,19 +74,15 @@ class ActorArtboard {
 
   set overrideColor(Float32List value) {
     _overrideColor = value;
-    if (_drawableNodes != null) {
-      for (final ActorDrawable drawable in _drawableNodes) {
-        addDirt(drawable, DirtyFlags.paintDirty, true);
-      }
+    for (final ActorDrawable drawable in _drawableNodes) {
+      addDirt(drawable, DirtyFlags.paintDirty, true);
     }
   }
 
   set modulateOpacity(double value) {
-    if (_drawableNodes != null) {
-      _modulateOpacity = value;
-      for (final ActorDrawable drawable in _drawableNodes) {
-        addDirt(drawable, DirtyFlags.paintDirty, true);
-      }
+    _modulateOpacity = value;
+    for (final ActorDrawable drawable in _drawableNodes) {
+      addDirt(drawable, DirtyFlags.paintDirty, true);
     }
   }
 
@@ -218,14 +220,9 @@ class ActorArtboard {
     {
       _nodes = List<ActorNode>(_nodeCount);
     }
-    if (_drawableNodeCount != 0) {
-      _drawableNodes = List<ActorDrawable>(_drawableNodeCount);
-    }
 
     if (artboard.componentCount != 0) {
       int idx = 0;
-      int drwIdx = 0;
-      int ndIdx = 0;
 
       for (final ActorComponent component in artboard.components) {
         if (component == null) {
@@ -234,39 +231,79 @@ class ActorArtboard {
         }
         ActorComponent instanceComponent = component.makeInstance(this);
         _components[idx++] = instanceComponent;
-        if (instanceComponent is ActorNode) {
-          _nodes[ndIdx++] = instanceComponent;
-        }
-
-        if (instanceComponent is ActorDrawable) {
-          _drawableNodes[drwIdx++] = instanceComponent;
-        }
       }
     }
+    // Copy dependency order.
+    _dependencyOrder = List<ActorComponent>(artboard._dependencyOrder.length);
+    for (final ActorComponent component in artboard._dependencyOrder) {
+      final ActorComponent localComponent = _components[component.idx];
+      _dependencyOrder[component.graphOrder] = localComponent;
+      localComponent.dirtMask = 255;
+    }
 
+    _flags |= ActorFlags.isDirty;
     _root = _components[0] as ActorNode;
+    resolveHierarchy();
+    completeResolveHierarchy();
+  }
 
-    for (final ActorComponent component in _components) {
-      if (_root == component || component == null) {
-        continue;
+  void resolveHierarchy() {
+    // Resolve nodes.
+    int anIdx = 0;
+
+    _drawableNodes.clear();
+    int componentCount = this.componentCount;
+    for (int i = 1; i < componentCount; i++) {
+      ActorComponent c = _components[i];
+
+      /// Nodes can be null if we read from a file version that contained
+      /// nodes that we don't interpret in this runtime.
+      if (c != null) {
+        c.resolveComponentIndices(_components);
       }
-      component.resolveComponentIndices(_components);
+
+      if (c is ActorNode) {
+        ActorNode an = c;
+        if (an != null) {
+          _nodes[anIdx++] = an;
+        }
+      }
+    }
+  }
+
+  void completeResolveHierarchy() {
+    int componentCount = this.componentCount;
+
+    // Complete resolve.
+    for (int i = 1; i < componentCount; i++) {
+      ActorComponent c = components[i];
+      if (c != null) {
+        c.completeResolve();
+      }
     }
 
-    for (final ActorComponent component in _components) {
-      if (_root == component || component == null) {
-        continue;
+    // Build lists. Important to do this after all components have resolved as
+    // layers won't be known before this.
+    for (int i = 1; i < componentCount; i++) {
+      ActorComponent c = components[i];
+      if (c is ActorDrawable && c.layerEffectRenderer == null) {
+        _drawableNodes.add(c);
       }
-      component.completeResolve();
+      if (c is ActorLayerEffectRenderer && c.layerEffectRenderer == null) {
+        _effectRenderers.add(c);
+      }
     }
 
-    sortDependencies();
+    sortDrawOrder();
+  }
 
-    if (_drawableNodes != null) {
-      _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
-      for (int i = 0; i < _drawableNodes.length; i++) {
-        _drawableNodes[i].drawIndex = i;
-      }
+  void sortDrawOrder() {
+    _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
+    for (int i = 0; i < _drawableNodes.length; i++) {
+      _drawableNodes[i].drawIndex = i;
+    }
+    for (final ActorLayerEffectRenderer layer in _effectRenderers) {
+      layer.sortDrawables();
     }
   }
 
@@ -298,13 +335,7 @@ class ActorArtboard {
 
     if ((_flags & ActorFlags.isDrawOrderDirty) != 0) {
       _flags &= ~ActorFlags.isDrawOrderDirty;
-
-      if (_drawableNodes != null) {
-        _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
-        for (int i = 0; i < _drawableNodes.length; i++) {
-          _drawableNodes[i].drawIndex = i;
-        }
-      }
+      sortDrawOrder();
     }
   }
 
@@ -517,8 +548,31 @@ class ActorArtboard {
         case BlockTypes.actorPolygon:
           component = ActorPolygon.read(this, nodeBlock, actor.makePolygon());
           break;
+
         case BlockTypes.actorSkin:
           component = ActorComponent.read(this, nodeBlock, ActorSkin());
+          break;
+
+        case BlockTypes.actorLayerEffectRenderer:
+          component = ActorDrawable.read(
+              this, nodeBlock, actor.makeLayerEffectRenderer());
+          break;
+
+        case BlockTypes.actorMask:
+          component = ActorMask.read(this, nodeBlock, ActorMask());
+          break;
+
+        case BlockTypes.actorBlur:
+          component = ActorBlur.read(this, nodeBlock, null);
+          break;
+
+        case BlockTypes.actorDropShadow:
+          component = ActorShadow.read(this, nodeBlock, actor.makeDropShadow());
+          break;
+
+        case BlockTypes.actorInnerShadow:
+          component =
+              ActorShadow.read(this, nodeBlock, actor.makeInnerShadow());
           break;
       }
       if (component is ActorDrawable) {
@@ -534,49 +588,15 @@ class ActorArtboard {
       }
     }
 
-    _drawableNodes = List<ActorDrawable>(_drawableNodeCount);
     _nodes = List<ActorNode>(_nodeCount);
     _nodes[0] = _root;
-
-    // Resolve nodes.
-    int drwIdx = 0;
-    int anIdx = 0;
-
-    for (int i = 1; i <= componentCount; i++) {
-      ActorComponent c = _components[i];
-
-      /// Nodes can be null if we read from a file version that contained
-      /// nodes that we don't interpret in this runtime.
-      if (c != null) {
-        c.resolveComponentIndices(_components);
-      }
-
-      if (c is ActorDrawable) {
-        _drawableNodes[drwIdx++] = c;
-      }
-
-      if (c is ActorNode) {
-        ActorNode an = c;
-        if (an != null) {
-          _nodes[anIdx++] = an;
-        }
-      }
-    }
-
-    for (int i = 1; i <= componentCount; i++) {
-      ActorComponent c = components[i];
-      if (c != null) {
-        c.completeResolve();
-      }
-    }
-
-    sortDependencies();
   }
 
   void initializeGraphics() {
-    if (_drawableNodes != null) {
-      for (final ActorDrawable drawable in _drawableNodes) {
-        drawable.initializeGraphics();
+    // Iterate components as some drawables may end up in other layers.
+    for (final ActorComponent component in _components) {
+      if (component is ActorDrawable) {
+        component.initializeGraphics();
       }
     }
   }

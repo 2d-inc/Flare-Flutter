@@ -207,13 +207,13 @@ class JellyComponent extends ActorComponent {
     bone.jelly = this;
 
     // Get jellies.
-    List<ActorNode> children = bone.children;
+    var children = bone.children;
     if (children == null) {
       return;
     }
 
     _bones = <ActorJellyBone>[];
-    for (final ActorNode child in children) {
+    for (final child in children) {
       if (child is ActorJellyBone) {
         _bones.add(child);
         // Make sure the jelly doesn't update until

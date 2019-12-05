@@ -121,7 +121,7 @@ class ActorIKConstraint extends ActorTargetedConstraint {
       }
 
       ActorBone bone = fk.bone;
-      for (final ActorNode node in bone.children) {
+      for (final node in bone.children) {
         BoneChain item = _fkChain.firstWhere(
             (chainItem) => chainItem.bone == node,
             orElse: () => null);

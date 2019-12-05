@@ -35,6 +35,11 @@ class PropertyTypes {
   static const int strokeStart = 33;
   static const int strokeEnd = 34;
   static const int strokeOffset = 35;
+  static const int color = 36;
+  static const int offsetX = 37;
+  static const int offsetY = 38;
+  static const int blurX = 39;
+  static const int blurY = 40;
 }
 
 const Map<String, int> propertyTypesMap = {
@@ -74,4 +79,9 @@ const Map<String, int> propertyTypesMap = {
   "strokeStart": PropertyTypes.strokeStart,
   "strokeEnd": PropertyTypes.strokeEnd,
   "strokeOffset": PropertyTypes.strokeOffset,
+  "color": PropertyTypes.color,
+  "offsetX": PropertyTypes.offsetX,
+  "offsetY": PropertyTypes.offsetY,
+  "blurX": PropertyTypes.blurX,
+  "blurY": PropertyTypes.blurY
 };

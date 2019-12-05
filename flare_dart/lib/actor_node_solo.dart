@@ -24,7 +24,9 @@ class ActorNodeSolo extends ActorNode {
       for (int i = 0; i < children.length; i++) {
         var child = children[i];
         bool cv = i != (_activeChildIndex - 1);
-        child.collapsedVisibility = cv; // Setter
+        if (child is ActorNode) {
+          child.collapsedVisibility = cv; // Setter
+        }
       }
     }
   }

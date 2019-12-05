@@ -17,9 +17,9 @@ class ActorRootBone extends ActorNode {
     if (children == null) {
       return;
     }
-    for (final ActorNode node in children) {
-      if (node is ActorBone) {
-        _firstBone = node;
+    for (final ActorComponent component in children) {
+      if (component is ActorBone) {
+        _firstBone = component;
         return;
       }
     }

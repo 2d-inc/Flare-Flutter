@@ -90,6 +90,21 @@ class PropertyAnimation {
       case PropertyTypes.fillColor:
         keyFrameReader = KeyFrameFillColor.read;
         break;
+      case PropertyTypes.color:
+        keyFrameReader = KeyFrameShadowColor.read;
+        break;
+      case PropertyTypes.offsetX:
+        keyFrameReader = KeyFrameShadowOffsetX.read;
+        break;
+      case PropertyTypes.offsetY:
+        keyFrameReader = KeyFrameShadowOffsetY.read;
+        break;
+      case PropertyTypes.blurX:
+        keyFrameReader = KeyFrameBlurX.read;
+        break;
+      case PropertyTypes.blurY:
+        keyFrameReader = KeyFrameBlurY.read;
+        break;
       case PropertyTypes.fillGradient:
         keyFrameReader = KeyFrameGradient.read;
         break;
@@ -381,13 +396,13 @@ class ActorAnimation {
   /// Apply the specified time to all the components of this animation.
   /// This operation will result in the application of the keyframe values
   /// at the given time, and perform interpolation if needed.
-  /// 
+  ///
   /// @time is the current time for this animation
   /// @artboard is the artboard that contains it
   /// @mix is a value [0,1]
-  ///   This is a blending parameter to allow smoothing between concurrent 
-  ///   animations. 
-  ///   By setting mix to 1, the current animation will fully  replace the 
+  ///   This is a blending parameter to allow smoothing between concurrent
+  ///   animations.
+  ///   By setting mix to 1, the current animation will fully  replace the
   ///   existing values. By ramping up mix with values between 0 and 1, the
   ///   transition from one animation to the next will be more gradual as it
   ///   gets mixed in, preventing poppying effects.

@@ -4,7 +4,19 @@ import "stream_reader.dart";
 
 abstract class ActorComponent {
   String _name = "Unnamed";
-  ActorNode parent;
+  ActorNode _parent;
+  ActorNode get parent => _parent;
+  set parent(ActorNode value) {
+    if (_parent == value) {
+      return;
+    }
+    ActorNode from = _parent;
+    _parent = value;
+    onParentChanged(from, value);
+  }
+
+  void onParentChanged(ActorNode from, ActorNode to) {}
+
   ActorArtboard artboard;
   int _parentIdx = 0;
   int idx = 0;
@@ -22,11 +34,7 @@ abstract class ActorComponent {
   void resolveComponentIndices(List<ActorComponent> components) {
     ActorNode node = components[_parentIdx] as ActorNode;
     if (node != null) {
-      if (this is ActorNode) {
-        node.addChild(this as ActorNode);
-      } else {
-        parent = node;
-      }
+      node.addChild(this);
       artboard.addDependency(this, node);
     }
   }

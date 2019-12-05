@@ -1,3 +1,5 @@
+import 'package:flare_dart/actor_layer_effect_renderer.dart';
+
 import "actor_artboard.dart";
 import "actor_component.dart";
 import "actor_constraint.dart";
@@ -6,7 +8,7 @@ import "math/mat2d.dart";
 import "math/vec2d.dart";
 import "stream_reader.dart";
 
-typedef bool NodeWalkCallback(ActorNode node);
+typedef bool ComopnentWalkCallback(ActorComponent component);
 
 class ActorClip {
   int clipIdx;
@@ -20,7 +22,7 @@ class ActorClip {
 }
 
 class ActorNode extends ActorComponent {
-  List<ActorNode> _children;
+  List<ActorComponent> _children;
   //List<ActorNode> m_Dependents;
   Mat2D _transform = Mat2D();
   Mat2D _worldTransform = Mat2D();
@@ -30,6 +32,7 @@ class ActorNode extends ActorComponent {
   Vec2D _scale = Vec2D.fromValues(1.0, 1.0);
   double _opacity = 1.0;
   double _renderOpacity = 1.0;
+  ActorLayerEffectRenderer _layerEffect;
 
   bool _overrideWorldTransform = false;
   bool _isCollapsedVisibility = false;
@@ -164,6 +167,25 @@ class ActorNode extends ActorComponent {
     return _renderOpacity;
   }
 
+  double get childOpacity {
+    return _layerEffect == null ? _renderOpacity : 1;
+  }
+
+  // Helper that looks for layer effect, this is only called by
+  // ActorLayerEffectRenderer when the parent changes. This keeps it efficient
+  // so not every ActorNode has to look for layerEffects as most won't have it.
+  void findLayerEffect() {
+    var layerEffects = children?.whereType<ActorLayerEffectRenderer>();
+    var change = layerEffects != null && layerEffects.isNotEmpty
+        ? layerEffects.first
+        : null;
+    if (_layerEffect != change) {
+      _layerEffect = change;
+      // Force update the opacity.
+      markTransformDirty();
+    }
+  }
+
   bool get renderCollapsed {
     return _renderCollapsed;
   }
@@ -222,7 +244,7 @@ class ActorNode extends ActorComponent {
 
     if (parent != null) {
       _renderCollapsed = _isCollapsedVisibility || parent._renderCollapsed;
-      _renderOpacity *= parent._renderOpacity;
+      _renderOpacity *= parent.childOpacity;
       if (!_overrideWorldTransform) {
         Mat2D.multiply(_worldTransform, parent._worldTransform, _transform);
       }
@@ -260,16 +282,20 @@ class ActorNode extends ActorComponent {
     return node;
   }
 
-  void addChild(ActorNode node) {
-    if (node.parent != null) {
-      node.parent._children.remove(node);
-    }
-    node.parent = this;
-    _children ??= <ActorNode>[];
-    _children.add(node);
+  void removeChild(ActorComponent component) {
+    _children?.remove(component);
   }
 
-  List<ActorNode> get children {
+  void addChild(ActorComponent component) {
+    if (component.parent != null) {
+      component.parent.removeChild(component);
+    }
+    component.parent = this;
+    _children ??= <ActorComponent>[];
+    _children.add(component);
+  }
+
+  List<ActorComponent> get children {
     return _children;
   }
 
@@ -368,14 +394,14 @@ class ActorNode extends ActorComponent {
     // Nothing to complete for actornode.
   }
 
-  bool eachChildRecursive(NodeWalkCallback cb) {
+  bool eachChildRecursive(ComopnentWalkCallback cb) {
     if (_children != null) {
-      for (final ActorNode child in _children) {
+      for (final ActorComponent child in _children) {
         if (cb(child) == false) {
           return false;
         }
 
-        if (child.eachChildRecursive(cb) == false) {
+        if (child is ActorNode && child.eachChildRecursive(cb) == false) {
           return false;
         }
       }
@@ -383,18 +409,20 @@ class ActorNode extends ActorComponent {
     return true;
   }
 
-  bool all(NodeWalkCallback cb) {
+  bool all(ComopnentWalkCallback cb) {
     if (cb(this) == false) {
       return false;
     }
 
     if (_children != null) {
-      for (final ActorNode child in _children) {
+      for (final ActorComponent child in _children) {
         if (cb(child) == false) {
           return false;
         }
 
-        child.eachChildRecursive(cb);
+        if (child is ActorNode) {
+          child.eachChildRecursive(cb);
+        }
       }
     }
 

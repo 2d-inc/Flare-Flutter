@@ -1305,6 +1305,14 @@ class FlutterActorInnerShadow extends ActorInnerShadow {
   ui.BlendMode blendMode;
 }
 
+ui.ImageFilter _blurFilter(double x, double y) {
+  double bx = x.abs() < 0.1 ? 0 : x;
+  double by = y.abs() < 0.1 ? 0 : y;
+  return bx == 0 && by == 0
+      ? null
+      : ui.ImageFilter.blur(sigmaX: bx, sigmaY: by);
+}
+
 class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
     with FlutterActorDrawable {
   @override
@@ -1320,8 +1328,7 @@ class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
     if (blur?.isActive ?? false) {
       baseBlurX = blur.blurX;
       baseBlurY = blur.blurY;
-      layerPaint.imageFilter =
-          ui.ImageFilter.blur(sigmaX: baseBlurX, sigmaY: baseBlurY);
+      layerPaint.imageFilter = _blurFilter(baseBlurX, baseBlurY);
     }
 
     if (dropShadows.isNotEmpty) {
@@ -1337,9 +1344,8 @@ class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
         canvas.translate(dropShadow.offsetX, dropShadow.offsetY);
         var shadowPaint = Paint()
           ..color = layerColor
-          ..imageFilter = ui.ImageFilter.blur(
-              sigmaX: dropShadow.blurX + baseBlurX,
-              sigmaY: dropShadow.blurY + baseBlurY)
+          ..imageFilter = _blurFilter(
+              dropShadow.blurX + baseBlurX, dropShadow.blurY + baseBlurY)
           ..colorFilter = ui.ColorFilter.mode(
               ui.Color.fromRGBO(
                   (color[0] * 255.0).round(),
@@ -1382,9 +1388,8 @@ class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
           ..color = layerColor
           ..blendMode =
               extraBlendPass ? ui.BlendMode.srcIn : ui.BlendMode.srcATop
-          ..imageFilter = ui.ImageFilter.blur(
-              sigmaX: innerShadow.blurX + baseBlurX,
-              sigmaY: innerShadow.blurY + baseBlurY)
+          ..imageFilter = _blurFilter(
+              innerShadow.blurX + baseBlurX, innerShadow.blurY + baseBlurY)
           ..colorFilter = ui.ColorFilter.mode(
               ui.Color.fromRGBO(
                   (color[0] * 255.0).round(),

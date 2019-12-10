@@ -1,3 +1,7 @@
+## [1.8.1] - 2019-12-09 19:33:06
+
+- Disable blur effects if they are less than a certain threshold. Skia seems to drop the whole layer if it's too close to zero (but not zero).
+
 ## [1.8.0] - 2019-12-05 17:34:01
 
 - Support for layer effects including masking, drop shadows, inner shadows, and blurs.

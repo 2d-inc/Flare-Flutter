@@ -33,6 +33,7 @@ class ActorNode extends ActorComponent {
   double _opacity = 1.0;
   double _renderOpacity = 1.0;
   ActorLayerEffectRenderer _layerEffect;
+  ActorLayerEffectRenderer get layerEffect => _layerEffect;
 
   bool _overrideWorldTransform = false;
   bool _isCollapsedVisibility = false;

@@ -1,3 +1,7 @@
+## [1.8.3] - 2019-12-17 04:56:04
+
+- Mark layers for drawable items by first computing which drawables are in the layer. Removes race conditions with layers not being set correctly.
+
 ## [1.8.2] - 2019-12-16 09:19:22
 
 - Clear out layers when instancing artboards to prevent animations from other artboards being applied.

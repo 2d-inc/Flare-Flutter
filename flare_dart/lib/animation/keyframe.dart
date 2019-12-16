@@ -1148,7 +1148,7 @@ class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
 class KeyFrameStrokeEnd extends KeyFrameNumeric {
   @override
   void setValue(ActorComponent component, double value, double mix) {
-    if (component == null) return;
+    if (component is! ActorStroke) return;
 
     ActorStroke star = component as ActorStroke;
     star.trimEnd = star.trimEnd * (1.0 - mix) + value * mix;
@@ -1184,7 +1184,7 @@ class KeyFrameStrokeOffset extends KeyFrameNumeric {
 class KeyFrameStrokeStart extends KeyFrameNumeric {
   @override
   void setValue(ActorComponent component, double value, double mix) {
-    if (component == null) return;
+    if (component is! ActorStroke) return;
 
     ActorStroke star = component as ActorStroke;
     star.trimStart = star.trimStart * (1.0 - mix) + value * mix;

@@ -1,3 +1,7 @@
+## [1.8.2] - 2019-12-16 09:19:22
+
+- Clear out layers when instancing artboards to prevent animations from other artboards being applied.
+
 ## [1.8.1] - 2019-12-09 19:33:06
 
 - Disable blur effects if they are less than a certain threshold. Skia seems to drop the whole layer if it's too close to zero (but not zero).

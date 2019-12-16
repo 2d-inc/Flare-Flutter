@@ -1,3 +1,7 @@
+## [2.3.1] - 2019-12-16 09:17:37
+
+- Type checking when applying trim path animation. Improves robustness and helps prevent crashes when applying animations from non-matching artboards.
+
 ## [2.3.0] - 2019-12-05 17:25:03
 
 - Support for layer effects including masking, drop shadows, inner shadows, and blurs.

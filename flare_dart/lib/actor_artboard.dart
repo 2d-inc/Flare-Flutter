@@ -286,10 +286,10 @@ class ActorArtboard {
     // layers won't be known before this.
     for (int i = 1; i < componentCount; i++) {
       ActorComponent c = components[i];
-      if (c is ActorDrawable && c.layerEffectRenderer == null) {
+      if (c is ActorDrawable && c.layerEffectRenderParent == null) {
         _drawableNodes.add(c);
       }
-      if (c is ActorLayerEffectRenderer && c.layerEffectRenderer == null) {
+      if (c is ActorLayerEffectRenderer && c.layerEffectRenderParent == null) {
         _effectRenderers.add(c);
       }
     }

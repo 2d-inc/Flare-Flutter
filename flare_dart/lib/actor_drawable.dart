@@ -85,15 +85,7 @@ abstract class ActorDrawable extends ActorNode {
       }
     }
   }
-
-  ActorLayerEffectRenderer _layerEffectRenderer;
-  ActorLayerEffectRenderer get layerEffectRenderer => _layerEffectRenderer;
-  set layerEffectRenderer(ActorLayerEffectRenderer value) {
-    if (_layerEffectRenderer == value) {
-      return;
-    }
-    _layerEffectRenderer?.removeDrawable(this);
-    _layerEffectRenderer = value;
-    _layerEffectRenderer?.addDrawable(this);
-  }
+  /// If this is set the drawable belongs to a layer. We store a reference to 
+  /// the parent node that contains the layer.
+  ActorNode layerEffectRenderParent;
 }

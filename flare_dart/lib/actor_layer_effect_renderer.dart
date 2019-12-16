@@ -4,6 +4,7 @@ import 'package:flare_dart/math/aabb.dart';
 
 import 'actor_artboard.dart';
 import 'actor_blur.dart';
+import 'actor_component.dart';
 import 'actor_drawable.dart';
 import 'actor_inner_shadow.dart';
 import 'actor_mask.dart';
@@ -26,16 +27,6 @@ class ActorLayerEffectRenderer extends ActorDrawable {
   ActorBlur get blur => _blur;
   List<ActorDropShadow> get dropShadows => _dropShadows;
   List<ActorInnerShadow> get innerShadows => _innerShadows;
-
-  bool addDrawable(ActorDrawable drawable) {
-    if (_drawables.contains(drawable)) {
-      return false;
-    }
-    _drawables.add(drawable);
-    return true;
-  }
-
-  bool removeDrawable(ActorDrawable drawable) => _drawables.remove(drawable);
 
   void sortDrawables() {
     _drawables
@@ -81,19 +72,36 @@ class ActorLayerEffectRenderer extends ActorDrawable {
   }
 
   @override
+  void resolveComponentIndices(List<ActorComponent> components) {
+    super.resolveComponentIndices(components);
+    parent.findLayerEffect();
+  }
+
+  @override
   void completeResolve() {
     super.completeResolve();
 
-    // When we complete resolve we find all the children and mark their layers.
-    // Alternative way to do this is to have each drawable check for parent
-    // layers when the parent changes. That would be more effective if nodes
-    // were to get moved around at runtime.
+    _drawables.clear();
+
     parent?.all((node) {
-      if (node is ActorDrawable && node != this) {
-        node.layerEffectRenderer = this;
+      if (node == this) {
+        // don't recurse into this renderer
+        return false;
+      } else if (node is ActorNode &&
+          node.layerEffect != null &&
+          node.layerEffect != this) {
+        _drawables.add(node.layerEffect);
+        // don't recurse further into nodes that are drawing to layers
+        return false;
+      }
+      if (node is ActorDrawable) {
+        _drawables.add(node);
       }
       return true;
     });
+
+    _drawables.forEach(_computeLayerNode);
+
     sortDrawables();
     computeMasks();
     findEffects();
@@ -101,31 +109,28 @@ class ActorLayerEffectRenderer extends ActorDrawable {
 
   void computeMasks() {
     _renderMasks.clear();
-    var maskSearch = parent;
-    var masks = <ActorMask>[];
-
-    while (maskSearch != null) {
-      masks +=
-          maskSearch.children.whereType<ActorMask>().toList(growable: false);
-      maskSearch = maskSearch.parent;
-    }
+    var masks = parent.children.whereType<ActorMask>().toList(growable: false);
 
     for (final mask in masks) {
       var renderMask = ActorLayerEffectRendererMask(mask);
       mask.source?.all((child) {
+        if (child == parent) {
+          // recursive mask was selected
+          return false;
+        }
         if (child is ActorDrawable) {
-          if (child.layerEffectRenderer != null &&
-              child.layerEffectRenderer != this) {
+          if (child == this) {
+            return false;
+          } else if (child.layerEffect != null) {
             // Layer effect is direct discendant of this layer, so we want to
             // draw it with the other drawables in this layer.
-            renderMask.drawables.add(child.layerEffectRenderer);
+            renderMask.drawables.add(child.layerEffect);
             // Don't iterate if child has further layer effect
             return false;
           } else {
             renderMask.drawables.add(child);
           }
         }
-
         return true;
       });
 
@@ -134,4 +139,16 @@ class ActorLayerEffectRenderer extends ActorDrawable {
       }
     }
   }
+}
+
+void _computeLayerNode(ActorDrawable drawable) {
+  ActorNode parent = drawable;
+  while (parent != null) {
+    if (parent.layerEffect != null) {
+      drawable.layerEffectRenderParent = parent;
+      return;
+    }
+    parent = parent.parent;
+  }
+  drawable.layerEffectRenderParent = null;
 }

@@ -3,3 +3,4 @@ pubspec.lock
 Generated.xcconfig
 .packages
 
+.dart_tool

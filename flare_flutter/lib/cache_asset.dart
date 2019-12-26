@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import 'asset_provider.dart';
 import 'cache.dart';
 
 /// A reference counted asset in a cache.
@@ -32,9 +34,7 @@ abstract class CacheAsset {
     return completer.future;
   }
 
-  void load(Cache cache, String filename) {
-    _cache = cache;
-  }
+  void load(Cache cache, AssetProvider assetProvider) => _cache = cache;
 
   void completeLoad() {
     if (_callbacks != null) {

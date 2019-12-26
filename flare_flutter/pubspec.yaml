@@ -9,6 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   flare_dart: ^2.3.0
+  meta: ^1.0.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

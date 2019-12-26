@@ -88,7 +88,7 @@ class FlareActor extends LeafRenderObjectWidget {
     this.artboard,
   }) : flareProvider = null;
 
-  FlareActor.asset(
+  FlareActor.rootBundle(
     String name, {
     this.boundsNode,
     this.animation,
@@ -104,6 +104,22 @@ class FlareActor extends LeafRenderObjectWidget {
     this.artboard,
   })  : filename = null,
         flareProvider = AssetFlare(bundle: rootBundle, name: name);
+
+  const FlareActor.asset(
+    this.flareProvider, {
+    this.boundsNode,
+    this.animation,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.isPaused = false,
+    this.snapToEnd = false,
+    this.controller,
+    this.callback,
+    this.color,
+    this.shouldClip = true,
+    this.sizeFromArtboard = false,
+    this.artboard,
+  })  : filename = null;
 
   @override
   RenderObject createRenderObject(BuildContext context) {

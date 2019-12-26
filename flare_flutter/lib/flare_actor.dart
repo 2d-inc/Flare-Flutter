@@ -276,7 +276,7 @@ class FlareActorRenderObject extends FlareRenderBox {
 
   @override
   void onUnload() {
-    _animationLayers.length = 0;
+    _animationLayers.clear();
   }
 
   AssetProvider get assetProvider => _assetProvider;
@@ -316,6 +316,7 @@ class FlareActorRenderObject extends FlareRenderBox {
     if (_controller != null) {
       _controller.initialize(_artboard);
     }
+    _animationLayers.clear();
     _updateAnimation(onlyWhenMissing: true);
     // Immediately update the newly instanced artboard and compute
     // bounds so that the widget can take up the necessary space

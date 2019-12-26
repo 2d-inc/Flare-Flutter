@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
 
-import 'asset_bundle_cache.dart';
+import 'asset_provider.dart';
+import 'cache.dart';
 import 'flare_cache_asset.dart';
 
-/// Cache that instances flare assets from ".flr" extension.
-class FlareCache extends AssetBundleCache<FlareCacheAsset> {
-  FlareCache(AssetBundle bundle) : super(bundle);
-
+/// Cache that instances Flare assets from ".flr" extension.
+class FlareCache extends Cache<FlareCacheAsset> {
   static bool doesPrune = true;
   static Duration pruneDelay = const Duration(seconds: 2);
 
@@ -18,24 +16,16 @@ class FlareCache extends AssetBundleCache<FlareCacheAsset> {
   Duration get pruneAfter => pruneDelay;
 
   @override
-  FlareCacheAsset makeAsset() {
-    return FlareCacheAsset();
-  }
+  FlareCacheAsset makeAsset() => FlareCacheAsset();
 }
 
-/// A mapping of loaded Flare assets.
-final Map<AssetBundle, FlareCache> _cache = {};
+/// Cache for loaded Flare assets.
+final _cache = FlareCache();
 
 /// Get a cached Flare actor, or load it if it's not yet available.
-Future<FlareCacheAsset> cachedActor(AssetBundle bundle, String filename) async {
-  FlareCache cache = _cache[bundle];
-  if (cache == null) {
-    _cache[bundle] = cache = FlareCache(bundle);
-  }
-  return cache.getAsset(filename);
-}
+Future<FlareCacheAsset> cachedActor(AssetProvider assetProvider) =>
+    _cache.getAsset(assetProvider);
 
 /// Get a warm Flare actor that's already in the cache.
-FlareCacheAsset getWarmActor(AssetBundle bundle, String filename) {
-  return _cache[bundle]?.getWarmAsset(filename);
-}
+FlareCacheAsset getWarmActor(AssetProvider assetProvider) =>
+    _cache.getWarmAsset(assetProvider);

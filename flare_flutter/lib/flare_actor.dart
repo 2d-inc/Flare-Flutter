@@ -6,14 +6,28 @@ import 'package:flutter/rendering.dart';
 import 'package:flare_dart/actor_drawable.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_dart/math/aabb.dart';
+import 'package:flutter/services.dart';
+
+import 'asset_provider.dart';
 import 'flare.dart';
 import 'flare_controller.dart';
+import 'provider/asset_flare.dart';
 
 typedef void FlareCompletedCallback(String name);
 
+/// A widget that displays a Flare.
+///
+/// Several constructors are provided for the various ways that a Flare can be
+/// specified:
+///  * [FlareActor], for obtaining a Flare from an asset [filename].
+///  * [FlareActor.asset], for obtaining a Flare from an [AssetBundle]
+///    using a key.
 class FlareActor extends LeafRenderObjectWidget {
   /// Name of the Flare file to be loaded from the AssetBundle.
   final String filename;
+
+  /// The Flare asset to display.
+  final AssetProvider flareProvider;
 
   /// The name of the artboard to display.
   final String artboard;
@@ -72,13 +86,46 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
-  });
+  }) : flareProvider = null;
+
+  FlareActor.rootBundle(
+    String name, {
+    this.boundsNode,
+    this.animation,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.isPaused = false,
+    this.snapToEnd = false,
+    this.controller,
+    this.callback,
+    this.color,
+    this.shouldClip = true,
+    this.sizeFromArtboard = false,
+    this.artboard,
+  })  : filename = null,
+        flareProvider = AssetFlare(bundle: rootBundle, name: name);
+
+  const FlareActor.asset(
+    this.flareProvider, {
+    this.boundsNode,
+    this.animation,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.isPaused = false,
+    this.snapToEnd = false,
+    this.controller,
+    this.callback,
+    this.color,
+    this.shouldClip = true,
+    this.sizeFromArtboard = false,
+    this.artboard,
+  })  : filename = null;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return FlareActorRenderObject()
-      ..assetBundle = DefaultAssetBundle.of(context)
-      ..filename = filename
+      ..assetProvider =
+          flareProvider ?? AssetFlare(bundle: rootBundle, name: filename)
       ..fit = fit
       ..alignment = alignment
       ..animationName = animation
@@ -97,8 +144,8 @@ class FlareActor extends LeafRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, covariant FlareActorRenderObject renderObject) {
     renderObject
-      ..assetBundle = DefaultAssetBundle.of(context)
-      ..filename = filename
+      ..assetProvider =
+          flareProvider ?? AssetFlare(bundle: rootBundle, name: filename)
       ..fit = fit
       ..alignment = alignment
       ..animationName = animation
@@ -131,7 +178,7 @@ class FlareAnimationLayer {
 
 class FlareActorRenderObject extends FlareRenderBox {
   Mat2D _lastControllerViewTransform;
-  String _filename;
+  AssetProvider _assetProvider;
   String _artboardName;
   String _animationName;
   String _boundsNodeName;
@@ -248,14 +295,14 @@ class FlareActorRenderObject extends FlareRenderBox {
     _animationLayers.clear();
   }
 
-  String get filename => _filename;
-  set filename(String value) {
-    if (value == _filename) {
+  AssetProvider get assetProvider => _assetProvider;
+  set assetProvider(AssetProvider value) {
+    if (value == _assetProvider) {
       return;
     }
-    _filename = value;
+    _assetProvider = value;
 
-    if (_filename == null) {
+    if (_assetProvider == null) {
       markNeedsPaint();
     }
     // file will change, let's clear out old animations.
@@ -298,28 +345,28 @@ class FlareActorRenderObject extends FlareRenderBox {
 
   @override
   bool get canLoad {
-    return super.canLoad && _filename != null;
+    return super.canLoad && _assetProvider != null;
   }
 
-  /// Attempt a warm load, thfis is the optimal case when the
+  /// Attempt a warm load, this is the optimal case when the
   /// required asset is already in the cache.
   @override
   bool warmLoad() {
-    if (_filename == null) {
+    if (_assetProvider == null) {
       return false;
     }
-    _actor = getWarmFlare(_filename);
+    _actor = getWarmFlare(_assetProvider);
     return _instanceArtboard();
   }
 
-  /// Load the necessary Flare file specified by _filename.
+  /// Load the necessary Flare file specified by [AssetProvider].
   /// this occurs when the optimal warmLoad fails to find an asset in cache.
   @override
   Future<void> coldLoad() async {
-    if (_filename == null) {
+    if (_assetProvider == null) {
       return;
     }
-    _actor = await loadFlare(_filename);
+    _actor = await loadFlare(_assetProvider);
     _instanceArtboard();
   }
 

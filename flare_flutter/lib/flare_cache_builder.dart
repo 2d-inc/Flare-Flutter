@@ -1,15 +1,16 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'asset_provider.dart';
 import 'flare_cache.dart';
 import 'flare_cache_asset.dart';
 
 /// Create a mobile or tablet layout depending on the screen size.
 class FlareCacheBuilder extends StatefulWidget {
   final Widget Function(BuildContext, bool) builder;
-  final List<String> filenames;
+  final List<AssetProvider> assetProviders;
 
-  const FlareCacheBuilder(this.filenames, {Key key, this.builder})
+  const FlareCacheBuilder(this.assetProviders, {Key key, this.builder})
       : super(key: key);
 
   @override
@@ -59,9 +60,9 @@ class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
       return;
     }
 
-    for (final filename in widget.filenames) {
-      if (getWarmActor(bundle, filename) == null) {
-        cachedActor(bundle, filename).then((FlareCacheAsset asset) {
+    for (final assetProvider in widget.assetProviders) {
+      if (getWarmActor(assetProvider) == null) {
+        cachedActor(assetProvider).then((FlareCacheAsset asset) {
           if (mounted && asset != null) {
             _assets.add(asset);
             asset.ref();
@@ -77,13 +78,13 @@ class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
     if (!mounted) {
       return true;
     }
-    var filenames = widget.filenames;
-    if (filenames == null) {
+    var assetProviders = widget.assetProviders;
+    if (assetProviders == null) {
       isWarm = true;
       return true;
     }
-    for (final filename in filenames) {
-      if (getWarmActor(bundle, filename) == null) {
+    for (final assetProvider in assetProviders) {
+      if (getWarmActor(assetProvider) == null) {
         isWarm = false;
         return false;
       }

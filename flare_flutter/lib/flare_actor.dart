@@ -12,7 +12,7 @@ import 'asset_provider.dart';
 import 'flare.dart';
 import 'flare_controller.dart';
 import 'provider/asset_flare.dart';
-import 'provider/network_flare.dart';
+import 'provider/memory_flare.dart';
 
 typedef void FlareCompletedCallback(String name);
 

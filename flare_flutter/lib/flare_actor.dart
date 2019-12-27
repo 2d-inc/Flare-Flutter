@@ -12,6 +12,7 @@ import 'asset_provider.dart';
 import 'flare.dart';
 import 'flare_controller.dart';
 import 'provider/asset_flare.dart';
+import 'provider/network_flare.dart';
 
 typedef void FlareCompletedCallback(String name);
 
@@ -20,8 +21,9 @@ typedef void FlareCompletedCallback(String name);
 /// Several constructors are provided for the various ways that a Flare can be
 /// specified:
 ///  * [FlareActor], for obtaining a Flare from an asset [filename].
-///  * [FlareActor.asset], for obtaining a Flare from an [AssetBundle]
-///    using a key.
+///  * [FlareActor.asset], for obtaining a Flare from an [AssetProvider].
+///  * [FlareActor.rootBundle], for obtaining a Flare from an [AssetBundle].
+///  * [FlareActor.memory], for obtaining a Flare from a [Uint8List].
 class FlareActor extends LeafRenderObjectWidget {
   /// Name of the Flare file to be loaded from the AssetBundle.
   final String filename;
@@ -104,6 +106,23 @@ class FlareActor extends LeafRenderObjectWidget {
     this.artboard,
   })  : filename = null,
         flareProvider = AssetFlare(bundle: rootBundle, name: name);
+
+  FlareActor.memory(
+    Uint8List bytes, {
+    this.boundsNode,
+    this.animation,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.isPaused = false,
+    this.snapToEnd = false,
+    this.controller,
+    this.callback,
+    this.color,
+    this.shouldClip = true,
+    this.sizeFromArtboard = false,
+    this.artboard,
+  })  : filename = null,
+        flareProvider = MemoryFlare(bytes: bytes);
 
   const FlareActor.asset(
     this.flareProvider, {

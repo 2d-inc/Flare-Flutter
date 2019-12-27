@@ -3,3 +3,12 @@ pubspec.lock
 Generated.xcconfig
 .packages
 
+.dart_tool
+/example/favorite/ios/Flutter/flutter_export_environment.sh
+/example/change_color/ios/Flutter/flutter_export_environment.sh
+/example/simple/ios/Flutter/Flutter.podspec
+/example/simple/ios/Flutter/flutter_export_environment.sh
+/example/change_color/ios/Flutter/Flutter.podspec
+/example/favorite/ios/Flutter/Flutter.podspec
+/flare_flutter/ios/Flutter
+/example/change_color/assets/change_color_example.flr

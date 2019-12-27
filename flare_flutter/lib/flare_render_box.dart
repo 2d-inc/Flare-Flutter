@@ -2,17 +2,17 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flare_dart/math/aabb.dart';
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_dart/math/vec2d.dart';
+
+import 'asset_provider.dart';
 import 'flare.dart';
 import 'flare_cache.dart';
 import 'flare_cache_asset.dart';
 
 /// A render box for Flare content.
 abstract class FlareRenderBox extends RenderBox {
-  AssetBundle _assetBundle;
   BoxFit _fit;
   Alignment _alignment;
   int _frameCallbackID;
@@ -40,17 +40,6 @@ abstract class FlareRenderBox extends RenderBox {
     _intrinsicSize = value;
     if (parent != null) {
       markNeedsLayoutForSizedByParentChange();
-    }
-  }
-
-  AssetBundle get assetBundle => _assetBundle;
-  set assetBundle(AssetBundle value) {
-    if (_assetBundle == value) {
-      return;
-    }
-    _assetBundle = value;
-    if (_assetBundle != null && attached) {
-      load();
     }
   }
 
@@ -111,7 +100,7 @@ abstract class FlareRenderBox extends RenderBox {
   void attach(PipelineOwner owner) {
     super.attach(owner);
     updatePlayState();
-    if (_assets.isEmpty && assetBundle != null) {
+    if (_assets.isEmpty) {
       load();
     }
   }
@@ -241,14 +230,11 @@ abstract class FlareRenderBox extends RenderBox {
     return false;
   }
 
-  /// Prevent loading when the renderbox isn't attached or the asset bundle
-  /// is yet to be set. This prevents unneccesarily hitting an async path
-  /// during load. A warmLoad would fail which then falls back to a coldLoad.
-  /// Due to the async nature, any further sync calls would be blocked as we
-  /// gate load with _isLoading.
-  bool get canLoad {
-    return attached && _assetBundle != null;
-  }
+  /// Prevent loading when the renderbox isn't attached. This prevents
+  /// unneccesarily hitting an async path during load. A warmLoad would fail
+  /// which then falls back to a coldLoad. Due to the async nature, any further
+  /// sync calls would be blocked as we gate load with _isLoading.
+  bool get canLoad => attached;
 
   Future<void> coldLoad() async {}
 
@@ -298,12 +284,12 @@ abstract class FlareRenderBox extends RenderBox {
   void onUnload() {}
 
   /// Load a flare file from cache
-  FlutterActor getWarmFlare(String filename) {
-    if (assetBundle == null || filename == null) {
+  FlutterActor getWarmFlare(AssetProvider assetProvider) {
+    if (assetProvider == null) {
       return null;
     }
 
-    FlareCacheAsset asset = getWarmActor(assetBundle, filename);
+    FlareCacheAsset asset = getWarmActor(assetProvider);
 
     if (!attached || asset == null) {
       return null;
@@ -314,12 +300,12 @@ abstract class FlareRenderBox extends RenderBox {
   }
 
   /// Load a flare file from cache
-  Future<FlutterActor> loadFlare(String filename) async {
-    if (assetBundle == null || filename == null) {
+  Future<FlutterActor> loadFlare(AssetProvider assetProvider) async {
+    if (assetProvider == null) {
       return null;
     }
 
-    FlareCacheAsset asset = await cachedActor(assetBundle, filename);
+    FlareCacheAsset asset = await cachedActor(assetProvider);
 
     if (!attached || asset == null) {
       return null;

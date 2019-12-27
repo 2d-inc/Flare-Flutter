@@ -1,11 +1,13 @@
 import 'dart:async';
+
+import 'asset_provider.dart';
 import 'cache_asset.dart';
 
 typedef CacheAsset AssetFactoryMethod();
 
 /// A base class for loading cached resources
 abstract class Cache<T extends CacheAsset> {
-  final Map<String, T> _assets = {};
+  final Map<AssetProvider, T> _assets = {};
   final Set<T> _toPrune = Set<T>();
   Timer _pruneTimer;
 
@@ -16,7 +18,7 @@ abstract class Cache<T extends CacheAsset> {
 
   void _prune() {
     for (final T asset in _toPrune) {
-      _assets.removeWhere((String filename, T cached) {
+      _assets.removeWhere((AssetProvider assetProvider, T cached) {
         return cached == asset;
       });
     }
@@ -39,8 +41,8 @@ abstract class Cache<T extends CacheAsset> {
   }
 
   /// Get an asset from the cache or load it.
-  Future<T> getAsset(String filename) async {
-    T asset = _assets[filename];
+  Future<T> getAsset(AssetProvider assetProvider) async {
+    T asset = _assets[assetProvider];
     if (asset != null) {
       if (asset.isAvailable) {
         return asset;
@@ -48,25 +50,18 @@ abstract class Cache<T extends CacheAsset> {
         return await asset.onLoaded() as T;
       }
     }
-    int lastDot = filename.lastIndexOf(".");
-    if (lastDot != -1) {
-      asset = makeAsset();
-      if (asset != null) {
-        _assets[filename] = asset;
-        asset.load(this, filename);
-        if (asset.isAvailable) {
-          return asset;
-        } else {
-          return await asset.onLoaded() as T;
-        }
-      }
-    }
-    return asset;
+
+    asset = makeAsset();
+    assert(asset != null);
+
+    _assets[assetProvider] = asset;
+    asset.load(this, assetProvider);
+    return asset.isAvailable ? asset : await asset.onLoaded() as T;
   }
 
   /// Get an asset from the cache.
-  T getWarmAsset(String filename) {
-    T asset = _assets[filename];
+  T getWarmAsset(AssetProvider assetProvider) {
+    T asset = _assets[assetProvider];
     return (asset?.isAvailable ?? false) ? asset : null;
   }
 }

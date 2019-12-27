@@ -98,7 +98,7 @@ class _CupertinoRefreshControlDemoState
     _refreshTriggerPullDistance = refreshTriggerPullDistance;
     _refreshIndicatorExtent = refreshIndicatorExtent;
 
-    return FlareActor("assets/Space Demo.flr",
+    return FlareActor("assets/space_demo.flr",
         alignment: Alignment.center,
         animation: "idle",
         fit: BoxFit.cover,

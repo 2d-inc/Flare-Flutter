@@ -34,7 +34,8 @@ abstract class CacheAsset {
     return completer.future;
   }
 
-  void load(Cache cache, AssetProvider assetProvider) => _cache = cache;
+  Future<void> load(Cache cache, AssetProvider assetProvider) async =>
+      _cache = cache;
 
   void completeLoad() {
     if (_callbacks != null) {

@@ -11,6 +11,7 @@ dependencies:
   flare_dart:
     path: ../flare_dart/
   meta: ^1.0.5
+  pedantic: ^1.9.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

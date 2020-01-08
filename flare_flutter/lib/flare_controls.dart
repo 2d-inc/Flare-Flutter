@@ -15,7 +15,6 @@ class FlareControls extends FlareController {
 
   /// The current [ActorAnimation].
   String _animationName;
-  final double _mixSeconds = 0.1;
 
   /// The [FlareAnimationLayer]s currently active.
   final List<FlareAnimationLayer> _animationLayers = [];
@@ -68,9 +67,9 @@ class FlareControls extends FlareController {
       layer.mix += elapsed;
       layer.time += elapsed;
 
-      double mix = (_mixSeconds == null || _mixSeconds == 0.0)
+      double mix = (layer.mixSeconds == null || layer.mixSeconds == 0.0)
           ? 1.0
-          : min(1.0, layer.mix / _mixSeconds);
+          : min(1.0, layer.mix / layer.mixSeconds);
 
       /// Loop the time if needed.
       if (layer.animation.isLooping) {

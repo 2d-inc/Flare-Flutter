@@ -31,6 +31,10 @@ abstract class ActorComponent {
     return _name;
   }
 
+  set name(String name) {
+    _name = name;
+  }
+
   void resolveComponentIndices(List<ActorComponent> components) {
     ActorNode node = components[_parentIdx] as ActorNode;
     if (node != null) {

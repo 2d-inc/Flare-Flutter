@@ -53,6 +53,11 @@ class DependencySorter {
   }
 }
 
+/// Sorts dependencies for Actors even when cycles are present
+///
+/// Any nodes that form part of a cycle can be found in `cycleNodes` after `sort`.
+/// NOTE: Nodes isolated by cycles will not be found in `_order` or `cycleNodes`
+///   e.g. `A -> B <-> C -> D` isolates D when running a sort based on A
 class TarjansDependencySorter extends DependencySorter {
   HashSet<ActorComponent> _cycleNodes;
   HashSet<ActorComponent> get cycleNodes => _cycleNodes;

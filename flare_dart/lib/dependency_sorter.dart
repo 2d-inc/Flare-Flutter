@@ -1,4 +1,7 @@
 import "dart:collection";
+
+import "package:graphs/graphs.dart";
+
 import "actor_component.dart";
 
 class DependencySorter {
@@ -19,12 +22,17 @@ class DependencySorter {
     return _order;
   }
 
-  bool visit(ActorComponent n) {
+  bool visit(ActorComponent n, {HashSet<ActorComponent> cycleNodes}) {
+    cycleNodes ??= HashSet<ActorComponent>();
+    if (cycleNodes.contains(n)) {
+      // skip any nodes on a known cycle.
+      return true;
+    }
     if (_perm.contains(n)) {
       return true;
     }
     if (_temp.contains(n)) {
-      print("Dependency cycle!");
+      // cycle detected!
       return false;
     }
 
@@ -33,7 +41,7 @@ class DependencySorter {
     List<ActorComponent> dependents = n.dependents;
     if (dependents != null) {
       for (final ActorComponent d in dependents) {
-        if (!visit(d)) {
+        if (!visit(d, cycleNodes: cycleNodes)) {
           return false;
         }
       }
@@ -45,59 +53,43 @@ class DependencySorter {
   }
 }
 
-class CycleDependencySorter extends DependencySorter {
+class TarjansDependencySorter extends DependencySorter {
   HashSet<ActorComponent> _cycleNodes;
-  CycleDependencySorter() {
+  HashSet<ActorComponent> get cycleNodes => _cycleNodes;
+
+  TarjansDependencySorter() {
     _perm = HashSet<ActorComponent>();
     _temp = HashSet<ActorComponent>();
     _cycleNodes = HashSet<ActorComponent>();
   }
 
-  HashSet<ActorComponent> get cycleNodes => _cycleNodes;
-
   @override
   List<ActorComponent> sort(ActorComponent root) {
     _order = <ActorComponent>[];
-    visit(root);
-    return _order;
-  }
 
-  @override
-  bool visit(ActorComponent n) {
-    // Follow the nodes along their dependencies.
-    // track visited nodes,
-    // When a cycle is detected,
-    //   scrap all visited nodes tracked until the start of the cycle
-    //   track these nodes as 'cycleNodes'
+    if (!visit(root)) {
+      // if we detect cycles, go find them all
+      _perm.clear();
+      _temp.clear();
+      _cycleNodes.clear();
+      _order.clear();
 
-    if (_perm.contains(n)) {
-      // node's dependencies have already been evaluated.
-    } else if (_temp.contains(n)) {
-      if (_cycleNodes.contains(n)) {
-        // we're onto a cycle that has already been removed.
-        return false;
-      }
-      // node is being evaluated, but not complete yet, CYCLE!
-      ActorComponent lastComponent;
-      while (lastComponent != n) {
-        lastComponent = _order.removeLast();
-        _cycleNodes.add(lastComponent);
-      }
-      return false;
-    } else {
-      _order.add(n);
-      _temp.add(n);
-      if (n.dependents != null) {
-        for (final ActorComponent dependant in n.dependents) {
-          var cycleFound = !visit(dependant);
-          if (cycleFound && _cycleNodes.contains(n)) {
-            // node is part of a cycle, we're done here.
-            return false;
-          }
+      var cycles = stronglyConnectedComponents<ActorComponent>(
+          [root], (ActorComponent node) => node.dependents);
+
+      cycles.forEach((cycle) {
+        // cycles of len 1 are not cycles.
+        if (cycle.length > 1) {
+          cycle.forEach((cycleMember) {
+            _cycleNodes.add(cycleMember);
+          });
         }
-      }
-      _perm.add(n);
+      });
+
+      // revisit the tree, skipping nodes on any cycle.
+      visit(root, cycleNodes: _cycleNodes);
     }
-    return true;
+
+    return _order;
   }
 }

@@ -105,8 +105,8 @@ void main() {
       expect(DependencySorter().sort(artboard.root), equals(null));
     });
 
-    test("CycleDependencySorter produces best guess exluding cycle nodes", () {
-      var order = CycleDependencySorter().sort(artboard.root);
+    test("TarjansDependencySorter stops on cycle", () {
+      var order = TarjansDependencySorter().sort(artboard.root);
       expect(order.length, equals(3));
       expect(orderString(order), equals('Unnamed A C'));
     });
@@ -140,11 +140,10 @@ void main() {
       expect(orderString(order), 'Unnamed A B C D');
     });
 
-    test("CycleDependencySorter is ok", () {
-      var order = CycleDependencySorter().sort(artboard.root);
+    test("TarjansDependencySorter stops on cycle", () {
+      var order = TarjansDependencySorter().sort(artboard.root);
       expect(order, isNotNull);
-      expect(order.length, equals(5));
-      expect(orderString(order), equals('Unnamed A B D C'));
+      expect(orderString(order), 'Unnamed A B C D');
     });
   });
 
@@ -179,10 +178,9 @@ void main() {
       expect(DependencySorter().sort(artboard.root), equals(null));
     });
 
-    test("CycleDependencySorter is ok", () {
-      var order = CycleDependencySorter().sort(artboard.root);
+    test("TarjansDependencySorter stops on cycle", () {
+      var order = TarjansDependencySorter().sort(artboard.root);
       expect(order, isNotNull);
-      expect(order.length, equals(3));
       expect(orderString(order), equals('Unnamed A C'));
     });
   });
@@ -217,15 +215,12 @@ void main() {
       artboard.addDependency(nodeE, nodeA);
       artboard.addDependency(nodeC, nodeE);
       artboard.addDependency(nodeF, nodeC);
-      var dependencySorter = CycleDependencySorter();
+      var dependencySorter = TarjansDependencySorter();
       var order = dependencySorter.sort(artboard.root);
       expect(order, isNotNull);
       expect(order.length, equals(3));
       expect(orderString(order), equals('Unnamed A E'));
-      expect(dependencySorter.cycleNodes,
-          containsAll([nodeB, nodeC, nodeD, nodeF]),
-          skip: "CycleNodes will not include F, as it was"
-              " found to be dependant on a cycle before being evaluated.");
+      expect(dependencySorter.cycleNodes, containsAll([nodeB, nodeC, nodeD]));
     });
 
     test("CycleDependencySorter reorderd expected [root A E]", () {
@@ -246,13 +241,12 @@ void main() {
       artboard.addDependency(nodeC, nodeB);
       artboard.addDependency(nodeD, nodeC);
       artboard.addDependency(nodeB, nodeD);
-      var dependencySorter = CycleDependencySorter();
+      var dependencySorter = TarjansDependencySorter();
       var order = dependencySorter.sort(artboard.root);
       expect(order, isNotNull);
       expect(order.length, equals(3));
       expect(orderString(order), equals('Unnamed A E'));
-      expect(dependencySorter.cycleNodes,
-          containsAll([nodeB, nodeC, nodeD, nodeF]));
+      expect(dependencySorter.cycleNodes, containsAll([nodeB, nodeC, nodeD]));
     });
   });
 }

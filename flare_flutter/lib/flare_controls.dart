@@ -19,6 +19,8 @@ class FlareControls extends FlareController {
   /// The [FlareAnimationLayer]s currently active.
   final List<FlareAnimationLayer> _animationLayers = [];
 
+  double _ticker = 0.0;
+
   /// Called at initialization time, it stores the reference
   /// to the current [FlutterActorArtboard].
   @override
@@ -33,15 +35,22 @@ class FlareControls extends FlareController {
   /// to the end of the list of currently playing animation layers.
   void play(String name, {double mix = 1.0, double mixSeconds = 0.2}) {
     _animationName = name;
+
     if (_animationName != null && _artboard != null) {
+      int layerIndex = _animationLayers.indexWhere((layer) => layer.name == name);
       ActorAnimation animation = _artboard.getAnimation(_animationName);
-      if (animation != null) {
+
+      if (animation != null && layerIndex == -1) {
         _animationLayers.add(FlareAnimationLayer()
           ..name = _animationName
           ..animation = animation
           ..mix = mix
           ..mixSeconds = mixSeconds);
         isActive.value = true;
+      } else if (layerIndex >= 0) {
+        /// If we already have reference to this, update the seconds
+        FlareAnimationLayer layer = _animationLayers[layerIndex];
+        layer.mixSeconds = mixSeconds;
       }
     }
   }
@@ -59,17 +68,21 @@ class FlareControls extends FlareController {
     /// List of completed animations during this frame.
     List<FlareAnimationLayer> completed = [];
 
+    _ticker += elapsed;
+
     /// This loop will mix all the currently active animation layers so that,
     /// if an animation is played on top of the current one, it'll smoothly mix
-    ///  between the two instead of immediately switching to the new one.
+    /// between the two instead of immediately switching to the new one.
     for (int i = 0; i < _animationLayers.length; i++) {
       FlareAnimationLayer layer = _animationLayers[i];
-      layer.mix += elapsed;
-      layer.time += elapsed;
+      layer.time = _ticker;
+
+      layer.mix += layer.name == _animationName ? elapsed / layer.mixSeconds : -elapsed / layer.mixSeconds;
+      layer.mix = max(0.0, min(1.0, layer.mix));
 
       double mix = (layer.mixSeconds == null || layer.mixSeconds == 0.0)
           ? 1.0
-          : min(1.0, layer.mix / layer.mixSeconds);
+          : max(0.0, min(1.0, layer.mix / layer.mixSeconds));
 
       /// Loop the time if needed.
       if (layer.animation.isLooping) {
@@ -79,8 +92,8 @@ class FlareControls extends FlareController {
       /// Apply the animation with the current mix.
       layer.animation.apply(layer.time, _artboard, mix);
 
-      /// Add (non-looping) finished animations to the list.
-      if (layer.time > layer.animation.duration) {
+      /// axe it after it's finished mixing
+      if (mix == 0) {
         completed.add(layer);
       }
     }

@@ -4,6 +4,14 @@ import 'flare.dart';
 import 'flare_actor.dart';
 import 'flare_controller.dart';
 
+/// [TimedAnimation] holds a reference to [FlareAnimationLayer]s
+/// and [currentTime] maintains that layers current animation timeline
+/// for mixing purposes
+class TimedAnimation {
+  FlareAnimationLayer layer;
+  double currentTime; // how many seconds have elapsed
+}
+
 /// [FlareControls] is a concrete implementation of the [FlareController].
 ///
 /// This controller will provide some basic functionality, such as
@@ -16,9 +24,11 @@ class FlareControls extends FlareController {
   /// The current [ActorAnimation].
   String _animationName;
 
-  /// The [FlareAnimationLayer]s currently active.
-  final List<FlareAnimationLayer> _animationLayers = [];
+  /// The [TimedAnimation]s currently active.
+  final List<TimedAnimation> _animations = [];
 
+  /// Used as a reference for each animation layer
+  /// to stay in sync
   double _ticker = 0.0;
 
   /// Called at initialization time, it stores the reference
@@ -37,20 +47,21 @@ class FlareControls extends FlareController {
     _animationName = name;
 
     if (_animationName != null && _artboard != null) {
-      int layerIndex = _animationLayers.indexWhere((layer) => layer.name == name);
+      int layerIndex = _animations.indexWhere((ani) => ani.layer.name == name);
       ActorAnimation animation = _artboard.getAnimation(_animationName);
 
       if (animation != null && layerIndex == -1) {
-        _animationLayers.add(FlareAnimationLayer()
+        _animations.add(TimedAnimation()
+        ..layer = (FlareAnimationLayer()
           ..name = _animationName
           ..animation = animation
           ..mix = mix
-          ..mixSeconds = mixSeconds);
+          ..mixSeconds = mixSeconds)
+        ..currentTime = mix * mixSeconds);
         isActive.value = true;
       } else if (layerIndex >= 0) {
         /// If we already have reference to this, update the seconds
-        FlareAnimationLayer layer = _animationLayers[layerIndex];
-        layer.mixSeconds = mixSeconds;
+        _animations[layerIndex].layer.mixSeconds = mixSeconds;
       }
     }
   }
@@ -66,23 +77,20 @@ class FlareControls extends FlareController {
   @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
     /// List of completed animations during this frame.
-    List<FlareAnimationLayer> completed = [];
+    List<TimedAnimation> completed = [];
 
     _ticker += elapsed;
 
     /// This loop will mix all the currently active animation layers so that,
     /// if an animation is played on top of the current one, it'll smoothly mix
     /// between the two instead of immediately switching to the new one.
-    for (int i = 0; i < _animationLayers.length; i++) {
-      FlareAnimationLayer layer = _animationLayers[i];
+    for (int i = 0; i < _animations.length; i++) {
+      FlareAnimationLayer layer = _animations[i].layer;
       layer.time = _ticker;
+      _animations[i].currentTime += layer.name == _animationName ? elapsed : -elapsed;
+      _animations[i].currentTime = max(0.0, min(layer.mixSeconds, _animations[i].currentTime));
 
-      layer.mix += layer.name == _animationName ? elapsed / layer.mixSeconds : -elapsed / layer.mixSeconds;
-      layer.mix = max(0.0, min(1.0, layer.mix));
-
-      double mix = (layer.mixSeconds == null || layer.mixSeconds == 0.0)
-          ? 1.0
-          : max(0.0, min(1.0, layer.mix / layer.mixSeconds));
+      layer.mix = max(0.0, min(1.0, _animations[i].currentTime / layer.mixSeconds));
 
       /// Loop the time if needed.
       if (layer.animation.isLooping) {
@@ -90,19 +98,19 @@ class FlareControls extends FlareController {
       }
 
       /// Apply the animation with the current mix.
-      layer.animation.apply(layer.time, _artboard, mix);
+      layer.animation.apply(layer.time, _artboard, layer.mix);
 
-      /// axe it after it's finished mixing
-      if (mix == 0) {
-        completed.add(layer);
+      /// Axe it after it's finished mixing
+      if (layer.mix == 0) {
+        completed.add(_animations[i]);
       }
     }
 
     /// Notify of the completed animations.
-    for (final FlareAnimationLayer animation in completed) {
-      _animationLayers.remove(animation);
-      onCompleted(animation.name);
+    for (final TimedAnimation animation in completed) {
+      _animations.remove(animation);
+      onCompleted(animation.layer.name);
     }
-    return _animationLayers.isNotEmpty;
+    return _animations.isNotEmpty;
   }
 }

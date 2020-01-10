@@ -22,12 +22,7 @@ class DependencySorter {
     return _order;
   }
 
-  bool visit(ActorComponent n, {HashSet<ActorComponent> cycleNodes}) {
-    cycleNodes ??= HashSet<ActorComponent>();
-    if (cycleNodes.contains(n)) {
-      // skip any nodes on a known cycle.
-      return true;
-    }
+  bool visit(ActorComponent n) {
     if (_perm.contains(n)) {
       return true;
     }
@@ -41,7 +36,7 @@ class DependencySorter {
     List<ActorComponent> dependents = n.dependents;
     if (dependents != null) {
       for (final ActorComponent d in dependents) {
-        if (!visit(d, cycleNodes: cycleNodes)) {
+        if (!visit(d)) {
           return false;
         }
       }
@@ -55,9 +50,10 @@ class DependencySorter {
 
 /// Sorts dependencies for Actors even when cycles are present
 ///
-/// Any nodes that form part of a cycle can be found in `cycleNodes` after `sort`.
-/// NOTE: Nodes isolated by cycles will not be found in `_order` or `cycleNodes`
-///   e.g. `A -> B <-> C -> D` isolates D when running a sort based on A
+/// Any nodes that form part of a cycle can be found in `cycleNodes` after
+/// `sort`. NOTE: Nodes isolated by cycles will not be found in `_order` or
+/// `cycleNodes` e.g. `A -> B <-> C -> D` isolates D when running a sort based
+/// on A
 class TarjansDependencySorter extends DependencySorter {
   HashSet<ActorComponent> _cycleNodes;
   HashSet<ActorComponent> get cycleNodes => _cycleNodes;
@@ -66,6 +62,16 @@ class TarjansDependencySorter extends DependencySorter {
     _perm = HashSet<ActorComponent>();
     _temp = HashSet<ActorComponent>();
     _cycleNodes = HashSet<ActorComponent>();
+  }
+
+  @override
+  bool visit(ActorComponent n) {
+    if (cycleNodes.contains(n)) {
+      // skip any nodes on a known cycle.
+      return true;
+    }
+
+    return super.visit(n);
   }
 
   @override
@@ -92,7 +98,7 @@ class TarjansDependencySorter extends DependencySorter {
       });
 
       // revisit the tree, skipping nodes on any cycle.
-      visit(root, cycleNodes: _cycleNodes);
+      visit(root);
     }
 
     return _order;

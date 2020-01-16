@@ -1,3 +1,8 @@
+## [2.0.1] - 2020-01-16 10:41:07
+
+- Fix issue #203.
+- New feature submitted by Yuwen Yan @ybbaigo to provide Rive (previously Flare) assets from different sources. Maintains backwards compatibility while adding FlareActor.rootBundle, FlareActor.asset, and various ways to acquire a FlareAsset.
+
 ## [1.8.3] - 2019-12-17 04:56:04
 
 - Mark layers for drawable items by first computing which drawables are in the layer. Removes race conditions with layers not being set correctly.

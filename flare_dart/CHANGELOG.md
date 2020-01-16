@@ -1,3 +1,7 @@
+## [2.3.3] - 2020-01-16 10:38:46
+
+- Ensure drop shadow blurs don't accidentally get interpreted as the main blur effect on a layer. Fixes issue #203.
+
 ## [2.3.2] - 2019-12-17 04:54:38
 
 - Mark layers for drawable items by first computing which drawables are in the layer. Removes race conditions with layers not being set correctly.

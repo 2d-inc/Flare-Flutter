@@ -1,6 +1,6 @@
 name: flare_flutter
 description: Vector design and runtime animation for Flutter.
-version: 1.8.3
+version: 2.0.1
 author: "Rive Team <info@rive.app>"
 homepage: https://github.com/2d-inc/Flare-Flutter
 environment:
@@ -8,7 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flare_dart: ^2.3.0
+  flare_dart: ^2.3.3
+  meta: ^1.0.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

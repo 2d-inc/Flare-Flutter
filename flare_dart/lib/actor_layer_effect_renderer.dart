@@ -8,6 +8,7 @@ import 'actor_component.dart';
 import 'actor_drawable.dart';
 import 'actor_inner_shadow.dart';
 import 'actor_mask.dart';
+import 'actor_shadow.dart';
 
 class ActorLayerEffectRendererMask {
   final ActorMask mask;
@@ -63,8 +64,10 @@ class ActorLayerEffectRenderer extends ActorDrawable {
   }
 
   void findEffects() {
-    var blurs = parent.children.whereType<ActorBlur>();
-    _blur = blurs.isNotEmpty ? blurs.first : null;
+    var blurs = parent.children
+        .where((child) => child is ActorBlur && child is! ActorShadow)
+        .toList(growable: false);
+    _blur = blurs.isNotEmpty ? blurs.first as ActorBlur : null;
     _dropShadows =
         parent.children.whereType<ActorDropShadow>().toList(growable: false);
     _innerShadows =

@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 
-import 'asset_bundle_cache.dart';
+import 'asset_provider.dart';
 import 'cache.dart';
 import 'cache_asset.dart';
 import 'flare.dart';
@@ -13,34 +13,29 @@ class FlareCacheAsset extends CacheAsset {
 
   static bool useCompute = true;
 
-  void loadedActor(FlutterActor actor, String filename) {
+  void loadedActor(FlutterActor actor, AssetProvider assetProvider) {
     actor.loadImages().then((_) {
       if (actor != null) {
         _actor = actor;
         completeLoad();
       } else {
-        print("Failed to load flare file from $filename.");
+        print("Failed to load flare file from $assetProvider.");
       }
     });
   }
 
   @override
-  void load(Cache cache, String filename) {
-    super.load(cache, filename);
-    if (cache is AssetBundleCache) {
-      cache.bundle.load(filename).then((ByteData data) {
-        if (useCompute) {
-          compute(FlutterActor.loadFromByteData, data)
-              .then((FlutterActor actor) {
-            loadedActor(actor, filename);
-          });
-        } else {
-          FlutterActor.loadFromByteData(data).then((FlutterActor actor) {
-            loadedActor(actor, filename);
-          });
-        }
-      });
-    }
+  void load(Cache cache, AssetProvider assetProvider) {
+    super.load(cache, assetProvider);
+    assetProvider.load().then((ByteData data) {
+      if (useCompute) {
+        compute(FlutterActor.loadFromByteData, data)
+            .then((FlutterActor actor) => loadedActor(actor, assetProvider));
+      } else {
+        FlutterActor.loadFromByteData(data)
+            .then((FlutterActor actor) => loadedActor(actor, assetProvider));
+      }
+    });
   }
 
   @override

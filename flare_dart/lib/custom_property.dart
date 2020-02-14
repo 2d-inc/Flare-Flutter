@@ -11,6 +11,8 @@ import 'package:flare_dart/stream_reader.dart';
 class CustomProperty<T> extends ActorComponent {
   T _value;
 
+  CustomProperty._();
+
   T get value => _value;
   set value(T newValue) {
     if (newValue != _value) {
@@ -20,7 +22,7 @@ class CustomProperty<T> extends ActorComponent {
 
   @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    var instance = CustomProperty<T>();
+    var instance = CustomProperty<T>._();
     instance.copyComponent(this, resetArtboard);
     instance._value = _value;
     return instance;
@@ -37,7 +39,7 @@ class CustomProperty<T> extends ActorComponent {
 
   static CustomProperty<T> readCustomProperty<T>(
       ActorArtboard artboard, StreamReader reader) {
-    var component = CustomProperty<T>();
+    var component = CustomProperty<T>._();
     ActorComponent.read(artboard, reader, component);
     switch (T) {
       case int:

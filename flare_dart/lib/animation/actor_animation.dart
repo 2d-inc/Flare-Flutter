@@ -315,6 +315,10 @@ class ActorAnimation {
 
   List<ComponentAnimation> get animatedComponents => _components;
 
+  /// Call this function once per frame, as you advance the animation.
+  /// Call from the time [fromTime] of the last frame, to the time [toTime] 
+  /// of the current frame, and it'll add the triggered events in that 
+  /// time frame in the [triggerEvents] list.
   void triggerEvents(List<ActorComponent> components, double fromTime,
       double toTime, List<AnimationEventArgs> triggerEvents) {
     for (int i = 0; i < _triggerComponents.length; i++) {
@@ -332,25 +336,25 @@ class ActorAnimation {
             int idx = 0;
             // Binary find the keyframe index.
             {
-              int mid = 0;
-              double element = 0.0;
-              int start = 0;
-              int end = kfl - 1;
+              var elementTime = 0.0;
+              var startIdx = 0;
+              var midIdx = 0;
+              var endIdx = kfl - 1;
 
-              while (start <= end) {
-                mid = (start + end) >> 1;
-                element = keyFrames[mid].time;
-                if (element < toTime) {
-                  start = mid + 1;
-                } else if (element > toTime) {
-                  end = mid - 1;
+              while (startIdx <= endIdx) {
+                midIdx = (startIdx + endIdx) >> 1;
+                elementTime = keyFrames[midIdx].time;
+                if (elementTime < toTime) {
+                  startIdx = midIdx + 1;
+                } else if (elementTime > toTime) {
+                  endIdx = midIdx - 1;
                 } else {
-                  start = mid;
+                  startIdx = midIdx;
                   break;
                 }
               }
 
-              idx = start;
+              idx = startIdx;
             }
 
             if (idx == 0) {

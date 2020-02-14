@@ -2,6 +2,7 @@ import "dart:math";
 import "dart:typed_data";
 
 import 'package:flare_dart/actor_layer_effect_renderer.dart';
+import 'package:flare_dart/custom_property.dart';
 
 import "actor.dart";
 import 'actor_blur.dart';
@@ -419,19 +420,21 @@ class ActorArtboard {
           break;
 
         case BlockTypes.customIntProperty:
-          //component = CustomIntProperty.Read(this, nodeBlock);
+          component = CustomProperty.readCustomProperty<int>(this, nodeBlock);
           break;
 
         case BlockTypes.customFloatProperty:
-          //component = CustomFloatProperty.Read(this, nodeBlock);
+          component =
+              CustomProperty.readCustomProperty<double>(this, nodeBlock);
           break;
 
         case BlockTypes.customStringProperty:
-          //component = CustomStringProperty.Read(this, nodeBlock);
+          component =
+              CustomProperty.readCustomProperty<String>(this, nodeBlock);
           break;
 
         case BlockTypes.customBooleanProperty:
-          //component = CustomBooleanProperty.Read(this, nodeBlock);
+          component = CustomProperty.readCustomProperty<bool>(this, nodeBlock);
           break;
 
         case BlockTypes.actorColliderRectangle:

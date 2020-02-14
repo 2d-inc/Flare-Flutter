@@ -1,3 +1,5 @@
+import 'package:flare_dart/custom_property.dart';
+
 import "actor_artboard.dart";
 import "actor_node.dart";
 import "stream_reader.dart";
@@ -23,6 +25,7 @@ abstract class ActorComponent {
   int graphOrder = 0;
   int dirtMask = 0;
   List<ActorComponent> dependents;
+  List<CustomProperty> _customProperties;
 
   ActorComponent();
   ActorComponent.withArtboard(this.artboard);
@@ -30,6 +33,8 @@ abstract class ActorComponent {
   String get name {
     return _name;
   }
+
+  int get parentIdx => _parentIdx;
 
   void resolveComponentIndices(List<ActorComponent> components) {
     ActorNode node = components[_parentIdx] as ActorNode;
@@ -58,5 +63,16 @@ abstract class ActorComponent {
     artboard = resetArtboard;
     _parentIdx = component._parentIdx;
     idx = component.idx;
+  }
+
+  void addCustomProperty(CustomProperty property) {
+    _customProperties ??= [];
+    _customProperties.add(property);
+  }
+
+  /// Finds the [CustomProperty] with the given name.
+  CustomProperty getCustomProperty(String name) {
+    return _customProperties?.firstWhere((element) => element.name == name,
+        orElse: () => null);
   }
 }

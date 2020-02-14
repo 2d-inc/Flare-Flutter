@@ -3,6 +3,7 @@ import "dart:convert";
 import "dart:typed_data";
 
 import 'package:flare_dart/actor_layer_effect_renderer.dart';
+import 'package:flare_dart/custom_property.dart';
 
 import "actor_artboard.dart";
 import "actor_color.dart";

@@ -9,14 +9,10 @@ If neither of those work, then take a look at the second solution here. It warms
 ## Strategy 1 - Warming up the Flare Cache
 Prior to running the app, make sure Flare files are placed in cache. This requires changing the main function and adding some logic prior to initialization.
 ```dart
-const _filesToWarmup = [
-  "assets/file.flr",
-];
+final AssetProvider assetProvider = AssetFlare(bundle: rootBundle, name: 'assets/file.flr');
 
-Future<void> warmupFlare() async {
-  for (final filename in _filesToWarmup) {
-    await cachedActor(filename);
-  }
+Future<void> _warmupAnimations() async {
+await cachedActor(assetProvider);
 }
 
 void main() {

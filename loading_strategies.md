@@ -15,7 +15,7 @@ const _filesToWarmup = [
 
 Future<void> warmupFlare() async {
   for (final filename in _filesToWarmup) {
-    await cachedActor(rootBundle, filename);
+    await cachedActor(filename);
   }
 }
 

@@ -72,7 +72,7 @@ class FlareActor extends LeafRenderObjectWidget {
   /// dimensions of this widget.
   final bool sizeFromArtboard;
 
-    const FlareActor(
+  const FlareActor(
     this.filename, {
     Key key,
     this.boundsNode,

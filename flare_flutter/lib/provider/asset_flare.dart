@@ -23,7 +23,7 @@ class AssetFlare extends AssetProvider {
 
   @override
   Future<ByteData> load() async {
-    final ByteData data = await bundle.load(name);
+    final data = await bundle.load(name);
     assert(data != null);
     return data;
   }

@@ -1,3 +1,7 @@
+## [2.0.2] - 2020-04-03 20:14:35
+
+- Fix issue with transform affects stroke and paths connected to bones.
+
 ## [2.0.1] - 2020-01-16 10:41:07
 
 - Fix issue #203.

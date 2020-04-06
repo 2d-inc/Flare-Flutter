@@ -73,7 +73,7 @@ class FlareActor extends LeafRenderObjectWidget {
   final bool sizeFromArtboard;
 
   const FlareActor(
-    this.filename, {
+    String fileName, {
     this.boundsNode,
     this.animation,
     this.fit = BoxFit.contain,
@@ -86,7 +86,9 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
-  }) : flareProvider = null;
+    String package,
+  })  : flareProvider = null,
+        fileName = package == null ? fileName : 'packages/$package/$fileName';
 
   FlareActor.rootBundle(
     String name, {

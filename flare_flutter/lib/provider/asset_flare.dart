@@ -7,7 +7,8 @@ import '../asset_provider.dart';
 /// Fetches a Flare from an [AssetBundle].
 @immutable
 class AssetFlare extends AssetProvider {
-  const AssetFlare({@required this.bundle, @required String name, String package})
+  const AssetFlare(
+      {@required this.bundle, @required String name, String package})
       : assert(bundle != null),
         assert(name != null),
         name = package == null ? name : 'packages/$package/$name';

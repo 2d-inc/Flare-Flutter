@@ -91,7 +91,6 @@ class KeyFrameActiveChild extends KeyFrame {
 }
 
 class KeyFrameBooleanProperty extends KeyFrame {
-  bool _value;
   @override
   void apply(ActorComponent component, double mix) {
     // CustomBooleanProperty prop = component as CustomBooleanProperty;
@@ -114,13 +113,12 @@ class KeyFrameBooleanProperty extends KeyFrame {
     if (!KeyFrame.read(reader, frame)) {
       return null;
     }
-    frame._value = reader.readBool("value");
+    reader.readBool("value");
     return frame;
   }
 }
 
 class KeyFrameCollisionEnabledProperty extends KeyFrame {
-  bool _value;
   @override
   void apply(ActorComponent component, double mix) {
     // ActorCollider collider = component as ActorCollider;
@@ -143,7 +141,7 @@ class KeyFrameCollisionEnabledProperty extends KeyFrame {
     if (!KeyFrame.read(reader, frame)) {
       return null;
     }
-    frame._value = reader.readBool("value");
+    reader.readBool("value");
     return frame;
   }
 }
@@ -1054,7 +1052,6 @@ class KeyFrameShapeWidth extends KeyFrameNumeric {
 }
 
 class KeyFrameStringProperty extends KeyFrame {
-  String _value;
   @override
   void apply(ActorComponent component, double mix) {
     // CustomStringProperty prop = component as CustomStringProperty;
@@ -1077,7 +1074,7 @@ class KeyFrameStringProperty extends KeyFrame {
     if (!KeyFrame.read(reader, frame)) {
       return null;
     }
-    frame._value = reader.readString("value");
+    reader.readString("value");
     return frame;
   }
 }

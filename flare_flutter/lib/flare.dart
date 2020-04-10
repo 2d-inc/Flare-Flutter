@@ -1459,7 +1459,7 @@ class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
       switch (mask.maskType) {
         case MaskType.invertedAlpha:
           maskPaint.colorFilter = const ui.ColorFilter.matrix(
-              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 1]);
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 255]);
           break;
         case MaskType.luminance:
           maskPaint.colorFilter = const ui.ColorFilter.matrix([
@@ -1506,7 +1506,7 @@ class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
             -0.59,
             -0.11,
             0,
-            1
+            255
           ]);
           break;
         case MaskType.alpha:

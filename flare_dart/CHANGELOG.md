@@ -1,3 +1,7 @@
+## [2.3.4] - 2020-04-03 20:13:58
+
+- Fix issue with transform affects stroke and paths connected to bones.
+
 ## [2.3.3] - 2020-01-16 10:38:46
 
 - Ensure drop shadow blurs don't accidentally get interpreted as the main blur effect on a layer. Fixes issue #203.

@@ -220,7 +220,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
   }
 
   @override
-  Mat2D get pathTransform => isConnectedToBones ? null : worldTransform;
+  Mat2D get pathTransform => isConnectedToBones ? Mat2D() : worldTransform;
 
   static const int vertexDeformDirty = 1 << 1;
 

@@ -1,3 +1,11 @@
+## [2.0.3] - 2020-04-10 14:02:55
+
+- Fix issue with mask color matrices not having their translation column in 0-255 space (Skia expects these in 0-1 but Flutter specifically makes a distinction for the translation column). 
+
+## [2.0.2] - 2020-04-03 20:14:35
+
+- Fix issue with transform affects stroke and paths connected to bones.
+
 ## [2.0.1] - 2020-01-16 10:41:07
 
 - Fix issue #203.

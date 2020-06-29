@@ -1,3 +1,7 @@
+## [2.0.4] - 2020-06-28 20:40:00
+
+- Fix issue with drop/inner shadows that are within shadow offset of the artboard bounds (this would cause the shadow to get clipped).
+
 ## [2.0.3] - 2020-04-10 14:02:55
 
 - Fix issue with mask color matrices not having their translation column in 0-255 space (Skia expects these in 0-1 but Flutter specifically makes a distinction for the translation column). 

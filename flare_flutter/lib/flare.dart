@@ -1342,6 +1342,15 @@ class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
         canvas.save();
         var color = dropShadow.color;
         canvas.translate(dropShadow.offsetX, dropShadow.offsetY);
+
+        // Adjust bounds for offset.
+        var adjustedBounds = Rect.fromLTRB(
+          bounds.left - dropShadow.offsetX.abs(),
+          bounds.top - dropShadow.offsetY.abs(),
+          bounds.right + dropShadow.offsetX.abs(),
+          bounds.bottom + dropShadow.offsetY.abs(),
+        );
+
         var shadowPaint = Paint()
           ..color = layerColor
           ..imageFilter = _blurFilter(
@@ -1355,7 +1364,7 @@ class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
               ui.BlendMode.srcIn)
           ..blendMode = ui.BlendMode.values[dropShadow.blendModeId];
 
-        drawPass(canvas, bounds, shadowPaint);
+        drawPass(canvas, adjustedBounds, shadowPaint);
         canvas.restore();
         canvas.restore();
       }
@@ -1400,6 +1409,13 @@ class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
 
         canvas.saveLayer(bounds, shadowPaint);
         canvas.translate(innerShadow.offsetX, innerShadow.offsetY);
+        // Adjust bounds for offset.
+        var adjustedBounds = Rect.fromLTRB(
+          bounds.left - innerShadow.offsetX.abs(),
+          bounds.top - innerShadow.offsetY.abs(),
+          bounds.right + innerShadow.offsetX.abs(),
+          bounds.bottom + innerShadow.offsetY.abs(),
+        );
 
         // Invert the alpha to compute inner part.
         var invertPaint = Paint()
@@ -1425,7 +1441,7 @@ class FlutterActorLayerEffectRenderer extends ActorLayerEffectRenderer
             -1,
             255,
           ]);
-        drawPass(canvas, bounds, invertPaint);
+        drawPass(canvas, adjustedBounds, invertPaint);
         // restore draw pass (inverted aint)
         canvas.restore();
         // restore save layer used to that blurs and colors the shadow

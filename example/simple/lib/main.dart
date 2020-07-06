@@ -27,37 +27,50 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool _useAA = true;
   String _animationName = "idle";
-
   final asset = AssetFlare(bundle: rootBundle, name: "assets/Filip.flr");
+
+  /// Toggle antialiasing on [FlareActor]
+  void _toggleAntialiasing() {
+    setState(() {
+      _useAA = !_useAA;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey,
-        appBar: AppBar(title: Text(widget.title)),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: FlareCacheBuilder(
-                  [asset],
-                  builder: (BuildContext context, bool isWarm) {
-                    return !isWarm
-                        ? Container(child: Text("NO"))
-                        : FlareActor.asset(
-                            asset,
-                            alignment: Alignment.center,
-                            fit: BoxFit.contain,
-                            animation: _animationName,
-                          );
-                  },
-                ),
-              )
-            ],
-          ),
-        ));
+      backgroundColor: Colors.grey,
+      appBar: AppBar(title: Text(widget.title)),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: FlareCacheBuilder(
+                [asset],
+                builder: (BuildContext context, bool isWarm) {
+                  return !isWarm
+                      ? Container(child: Text("NO"))
+                      : FlareActor.asset(
+                          asset,
+                          alignment: Alignment.center,
+                          fit: BoxFit.contain,
+                          animation: _animationName,
+                          useAntialias: _useAA,
+                        );
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: _toggleAntialiasing,
+          child: Icon(
+              _useAA ? Icons.center_focus_strong : Icons.center_focus_weak)),
+    );
   }
 }

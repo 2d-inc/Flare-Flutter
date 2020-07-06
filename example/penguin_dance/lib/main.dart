@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> with FlareController {
           Positioned.fill(
               child: FlareActor("assets/Penguin.flr",
                   alignment: Alignment.center,
-				  isPaused: _isPaused,
+                  isPaused: _isPaused,
                   fit: BoxFit.cover,
                   animation: "walk",
                   controller: this)),

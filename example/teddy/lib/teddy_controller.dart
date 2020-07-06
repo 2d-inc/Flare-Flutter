@@ -84,6 +84,7 @@ class TeddyController extends FlareControls {
     play("idle");
   }
 
+  @override
   onCompleted(String name) {
     play("idle");
   }

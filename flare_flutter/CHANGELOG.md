@@ -1,3 +1,7 @@
+## [2.0.5] - 2020-07-06 11:22:33
+
+- New feature to disable anti-aliasing to help improve performance on certain devices.
+
 ## [2.0.4] - 2020-06-28 20:40:00
 
 - Fix issue with drop/inner shadows that are within shadow offset of the artboard bounds (this would cause the shadow to get clipped).

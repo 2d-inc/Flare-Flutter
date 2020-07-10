@@ -307,7 +307,7 @@ class ActorArtboard {
     }
   }
 
-  void advance(double seconds) {
+  void advance() {
     if ((_flags & ActorFlags.isDirty) != 0) {
       const int maxSteps = 100;
       int step = 0;

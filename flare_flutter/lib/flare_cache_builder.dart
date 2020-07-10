@@ -5,12 +5,20 @@ import 'asset_provider.dart';
 import 'flare_cache.dart';
 import 'flare_cache_asset.dart';
 
-/// Create a mobile or tablet layout depending on the screen size.
+/// [FlareCacheBuilder] is a Stateful widget that builds another widget.
+///
+/// The list of [AssetProvider] will be loaded asynchronously and placed
+/// in [FlareCache].
+///
+/// The [builder] function will build the widget to be displayed on the screen
+/// and uses [_isWarm] to let the caller know if the assets are fully loaded
+/// or not.
 class FlareCacheBuilder extends StatefulWidget {
   final Widget Function(BuildContext, bool) builder;
   final List<AssetProvider> assetProviders;
 
-  const FlareCacheBuilder(this.assetProviders, {Key key, this.builder})
+  const FlareCacheBuilder(this.assetProviders,
+      {@required this.builder, Key key})
       : super(key: key);
 
   @override

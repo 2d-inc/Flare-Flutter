@@ -113,7 +113,7 @@ class TeddyController extends FlareControls {
   }
 
   bool _isCoveringEyes = false;
-  coverEyes(cover) {
+  void coverEyes(bool cover) {
     if (_isCoveringEyes == cover) {
       return;
     }

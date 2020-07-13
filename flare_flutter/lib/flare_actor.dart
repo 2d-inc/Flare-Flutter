@@ -476,7 +476,7 @@ class FlareActorRenderObject extends FlareRenderBox {
     }
 
     if (_artboard != null) {
-      _artboard.advance(elapsedSeconds);
+      _artboard.advance();
     }
   }
 
@@ -517,9 +517,15 @@ class FlareActorRenderObject extends FlareRenderBox {
           ..mix = 1.0
           ..mixSeconds = 0.2);
         animation.apply(0.0, _artboard, 1.0);
-        _artboard.advance(0.0);
+        _artboard.advance();
         updatePlayState();
       }
     }
+  }
+
+  @override
+  void markNeedsPaint() {
+    if (!isPlaying) _artboard?.advance();
+    super.markNeedsPaint();
   }
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/example/change_color/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/change_color/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/checkbox/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/checkbox/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/favorite/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/favorite/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/guss/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/guss/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/penguin_dance/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/penguin_dance/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/simple/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/simple/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/slider/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/slider/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/space_reload/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/space_reload/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/teddy/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/teddy/build" />
+      <excludeFolder url="file://$MODULE_DIR$/flare_dart/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/flare_dart/build" />
+      <excludeFolder url="file://$MODULE_DIR$/flare_flutter/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/flare_flutter/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

@@ -334,23 +334,25 @@ class FlareActorRenderObject extends FlareRenderBox {
     if (_actor == null || _actor.artboard == null) {
       return false;
     }
-    FlutterActorArtboard artboard = _actor
-        .getArtboard(_artboardName)
-        .makeInstance() as FlutterActorArtboard;
-    artboard.initializeGraphics();
-    _artboard = artboard;
-    intrinsicSize = Size(artboard.width, artboard.height);
-    _artboard.overrideColor = _color == null
-        ? null
-        : Float32List.fromList([
-            _color.red / 255.0,
-            _color.green / 255.0,
-            _color.blue / 255.0,
-            _color.opacity
-          ]);
+    var artboardTemp=_actor.getArtboard(_artboardName);
+    if(artboardTemp!=null){
+      FlutterActorArtboard artboard = artboardTemp.makeInstance()
+      as FlutterActorArtboard;
+      artboard.initializeGraphics();
+      _artboard = artboard;
+      intrinsicSize = Size(artboard.width, artboard.height);
+      _artboard.overrideColor = _color == null
+          ? null
+          : Float32List.fromList([
+        _color.red / 255.0,
+        _color.green / 255.0,
+        _color.blue / 255.0,
+        _color.opacity
+      ]);
 
-    if (_controller != null) {
-      _controller.initialize(_artboard);
+      if (_controller != null) {
+        _controller.initialize(_artboard);
+      }
     }
     _animationLayers.clear();
     _updateAnimation(onlyWhenMissing: true);

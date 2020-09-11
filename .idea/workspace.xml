@@ -19,21 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8972035e-a249-4eba-83d3-c82e0c9d57f5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Flare-Flutter.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/flare_flutter/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/flare_flutter/.idea/flare_flutter.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/flare_flutter/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/flare_flutter/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/flare_flutter/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/flare_flutter/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/flare_flutter/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/flare_flutter/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/flare_flutter/android/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/flare_flutter/android/local.properties" afterDir="false" />
+    <list default="true" id="8972035e-a249-4eba-83d3-c82e0c9d57f5" name="Default Changelist" comment="Handling null exception in makeInstance when not finding artboard">
       <change beforePath="$PROJECT_DIR$/flare_flutter/lib/flare_actor.dart" beforeDir="false" afterPath="$PROJECT_DIR$/flare_flutter/lib/flare_actor.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -78,8 +64,16 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1599837542878</updated>
-      <workItem from="1599837544667" duration="208000" />
+      <workItem from="1599837544667" duration="883000" />
     </task>
+    <task id="LOCAL-00001" summary="Handling null exception in makeInstance when not finding artboard">
+      <created>1599838075269</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1599838075269</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -95,5 +89,19 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Handling null exception in makeInstance when not finding artboard" />
+    <option name="LAST_COMMIT_MESSAGE" value="Handling null exception in makeInstance when not finding artboard" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="128" y="90" key="MergeDialog" timestamp="1599838306200">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state x="128" y="90" key="MergeDialog/0.23.1280.777/-1920.-103.1920.1000@0.23.1280.777" timestamp="1599838306200" />
+    <state x="278" y="180" key="MultipleFileMergeDialog" timestamp="1599838306253">
+      <screen x="0" y="23" width="1280" height="777" />
+    </state>
+    <state x="278" y="180" key="MultipleFileMergeDialog/0.23.1280.777/-1920.-103.1920.1000@0.23.1280.777" timestamp="1599838306253" />
   </component>
 </project>

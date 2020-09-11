@@ -355,9 +355,8 @@ class FlareActorRenderObject extends FlareRenderBox {
     if (_actor == null || _actor.artboard == null) {
       return false;
     }
-    var artboardTemp=_actor.getArtboard(_artboardName);
-    if(artboardTemp!=null){
-      FlutterActorArtboard artboard = artboardTemp
+    if(_actor.getArtboard(_artboardName)!=null){
+      FlutterActorArtboard artboard = _actor.getArtboard(_artboardName)
           .makeInstance() as FlutterActorArtboard;
       artboard.initializeGraphics();
       _artboard = artboard;

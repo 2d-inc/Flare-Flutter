@@ -74,6 +74,9 @@ class FlareActor extends LeafRenderObjectWidget {
   /// dimensions of this widget.
   final bool sizeFromArtboard;
 
+  /// When false disables antialiasing on drawables.
+  final bool antialias;
+
   const FlareActor(
     this.filename, {
     this.boundsNode,
@@ -88,6 +91,7 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
+    this.antialias = true,
   }) : flareProvider = null;
 
   FlareActor.bundle(
@@ -104,6 +108,7 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
+    this.antialias = true,
     AssetBundle bundle,
   })  : filename = null,
         flareProvider = AssetFlare(bundle: bundle ?? rootBundle, name: name);
@@ -122,6 +127,7 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
+    this.antialias = true,
   })  : filename = null,
         flareProvider = MemoryFlare(bytes: bytes);
 
@@ -139,7 +145,8 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
-  })  : filename = null;
+    this.antialias = true,
+  }) : filename = null;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -157,7 +164,8 @@ class FlareActor extends LeafRenderObjectWidget {
       ..shouldClip = shouldClip
       ..boundsNodeName = boundsNode
       ..useIntrinsicSize = sizeFromArtboard
-      ..artboardName = artboard;
+      ..artboardName = artboard
+      ..useAntialias = antialias;
   }
 
   @override
@@ -175,7 +183,8 @@ class FlareActor extends LeafRenderObjectWidget {
       ..shouldClip = shouldClip
       ..boundsNodeName = boundsNode
       ..useIntrinsicSize = sizeFromArtboard
-      ..artboardName = artboard;
+      ..artboardName = artboard
+      ..useAntialias = antialias;
   }
 
   @override
@@ -206,6 +215,7 @@ class FlareActorRenderObject extends FlareRenderBox {
   FlareCompletedCallback _completedCallback;
   bool snapToEnd = false;
   bool _isPaused = false;
+  bool _useAntialias = true;
   FlutterActor _actor;
 
   String get artboardName => _artboardName;
@@ -224,6 +234,17 @@ class FlareActorRenderObject extends FlareRenderBox {
     }
     _isPaused = value;
     updatePlayState();
+  }
+
+  bool get useAntialias => _useAntialias;
+  set useAntialias(bool value) {
+    if (value != _useAntialias) {
+      _useAntialias = value;
+      if (_artboard != null) {
+        _artboard.antialias = _useAntialias;
+      }
+      markNeedsPaint();
+    }
   }
 
   final List<FlareAnimationLayer> _animationLayers = [];
@@ -336,8 +357,8 @@ class FlareActorRenderObject extends FlareRenderBox {
     }
     var artboardTemp=_actor.getArtboard(_artboardName);
     if(artboardTemp!=null){
-      FlutterActorArtboard artboard = artboardTemp.makeInstance()
-      as FlutterActorArtboard;
+      FlutterActorArtboard artboard = artboardTemp
+          .makeInstance() as FlutterActorArtboard;
       artboard.initializeGraphics();
       _artboard = artboard;
       intrinsicSize = Size(artboard.width, artboard.height);
@@ -349,11 +370,12 @@ class FlareActorRenderObject extends FlareRenderBox {
         _color.blue / 255.0,
         _color.opacity
       ]);
-
+      _artboard.antialias = _useAntialias;
       if (_controller != null) {
         _controller.initialize(_artboard);
       }
     }
+
     _animationLayers.clear();
     _updateAnimation(onlyWhenMissing: true);
     // Immediately update the newly instanced artboard and compute

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'asset_provider.dart';
 import 'cache.dart';
 import 'flare_cache_asset.dart';

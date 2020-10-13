@@ -8,7 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flare_dart: ^2.3.4
+  flare_dart: 
+    path: ../flare_dart/
   meta: ^1.0.5
 dev_dependencies:
   flutter_test:

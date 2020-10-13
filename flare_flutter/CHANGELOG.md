@@ -1,3 +1,7 @@
+## [2.0.6] - 2020-08-05 15:54:45
+
+- Fix timestep calculation based on feedback from #262.
+
 ## [2.0.5] - 2020-07-06 11:22:33
 
 - New feature to disable anti-aliasing to help improve performance on certain devices.

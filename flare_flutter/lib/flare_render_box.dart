@@ -13,10 +13,11 @@ import 'flare_cache_asset.dart';
 
 /// A render box for Flare content.
 abstract class FlareRenderBox extends RenderBox {
+  static const double _notPlayingFlag = -1;
   BoxFit _fit;
   Alignment _alignment;
   int _frameCallbackID;
-  double _lastFrameTime = 0.0;
+  double _lastFrameTime = _notPlayingFlag;
   final Set<FlareCacheAsset> _assets = {};
   bool _useIntrinsicSize = false;
 
@@ -57,7 +58,7 @@ abstract class FlareRenderBox extends RenderBox {
     if (isPlaying && attached) {
       markNeedsPaint();
     } else {
-      _lastFrameTime = 0;
+      _lastFrameTime = _notPlayingFlag;
       if (_frameCallbackID != null) {
         SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
       }
@@ -113,13 +114,14 @@ abstract class FlareRenderBox extends RenderBox {
   void _beginFrame(Duration timestamp) {
     _frameCallbackID = null;
     final double t =
-        timestamp.inMicroseconds / Duration.microsecondsPerMillisecond / 1000.0;
-    double elapsedSeconds = _lastFrameTime == 0.0 ? 0.0 : t - _lastFrameTime;
+        timestamp.inMicroseconds / Duration.microsecondsPerSecond;
+    double elapsedSeconds =
+        _lastFrameTime == _notPlayingFlag ? 0.0 : t - _lastFrameTime;
     _lastFrameTime = t;
 
     advance(elapsedSeconds);
     if (!isPlaying) {
-      _lastFrameTime = 0.0;
+      _lastFrameTime = _notPlayingFlag;
     }
     markNeedsPaint();
   }
@@ -253,6 +255,7 @@ abstract class FlareRenderBox extends RenderBox {
     }
     _isLoading = true;
     _unload();
+
     // Try a sync warm load in case we already have what we need.
     if (!warmLoad()) {
       coldLoad().then((_) {
@@ -290,7 +293,6 @@ abstract class FlareRenderBox extends RenderBox {
     }
 
     FlareCacheAsset asset = getWarmActor(assetProvider);
-
     if (!attached || asset == null) {
       return null;
     }

@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           alignment: Alignment.center,
                           fit: BoxFit.contain,
                           animation: _animationName,
-                          useAntialias: _useAA,
+                          antialias: _useAA,
                         );
                 },
               ),

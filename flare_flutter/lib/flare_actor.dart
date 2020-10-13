@@ -75,7 +75,7 @@ class FlareActor extends LeafRenderObjectWidget {
   final bool sizeFromArtboard;
 
   /// When false disables antialiasing on drawables.
-  final bool useAntialias;
+  final bool antialias;
 
   const FlareActor(
     this.filename, {
@@ -91,7 +91,7 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
-    this.useAntialias = true,
+    this.antialias = true,
   }) : flareProvider = null;
 
   FlareActor.bundle(
@@ -108,7 +108,7 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
-    this.useAntialias = true,
+    this.antialias = true,
     AssetBundle bundle,
   })  : filename = null,
         flareProvider = AssetFlare(bundle: bundle ?? rootBundle, name: name);
@@ -127,7 +127,7 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
-    this.useAntialias = true,
+    this.antialias = true,
   })  : filename = null,
         flareProvider = MemoryFlare(bytes: bytes);
 
@@ -145,7 +145,7 @@ class FlareActor extends LeafRenderObjectWidget {
     this.shouldClip = true,
     this.sizeFromArtboard = false,
     this.artboard,
-    this.useAntialias = true,
+    this.antialias = true,
   }) : filename = null;
 
   @override
@@ -165,7 +165,7 @@ class FlareActor extends LeafRenderObjectWidget {
       ..boundsNodeName = boundsNode
       ..useIntrinsicSize = sizeFromArtboard
       ..artboardName = artboard
-      ..useAntialias = useAntialias;
+      ..useAntialias = antialias;
   }
 
   @override
@@ -184,7 +184,7 @@ class FlareActor extends LeafRenderObjectWidget {
       ..boundsNodeName = boundsNode
       ..useIntrinsicSize = sizeFromArtboard
       ..artboardName = artboard
-      ..useAntialias = useAntialias;
+      ..useAntialias = antialias;
   }
 
   @override
@@ -241,7 +241,7 @@ class FlareActorRenderObject extends FlareRenderBox {
     if (value != _useAntialias) {
       _useAntialias = value;
       if (_artboard != null) {
-        _artboard.useAntialias = _useAntialias;
+        _artboard.antialias = _useAntialias;
       }
       markNeedsPaint();
     }
@@ -369,7 +369,7 @@ class FlareActorRenderObject extends FlareRenderBox {
             _color.blue / 255.0,
             _color.opacity
           ]);
-    _artboard.useAntialias = _useAntialias;
+    _artboard.antialias = _useAntialias;
     if (_controller != null) {
       _controller.initialize(_artboard);
     }

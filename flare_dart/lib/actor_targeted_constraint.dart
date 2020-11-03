@@ -4,7 +4,7 @@ import "actor_constraint.dart";
 import "stream_reader.dart";
 
 abstract class ActorTargetedConstraint extends ActorConstraint {
-  int _targetIdx;
+  /*late*/ int _targetIdx;
   ActorComponent _target;
 
   ActorComponent get target {

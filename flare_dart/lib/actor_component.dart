@@ -17,7 +17,7 @@ abstract class ActorComponent {
 
   void onParentChanged(ActorNode from, ActorNode to) {}
 
-  ActorArtboard artboard;
+  /*late*/ ActorArtboard artboard;
   int _parentIdx = 0;
   int idx = 0;
   int graphOrder = 0;

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'mat2d.dart';
 
 class Vec2D {
-  Float32List _buffer;
+  final Float32List _buffer;
 
   Float32List get values {
     return _buffer;
@@ -17,17 +17,11 @@ class Vec2D {
     _buffer[index] = value;
   }
 
-  Vec2D() {
-    _buffer = Float32List.fromList([0.0, 0.0]);
-  }
+  Vec2D() : _buffer = Float32List.fromList([0.0, 0.0]);
 
-  Vec2D.clone(Vec2D copy) {
-    _buffer = Float32List.fromList(copy._buffer);
-  }
+  Vec2D.clone(Vec2D copy) : _buffer = Float32List.fromList(copy._buffer);
 
-  Vec2D.fromValues(double x, double y) {
-    _buffer = Float32List.fromList([x, y]);
-  }
+  Vec2D.fromValues(double x, double y) : _buffer = Float32List.fromList([x, y]);
 
   static void copy(Vec2D o, Vec2D a) {
     o[0] = a[0];

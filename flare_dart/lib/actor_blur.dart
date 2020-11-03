@@ -4,8 +4,8 @@ import 'actor_layer_effect.dart';
 import 'stream_reader.dart';
 
 class ActorBlur extends ActorLayerEffect {
-  double blurX;
-  double blurY;
+  /*late*/ double blurX;
+  /*late*/ double blurY;
 
   static ActorBlur read(
       ActorArtboard artboard, StreamReader reader, ActorBlur component) {

@@ -166,8 +166,8 @@ abstract class ActorBasePath {
 }
 
 abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
-  double _width;
-  double _height;
+  /*late*/ double _width;
+  /*late*/ double _height;
 
   double get width => _width;
   double get height => _height;
@@ -206,9 +206,9 @@ abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
 }
 
 class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
-  bool _isHidden;
-  bool _isClosed;
-  List<PathPoint> _points;
+  /*late*/ bool _isHidden;
+  /*late*/ bool _isClosed;
+  /*late*/ List<PathPoint> _points;
   Float32List vertexDeform;
 
   @override
@@ -327,7 +327,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
 
     reader.openArray("points");
     int pointCount = reader.readUint16Length();
-    component._points = List<PathPoint>(pointCount);
+    component._points = <PathPoint>[];
     for (int i = 0; i < pointCount; i++) {
       reader.openObject("point");
       PathPoint point;
@@ -350,8 +350,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
         point.read(reader, component.isConnectedToBones);
       }
       reader.closeObject();
-
-      component._points[i] = point;
+      component._points.add(point);
     }
     reader.closeArray();
     return component;
@@ -378,9 +377,9 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
 
     int pointCount = node._points.length;
 
-    _points = List<PathPoint>(pointCount);
+    _points = <PathPoint>[];
     for (int i = 0; i < pointCount; i++) {
-      _points[i] = node._points[i].makeInstance();
+      _points.add(node._points[i].makeInstance());
     }
 
     if (node.vertexDeform != null) {

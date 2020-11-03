@@ -20,13 +20,11 @@ HashMap<int, PointType> pointTypeLookup =
 ]);
 
 abstract class PathPoint {
-  PointType _type;
+  PointType/*!*/ _type;
   Vec2D _translation = Vec2D();
   Float32List _weights;
 
-  PathPoint(PointType type) {
-    _type = type;
-  }
+  PathPoint(PointType type) : _type = type;
 
   PointType get pointType {
     return _type;

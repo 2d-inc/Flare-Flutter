@@ -11,7 +11,7 @@ import "stream_reader.dart";
 typedef bool ComopnentWalkCallback(ActorComponent component);
 
 class ActorClip {
-  int clipIdx;
+  final int clipIdx;
   bool intersect = true;
   ActorNode node;
 

@@ -55,11 +55,10 @@ class LinearCubicEase extends CubicEase {
 }
 
 class Cubic extends CubicEase {
-  Float64List _values;
+  final Float64List _values = Float64List(splineTableSize);
   final double x1, y1, x2, y2;
   Cubic(this.x1, this.y1, this.x2, this.y2) {
     // Precompute values table
-    _values = Float64List(splineTableSize);
     for (int i = 0; i < splineTableSize; ++i) {
       _values[i] = calcBezier(i * sampleStepSize, x1, x2);
     }

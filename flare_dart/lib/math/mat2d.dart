@@ -4,7 +4,7 @@ import "transform_components.dart";
 import "vec2d.dart";
 
 class Mat2D {
-  Float32List _buffer;
+  final Float32List _buffer;
 
   Float32List get values {
     return _buffer;
@@ -39,13 +39,9 @@ class Mat2D {
     _buffer[index] = value;
   }
 
-  Mat2D() {
-    _buffer = Float32List.fromList([1.0, 0.0, 0.0, 1.0, 0.0, 0.0]);
-  }
+  Mat2D() : _buffer = Float32List.fromList([1.0, 0.0, 0.0, 1.0, 0.0, 0.0]);
 
-  Mat2D.clone(Mat2D copy) {
-    _buffer = Float32List.fromList(copy.values);
-  }
+  Mat2D.clone(Mat2D copy) : _buffer = Float32List.fromList(copy.values);
 
   static void fromRotation(Mat2D o, double rad) {
     double s = sin(rad);

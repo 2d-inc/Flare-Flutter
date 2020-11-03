@@ -35,14 +35,16 @@ HashMap<int, InterpolationTypes> interpolationTypesLookup =
 ]);
 
 class DrawOrderIndex {
-  int componentIndex;
-  int order;
+  final int componentIndex;
+  final int order;
+
+  DrawOrderIndex(this.componentIndex, this.order);
 }
 
 enum InterpolationTypes { hold, linear, cubic }
 
 abstract class KeyFrame {
-  double _time;
+  /*late*/ double _time;
 
   double get time {
     return _time;
@@ -61,7 +63,7 @@ abstract class KeyFrame {
 }
 
 class KeyFrameActiveChild extends KeyFrame {
-  int _value;
+  /*late*/ int _value;
 
   @override
   void apply(ActorComponent component, double mix) {
@@ -211,14 +213,13 @@ class KeyFrameDrawOrder extends KeyFrame {
     }
     reader.openArray("drawOrder");
     int numOrderedNodes = reader.readUint16Length();
-    frame._orderedNodes = List<DrawOrderIndex>(numOrderedNodes);
+    frame._orderedNodes = <DrawOrderIndex>[];
     for (int i = 0; i < numOrderedNodes; i++) {
       reader.openObject("order");
-      DrawOrderIndex drawOrder = DrawOrderIndex();
-      drawOrder.componentIndex = reader.readId("component");
-      drawOrder.order = reader.readUint16("order");
+      DrawOrderIndex drawOrder = DrawOrderIndex(
+          reader.readId("component"), reader.readUint16("order"));
       reader.closeObject();
-      frame._orderedNodes[i] = drawOrder;
+      frame._orderedNodes.add(drawOrder);
     }
     reader.closeArray();
     return frame;
@@ -226,7 +227,7 @@ class KeyFrameDrawOrder extends KeyFrame {
 }
 
 class KeyFrameFillColor extends KeyFrameWithInterpolation {
-  Float32List _value;
+  /*late*/ Float32List _value;
 
   Float32List get value {
     return _value;
@@ -312,7 +313,7 @@ class KeyFrameFloatProperty extends KeyFrameNumeric {
 }
 
 class KeyFrameGradient extends KeyFrameWithInterpolation {
-  Float32List _value;
+  /*late*/ Float32List _value;
   Float32List get value => _value;
 
   @override
@@ -415,7 +416,7 @@ class KeyFrameGradient extends KeyFrameWithInterpolation {
 }
 
 class KeyFrameImageVertices extends KeyFrameWithInterpolation {
-  Float32List _vertices;
+  /*late*/ Float32List _vertices;
 
   Float32List get vertices {
     return _vertices;
@@ -510,7 +511,7 @@ class KeyFrameInnerRadius extends KeyFrameNumeric {
 }
 
 abstract class KeyFrameInt extends KeyFrameWithInterpolation {
-  double _value;
+  /*late*/ double _value;
 
   double get value {
     return _value;
@@ -580,7 +581,7 @@ class KeyFrameLength extends KeyFrameNumeric {
 }
 
 abstract class KeyFrameNumeric extends KeyFrameWithInterpolation {
-  double _value;
+  /*late*/ double _value;
 
   double get value {
     return _value;
@@ -650,7 +651,7 @@ class KeyFramePaintOpacity extends KeyFrameNumeric {
 }
 
 class KeyFramePathVertices extends KeyFrameWithInterpolation {
-  Float32List _vertices;
+  /*late*/ Float32List _vertices;
 
   Float32List get vertices {
     return _vertices;
@@ -778,7 +779,7 @@ class KeyFramePosY extends KeyFrameNumeric {
 }
 
 class KeyFrameRadial extends KeyFrameWithInterpolation {
-  Float32List _value;
+  /*late*/ Float32List _value;
   Float32List get value => _value;
 
   @override
@@ -947,7 +948,7 @@ class KeyFrameSequence extends KeyFrameNumeric {
 }
 
 class KeyFrameShadowColor extends KeyFrameWithInterpolation {
-  Float32List _value;
+  /*late*/ Float32List _value;
 
   Float32List get value {
     return _value;
@@ -1080,7 +1081,7 @@ class KeyFrameStringProperty extends KeyFrame {
 }
 
 class KeyFrameStrokeColor extends KeyFrameWithInterpolation {
-  Float32List _value;
+  /*late*/ Float32List _value;
 
   Float32List get value {
     return _value;

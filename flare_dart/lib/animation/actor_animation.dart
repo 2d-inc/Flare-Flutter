@@ -8,8 +8,10 @@ import "property_types.dart";
 typedef KeyFrame KeyFrameReader(StreamReader reader, ActorComponent component);
 
 class PropertyAnimation {
-  int _type;
+  final int _type;
   List<KeyFrame> _keyFrames;
+
+  PropertyAnimation(int type) : _type = type;
 
   int get propertyType {
     return _type;
@@ -24,9 +26,8 @@ class PropertyAnimation {
     if (propertyBlock == null) {
       return null;
     }
-    PropertyAnimation propertyAnimation = PropertyAnimation();
-    int type = propertyBlock.blockType;
-    propertyAnimation._type = type;
+    PropertyAnimation propertyAnimation =
+        PropertyAnimation(propertyBlock.blockType);
 
     KeyFrameReader keyFrameReader;
     switch (propertyAnimation._type) {
@@ -156,12 +157,12 @@ class PropertyAnimation {
 
     propertyBlock.openArray("frames");
     int keyFrameCount = propertyBlock.readUint16Length();
-    propertyAnimation._keyFrames = List<KeyFrame>(keyFrameCount);
+    propertyAnimation._keyFrames = <KeyFrame>[];
     KeyFrame lastKeyFrame;
     for (int i = 0; i < keyFrameCount; i++) {
       propertyBlock.openObject("frame");
       KeyFrame frame = keyFrameReader(propertyBlock, component);
-      propertyAnimation._keyFrames[i] = frame;
+      propertyAnimation._keyFrames.add(frame);
       if (lastKeyFrame != null) {
         lastKeyFrame.setNext(frame);
       }
@@ -222,8 +223,10 @@ class PropertyAnimation {
 }
 
 class ComponentAnimation {
-  int _componentIndex;
-  List<PropertyAnimation> _properties;
+  final int _componentIndex;
+  final List<PropertyAnimation> _properties = <PropertyAnimation>[];
+
+  ComponentAnimation(int componentIndex) : _componentIndex = componentIndex;
 
   int get componentIndex {
     return _componentIndex;
@@ -236,15 +239,13 @@ class ComponentAnimation {
   static ComponentAnimation read(
       StreamReader reader, List<ActorComponent> components) {
     reader.openObject("component");
-    ComponentAnimation componentAnimation = ComponentAnimation();
-
-    componentAnimation._componentIndex = reader.readId("component");
+    ComponentAnimation componentAnimation =
+        ComponentAnimation(reader.readId("component"));
     int numProperties = reader.readUint16Length();
-    componentAnimation._properties = List<PropertyAnimation>(numProperties);
     for (int i = 0; i < numProperties; i++) {
       assert(componentAnimation._componentIndex < components.length);
-      componentAnimation._properties[i] = PropertyAnimation.read(
-          reader, components[componentAnimation._componentIndex]);
+      componentAnimation._properties.add(PropertyAnimation.read(
+          reader, components[componentAnimation._componentIndex]));
     }
     reader.closeObject();
 
@@ -261,20 +262,19 @@ class ComponentAnimation {
 }
 
 class AnimationEventArgs {
-  String _name;
-  ActorComponent _component;
-  int _propertyType;
-  double _keyFrameTime;
-  double _elapsedTime;
+  final String _name;
+  final ActorComponent _component;
+  final int _propertyType;
+  final double _keyFrameTime;
+  final double _elapsedTime;
 
   AnimationEventArgs(String name, ActorComponent component, int type,
-      double keyframeTime, double elapsedTime) {
-    _name = name;
-    _component = component;
-    _propertyType = type;
-    _keyFrameTime = keyframeTime;
-    _elapsedTime = elapsedTime;
-  }
+      double keyframeTime, double elapsedTime)
+      : _name = name,
+        _component = component,
+        _propertyType = type,
+        _keyFrameTime = keyframeTime,
+        _elapsedTime = elapsedTime;
 
   String get name {
     return _name;
@@ -298,12 +298,18 @@ class AnimationEventArgs {
 }
 
 class ActorAnimation {
-  String _name;
-  int _fps;
-  double _duration;
-  bool _isLooping;
-  List<ComponentAnimation> _components;
-  List<ComponentAnimation> _triggerComponents;
+  final String _name;
+  final int _fps;
+  final double _duration;
+  final bool _isLooping;
+  final List<ComponentAnimation> _components = <ComponentAnimation>[];
+  final List<ComponentAnimation> _triggerComponents = <ComponentAnimation>[];
+
+  ActorAnimation(String name, int fps, double duration, bool isLooping)
+      : _name = name,
+        _fps = fps,
+        _duration = duration,
+        _isLooping = isLooping;
 
   String get name => _name;
 
@@ -414,12 +420,11 @@ class ActorAnimation {
 
   static ActorAnimation read(
       StreamReader reader, List<ActorComponent> components) {
-    ActorAnimation animation = ActorAnimation();
-    animation._name = reader.readString("name");
-    animation._fps = reader.readUint8("fps");
-    animation._duration = reader.readFloat32("duration");
-    animation._isLooping = reader.readBool("isLooping");
-
+    ActorAnimation animation = ActorAnimation(
+        reader.readString("name"),
+        reader.readUint8("fps"),
+        reader.readFloat32("duration"),
+        reader.readBool("isLooping"));
     reader.openArray("keyed");
     int numKeyedComponents = reader.readUint16Length();
 
@@ -430,12 +435,11 @@ class ActorAnimation {
     int animatedComponentCount = 0;
     int triggerComponentCount = 0;
 
-    List<ComponentAnimation> animatedComponents =
-        List<ComponentAnimation>(numKeyedComponents);
+    List<ComponentAnimation> animatedComponents = <ComponentAnimation>[];
     for (int i = 0; i < numKeyedComponents; i++) {
       ComponentAnimation componentAnimation =
           ComponentAnimation.read(reader, components);
-      animatedComponents[i] = componentAnimation;
+      animatedComponents.add(componentAnimation);
       if (componentAnimation != null &&
           componentAnimation.componentIndex < components.length) {
         ActorComponent actorComponent =
@@ -451,13 +455,6 @@ class ActorAnimation {
     }
     reader.closeArray();
 
-    animation._components = List<ComponentAnimation>(animatedComponentCount);
-    animation._triggerComponents =
-        List<ComponentAnimation>(triggerComponentCount);
-
-    // Put them in their respective lists.
-    int animatedComponentIndex = 0;
-    int triggerComponentIndex = 0;
     for (int i = 0; i < numKeyedComponents; i++) {
       ComponentAnimation componentAnimation = animatedComponents[i];
       if (componentAnimation != null) {
@@ -465,11 +462,9 @@ class ActorAnimation {
             components[componentAnimation.componentIndex];
         if (actorComponent != null) {
           if (actorComponent is ActorEvent) {
-            animation._triggerComponents[triggerComponentIndex++] =
-                componentAnimation;
+            animation._triggerComponents.add(componentAnimation);
           } else {
-            animation._components[animatedComponentIndex++] =
-                componentAnimation;
+            animation._components.add(componentAnimation);
           }
         }
       }

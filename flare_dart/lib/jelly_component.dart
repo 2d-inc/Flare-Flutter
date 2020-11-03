@@ -53,14 +53,13 @@ class JellyComponent extends ActorComponent {
   List<Vec2D> normalizeCurve(List<Vec2D> curve, int numSegments) {
     List<Vec2D> points = <Vec2D>[];
     int curvePointCount = curve.length;
-    List<double> distances = List<double>(curvePointCount);
-    distances[0] = 0.0;
+    List<double> distances = List<double>.filled(curvePointCount, 0.0);
     for (int i = 0; i < curvePointCount - 1; i++) {
       Vec2D p1 = curve[i];
       Vec2D p2 = curve[i + 1];
       distances[i + 1] = distances[i] + Vec2D.distance(p1, p2);
     }
-    double totalDistance = distances[curvePointCount - 1];
+    double totalDistance = distances.last;
 
     double segmentLength = totalDistance / numSegments;
     int pointIndex = 1;
@@ -87,45 +86,31 @@ class JellyComponent extends ActorComponent {
     return points;
   }
 
-  double _easeIn;
-  double _easeOut;
-  double _scaleIn;
-  double _scaleOut;
-  int _inTargetIdx;
-  int _outTargetIdx;
+  /*late*/ double _easeIn;
+  /*late*/ double _easeOut;
+  /*late*/ double _scaleIn;
+  /*late*/ double _scaleOut;
+  /*late*/ int _inTargetIdx;
+  /*late*/ int _outTargetIdx;
   ActorNode _inTarget;
   ActorNode _outTarget;
   List<ActorJellyBone> _bones;
-  Vec2D _inPoint;
-  Vec2D _inDirection;
-  Vec2D _outPoint;
-  Vec2D _outDirection;
+  final Vec2D _inPoint = Vec2D();
+  final Vec2D _inDirection = Vec2D();
+  final Vec2D _outPoint = Vec2D();
+  final Vec2D _outDirection = Vec2D();
 
-  Vec2D _cachedTip;
-  Vec2D _cachedOut;
-  Vec2D _cachedIn;
+  final Vec2D _cachedTip = Vec2D();
+  final Vec2D _cachedOut = Vec2D();
+  final Vec2D _cachedIn = Vec2D();
   double _cachedScaleIn;
   double _cachedScaleOut;
 
-  List<Vec2D> _jellyPoints;
+  final List<Vec2D> _jellyPoints = List<Vec2D>.filled(jellyMax + 1, Vec2D());
 
   ActorNode get inTarget => _inTarget;
   ActorNode get outTarget => _inTarget;
 
-  JellyComponent() {
-    _inPoint = Vec2D();
-    _inDirection = Vec2D();
-    _outPoint = Vec2D();
-    _outDirection = Vec2D();
-    _cachedTip = Vec2D();
-    _cachedOut = Vec2D();
-    _cachedIn = Vec2D();
-
-    _jellyPoints = List<Vec2D>(jellyMax + 1);
-    for (var i = 0; i <= jellyMax; i++) {
-      _jellyPoints[i] = Vec2D();
-    }
-  }
   @override
   ActorComponent makeInstance(ActorArtboard artboard) {
     JellyComponent instance = JellyComponent();

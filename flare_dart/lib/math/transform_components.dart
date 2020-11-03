@@ -2,7 +2,7 @@ import "dart:typed_data";
 import "vec2d.dart";
 
 class TransformComponents {
-  Float32List _buffer;
+  final Float32List _buffer;
 
   Float32List get values {
     return _buffer;
@@ -16,13 +16,11 @@ class TransformComponents {
     _buffer[index] = value;
   }
 
-  TransformComponents() {
-    _buffer = Float32List.fromList([1.0, 0.0, 0.0, 1.0, 0.0, 0.0]);
-  }
+  TransformComponents()
+      : _buffer = Float32List.fromList([1.0, 0.0, 0.0, 1.0, 0.0, 0.0]);
 
-  TransformComponents.clone(TransformComponents copy) {
-    _buffer = Float32List.fromList(copy.values);
-  }
+  TransformComponents.clone(TransformComponents copy)
+      : _buffer = Float32List.fromList(copy.values);
 
   double get x {
     return _buffer[0];

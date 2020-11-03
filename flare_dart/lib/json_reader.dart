@@ -5,15 +5,10 @@ import "dart:typed_data";
 import "stream_reader.dart";
 
 abstract class JSONReader implements StreamReader {
-  @override
-  int blockType;
+  final dynamic _readObject;
+  final ListQueue _context = ListQueue<dynamic>();
 
-  dynamic _readObject;
-  ListQueue _context;
-
-  JSONReader(Map object) {
-    _readObject = object["container"];
-    _context = ListQueue<dynamic>();
+  JSONReader(Map object) : _readObject = object["container"] {
     _context.addFirst(_readObject);
   }
 

@@ -45,15 +45,15 @@ class ActorArtboard {
   int _drawableNodeCount = 0;
   int _nodeCount = 0;
   int _dirtDepth = 0;
-  ActorNode _root;
-  List<ActorComponent> _components;
-  List<ActorNode> _nodes;
+  /*late*/ ActorNode _root;
+  /*late*/ List<ActorComponent> _components;
+  /*late*/ List<ActorNode> _nodes;
   final List<ActorDrawable> _drawableNodes = [];
   final List<ActorLayerEffectRenderer> _effectRenderers = [];
-  List<ActorAnimation> _animations;
-  List<ActorComponent> _dependencyOrder;
-  Actor _actor;
-  String _name;
+  /*late*/ List<ActorAnimation> _animations;
+  /*late*/ List<ActorComponent> _dependencyOrder;
+  final Actor _actor;
+  /*late*/ String _name;
   final Vec2D _translation = Vec2D();
   double _width = 0.0;
   double _height = 0.0;
@@ -86,8 +86,7 @@ class ActorArtboard {
     }
   }
 
-  ActorArtboard(Actor actor) {
-    _actor = actor;
+  ActorArtboard(Actor actor): _actor = actor {
     _root = ActorNode.withArtboard(this);
   }
 
@@ -242,7 +241,7 @@ class ActorArtboard {
     }
 
     _flags |= ActorFlags.isDirty;
-    _root = _components[0] as ActorNode;
+    _root = _components[0]/*!*/ as ActorNode;
     resolveHierarchy();
     completeResolveHierarchy();
   }
@@ -604,16 +603,15 @@ class ActorArtboard {
   void readAnimationsBlock(StreamReader block) {
     // Read animations.
     int animationCount = block.readUint16Length();
-    _animations = List<ActorAnimation>(animationCount);
+    _animations = <ActorAnimation>[];
     StreamReader animationBlock;
-    int animationIndex = 0;
 
     while ((animationBlock = block.readNextBlock(blockTypesMap)) != null) {
       switch (animationBlock.blockType) {
         case BlockTypes.animation:
           ActorAnimation anim =
               ActorAnimation.read(animationBlock, _components);
-          _animations[animationIndex++] = anim;
+          _animations.add(anim);
           break;
       }
     }

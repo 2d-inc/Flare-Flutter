@@ -18,7 +18,7 @@ abstract class ActorDrawable extends ActorNode {
   List<List<ClipShape>> get clipShapes => _clipShapes;
 
   // Editor set draw index.
-  int _drawOrder;
+  /*late*/ int _drawOrder;
   int get drawOrder => _drawOrder;
   set drawOrder(int value) {
     if (_drawOrder == value) {
@@ -29,8 +29,8 @@ abstract class ActorDrawable extends ActorNode {
   }
 
   // Computed draw index in the draw list.
-  int drawIndex;
-  bool isHidden;
+  /*late*/ int drawIndex;
+  /*late*/ bool isHidden;
 
   bool get doesDraw {
     return !isHidden && !renderCollapsed;

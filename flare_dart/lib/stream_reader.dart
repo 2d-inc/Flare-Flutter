@@ -8,19 +8,19 @@ abstract class StreamReader {
 
   // Instantiate the right type of Reader based on the input values
   factory StreamReader(dynamic data) {
-    StreamReader reader;
     if (data is ByteData) {
-      reader = BlockReader(data);
       // Move the readIndex forward for the binary reader.
-      reader.readUint8("F");
-      reader.readUint8("L");
-      reader.readUint8("A");
-      reader.readUint8("R");
-      reader.readUint8("E");
+      return BlockReader(data)
+        ..readUint8("F")
+        ..readUint8("L")
+        ..readUint8("A")
+        ..readUint8("R")
+        ..readUint8("E");
     } else if (data is Map) {
-      reader = JSONBlockReader(data);
+      return JSONBlockReader(data);
+    } else {
+      throw ArgumentError('Unexpected type for data');
     }
-    return reader;
   }
 
   bool isEOF();

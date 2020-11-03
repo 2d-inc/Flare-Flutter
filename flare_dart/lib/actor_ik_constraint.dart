@@ -1,4 +1,7 @@
 import "dart:math";
+
+import "package:collection/collection.dart";
+
 import "actor_artboard.dart";
 import "actor_bone.dart";
 import "actor_component.dart";
@@ -10,17 +13,28 @@ import "math/vec2d.dart";
 import "stream_reader.dart";
 
 class InfluencedBone {
-  int boneIdx;
-  ActorBone bone;
+  final int boneIdx;
+  /*late*/ ActorBone bone;
+
+  InfluencedBone(this.boneIdx);
 }
 
 class BoneChain {
-  int index;
-  ActorBone bone;
+  final int index;
+  final ActorBone bone;
   double angle;
   bool included;
-  TransformComponents transformComponents;
-  Mat2D parentWorldInverse;
+  final TransformComponents transformComponents;
+  final Mat2D parentWorldInverse;
+
+  BoneChain(
+    this.index,
+    this.bone,
+    this.angle,
+    this.included,
+    this.transformComponents,
+    this.parentWorldInverse,
+  );
 }
 
 class ActorIKConstraint extends ActorTargetedConstraint {
@@ -55,34 +69,32 @@ class ActorIKConstraint extends ActorTargetedConstraint {
     // Initialize solver.
     ActorBone start = _influencedBones[0].bone;
     ActorNode end = _influencedBones[_influencedBones.length - 1].bone;
-    int count = 0;
+    _fkChain = <BoneChain>[];
     while (end != null && end != start.parent) {
-      count++;
+      BoneChain bc = BoneChain(
+        idx,
+        end as ActorBone,
+        0.0,
+        false, // initialize to false and correct to true later if length < 3.
+        TransformComponents(),
+        Mat2D(),
+      );
+      _fkChain.add(bc);
       end = end.parent;
     }
-
-    bool allIn = count < 3;
-    end = _influencedBones[_influencedBones.length - 1].bone;
-    _fkChain = List<BoneChain>(count);
-    int idx = count - 1;
-    while (end != null && end != start.parent) {
-      BoneChain bc = BoneChain();
-      bc.bone = end as ActorBone;
-      bc.angle = 0.0;
-      bc.included = allIn;
-      bc.transformComponents = TransformComponents();
-      bc.parentWorldInverse = Mat2D();
-      bc.index = idx;
-      _fkChain[idx--] = bc;
-      end = end.parent;
+    bool allIn = _fkChain.length < 3;
+    if (allIn) {
+      for (final bc in _fkChain) {
+        bc.included = true;
+      }
     }
+    _fkChain = _fkChain.reversed.toList();
 
     // Make sure bones are good.
     _boneData = <BoneChain>[];
     for (final InfluencedBone bone in _influencedBones) {
-      BoneChain item = _fkChain.firstWhere(
-          (chainItem) => chainItem.bone == bone.bone,
-          orElse: () => null);
+      BoneChain item =
+          _fkChain.firstWhereOrNull((chainItem) => chainItem.bone == bone.bone);
       if (item == null) {
         print("Bone not in chain: " + bone.bone.name);
         continue;
@@ -122,9 +134,8 @@ class ActorIKConstraint extends ActorTargetedConstraint {
 
       ActorBone bone = fk.bone;
       for (final node in bone.children) {
-        BoneChain item = _fkChain.firstWhere(
-            (chainItem) => chainItem.bone == node,
-            orElse: () => null);
+        BoneChain item =
+            _fkChain.firstWhereOrNull((chainItem) => chainItem.bone == node);
         if (item != null) {
           // node is in the FK chain.
           continue;
@@ -143,14 +154,10 @@ class ActorIKConstraint extends ActorTargetedConstraint {
     reader.openArray("bones");
     int numInfluencedBones = reader.readUint8Length();
     if (numInfluencedBones > 0) {
-      component._influencedBones = List<InfluencedBone>(numInfluencedBones);
-
+      component._influencedBones = <InfluencedBone>[];
       for (int i = 0; i < numInfluencedBones; i++) {
-        InfluencedBone ib = InfluencedBone();
-        ib.boneIdx = reader.readId(
-            // No label here, we're just clearing the elements from the array.
-            "");
-        component._influencedBones[i] = ib;
+        // No label here, we're just clearing the elements from the array.
+        component._influencedBones.add(InfluencedBone(reader.readId("")));
       }
     }
     reader.closeArray();
@@ -352,11 +359,9 @@ class ActorIKConstraint extends ActorTargetedConstraint {
 
     _invertDirection = node._invertDirection;
     if (node._influencedBones != null) {
-      _influencedBones = List<InfluencedBone>(node._influencedBones.length);
+      _influencedBones = <InfluencedBone>[];
       for (int i = 0; i < _influencedBones.length; i++) {
-        InfluencedBone ib = InfluencedBone();
-        ib.boneIdx = node._influencedBones[i].boneIdx;
-        _influencedBones[i] = ib;
+        _influencedBones.add(InfluencedBone(node._influencedBones[i].boneIdx));
       }
     }
   }

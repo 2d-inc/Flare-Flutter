@@ -2,6 +2,7 @@ import 'dart:async';
 import "dart:convert";
 import "dart:typed_data";
 
+import "package:collection/collection.dart";
 import 'package:flare_dart/actor_layer_effect_renderer.dart';
 
 import "actor_artboard.dart";
@@ -29,8 +30,7 @@ abstract class Actor {
   ActorArtboard get artboard => _artboards.isNotEmpty ? _artboards.first : null;
   ActorArtboard getArtboard(String name) => name == null
       ? artboard
-      : _artboards.firstWhere((artboard) => artboard?.name == name,
-          orElse: () => null);
+      : _artboards.firstWhereOrNull((artboard) => artboard?.name == name);
 
   int get version {
     return _version;
@@ -202,16 +202,16 @@ abstract class Actor {
     int numAtlases = block.readUint16Length();
     Future<List<Uint8List>> result;
     if (isOOB) {
-      List<Future<Uint8List>> waitingFor = List<Future<Uint8List>>(numAtlases);
+      List<Future<Uint8List>> waitingFor = <Future<Uint8List>>[];
       for (int i = 0; i < numAtlases; i++) {
-        waitingFor[i] = readOutOfBandAsset(block.readString("data"), context);
+        waitingFor.add(readOutOfBandAsset(block.readString("data"), context));
       }
       result = Future.wait(waitingFor);
     } else {
       // This is sync.
-      List<Uint8List> inBandAssets = List<Uint8List>(numAtlases);
+      List<Uint8List> inBandAssets = <Uint8List>[];
       for (int i = 0; i < numAtlases; i++) {
-        inBandAssets[i] = block.readAsset();
+        inBandAssets.add(block.readAsset());
       }
       Completer<List<Uint8List>> completer = Completer<List<Uint8List>>();
       completer.complete(inBandAssets);

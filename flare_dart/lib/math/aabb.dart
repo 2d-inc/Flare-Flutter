@@ -3,7 +3,7 @@ import "dart:typed_data";
 import "vec2d.dart";
 
 class AABB {
-  Float32List _buffer;
+  final Float32List _buffer;
 
   Float32List get values {
     return _buffer;
@@ -17,17 +17,12 @@ class AABB {
     return Vec2D.fromValues(_buffer[2], _buffer[3]);
   }
 
-  AABB() {
-    _buffer = Float32List.fromList([0.0, 0.0, 0.0, 0.0]);
-  }
+  AABB() : _buffer = Float32List.fromList([0.0, 0.0, 0.0, 0.0]);
 
-  AABB.clone(AABB a) {
-    _buffer = Float32List.fromList(a.values);
-  }
+  AABB.clone(AABB a) : _buffer = Float32List.fromList(a.values);
 
-  AABB.fromValues(double a, double b, double c, double d) {
-    _buffer = Float32List.fromList([a, b, c, d]);
-  }
+  AABB.fromValues(double a, double b, double c, double d)
+      : _buffer = Float32List.fromList([a, b, c, d]);
 
   double operator [](int idx) {
     return _buffer[idx];

@@ -4,8 +4,8 @@ import "actor_node.dart";
 import "stream_reader.dart";
 
 abstract class ActorConstraint extends ActorComponent {
-  bool _isEnabled;
-  double _strength;
+  /*late*/ bool _isEnabled;
+  /*late*/ double _strength;
 
   bool get isEnabled {
     return _isEnabled;

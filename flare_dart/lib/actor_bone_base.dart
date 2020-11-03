@@ -6,7 +6,7 @@ import "math/vec2d.dart";
 import "stream_reader.dart";
 
 class ActorBoneBase extends ActorNode {
-  double _length;
+  /*late*/ double _length;
 
   double get length {
     return _length;

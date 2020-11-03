@@ -3,16 +3,13 @@ import "stream_reader.dart";
 
 /// Implementation of StreamReader that reads binary data.
 abstract class BinaryReader implements StreamReader {
-  ByteData _raw;
-  int _readIndex;
+  final ByteData _raw;
+  int _readIndex = 0;
 
   ByteData get raw => _raw;
   int get readIndex => _readIndex;
 
-  BinaryReader(ByteData data) {
-    _raw = data;
-    _readIndex = 0;
-  }
+  BinaryReader(ByteData data) : _raw = data;
 
   ByteData readBytes(int length) {
     int offset = _readIndex + raw.offsetInBytes;

@@ -21,9 +21,9 @@ HashMap<int, MaskType> maskTypeLookup = HashMap<int, MaskType>.fromIterables([
 ]);
 
 class ActorMask extends ActorLayerEffect {
-  ActorNode _source;
-  int _sourceIdx;
-  MaskType _maskType;
+  /*late*/ ActorNode _source;
+  /*late*/ int _sourceIdx;
+  /*late*/ MaskType _maskType;
   ActorNode get source => _source;
   MaskType get maskType => _maskType;
 

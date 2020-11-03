@@ -14,13 +14,13 @@ class ClipShape {
 }
 
 abstract class ActorDrawable extends ActorNode {
-  List<List<ClipShape>> _clipShapes;
-  List<List<ClipShape>> get clipShapes => _clipShapes;
+  List<List<ClipShape>>? _clipShapes;
+  List<List<ClipShape>>? get clipShapes => _clipShapes;
 
   // Editor set draw index.
-  /*late*/ int _drawOrder;
-  int get drawOrder => _drawOrder;
-  set drawOrder(int value) {
+  int? _drawOrder;
+  int? get drawOrder => _drawOrder;
+  set drawOrder(int? value) {
     if (_drawOrder == value) {
       return;
     }
@@ -29,8 +29,8 @@ abstract class ActorDrawable extends ActorNode {
   }
 
   // Computed draw index in the draw list.
-  /*late*/ int drawIndex;
-  /*late*/ bool isHidden;
+  late int drawIndex;
+  late bool isHidden;
 
   bool get doesDraw {
     return !isHidden && !renderCollapsed;
@@ -68,11 +68,11 @@ abstract class ActorDrawable extends ActorNode {
   @override
   void completeResolve() {
     _clipShapes = <List<ClipShape>>[];
-    List<List<ActorClip>> clippers = allClips;
-    for (final List<ActorClip> clips in clippers) {
+    List<List<ActorClip?>?> clippers = allClips;
+    for (final List<ActorClip?>? clips in clippers) {
       List<ClipShape> shapes = <ClipShape>[];
-      for (final ActorClip clip in clips) {
-        clip.node.all((component) {
+      for (final ActorClip? clip in clips!) {
+        clip!.node.all((component) {
           if (component is ActorShape) {
             shapes.add(ClipShape(component, clip.intersect));
           }
@@ -80,11 +80,11 @@ abstract class ActorDrawable extends ActorNode {
         });
       }
       if (shapes.isNotEmpty) {
-        _clipShapes.add(shapes);
+        _clipShapes!.add(shapes);
       }
     }
   }
   /// If this is set the drawable belongs to a layer. We store a reference to 
   /// the parent node that contains the layer.
-  ActorNode layerEffectRenderParent;
+  ActorNode? layerEffectRenderParent;
 }

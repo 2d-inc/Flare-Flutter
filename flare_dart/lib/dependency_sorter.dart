@@ -2,18 +2,18 @@ import "dart:collection";
 import "actor_component.dart";
 
 class DependencySorter {
-  final _perm = HashSet<ActorComponent>();
-  final _temp = HashSet<ActorComponent>();
+  final _perm = HashSet<ActorComponent?>();
+  final _temp = HashSet<ActorComponent?>();
 
-  List<ActorComponent> sort(ActorComponent root) {
-    final order = <ActorComponent>[];
+  List<ActorComponent?>? sort(ActorComponent root) {
+    final order = <ActorComponent?>[];
     if (!_visit(root, order)) {
       return null;
     }
     return order;
   }
 
-  bool _visit(ActorComponent n, List<ActorComponent> order) {
+  bool _visit(ActorComponent? n, List<ActorComponent?> order) {
     if (_perm.contains(n)) {
       return true;
     }
@@ -24,9 +24,9 @@ class DependencySorter {
 
     _temp.add(n);
 
-    List<ActorComponent> dependents = n.dependents;
+    List<ActorComponent?>? dependents = n!.dependents;
     if (dependents != null) {
-      for (final ActorComponent d in dependents) {
+      for (final ActorComponent? d in dependents) {
         if (!_visit(d, order)) {
           return false;
         }

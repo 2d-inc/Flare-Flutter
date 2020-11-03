@@ -11,18 +11,18 @@ import "path_point.dart";
 import "stream_reader.dart";
 
 abstract class ActorBasePath {
-  ActorShape _shape;
-  ActorShape get shape => _shape;
+  ActorShape? _shape;
+  ActorShape? get shape => _shape;
   bool _isRootPath = false;
   bool get isRootPath => _isRootPath;
   List<PathPoint> get points;
-  ActorNode get parent;
+  ActorNode? get parent;
   void invalidatePath();
   bool get isPathInWorldSpace => false;
   Mat2D get pathTransform;
   Mat2D get transform;
   Mat2D get worldTransform;
-  List<List<ActorClip>> get allClips;
+  List<List<ActorClip?>?> get allClips;
   List<PathPoint> get deformedPoints => points;
 
   AABB getPathAABB() {
@@ -44,11 +44,11 @@ abstract class ActorBasePath {
     if (isPathInWorldSpace) {
       //  convert the path coordinates into local parent space.
       localTransform = Mat2D();
-      Mat2D.invert(localTransform, parent.worldTransform);
+      Mat2D.invert(localTransform, parent!.worldTransform);
     } else if (!_isRootPath) {
       localTransform = Mat2D();
       // Path isn't root, so get transform in shape space.
-      if (Mat2D.invert(localTransform, shape.worldTransform)) {
+      if (Mat2D.invert(localTransform, shape!.worldTransform)) {
         Mat2D.multiply(localTransform, localTransform, worldTransform);
       }
     } else {
@@ -77,7 +77,7 @@ abstract class ActorBasePath {
   void invalidateDrawable() {
     invalidatePath();
     if (shape != null) {
-      shape.invalidateShape();
+      shape!.invalidateShape();
     }
   }
 
@@ -145,15 +145,15 @@ abstract class ActorBasePath {
 
   void updateShape() {
     if (_shape != null) {
-      _shape.removePath(this);
+      _shape!.removePath(this);
     }
-    ActorNode possibleShape = parent;
+    ActorNode? possibleShape = parent;
     while (possibleShape != null && possibleShape is! ActorShape) {
       possibleShape = possibleShape.parent;
     }
     if (possibleShape != null) {
       _shape = possibleShape as ActorShape;
-      _shape.addPath(this);
+      _shape!.addPath(this);
     } else {
       _shape = null;
     }
@@ -166,11 +166,11 @@ abstract class ActorBasePath {
 }
 
 abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
-  /*late*/ double _width;
-  /*late*/ double _height;
+  double? _width;
+  double? _height;
 
-  double get width => _width;
-  double get height => _height;
+  double get width => _width!;
+  double get height => _height!;
 
   @override
   Mat2D get pathTransform => worldTransform;
@@ -200,16 +200,16 @@ abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
     super.onDirty(dirt);
     // We transformed, make sure parent is invalidated.
     if (shape != null) {
-      shape.invalidateShape();
+      shape!.invalidateShape();
     }
   }
 }
 
 class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
-  /*late*/ bool _isHidden;
-  /*late*/ bool _isClosed;
-  /*late*/ List<PathPoint> _points;
-  Float32List vertexDeform;
+  late bool _isHidden;
+  late bool _isClosed;
+  late List<PathPoint> _points;
+  Float32List? vertexDeform;
 
   @override
   bool get isPathInWorldSpace => isConnectedToBones;
@@ -233,7 +233,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
       return _points;
     }
 
-    Float32List boneMatrices = skin.boneMatrices;
+    Float32List? boneMatrices = skin!.boneMatrices;
     List<PathPoint> deformed = <PathPoint>[];
     for (final PathPoint point in _points) {
       deformed.add(point.skin(worldTransform, boneMatrices));
@@ -250,7 +250,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     super.onDirty(dirt);
     // We transformed, make sure parent is invalidated.
     if (shape != null) {
-      shape.invalidateShape();
+      shape!.invalidateShape();
     }
   }
 
@@ -294,19 +294,19 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
         (dirt & vertexDeformDirty) == vertexDeformDirty) {
       int readIdx = 0;
       for (final PathPoint point in _points) {
-        point.translation[0] = vertexDeform[readIdx++];
-        point.translation[1] = vertexDeform[readIdx++];
+        point.translation[0] = vertexDeform![readIdx++];
+        point.translation[1] = vertexDeform![readIdx++];
         switch (point.pointType) {
           case PointType.straight:
-            (point as StraightPathPoint).radius = vertexDeform[readIdx++];
+            (point as StraightPathPoint).radius = vertexDeform![readIdx++];
             break;
 
           default:
             CubicPathPoint cubicPoint = point as CubicPathPoint;
-            cubicPoint.inPoint[0] = vertexDeform[readIdx++];
-            cubicPoint.inPoint[1] = vertexDeform[readIdx++];
-            cubicPoint.outPoint[0] = vertexDeform[readIdx++];
-            cubicPoint.outPoint[1] = vertexDeform[readIdx++];
+            cubicPoint.inPoint[0] = vertexDeform![readIdx++];
+            cubicPoint.inPoint[1] = vertexDeform![readIdx++];
+            cubicPoint.outPoint[0] = vertexDeform![readIdx++];
+            cubicPoint.outPoint[1] = vertexDeform![readIdx++];
             break;
         }
       }
@@ -318,7 +318,6 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
 
   static ActorPath read(
       ActorArtboard artboard, StreamReader reader, ActorPath component) {
-    component ??= ActorPath();
     ActorNode.read(artboard, reader, component);
     ActorSkinnable.read(artboard, reader, component);
 
@@ -331,7 +330,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     for (int i = 0; i < pointCount; i++) {
       reader.openObject("point");
       PathPoint point;
-      PointType type = pointTypeLookup[reader.readUint8("pointType")];
+      PointType? type = pointTypeLookup[reader.readUint8("pointType")];
       switch (type) {
         case PointType.straight:
           {
@@ -340,7 +339,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
           }
         default:
           {
-            point = CubicPathPoint(type);
+            point = CubicPathPoint(type!);
             break;
           }
       }
@@ -364,7 +363,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
   }
 
   @override
-  void resolveComponentIndices(List<ActorComponent> components) {
+  void resolveComponentIndices(List<ActorComponent?> components) {
     super.resolveComponentIndices(components);
     resolveSkinnable(components);
   }
@@ -383,7 +382,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     }
 
     if (node.vertexDeform != null) {
-      vertexDeform = Float32List.fromList(node.vertexDeform);
+      vertexDeform = Float32List.fromList(node.vertexDeform!);
     }
   }
 }

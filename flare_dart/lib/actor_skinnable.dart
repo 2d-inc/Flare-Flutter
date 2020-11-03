@@ -7,7 +7,7 @@ import "stream_reader.dart";
 
 class SkinnedBone {
   final int boneIdx;
-  /*late*/ ActorNode node;
+  late ActorNode node;
   final Mat2D bind = Mat2D();
   final Mat2D inverseBind = Mat2D();
 
@@ -15,13 +15,13 @@ class SkinnedBone {
 }
 
 abstract class ActorSkinnable {
-  ActorSkin skin;
-  List<SkinnedBone> _connectedBones;
-  set worldTransformOverride(Mat2D value);
+  ActorSkin? skin;
+  List<SkinnedBone>? _connectedBones;
+  set worldTransformOverride(Mat2D? value);
 
-  List<SkinnedBone> get connectedBones => _connectedBones;
+  List<SkinnedBone>? get connectedBones => _connectedBones;
   bool get isConnectedToBones =>
-      _connectedBones != null && _connectedBones.isNotEmpty;
+      _connectedBones != null && _connectedBones!.isNotEmpty;
 
   static ActorSkinnable read(
       ActorArtboard artboard, StreamReader reader, ActorSkinnable node) {
@@ -36,7 +36,7 @@ abstract class ActorSkinnable {
         Mat2D.copyFromList(bc.bind, reader.readFloat32Array(6, "bind"));
         reader.closeObject();
         Mat2D.invert(bc.inverseBind, bc.bind);
-        node._connectedBones.add(bc);
+        node._connectedBones!.add(bc);
       }
       reader.closeArray();
       Mat2D worldOverride = Mat2D();
@@ -50,12 +50,12 @@ abstract class ActorSkinnable {
     return node;
   }
 
-  void resolveSkinnable(List<ActorComponent> components) {
+  void resolveSkinnable(List<ActorComponent?> components) {
     if (_connectedBones != null) {
       // We still need to do _connectedBones! here. Why?
-      for (int i = 0; i < _connectedBones.length; i++) {
-        SkinnedBone bc = _connectedBones[i];
-        bc.node = components[bc.boneIdx]/*!*/ as ActorNode;
+      for (int i = 0; i < _connectedBones!.length; i++) {
+        SkinnedBone bc = _connectedBones![i];
+        bc.node = components[bc.boneIdx]! as ActorNode;
       }
     }
   }
@@ -63,12 +63,12 @@ abstract class ActorSkinnable {
   void copySkinnable(ActorSkinnable node, ActorArtboard resetArtboard) {
     if (node._connectedBones != null) {
       _connectedBones = <SkinnedBone>[];
-      for (int i = 0; i < node._connectedBones.length; i++) {
-        SkinnedBone from = node._connectedBones[i];
+      for (int i = 0; i < node._connectedBones!.length; i++) {
+        SkinnedBone from = node._connectedBones![i];
         SkinnedBone bc = SkinnedBone(from.boneIdx);
         Mat2D.copy(bc.bind, from.bind);
         Mat2D.copy(bc.inverseBind, from.inverseBind);
-        _connectedBones.add(bc);
+        _connectedBones!.add(bc);
       }
     }
   }

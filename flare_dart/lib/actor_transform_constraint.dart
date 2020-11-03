@@ -19,7 +19,7 @@ class ActorTransformConstraint extends ActorTargetedConstraint {
   ActorTransformConstraint() : super();
 
   static ActorTransformConstraint read(ActorArtboard artboard,
-      StreamReader reader, ActorTransformConstraint component) {
+      StreamReader reader, ActorTransformConstraint? component) {
     component ??= ActorTransformConstraint();
     ActorTargetedConstraint.read(artboard, reader, component);
 
@@ -45,17 +45,17 @@ class ActorTransformConstraint extends ActorTargetedConstraint {
 
   @override
   void constrain(ActorNode node) {
-    ActorNode t = target as ActorNode;
+    ActorNode? t = target as ActorNode?;
     if (t == null) {
       return;
     }
 
-    ActorNode parent = this.parent;
+    ActorNode parent = this.parent!;
 
     Mat2D transformA = parent.worldTransform;
     Mat2D transformB = Mat2D.clone(t.worldTransform);
     if (_sourceSpace == TransformSpace.local) {
-      ActorNode grandParent = target.parent;
+      ActorNode? grandParent = target!.parent;
       if (grandParent != null) {
         Mat2D inverse = Mat2D();
         Mat2D.invert(inverse, grandParent.worldTransform);
@@ -63,7 +63,7 @@ class ActorTransformConstraint extends ActorTargetedConstraint {
       }
     }
     if (_destSpace == TransformSpace.local) {
-      ActorNode grandParent = parent.parent;
+      ActorNode? grandParent = parent.parent;
       if (grandParent != null) {
         Mat2D.multiply(transformB, grandParent.worldTransform, transformB);
       }

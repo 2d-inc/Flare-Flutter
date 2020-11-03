@@ -4,7 +4,7 @@ import 'actor_component.dart';
 import 'stream_reader.dart';
 
 abstract class ActorLayerEffect extends ActorComponent {
-  /*late*/ bool _isActive;
+  late bool _isActive;
   bool get isActive => _isActive;
 
   static ActorLayerEffect read(

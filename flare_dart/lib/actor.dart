@@ -23,12 +23,13 @@ import "stream_reader.dart";
 abstract class Actor {
   int maxTextureIndex = 0;
   int _version = 0;
-  List<ActorArtboard> _artboards;
+  late List<ActorArtboard?> _artboards;
 
   Actor();
 
-  ActorArtboard get artboard => _artboards.isNotEmpty ? _artboards.first : null;
-  ActorArtboard getArtboard(String name) => name == null
+  ActorArtboard? get artboard =>
+      _artboards.isNotEmpty ? _artboards.first : null;
+  ActorArtboard? getArtboard(String name) => name == null
       ? artboard
       : _artboards.firstWhereOrNull((artboard) => artboard?.name == name);
 
@@ -44,15 +45,9 @@ abstract class Actor {
     maxTextureIndex = actor.maxTextureIndex;
     int artboardCount = actor._artboards.length;
     if (artboardCount > 0) {
-      int idx = 0;
-      _artboards = List<ActorArtboard>(artboardCount);
-      for (final ActorArtboard artboard in actor._artboards) {
-        if (artboard == null) {
-          _artboards[idx++] = null;
-          continue;
-        }
-        ActorArtboard instanceArtboard = artboard.makeInstanceWithActor(this);
-        _artboards[idx++] = instanceArtboard;
+      _artboards = <ActorArtboard?>[];
+      for (final ActorArtboard? artboard in actor._artboards) {
+        _artboards.add(artboard?.makeInstanceWithActor(this));
       }
     }
   }
@@ -69,7 +64,7 @@ abstract class Actor {
     return ActorPath();
   }
 
-  ActorShape makeShapeNode(ActorShape source) {
+  ActorShape makeShapeNode(ActorShape? source) {
     return ActorShape();
   }
 
@@ -140,9 +135,9 @@ abstract class Actor {
     StreamReader reader = StreamReader(inputData);
     _version = reader.readVersion();
 
-    StreamReader block;
+    StreamReader? block;
     while ((block = reader.readNextBlock(blockTypesMap)) != null) {
-      switch (block.blockType) {
+      switch (block!.blockType) {
         case BlockTypes.artboards:
           readArtboardsBlock(block);
           break;
@@ -155,15 +150,15 @@ abstract class Actor {
     }
 
     // Resolve now.
-    for (final ActorArtboard artboard in _artboards) {
-      artboard.resolveHierarchy();
+    for (final ActorArtboard? artboard in _artboards) {
+      artboard!.resolveHierarchy();
     }
-    for (final ActorArtboard artboard in _artboards) {
-      artboard.completeResolveHierarchy();
+    for (final ActorArtboard? artboard in _artboards) {
+      artboard!.completeResolveHierarchy();
     }
 
-    for (final ActorArtboard artboard in _artboards) {
-      artboard.sortDependencies();
+    for (final ActorArtboard? artboard in _artboards) {
+      artboard!.sortDependencies();
     }
 
     return success;
@@ -171,12 +166,12 @@ abstract class Actor {
 
   void readArtboardsBlock(StreamReader block) {
     int artboardCount = block.readUint16Length();
-    _artboards = List<ActorArtboard>(artboardCount);
+    _artboards = List<ActorArtboard?>.filled(artboardCount, null);
 
     for (int artboardIndex = 0, end = _artboards.length;
         artboardIndex < end;
         artboardIndex++) {
-      StreamReader artboardBlock = block.readNextBlock(blockTypesMap);
+      StreamReader? artboardBlock = block.readNextBlock(blockTypesMap);
       if (artboardBlock == null) {
         break;
       }

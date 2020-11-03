@@ -13,7 +13,7 @@ typedef bool ComopnentWalkCallback(ActorComponent component);
 class ActorClip {
   final int clipIdx;
   bool intersect = true;
-  ActorNode node;
+  late ActorNode node;
 
   ActorClip(this.clipIdx);
   ActorClip.copy(ActorClip from)
@@ -22,7 +22,7 @@ class ActorClip {
 }
 
 class ActorNode extends ActorComponent {
-  List<ActorComponent> _children;
+  List<ActorComponent>? _children;
   //List<ActorNode> m_Dependents;
   Mat2D _transform = Mat2D();
   Mat2D _worldTransform = Mat2D();
@@ -32,17 +32,17 @@ class ActorNode extends ActorComponent {
   Vec2D _scale = Vec2D.fromValues(1.0, 1.0);
   double _opacity = 1.0;
   double _renderOpacity = 1.0;
-  ActorLayerEffectRenderer _layerEffect;
-  ActorLayerEffectRenderer get layerEffect => _layerEffect;
+  ActorLayerEffectRenderer? _layerEffect;
+  ActorLayerEffectRenderer? get layerEffect => _layerEffect;
 
   bool _overrideWorldTransform = false;
   bool _isCollapsedVisibility = false;
 
   bool _renderCollapsed = false;
-  List<ActorClip> _clips;
+  List<ActorClip?>? _clips;
 
-  List<ActorConstraint> _constraints;
-  List<ActorConstraint> _peerConstraints;
+  List<ActorConstraint>? _constraints;
+  List<ActorConstraint>? _peerConstraints;
 
   static const int transformDirty = DirtyFlags.transformDirty;
   static const int worldTransformDirty = DirtyFlags.worldTransformDirty;
@@ -54,15 +54,15 @@ class ActorNode extends ActorComponent {
     return _transform;
   }
 
-  List<ActorClip> get clips {
+  List<ActorClip?>? get clips {
     return _clips;
   }
 
-  Mat2D get worldTransformOverride {
+  Mat2D? get worldTransformOverride {
     return _overrideWorldTransform ? _worldTransform : null;
   }
 
-  set worldTransformOverride(Mat2D value) {
+  set worldTransformOverride(Mat2D? value) {
     if (value == null) {
       _overrideWorldTransform = false;
     } else {
@@ -202,10 +202,10 @@ class ActorNode extends ActorComponent {
     }
   }
 
-  List<List<ActorClip>> get allClips {
+  List<List<ActorClip?>?> get allClips {
     // Find clips.
-    List<List<ActorClip>> all = <List<ActorClip>>[];
-    ActorNode clipSearch = this;
+    List<List<ActorClip?>?> all = <List<ActorClip>?>[];
+    ActorNode? clipSearch = this;
     while (clipSearch != null) {
       if (clipSearch.clips != null) {
         all.add(clipSearch.clips);
@@ -244,10 +244,10 @@ class ActorNode extends ActorComponent {
     _renderOpacity = _opacity;
 
     if (parent != null) {
-      _renderCollapsed = _isCollapsedVisibility || parent._renderCollapsed;
-      _renderOpacity *= parent.childOpacity;
+      _renderCollapsed = _isCollapsedVisibility || parent!._renderCollapsed;
+      _renderOpacity *= parent!.childOpacity;
       if (!_overrideWorldTransform) {
-        Mat2D.multiply(_worldTransform, parent._worldTransform, _transform);
+        Mat2D.multiply(_worldTransform, parent!._worldTransform, _transform);
       }
     } else {
       Mat2D.copy(_worldTransform, _transform);
@@ -255,7 +255,7 @@ class ActorNode extends ActorComponent {
   }
 
   static ActorNode read(
-      ActorArtboard artboard, StreamReader reader, ActorNode node) {
+      ActorArtboard artboard, StreamReader reader, ActorNode? node) {
     node ??= ActorNode();
     ActorComponent.read(artboard, reader, node);
     Vec2D.copyFromList(
@@ -268,7 +268,7 @@ class ActorNode extends ActorComponent {
     reader.openArray("clips");
     int clipCount = reader.readUint8Length();
     if (clipCount > 0) {
-      node._clips = List<ActorClip>(clipCount);
+      node._clips = <ActorClip?>[];
       for (int i = 0; i < clipCount; i++) {
         reader.openObject("clip");
         var clip = ActorClip(reader.readId("node"));
@@ -276,7 +276,7 @@ class ActorNode extends ActorComponent {
           clip.intersect = reader.readBool("intersect");
         }
         reader.closeObject();
-        node._clips[i] = clip;
+        node._clips!.add(clip);
       }
     }
     reader.closeArray();
@@ -289,14 +289,14 @@ class ActorNode extends ActorComponent {
 
   void addChild(ActorComponent component) {
     if (component.parent != null) {
-      component.parent.removeChild(component);
+      component.parent!.removeChild(component);
     }
     component.parent = this;
     _children ??= <ActorComponent>[];
-    _children.add(component);
+    _children!.add(component);
   }
 
-  List<ActorComponent> get children {
+  List<ActorComponent>? get children {
     return _children;
   }
 
@@ -319,9 +319,9 @@ class ActorNode extends ActorComponent {
     _overrideWorldTransform = node._overrideWorldTransform;
 
     if (node._clips != null) {
-      _clips = List<ActorClip>(node._clips.length);
-      for (int i = 0, l = node._clips.length; i < l; i++) {
-        _clips[i] = ActorClip.copy(node._clips[i]);
+      _clips = <ActorClip?>[];
+      for (int i = 0, l = node._clips!.length; i < l; i++) {
+        _clips!.add(ActorClip.copy(node._clips![i]!));
       }
     } else {
       _clips = null;
@@ -333,19 +333,19 @@ class ActorNode extends ActorComponent {
 
   bool addConstraint(ActorConstraint constraint) {
     _constraints ??= <ActorConstraint>[];
-    if (_constraints.contains(constraint)) {
+    if (_constraints!.contains(constraint)) {
       return false;
     }
-    _constraints.add(constraint);
+    _constraints!.add(constraint);
     return true;
   }
 
   bool addPeerConstraint(ActorConstraint constraint) {
     _peerConstraints ??= <ActorConstraint>[];
-    if (_peerConstraints.contains(constraint)) {
+    if (_peerConstraints!.contains(constraint)) {
       return false;
     }
-    _peerConstraints.add(constraint);
+    _peerConstraints!.add(constraint);
     return true;
   }
 
@@ -354,7 +354,7 @@ class ActorNode extends ActorComponent {
           ? _peerConstraints
           : _peerConstraints == null
               ? _constraints
-              : _constraints + _peerConstraints) ??
+              : _constraints! + _peerConstraints!) ??
       <ActorConstraint>[];
 
   @override
@@ -365,7 +365,7 @@ class ActorNode extends ActorComponent {
     if ((dirt & worldTransformDirty) == worldTransformDirty) {
       updateWorldTransform();
       if (_constraints != null) {
-        for (final ActorConstraint constraint in _constraints) {
+        for (final ActorConstraint constraint in _constraints!) {
           if (constraint.isEnabled) {
             constraint.constrain(this);
           }
@@ -375,15 +375,15 @@ class ActorNode extends ActorComponent {
   }
 
   @override
-  void resolveComponentIndices(List<ActorComponent> components) {
+  void resolveComponentIndices(List<ActorComponent?> components) {
     super.resolveComponentIndices(components);
 
     if (_clips == null) {
       return;
     }
 
-    for (final ActorClip clip in _clips) {
-      final ActorComponent component = components[clip.clipIdx];
+    for (final ActorClip? clip in _clips!) {
+      final ActorComponent? component = components[clip!.clipIdx];
       if (component is ActorNode) {
         clip.node = component;
       }
@@ -397,7 +397,7 @@ class ActorNode extends ActorComponent {
 
   bool eachChildRecursive(ComopnentWalkCallback cb) {
     if (_children != null) {
-      for (final ActorComponent child in _children) {
+      for (final ActorComponent child in _children!) {
         if (cb(child) == false) {
           return false;
         }
@@ -416,7 +416,7 @@ class ActorNode extends ActorComponent {
     }
 
     if (_children != null) {
-      for (final ActorComponent child in _children) {
+      for (final ActorComponent child in _children!) {
         if (cb(child) == false) {
           return false;
         }

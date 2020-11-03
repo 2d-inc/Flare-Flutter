@@ -48,7 +48,7 @@ abstract class StreamReader {
 
   int readId(String label);
 
-  StreamReader readNextBlock(Map<String, int> types);
+  StreamReader? readNextBlock(Map<String, int> types);
 
   void openArray(String label);
   void closeArray();

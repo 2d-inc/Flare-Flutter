@@ -86,15 +86,15 @@ class JellyComponent extends ActorComponent {
     return points;
   }
 
-  /*late*/ double _easeIn;
-  /*late*/ double _easeOut;
-  /*late*/ double _scaleIn;
-  /*late*/ double _scaleOut;
-  /*late*/ int _inTargetIdx;
-  /*late*/ int _outTargetIdx;
-  ActorNode _inTarget;
-  ActorNode _outTarget;
-  List<ActorJellyBone> _bones;
+  late double _easeIn;
+  late double _easeOut;
+  late double _scaleIn;
+  late double _scaleOut;
+  late int _inTargetIdx;
+  late int _outTargetIdx;
+  ActorNode? _inTarget;
+  ActorNode? _outTarget;
+  List<ActorJellyBone>? _bones;
   final Vec2D _inPoint = Vec2D();
   final Vec2D _inDirection = Vec2D();
   final Vec2D _outPoint = Vec2D();
@@ -103,13 +103,13 @@ class JellyComponent extends ActorComponent {
   final Vec2D _cachedTip = Vec2D();
   final Vec2D _cachedOut = Vec2D();
   final Vec2D _cachedIn = Vec2D();
-  double _cachedScaleIn;
-  double _cachedScaleOut;
+  double? _cachedScaleIn;
+  double? _cachedScaleOut;
 
   final List<Vec2D> _jellyPoints = List<Vec2D>.filled(jellyMax + 1, Vec2D());
 
-  ActorNode get inTarget => _inTarget;
-  ActorNode get outTarget => _inTarget;
+  ActorNode? get inTarget => _inTarget;
+  ActorNode? get outTarget => _inTarget;
 
   @override
   ActorComponent makeInstance(ActorArtboard artboard) {
@@ -129,22 +129,22 @@ class JellyComponent extends ActorComponent {
   }
 
   @override
-  void resolveComponentIndices(List<ActorComponent> components) {
+  void resolveComponentIndices(List<ActorComponent?> components) {
     super.resolveComponentIndices(components);
 
     if (_inTargetIdx != 0) {
-      _inTarget = components[_inTargetIdx] as ActorNode;
+      _inTarget = components[_inTargetIdx] as ActorNode?;
     }
     if (_outTargetIdx != 0) {
-      _outTarget = components[_outTargetIdx] as ActorNode;
+      _outTarget = components[_outTargetIdx] as ActorNode?;
     }
 
     List<ActorConstraint> dependencyConstraints = <ActorConstraint>[];
-    ActorBone bone = parent as ActorBone;
+    ActorBone? bone = parent as ActorBone?;
     if (bone != null) {
       artboard.addDependency(this, bone);
       dependencyConstraints += bone.allConstraints;
-      ActorBone firstBone = bone.firstBone;
+      ActorBone? firstBone = bone.firstBone;
       if (firstBone != null) {
         artboard.addDependency(this, firstBone);
         dependencyConstraints += firstBone.allConstraints;
@@ -153,28 +153,28 @@ class JellyComponent extends ActorComponent {
         // in target we are dependent on that target's position.
         if (_outTarget == null &&
             firstBone.jelly != null &&
-            firstBone.jelly.inTarget != null) {
-          artboard.addDependency(this, firstBone.jelly.inTarget);
-          dependencyConstraints += firstBone.jelly.inTarget.allConstraints;
+            firstBone.jelly!.inTarget != null) {
+          artboard.addDependency(this, firstBone.jelly!.inTarget!);
+          dependencyConstraints += firstBone.jelly!.inTarget!.allConstraints;
         }
       }
       if (bone.parent is ActorBone) {
         ActorBone parentBone = bone.parent as ActorBone;
-        JellyComponent parentBoneJelly = parentBone.jelly;
+        JellyComponent? parentBoneJelly = parentBone.jelly;
         if (parentBoneJelly != null && parentBoneJelly.outTarget != null) {
-          artboard.addDependency(this, parentBoneJelly.outTarget);
-          dependencyConstraints += parentBoneJelly.outTarget.allConstraints;
+          artboard.addDependency(this, parentBoneJelly.outTarget!);
+          dependencyConstraints += parentBoneJelly.outTarget!.allConstraints;
         }
       }
     }
 
     if (_inTarget != null) {
-      artboard.addDependency(this, _inTarget);
-      dependencyConstraints += _inTarget.allConstraints;
+      artboard.addDependency(this, _inTarget!);
+      dependencyConstraints += _inTarget!.allConstraints;
     }
     if (_outTarget != null) {
-      artboard.addDependency(this, _outTarget);
-      dependencyConstraints += _outTarget.allConstraints;
+      artboard.addDependency(this, _outTarget!);
+      dependencyConstraints += _outTarget!.allConstraints;
     }
 
     // We want to depend on any and all constraints that our dependents have.
@@ -200,7 +200,7 @@ class JellyComponent extends ActorComponent {
     _bones = <ActorJellyBone>[];
     for (final child in children) {
       if (child is ActorJellyBone) {
-        _bones.add(child);
+        _bones!.add(child);
         // Make sure the jelly doesn't update until
         // the jelly component has updated
         artboard.addDependency(child, this);
@@ -209,7 +209,7 @@ class JellyComponent extends ActorComponent {
   }
 
   static JellyComponent read(
-      ActorArtboard artboard, StreamReader reader, JellyComponent node) {
+      ActorArtboard artboard, StreamReader reader, JellyComponent? node) {
     node ??= JellyComponent();
     ActorComponent.read(artboard, reader, node);
 
@@ -253,14 +253,14 @@ class JellyComponent extends ActorComponent {
     forwardDiffBezier(q0[0], q1[0], q2[0], q3[0], _jellyPoints, jellyMax, 0);
     forwardDiffBezier(q0[1], q1[1], q2[1], q3[1], _jellyPoints, jellyMax, 1);
 
-    List<Vec2D> normalizedPoints = normalizeCurve(_jellyPoints, _bones.length);
+    List<Vec2D> normalizedPoints = normalizeCurve(_jellyPoints, _bones!.length);
 
     Vec2D lastPoint = _jellyPoints[0];
 
     double scale = _scaleIn;
-    double scaleInc = (_scaleOut - _scaleIn) / (_bones.length - 1);
+    double scaleInc = (_scaleOut - _scaleIn) / (_bones!.length - 1);
     for (int i = 0; i < normalizedPoints.length; i++) {
-      ActorJellyBone jelly = _bones[i];
+      ActorJellyBone jelly = _bones![i];
       Vec2D p = normalizedPoints[i];
 
       jelly.translation = lastPoint;
@@ -282,8 +282,8 @@ class JellyComponent extends ActorComponent {
   @override
   void update(int dirt) {
     ActorBone bone = parent as ActorBone;
-    ActorNode parentBone = bone.parent;
-    JellyComponent parentBoneJelly;
+    ActorNode? parentBone = bone.parent;
+    JellyComponent? parentBoneJelly;
     if (parentBone is ActorBone) {
       parentBoneJelly = parentBone.jelly;
     }
@@ -294,11 +294,11 @@ class JellyComponent extends ActorComponent {
     }
 
     if (_inTarget != null) {
-      Vec2D translation = _inTarget.getWorldTranslation(Vec2D());
+      Vec2D translation = _inTarget!.getWorldTranslation(Vec2D());
       Vec2D.transformMat2D(_inPoint, translation, inverseWorld);
       Vec2D.normalize(_inDirection, _inPoint);
     } else if (parentBone != null) {
-      ActorBone firstBone;
+      ActorBone? firstBone;
       if (parentBone is ActorBone) {
         firstBone = parentBone.firstBone;
       } else if (parentBone is ActorRootBone) {
@@ -308,7 +308,7 @@ class JellyComponent extends ActorComponent {
           parentBoneJelly != null &&
           parentBoneJelly._outTarget != null) {
         Vec2D translation =
-            parentBoneJelly._outTarget.getWorldTranslation(Vec2D());
+            parentBoneJelly._outTarget!.getWorldTranslation(Vec2D());
         Vec2D localParentOut =
             Vec2D.transformMat2D(Vec2D(), translation, inverseWorld);
         Vec2D.normalize(localParentOut, localParentOut);
@@ -333,17 +333,17 @@ class JellyComponent extends ActorComponent {
     }
 
     if (_outTarget != null) {
-      Vec2D translation = _outTarget.getWorldTranslation(Vec2D());
+      Vec2D translation = _outTarget!.getWorldTranslation(Vec2D());
       Vec2D.transformMat2D(_outPoint, translation, inverseWorld);
       Vec2D tip = Vec2D.fromValues(bone.length, 0.0);
       Vec2D.subtract(_outDirection, _outPoint, tip);
       Vec2D.normalize(_outDirection, _outDirection);
     } else if (bone.firstBone != null) {
-      ActorBone firstBone = bone.firstBone;
-      JellyComponent firstBoneJelly = firstBone.jelly;
+      ActorBone firstBone = bone.firstBone!;
+      JellyComponent? firstBoneJelly = firstBone.jelly;
       if (firstBoneJelly != null && firstBoneJelly._inTarget != null) {
         Vec2D translation =
-            firstBoneJelly._inTarget.getWorldTranslation(Vec2D());
+            firstBoneJelly._inTarget!.getWorldTranslation(Vec2D());
         Vec2D worldChildInDir = Vec2D.subtract(
             Vec2D(), firstBone.getWorldTranslation(Vec2D()), translation);
         Vec2D.transformMat2(_outDirection, worldChildInDir, inverseWorld);

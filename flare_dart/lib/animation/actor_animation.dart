@@ -5,11 +5,12 @@ import "../stream_reader.dart";
 import "keyframe.dart";
 import "property_types.dart";
 
-typedef KeyFrame KeyFrameReader(StreamReader reader, ActorComponent component);
+typedef KeyFrame? KeyFrameReader(
+    StreamReader reader, ActorComponent? component);
 
 class PropertyAnimation {
   final int _type;
-  List<KeyFrame> _keyFrames;
+  List<KeyFrame?>? _keyFrames;
 
   PropertyAnimation(int type) : _type = type;
 
@@ -17,19 +18,20 @@ class PropertyAnimation {
     return _type;
   }
 
-  List<KeyFrame> get keyFrames {
+  List<KeyFrame?>? get keyFrames {
     return _keyFrames;
   }
 
-  static PropertyAnimation read(StreamReader reader, ActorComponent component) {
-    StreamReader propertyBlock = reader.readNextBlock(propertyTypesMap);
+  static PropertyAnimation? read(
+      StreamReader reader, ActorComponent? component) {
+    StreamReader? propertyBlock = reader.readNextBlock(propertyTypesMap);
     if (propertyBlock == null) {
       return null;
     }
     PropertyAnimation propertyAnimation =
         PropertyAnimation(propertyBlock.blockType);
 
-    KeyFrameReader keyFrameReader;
+    KeyFrameReader? keyFrameReader;
     switch (propertyAnimation._type) {
       case PropertyTypes.posX:
         keyFrameReader = KeyFramePosX.read;
@@ -157,12 +159,12 @@ class PropertyAnimation {
 
     propertyBlock.openArray("frames");
     int keyFrameCount = propertyBlock.readUint16Length();
-    propertyAnimation._keyFrames = <KeyFrame>[];
-    KeyFrame lastKeyFrame;
+    propertyAnimation._keyFrames = <KeyFrame?>[];
+    KeyFrame? lastKeyFrame;
     for (int i = 0; i < keyFrameCount; i++) {
       propertyBlock.openObject("frame");
-      KeyFrame frame = keyFrameReader(propertyBlock, component);
-      propertyAnimation._keyFrames.add(frame);
+      KeyFrame? frame = keyFrameReader(propertyBlock, component);
+      propertyAnimation._keyFrames!.add(frame);
       if (lastKeyFrame != null) {
         lastKeyFrame.setNext(frame);
       }
@@ -175,8 +177,8 @@ class PropertyAnimation {
     return propertyAnimation;
   }
 
-  void apply(double time, ActorComponent component, double mix) {
-    if (_keyFrames.isEmpty) {
+  void apply(double time, ActorComponent? component, double mix) {
+    if (_keyFrames!.isEmpty) {
       return;
     }
 
@@ -186,11 +188,11 @@ class PropertyAnimation {
       int mid = 0;
       double element = 0.0;
       int start = 0;
-      int end = _keyFrames.length - 1;
+      int end = _keyFrames!.length - 1;
 
       while (start <= end) {
         mid = (start + end) >> 1;
-        element = _keyFrames[mid].time;
+        element = _keyFrames![mid]!.time;
         if (element < time) {
           start = mid + 1;
         } else if (element > time) {
@@ -205,18 +207,18 @@ class PropertyAnimation {
     }
 
     if (idx == 0) {
-      _keyFrames[0].apply(component, mix);
+      _keyFrames![0]!.apply(component, mix);
     } else {
-      if (idx < _keyFrames.length) {
-        KeyFrame fromFrame = _keyFrames[idx - 1];
-        KeyFrame toFrame = _keyFrames[idx];
+      if (idx < _keyFrames!.length) {
+        KeyFrame? fromFrame = _keyFrames![idx - 1];
+        KeyFrame toFrame = _keyFrames![idx]!;
         if (time == toFrame.time) {
           toFrame.apply(component, mix);
         } else {
-          fromFrame.applyInterpolation(component, time, toFrame, mix);
+          fromFrame!.applyInterpolation(component, time, toFrame, mix);
         }
       } else {
-        _keyFrames[idx - 1].apply(component, mix);
+        _keyFrames![idx - 1]!.apply(component, mix);
       }
     }
   }
@@ -224,7 +226,7 @@ class PropertyAnimation {
 
 class ComponentAnimation {
   final int _componentIndex;
-  final List<PropertyAnimation> _properties = <PropertyAnimation>[];
+  final List<PropertyAnimation?> _properties = <PropertyAnimation?>[];
 
   ComponentAnimation(int componentIndex) : _componentIndex = componentIndex;
 
@@ -232,12 +234,12 @@ class ComponentAnimation {
     return _componentIndex;
   }
 
-  List<PropertyAnimation> get properties {
+  List<PropertyAnimation?> get properties {
     return _properties;
   }
 
   static ComponentAnimation read(
-      StreamReader reader, List<ActorComponent> components) {
+      StreamReader reader, List<ActorComponent?> components) {
     reader.openObject("component");
     ComponentAnimation componentAnimation =
         ComponentAnimation(reader.readId("component"));
@@ -252,8 +254,8 @@ class ComponentAnimation {
     return componentAnimation;
   }
 
-  void apply(double time, List<ActorComponent> components, double mix) {
-    for (final PropertyAnimation propertyAnimation in _properties) {
+  void apply(double time, List<ActorComponent?> components, double mix) {
+    for (final PropertyAnimation? propertyAnimation in _properties) {
       if (propertyAnimation != null) {
         propertyAnimation.apply(time, components[_componentIndex], mix);
       }
@@ -325,10 +327,10 @@ class ActorAnimation {
       double toTime, List<AnimationEventArgs> triggerEvents) {
     for (int i = 0; i < _triggerComponents.length; i++) {
       ComponentAnimation keyedComponent = _triggerComponents[i];
-      for (final PropertyAnimation property in keyedComponent.properties) {
-        switch (property.propertyType) {
+      for (final PropertyAnimation? property in keyedComponent.properties) {
+        switch (property!.propertyType) {
           case PropertyTypes.trigger:
-            List<KeyFrame> keyFrames = property.keyFrames;
+            List<KeyFrame?> keyFrames = property.keyFrames!;
 
             int kfl = keyFrames.length;
             if (kfl == 0) {
@@ -345,7 +347,7 @@ class ActorAnimation {
 
               while (start <= end) {
                 mid = (start + end) >> 1;
-                element = keyFrames[mid].time;
+                element = keyFrames[mid]!.time;
                 if (element < toTime) {
                   start = mid + 1;
                 } else if (element > toTime) {
@@ -360,7 +362,7 @@ class ActorAnimation {
             }
 
             if (idx == 0) {
-              if (kfl > 0 && keyFrames[0].time == toTime) {
+              if (kfl > 0 && keyFrames[0]!.time == toTime) {
                 ActorComponent component =
                     components[keyedComponent.componentIndex];
                 triggerEvents.add(AnimationEventArgs(component.name, component,
@@ -368,7 +370,7 @@ class ActorAnimation {
               }
             } else {
               for (int k = idx - 1; k >= 0; k--) {
-                KeyFrame frame = keyFrames[k];
+                KeyFrame frame = keyFrames[k]!;
 
                 if (frame.time > fromTime) {
                   ActorComponent component =
@@ -419,7 +421,7 @@ class ActorAnimation {
   }
 
   static ActorAnimation read(
-      StreamReader reader, List<ActorComponent> components) {
+      StreamReader reader, List<ActorComponent?> components) {
     ActorAnimation animation = ActorAnimation(
         reader.readString("name"),
         reader.readUint8("fps"),
@@ -442,7 +444,7 @@ class ActorAnimation {
       animatedComponents.add(componentAnimation);
       if (componentAnimation != null &&
           componentAnimation.componentIndex < components.length) {
-        ActorComponent actorComponent =
+        ActorComponent? actorComponent =
             components[componentAnimation.componentIndex];
         if (actorComponent != null) {
           if (actorComponent is ActorEvent) {
@@ -458,7 +460,7 @@ class ActorAnimation {
     for (int i = 0; i < numKeyedComponents; i++) {
       ComponentAnimation componentAnimation = animatedComponents[i];
       if (componentAnimation != null) {
-        ActorComponent actorComponent =
+        ActorComponent? actorComponent =
             components[componentAnimation.componentIndex];
         if (actorComponent != null) {
           if (actorComponent is ActorEvent) {

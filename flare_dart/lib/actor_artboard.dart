@@ -45,15 +45,15 @@ class ActorArtboard {
   int _drawableNodeCount = 0;
   int _nodeCount = 0;
   int _dirtDepth = 0;
-  /*late*/ ActorNode _root;
-  /*late*/ List<ActorComponent> _components;
-  /*late*/ List<ActorNode> _nodes;
+  late ActorNode _root;
+  late List<ActorComponent?> _components;
+  late List<ActorNode?> _nodes;
   final List<ActorDrawable> _drawableNodes = [];
   final List<ActorLayerEffectRenderer> _effectRenderers = [];
-  /*late*/ List<ActorAnimation> _animations;
-  /*late*/ List<ActorComponent> _dependencyOrder;
+  late List<ActorAnimation> _animations;
+  late List<ActorComponent?>? _dependencyOrder;
   final Actor _actor;
-  /*late*/ String _name;
+  late String _name;
   final Vec2D _translation = Vec2D();
   double _width = 0.0;
   double _height = 0.0;
@@ -61,7 +61,7 @@ class ActorArtboard {
   bool _clipContents = true;
   final Float32List _color = Float32List(4);
   double _modulateOpacity = 1.0;
-  Float32List _overrideColor;
+  Float32List? _overrideColor;
 
   String get name => _name;
   double get width => _width;
@@ -70,9 +70,9 @@ class ActorArtboard {
   Vec2D get translation => _translation;
   bool get clipContents => _clipContents;
   double get modulateOpacity => _modulateOpacity;
-  Float32List get overrideColor => _overrideColor;
+  Float32List? get overrideColor => _overrideColor;
 
-  set overrideColor(Float32List value) {
+  set overrideColor(Float32List? value) {
     _overrideColor = value;
     for (final ActorDrawable drawable in _drawableNodes) {
       addDirt(drawable, DirtyFlags.paintDirty, true);
@@ -86,16 +86,16 @@ class ActorArtboard {
     }
   }
 
-  ActorArtboard(Actor actor): _actor = actor {
+  ActorArtboard(Actor actor) : _actor = actor {
     _root = ActorNode.withArtboard(this);
   }
 
   Actor get actor => _actor;
-  List<ActorComponent> get components => _components;
-  List<ActorNode> get nodes => _nodes;
+  List<ActorComponent?> get components => _components;
+  List<ActorNode?> get nodes => _nodes;
   List<ActorAnimation> get animations => _animations;
   List<ActorDrawable> get drawableNodes => _drawableNodes;
-  ActorComponent operator [](int index) {
+  ActorComponent? operator [](int index) {
     return _components[index];
   }
 
@@ -104,10 +104,10 @@ class ActorArtboard {
   int get drawNodeCount => _drawableNodeCount;
   ActorNode get root => _root;
 
-  bool addDependency(ActorComponent a, ActorComponent b) {
-    List<ActorComponent> dependents = b.dependents;
+  bool addDependency(ActorComponent? a, ActorComponent b) {
+    List<ActorComponent?>? dependents = b.dependents;
     if (dependents == null) {
-      b.dependents = dependents = <ActorComponent>[];
+      b.dependents = dependents = <ActorComponent?>[];
     }
     if (dependents.contains(a)) {
       return false;
@@ -120,8 +120,8 @@ class ActorArtboard {
     DependencySorter sorter = DependencySorter();
     _dependencyOrder = sorter.sort(_root);
     int graphOrder = 0;
-    for (final ActorComponent component in _dependencyOrder) {
-      component.graphOrder = graphOrder++;
+    for (final ActorComponent? component in _dependencyOrder!) {
+      component!.graphOrder = graphOrder++;
       component.dirtMask = 255;
     }
     _flags |= ActorFlags.isDirty;
@@ -150,17 +150,17 @@ class ActorArtboard {
     if (!recurse) {
       return true;
     }
-    List<ActorComponent> dependents = component.dependents;
+    List<ActorComponent?>? dependents = component.dependents;
     if (dependents != null) {
-      for (final ActorComponent d in dependents) {
-        addDirt(d, value, recurse);
+      for (final ActorComponent? d in dependents) {
+        addDirt(d!, value, recurse);
       }
     }
 
     return true;
   }
 
-  ActorAnimation getAnimation(String name) {
+  ActorAnimation? getAnimation(String name) {
     for (final ActorAnimation a in _animations) {
       if (a.name == name) {
         return a;
@@ -169,8 +169,8 @@ class ActorArtboard {
     return null;
   }
 
-  ActorNode getNode(String name) {
-    for (final ActorNode node in _nodes) {
+  ActorNode? getNode(String name) {
+    for (final ActorNode? node in _nodes) {
       if (node != null && node.name == name) {
         return node;
       }
@@ -213,35 +213,29 @@ class ActorArtboard {
     _nodeCount = artboard._nodeCount;
 
     if (artboard.componentCount != 0) {
-      _components = List<ActorComponent>(artboard.componentCount);
+      _components = <ActorComponent?>[];
     }
     if (_nodeCount != 0) // This will always be at least 1.
     {
-      _nodes = List<ActorNode>(_nodeCount);
+      _nodes = List<ActorNode?>.filled(_nodeCount, null);
     }
 
     if (artboard.componentCount != 0) {
-      int idx = 0;
-
-      for (final ActorComponent component in artboard.components) {
-        if (component == null) {
-          _components[idx++] = null;
-          continue;
-        }
-        ActorComponent instanceComponent = component.makeInstance(this);
-        _components[idx++] = instanceComponent;
+      for (final ActorComponent? component in artboard.components) {
+        _components.add(component?.makeInstance(this));
       }
     }
     // Copy dependency order.
-    _dependencyOrder = List<ActorComponent>(artboard._dependencyOrder.length);
-    for (final ActorComponent component in artboard._dependencyOrder) {
-      final ActorComponent localComponent = _components[component.idx];
-      _dependencyOrder[component.graphOrder] = localComponent;
+    _dependencyOrder =
+        List<ActorComponent?>.filled(artboard._dependencyOrder!.length, null);
+    for (final ActorComponent? component in artboard._dependencyOrder!) {
+      final ActorComponent localComponent = _components[component!.idx]!;
+      _dependencyOrder![component.graphOrder] = localComponent;
       localComponent.dirtMask = 255;
     }
 
     _flags |= ActorFlags.isDirty;
-    _root = _components[0]/*!*/ as ActorNode;
+    _root = _components[0]! as ActorNode;
     resolveHierarchy();
     completeResolveHierarchy();
   }
@@ -253,7 +247,7 @@ class ActorArtboard {
     _drawableNodes.clear();
     int componentCount = this.componentCount;
     for (int i = 1; i < componentCount; i++) {
-      ActorComponent c = _components[i];
+      ActorComponent? c = _components[i];
 
       /// Nodes can be null if we read from a file version that contained
       /// nodes that we don't interpret in this runtime.
@@ -275,7 +269,7 @@ class ActorArtboard {
 
     // Complete resolve.
     for (int i = 1; i < componentCount; i++) {
-      ActorComponent c = components[i];
+      ActorComponent? c = components[i];
       if (c != null) {
         c.completeResolve();
       }
@@ -284,7 +278,7 @@ class ActorArtboard {
     // Build lists. Important to do this after all components have resolved as
     // layers won't be known before this.
     for (int i = 1; i < componentCount; i++) {
-      ActorComponent c = components[i];
+      ActorComponent? c = components[i];
       if (c is ActorDrawable && c.layerEffectRenderParent == null) {
         _drawableNodes.add(c);
       }
@@ -297,7 +291,7 @@ class ActorArtboard {
   }
 
   void sortDrawOrder() {
-    _drawableNodes.sort((a, b) => a.drawOrder.compareTo(b.drawOrder));
+    _drawableNodes.sort((a, b) => a.drawOrder!.compareTo(b.drawOrder!));
     for (int i = 0; i < _drawableNodes.length; i++) {
       _drawableNodes[i].drawIndex = i;
     }
@@ -310,13 +304,13 @@ class ActorArtboard {
     if ((_flags & ActorFlags.isDirty) != 0) {
       const int maxSteps = 100;
       int step = 0;
-      int count = _dependencyOrder.length;
+      int count = _dependencyOrder!.length;
       while ((_flags & ActorFlags.isDirty) != 0 && step < maxSteps) {
         _flags &= ~ActorFlags.isDirty;
         // Track dirt depth here so that if something else marks
         // dirty, we restart.
         for (int i = 0; i < count; i++) {
-          ActorComponent component = _dependencyOrder[i];
+          ActorComponent component = _dependencyOrder![i]!;
           _dirtDepth = i;
           int d = component.dirtMask;
           if (d == 0) {
@@ -352,9 +346,9 @@ class ActorArtboard {
     _color[2] = color[2];
     _color[3] = color[3];
 
-    StreamReader block;
+    StreamReader? block;
     while ((block = reader.readNextBlock(blockTypesMap)) != null) {
-      switch (block.blockType) {
+      switch (block!.blockType) {
         case BlockTypes.components:
           readComponentsBlock(block);
           break;
@@ -367,7 +361,7 @@ class ActorArtboard {
 
   void readComponentsBlock(StreamReader block) {
     int componentCount = block.readUint16Length();
-    _components = List<ActorComponent>(componentCount + 1);
+    _components = List<ActorComponent?>.filled(componentCount + 1, null);
     _components[0] = _root;
 
     // Guaranteed from the exporter to be in index order.
@@ -375,11 +369,11 @@ class ActorArtboard {
     for (int componentIndex = 1, end = componentCount + 1;
         componentIndex < end;
         componentIndex++) {
-      StreamReader nodeBlock = block.readNextBlock(blockTypesMap);
+      StreamReader? nodeBlock = block.readNextBlock(blockTypesMap);
       if (nodeBlock == null) {
         break;
       }
-      ActorComponent component;
+      ActorComponent? component;
       switch (nodeBlock.blockType) {
         case BlockTypes.actorNode:
           component = ActorNode.read(this, nodeBlock, null);
@@ -405,7 +399,7 @@ class ActorArtboard {
         case BlockTypes.actorImage:
           component = ActorImage.read(this, nodeBlock, actor.makeImageNode());
           if ((component as ActorImage).textureIndex > actor.maxTextureIndex) {
-            actor.maxTextureIndex = (component as ActorImage).textureIndex;
+            actor.maxTextureIndex = component.textureIndex;
           }
           break;
 
@@ -587,13 +581,13 @@ class ActorArtboard {
       }
     }
 
-    _nodes = List<ActorNode>(_nodeCount);
+    _nodes = List<ActorNode?>.filled(_nodeCount, null);
     _nodes[0] = _root;
   }
 
   void initializeGraphics() {
     // Iterate components as some drawables may end up in other layers.
-    for (final ActorComponent component in _components) {
+    for (final ActorComponent? component in _components) {
       if (component is ActorDrawable) {
         component.initializeGraphics();
       }
@@ -604,10 +598,10 @@ class ActorArtboard {
     // Read animations.
     int animationCount = block.readUint16Length();
     _animations = <ActorAnimation>[];
-    StreamReader animationBlock;
+    StreamReader? animationBlock;
 
     while ((animationBlock = block.readNextBlock(blockTypesMap)) != null) {
-      switch (animationBlock.blockType) {
+      switch (animationBlock!.blockType) {
         case BlockTypes.animation:
           ActorAnimation anim =
               ActorAnimation.read(animationBlock, _components);
@@ -623,12 +617,12 @@ class ActorArtboard {
     return AABB.fromValues(minX, minY, minX + _width, minY + height);
   }
 
-  AABB computeAABB() {
+  AABB? computeAABB() {
     if (_drawableNodes == null) {
       return AABB();
     }
 
-    AABB aabb;
+    AABB? aabb;
     for (final ActorDrawable drawable in _drawableNodes) {
       // This is the axis aligned bounding box in the space
       // of the parent (this case our shape).

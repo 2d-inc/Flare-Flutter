@@ -29,8 +29,6 @@ class ActorStar extends ActorProceduralPath {
 
   static ActorStar read(
       ActorArtboard artboard, StreamReader reader, ActorStar component) {
-    component ??= ActorStar();
-
     ActorNode.read(artboard, reader, component);
 
     component.width = reader.readFloat32("width");

@@ -28,8 +28,6 @@ class ActorRectangle extends ActorProceduralPath {
 
   static ActorRectangle read(
       ActorArtboard artboard, StreamReader reader, ActorRectangle component) {
-    component ??= ActorRectangle();
-
     ActorNode.read(artboard, reader, component);
 
     component.width = reader.readFloat32("width");

@@ -20,9 +20,9 @@ class ActorNodeSolo extends ActorNode {
 
   void setActiveChildIndex(int idx) {
     if (children != null) {
-      _activeChildIndex = min(children.length, max(0, idx));
-      for (int i = 0; i < children.length; i++) {
-        var child = children[i];
+      _activeChildIndex = min(children!.length, max(0, idx));
+      for (int i = 0; i < children!.length; i++) {
+        var child = children![i];
         bool cv = i != (_activeChildIndex - 1);
         if (child is ActorNode) {
           child.collapsedVisibility = cv; // Setter
@@ -44,7 +44,7 @@ class ActorNodeSolo extends ActorNode {
   }
 
   static ActorNodeSolo read(
-      ActorArtboard artboard, StreamReader reader, ActorNodeSolo node) {
+      ActorArtboard artboard, StreamReader reader, ActorNodeSolo? node) {
     node ??= ActorNodeSolo();
 
     ActorNode.read(artboard, reader, node);

@@ -10,7 +10,7 @@ class JSONBlockReader extends JSONReader {
   JSONBlockReader.fromObject(this.blockType, Map object) : super(object);
 
   @override
-  JSONBlockReader readNextBlock(Map<String, int> blockTypes) {
+  JSONBlockReader? readNextBlock(Map<String, int> blockTypes) {
     if (isEOF()) {
       return null;
     }
@@ -33,14 +33,14 @@ class JSONBlockReader extends JSONReader {
     if (next is Map) {
       dynamic c = context.first;
       if (c is Map) {
-        return blockTypes[nextKey]/*!*/;
+        return blockTypes[nextKey]!;
       } else if (c is List) {
         // Objects are serialized with "type" property.
-        return blockTypes[next["type"]]/*!*/;
+        return blockTypes[next["type"]]!;
       }
     } else if (next is List) {
       // Arrays are serialized as "type": [Array].
-      return blockTypes[nextKey]/*!*/;
+      return blockTypes[nextKey]!;
     }
     // Unknown type.
     return 0;

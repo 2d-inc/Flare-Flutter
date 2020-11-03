@@ -19,8 +19,6 @@ class ActorTriangle extends ActorProceduralPath {
 
   static ActorTriangle read(
       ActorArtboard artboard, StreamReader reader, ActorTriangle component) {
-    component ??= ActorTriangle();
-
     ActorNode.read(artboard, reader, component);
 
     component.width = reader.readFloat32("width");

@@ -11,7 +11,7 @@ class ActorTranslationConstraint extends ActorAxisConstraint {
   ActorTranslationConstraint() : super();
 
   static ActorTranslationConstraint read(ActorArtboard artboard,
-      StreamReader reader, ActorTranslationConstraint component) {
+      StreamReader reader, ActorTranslationConstraint? component) {
     component ??= ActorTranslationConstraint();
     ActorAxisConstraint.read(artboard, reader, component);
 
@@ -27,11 +27,11 @@ class ActorTranslationConstraint extends ActorAxisConstraint {
 
   @override
   void constrain(ActorNode node) {
-    ActorNode t = target as ActorNode;
-    ActorNode p = parent;
-    ActorNode grandParent = p.parent;
+    ActorNode? t = target as ActorNode?;
+    ActorNode p = parent!;
+    ActorNode? grandParent = p.parent;
 
-    Mat2D transformA = parent.worldTransform;
+    Mat2D transformA = parent!.worldTransform;
     Vec2D translationA = Vec2D.fromValues(transformA[4], transformA[5]);
     Vec2D translationB = Vec2D();
 
@@ -40,7 +40,7 @@ class ActorTranslationConstraint extends ActorAxisConstraint {
     } else {
       Mat2D transformB = Mat2D.clone(t.worldTransform);
       if (sourceSpace == TransformSpace.local) {
-        ActorNode sourceGrandParent = t.parent;
+        ActorNode? sourceGrandParent = t.parent;
         if (sourceGrandParent != null) {
           Mat2D inverse = Mat2D();
           Mat2D.invert(inverse, sourceGrandParent.worldTransform);
@@ -56,7 +56,7 @@ class ActorTranslationConstraint extends ActorAxisConstraint {
       } else {
         translationB[0] *= scaleX;
         if (offset) {
-          translationB[0] += parent.translation[0];
+          translationB[0] += parent!.translation[0];
         }
       }
 
@@ -66,7 +66,7 @@ class ActorTranslationConstraint extends ActorAxisConstraint {
       } else {
         translationB[1] *= scaleY;
         if (offset) {
-          translationB[1] += parent.translation[1];
+          translationB[1] += parent!.translation[1];
         }
       }
 
@@ -83,7 +83,7 @@ class ActorTranslationConstraint extends ActorAxisConstraint {
     if (clampLocal) {
       // Apply min max in local space, so transform to local coordinates first.
       Mat2D temp = Mat2D();
-      Mat2D.invert(temp, grandParent.worldTransform);
+      Mat2D.invert(temp, grandParent!.worldTransform);
       // Get our target world coordinates in parent local.
       Vec2D.transformMat2D(translationB, translationB, temp);
     }
@@ -102,7 +102,7 @@ class ActorTranslationConstraint extends ActorAxisConstraint {
     if (clampLocal) {
       // Transform back to world.
       Vec2D.transformMat2D(
-          translationB, translationB, grandParent.worldTransform);
+          translationB, translationB, grandParent!.worldTransform);
     }
 
     double ti = 1.0 - strength;

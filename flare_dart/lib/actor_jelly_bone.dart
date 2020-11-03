@@ -12,7 +12,7 @@ class ActorJellyBone extends ActorBoneBase {
   }
 
   static ActorJellyBone read(
-      ActorArtboard artboard, StreamReader reader, ActorJellyBone node) {
+      ActorArtboard artboard, StreamReader reader, ActorJellyBone? node) {
     node ??= ActorJellyBone();
 
     // The Jelly Bone has a specialized read that doesn't go down the typical

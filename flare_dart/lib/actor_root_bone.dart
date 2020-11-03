@@ -5,9 +5,9 @@ import "actor_node.dart";
 import "stream_reader.dart";
 
 class ActorRootBone extends ActorNode {
-  ActorBone _firstBone;
+  ActorBone? _firstBone;
 
-  ActorBone get firstBone {
+  ActorBone? get firstBone {
     return _firstBone;
   }
 
@@ -17,7 +17,7 @@ class ActorRootBone extends ActorNode {
     if (children == null) {
       return;
     }
-    for (final ActorComponent component in children) {
+    for (final ActorComponent component in children!) {
       if (component is ActorBone) {
         _firstBone = component;
         return;
@@ -33,7 +33,7 @@ class ActorRootBone extends ActorNode {
   }
 
   static ActorRootBone read(
-      ActorArtboard artboard, StreamReader reader, ActorRootBone node) {
+      ActorArtboard artboard, StreamReader reader, ActorRootBone? node) {
     node ??= ActorRootBone();
     ActorNode.read(artboard, reader, node);
     return node;

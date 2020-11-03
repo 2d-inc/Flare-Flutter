@@ -12,7 +12,7 @@ abstract class JSONReader implements StreamReader {
     _context.addFirst(_readObject);
   }
 
-  T readProp<T>(String label) {
+  T? readProp<T>(String label) {
     dynamic head = _context.first;
     if (head is Map) {
       dynamic prop = head[label];
@@ -35,7 +35,7 @@ abstract class JSONReader implements StreamReader {
 
   @override
   double readFloat32(String label) {
-    num f = readProp<num>(label);
+    num? f = readProp<num>(label);
     return f?.toDouble() ?? 0.0;
   }
 
@@ -48,7 +48,7 @@ abstract class JSONReader implements StreamReader {
   }
 
   void _readArray(List ar, String label) {
-    List array = readProp<List>(label);
+    List? array = readProp<List>(label);
     if (array == null) {
       return;
     }
@@ -60,7 +60,7 @@ abstract class JSONReader implements StreamReader {
 
   @override
   double readFloat64(String label) {
-    num f = readProp<num>(label);
+    num? f = readProp<num>(label);
     return f?.toDouble() ?? 0;
   }
 

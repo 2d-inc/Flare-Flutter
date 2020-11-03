@@ -25,7 +25,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
   final TransformComponents _componentsB = TransformComponents();
 
   static ActorRotationConstraint read(ActorArtboard artboard,
-      StreamReader reader, ActorRotationConstraint component) {
+      StreamReader reader, ActorRotationConstraint? component) {
     component ??= ActorRotationConstraint();
     ActorTargetedConstraint.read(artboard, reader, component);
     component._copy = reader.readBool("copy");
@@ -51,10 +51,10 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
 
   @override
   void constrain(ActorNode node) {
-    ActorNode target = this.target as ActorNode;
-    ActorNode grandParent = parent.parent;
+    ActorNode? target = this.target as ActorNode?;
+    ActorNode? grandParent = parent!.parent;
 
-    Mat2D transformA = parent.worldTransform;
+    Mat2D transformA = parent!.worldTransform;
     Mat2D transformB = Mat2D();
     Mat2D.decompose(transformA, _componentsA);
     if (target == null) {
@@ -68,7 +68,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
     } else {
       Mat2D.copy(transformB, target.worldTransform);
       if (_sourceSpace == TransformSpace.local) {
-        ActorNode sourceGrandParent = target.parent;
+        ActorNode? sourceGrandParent = target.parent;
         if (sourceGrandParent != null) {
           Mat2D inverse = Mat2D();
           if (!Mat2D.invert(inverse, sourceGrandParent.worldTransform)) {
@@ -85,7 +85,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
       } else {
         _componentsB.rotation *= _scale;
         if (_offset) {
-          _componentsB.rotation += parent.rotation;
+          _componentsB.rotation += parent!.rotation;
         }
       }
 
@@ -107,7 +107,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
       // Apply min max in local space, so transform to local coordinates first.
       Mat2D.compose(transformB, _componentsB);
       Mat2D inverse = Mat2D();
-      if (!Mat2D.invert(inverse, grandParent.worldTransform)) {
+      if (!Mat2D.invert(inverse, grandParent!.worldTransform)) {
         return;
       }
       Mat2D.multiply(transformB, inverse, transformB);
@@ -122,7 +122,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
     if (clampLocal) {
       // Transform back to world.
       Mat2D.compose(transformB, _componentsB);
-      Mat2D.multiply(transformB, grandParent.worldTransform, transformB);
+      Mat2D.multiply(transformB, grandParent!.worldTransform, transformB);
       Mat2D.decompose(transformB, _componentsB);
     }
 
@@ -142,7 +142,7 @@ class ActorRotationConstraint extends ActorTargetedConstraint {
     _componentsB.scaleY = _componentsA.scaleY;
     _componentsB.skew = _componentsA.skew;
 
-    Mat2D.compose(parent.worldTransform, _componentsB);
+    Mat2D.compose(parent!.worldTransform, _componentsB);
   }
 
   @override

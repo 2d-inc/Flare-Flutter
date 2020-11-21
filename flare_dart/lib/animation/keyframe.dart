@@ -1,6 +1,8 @@
 import "dart:collection";
 import "dart:typed_data";
 
+import 'package:flare_dart/custom_property.dart';
+
 import "../actor_artboard.dart";
 import "../actor_blur.dart";
 import "../actor_bone_base.dart";
@@ -93,8 +95,8 @@ class KeyFrameActiveChild extends KeyFrame {
 class KeyFrameBooleanProperty extends KeyFrame {
   @override
   void apply(ActorComponent component, double mix) {
-    // CustomBooleanProperty prop = component as CustomBooleanProperty;
-    // prop.value = _value;
+    var prop = component as CustomProperty<bool>;
+    prop.value = _value;
   }
 
   @override
@@ -297,9 +299,8 @@ class KeyFrameFillColor extends KeyFrameWithInterpolation {
 class KeyFrameFloatProperty extends KeyFrameNumeric {
   @override
   void setValue(ActorComponent component, double value, double mix) {
-    // TODO
-    // CustomFloatProperty node = component as CustomFloatProperty;
-    // node.value = node.value * (1.0 - mix) + value * mix;
+    var node = component as CustomProperty<double>;
+    node.value = node.value * (1.0 - mix) + value * mix;
   }
 
   static KeyFrame read(StreamReader reader, ActorComponent component) {
@@ -524,7 +525,7 @@ abstract class KeyFrameInt extends KeyFrameWithInterpolation {
   @override
   void applyInterpolation(
       ActorComponent component, double time, KeyFrame toFrame, double mix) {
-    KeyFrameNumeric to = toFrame as KeyFrameNumeric;
+    var to = toFrame as KeyFrameInt;
     double f = (time - _time) / (to._time - _time);
     if (_interpolator != null) {
       f = _interpolator.getEasedMix(f);
@@ -546,9 +547,8 @@ abstract class KeyFrameInt extends KeyFrameWithInterpolation {
 class KeyFrameIntProperty extends KeyFrameInt {
   @override
   void setValue(ActorComponent component, double value, double mix) {
-    // TODO
-    //CustomIntProperty node = component as CustomIntProperty;
-    //node.value = (node.value * (1.0 - mix) + value * mix).round();
+    var node = component as CustomProperty<int>;
+    node.value = (node.value * (1.0 - mix) + value * mix).round();
   }
 
   static KeyFrame read(StreamReader reader, ActorComponent component) {
@@ -1054,8 +1054,8 @@ class KeyFrameShapeWidth extends KeyFrameNumeric {
 class KeyFrameStringProperty extends KeyFrame {
   @override
   void apply(ActorComponent component, double mix) {
-    // CustomStringProperty prop = component as CustomStringProperty;
-    // prop.value = _value;
+    var prop = component as CustomProperty<String>;
+    prop.value = _value;
   }
 
   @override

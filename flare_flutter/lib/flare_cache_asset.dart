@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 
 import 'asset_provider.dart';
@@ -25,17 +24,19 @@ class FlareCacheAsset extends CacheAsset {
   }
 
   @override
-  void load(Cache cache, AssetProvider assetProvider) {
-    super.load(cache, assetProvider);
-    assetProvider.load().then((ByteData data) {
-      if (useCompute) {
-        compute(FlutterActor.loadFromByteData, data)
-            .then((FlutterActor actor) => loadedActor(actor, assetProvider));
-      } else {
-        FlutterActor.loadFromByteData(data)
-            .then((FlutterActor actor) => loadedActor(actor, assetProvider));
-      }
-    });
+  Future<void> load(Cache cache, AssetProvider assetProvider) async {
+    await super.load(cache, assetProvider);
+
+    final data = await assetProvider.load();
+    if (data == null) {
+      print("Failed to load flare file from $assetProvider.");
+      return;
+    }
+
+    final actor = useCompute
+        ? await compute(FlutterActor.loadFromByteData, data)
+        : await FlutterActor.loadFromByteData(data);
+    loadedActor(actor, assetProvider);
   }
 
   @override

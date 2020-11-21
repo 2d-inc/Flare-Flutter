@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:pedantic/pedantic.dart';
+
 import 'asset_provider.dart';
 import 'cache_asset.dart';
 
@@ -55,7 +57,7 @@ abstract class Cache<T extends CacheAsset> {
     assert(asset != null);
 
     _assets[assetProvider] = asset;
-    asset.load(this, assetProvider);
+    unawaited(asset.load(this, assetProvider));
     return asset.isAvailable ? asset : await asset.onLoaded() as T;
   }
 

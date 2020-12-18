@@ -1,8 +1,10 @@
 import 'dart:math';
 import 'package:flare_dart/math/mat2d.dart';
+import 'package:flare_dart/math/vec2d.dart';
 import 'flare.dart';
 import 'flare_actor.dart';
 import 'flare_controller.dart';
+import 'dart:ui';
 
 /// [FlareControls] is a concrete implementation of the [FlareController].
 ///
@@ -47,8 +49,19 @@ class FlareControls extends FlareController {
     }
   }
 
+  // Storage for our matrix to get global Flutter coordinates into Flare world coordinates.
+  Mat2D globalToFlareWorld = Mat2D();
+  List<String> deepHitTest(Offset point) {
+    Vec2D pointGlobal = Vec2D.fromValues(point.dx, point.dy);
+    Vec2D pointFlare = Vec2D();
+    Vec2D.transformMat2D(pointFlare, pointGlobal, globalToFlareWorld);
+    return _artboard.deepHitTest(Offset(pointFlare[0], pointFlare[1]));
+  }
+
   @override
-  void setViewTransform(Mat2D viewTransform) {}
+  void setViewTransform(Mat2D viewTransform) {
+    Mat2D.invert(globalToFlareWorld, viewTransform);
+  }
 
   /// Advance all the [FlareAnimationLayer]s that are currently controlled
   /// by this object, and mixes them accordingly.

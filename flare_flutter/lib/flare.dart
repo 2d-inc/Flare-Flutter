@@ -67,6 +67,7 @@ abstract class FlutterActorDrawable {
   void onAntialiasChanged(bool useAA);
   void onBlendModeChanged(ui.BlendMode blendMode);
 
+  List<String> hitTest(ui.Offset point) => [];
   void draw(ui.Canvas canvas);
 
   List<List<ClipShape>> get clipShapes;
@@ -290,6 +291,14 @@ class FlutterActorShape extends ActorShape with FlutterActorDrawable {
 
   ui.Path getRenderPath(ui.Canvas canvas) {
     return path;
+  }
+
+  @override
+  List<String> hitTest(ui.Offset point) {
+    if (path.contains(point) && (fills != null)) {
+      return [name];
+    }
+    return [];
   }
 
   @override
@@ -860,6 +869,22 @@ class FlutterActorArtboard extends ActorArtboard {
         }
       }
     }
+  }
+
+  List<String> deepHitTest(ui.Offset point) {
+    List<String> nodeNameList = [];
+    if (drawableNodes != null) {
+      for (final ActorDrawable drawable in drawableNodes) {
+        if (drawable is FlutterActorDrawable) {
+          List<String> nodeNames =
+              (drawable as FlutterActorDrawable).hitTest(point);
+          if (nodeNames.isNotEmpty) {
+            nodeNameList.addAll(nodeNames);
+          }
+        }
+      }
+    }
+    return nodeNameList;
   }
 
   void draw(ui.Canvas canvas) {

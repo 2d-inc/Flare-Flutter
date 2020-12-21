@@ -17,6 +17,7 @@ class FlareControls extends FlareController {
 
   /// The current [ActorAnimation].
   String _animationName;
+  List<String> _toBeRemoved = [];
   final double _mixSeconds = 0.1;
 
   /// The [FlareAnimationLayer]s currently active.
@@ -49,6 +50,10 @@ class FlareControls extends FlareController {
     }
   }
 
+  void stop(String name) {
+    _toBeRemoved.add(name);
+  }
+
   // Storage for our matrix to get global Flutter coordinates into Flare world coordinates.
   Mat2D globalToFlareWorld = Mat2D();
   List<String> deepHitTest(Offset point) {
@@ -72,6 +77,13 @@ class FlareControls extends FlareController {
   bool advance(FlutterActorArtboard artboard, double elapsed) {
     /// List of completed animations during this frame.
     List<FlareAnimationLayer> completed = [];
+    //remove all stopped animations
+    for (final String animationName in _toBeRemoved) {
+      _animationLayers.removeWhere((animation) =>
+            animation.name == animationName);
+      onCompleted(animationName);
+    }
+    _toBeRemoved.clear();
 
     /// This loop will mix all the currently active animation layers so that,
     /// if an animation is played on top of the current one, it'll smoothly mix

@@ -12,30 +12,30 @@ import 'actor_shadow.dart';
 
 class ActorLayerEffectRendererMask {
   final ActorMask mask;
-  final List<ActorDrawable> drawables = [];
+  final List<ActorDrawable?> drawables = [];
   ActorLayerEffectRendererMask(this.mask);
 }
 
 class ActorLayerEffectRenderer extends ActorDrawable {
-  final List<ActorDrawable> _drawables = <ActorDrawable>[];
-  List<ActorDrawable> get drawables => _drawables;
+  final List<ActorDrawable?> _drawables = <ActorDrawable?>[];
+  List<ActorDrawable?> get drawables => _drawables;
   final List<ActorLayerEffectRendererMask> _renderMasks = [];
   List<ActorLayerEffectRendererMask> get renderMasks => _renderMasks;
-  ActorBlur _blur;
-  List<ActorDropShadow> _dropShadows;
-  List<ActorInnerShadow> _innerShadows;
+  ActorBlur? _blur;
+  List<ActorDropShadow>? _dropShadows;
+  List<ActorInnerShadow>? _innerShadows;
 
-  ActorBlur get blur => _blur;
-  List<ActorDropShadow> get dropShadows => _dropShadows;
-  List<ActorInnerShadow> get innerShadows => _innerShadows;
+  ActorBlur? get blur => _blur;
+  List<ActorDropShadow>? get dropShadows => _dropShadows;
+  List<ActorInnerShadow>? get innerShadows => _innerShadows;
 
   void sortDrawables() {
     _drawables
-        .sort((ActorDrawable a, ActorDrawable b) => a.drawOrder - b.drawOrder);
+        .sort((ActorDrawable? a, ActorDrawable? b) => a!.drawOrder! - b!.drawOrder!);
   }
 
   @override
-  void onParentChanged(ActorNode from, ActorNode to) {
+  void onParentChanged(ActorNode? from, ActorNode? to) {
     super.onParentChanged(from, to);
     from?.findLayerEffect();
     to?.findLayerEffect();
@@ -52,32 +52,32 @@ class ActorLayerEffectRenderer extends ActorDrawable {
 
   @override
   AABB computeAABB() {
-    return artboard.artboardAABB();
+    return artboard!.artboardAABB();
   }
 
   @override
   ActorLayerEffectRenderer makeInstance(ActorArtboard resetArtboard) {
     ActorLayerEffectRenderer instanceNode =
-        resetArtboard.actor.makeLayerEffectRenderer();
+        resetArtboard.actor!.makeLayerEffectRenderer();
     instanceNode.copyDrawable(this, resetArtboard);
     return instanceNode;
   }
 
   void findEffects() {
-    var blurs = parent.children
+    var blurs = parent!.children!
         .where((child) => child is ActorBlur && child is! ActorShadow)
         .toList(growable: false);
     _blur = blurs.isNotEmpty ? blurs.first as ActorBlur : null;
     _dropShadows =
-        parent.children.whereType<ActorDropShadow>().toList(growable: false);
+        parent!.children!.whereType<ActorDropShadow>().toList(growable: false);
     _innerShadows =
-        parent.children.whereType<ActorInnerShadow>().toList(growable: false);
+        parent!.children!.whereType<ActorInnerShadow>().toList(growable: false);
   }
 
   @override
-  void resolveComponentIndices(List<ActorComponent> components) {
+  void resolveComponentIndices(List<ActorComponent?> components) {
     super.resolveComponentIndices(components);
-    parent.findLayerEffect();
+    parent!.findLayerEffect();
   }
 
   @override
@@ -112,7 +112,7 @@ class ActorLayerEffectRenderer extends ActorDrawable {
 
   void computeMasks() {
     _renderMasks.clear();
-    var masks = parent.children.whereType<ActorMask>().toList(growable: false);
+    var masks = parent!.children!.whereType<ActorMask>().toList(growable: false);
 
     for (final mask in masks) {
       var renderMask = ActorLayerEffectRendererMask(mask);
@@ -144,14 +144,14 @@ class ActorLayerEffectRenderer extends ActorDrawable {
   }
 }
 
-void _computeLayerNode(ActorDrawable drawable) {
-  ActorNode parent = drawable;
+void _computeLayerNode(ActorDrawable? drawable) {
+  ActorNode? parent = drawable;
   while (parent != null) {
     if (parent.layerEffect != null) {
-      drawable.layerEffectRenderParent = parent;
+      drawable!.layerEffectRenderParent = parent;
       return;
     }
     parent = parent.parent;
   }
-  drawable.layerEffectRenderParent = null;
+  drawable!.layerEffectRenderParent = null;
 }

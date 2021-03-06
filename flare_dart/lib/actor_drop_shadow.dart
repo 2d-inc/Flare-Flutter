@@ -10,7 +10,7 @@ class ActorDropShadow extends ActorShadow {
 
   @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ActorDropShadow instanceShape = resetArtboard.actor.makeDropShadow();
+    ActorDropShadow instanceShape = resetArtboard.actor!.makeDropShadow();
     instanceShape.copyShadow(this, resetArtboard);
     return instanceShape;
   }

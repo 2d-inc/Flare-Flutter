@@ -4,39 +4,39 @@ import "transform_components.dart";
 import "vec2d.dart";
 
 class Mat2D {
-  Float32List _buffer;
+  Float32List? _buffer;
 
-  Float32List get values {
+  Float32List? get values {
     return _buffer;
   }
 
   Float64List get mat4 {
     return Float64List.fromList([
-      _buffer[0],
-      _buffer[1],
+      _buffer![0],
+      _buffer![1],
       0.0,
       0.0,
-      _buffer[2],
-      _buffer[3],
+      _buffer![2],
+      _buffer![3],
       0.0,
       0.0,
       0.0,
       0.0,
       1.0,
       0.0,
-      _buffer[4],
-      _buffer[5],
+      _buffer![4],
+      _buffer![5],
       0.0,
       1.0
     ]);
   }
 
   double operator [](int index) {
-    return _buffer[index];
+    return _buffer![index];
   }
 
   void operator []=(int index, double value) {
-    _buffer[index] = value;
+    _buffer![index] = value;
   }
 
   Mat2D() {
@@ -44,7 +44,7 @@ class Mat2D {
   }
 
   Mat2D.clone(Mat2D copy) {
-    _buffer = Float32List.fromList(copy.values);
+    _buffer = Float32List.fromList(copy.values!);
   }
 
   static void fromRotation(Mat2D o, double rad) {
@@ -123,7 +123,7 @@ class Mat2D {
     o[5] = a[5];
   }
 
-  static bool invert(Mat2D o, Mat2D a) {
+  static bool invert(Mat2D? o, Mat2D a) {
     double aa = a[0], ab = a[1], ac = a[2], ad = a[3], atx = a[4], aty = a[5];
 
     double det = aa * ad - ab * ac;
@@ -132,7 +132,7 @@ class Mat2D {
     }
     det = 1.0 / det;
 
-    o[0] = ad * det;
+    o![0] = ad * det;
     o[1] = -ab * det;
     o[2] = -ac * det;
     o[3] = aa * det;

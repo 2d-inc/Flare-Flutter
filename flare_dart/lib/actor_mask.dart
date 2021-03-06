@@ -21,15 +21,14 @@ HashMap<int, MaskType> maskTypeLookup = HashMap<int, MaskType>.fromIterables([
 ]);
 
 class ActorMask extends ActorLayerEffect {
-  ActorNode _source;
-  int _sourceIdx;
-  MaskType _maskType;
-  ActorNode get source => _source;
-  MaskType get maskType => _maskType;
+  ActorNode? _source;
+  int? _sourceIdx;
+  MaskType? _maskType;
+  ActorNode? get source => _source;
+  MaskType? get maskType => _maskType;
 
   static ActorMask read(
       ActorArtboard artboard, StreamReader reader, ActorMask component) {
-    component ??= ActorMask();
     ActorLayerEffect.read(artboard, reader, component);
     component._sourceIdx = reader.readId("source");
     component._maskType =
@@ -45,10 +44,10 @@ class ActorMask extends ActorLayerEffect {
   }
 
   @override
-  void resolveComponentIndices(List<ActorComponent> components) {
+  void resolveComponentIndices(List<ActorComponent?> components) {
     super.resolveComponentIndices(components);
-    
-    _source = components[_sourceIdx] as ActorNode;
+
+    _source = components[_sourceIdx!] as ActorNode?;
   }
 
   @override

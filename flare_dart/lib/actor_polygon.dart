@@ -27,8 +27,6 @@ class ActorPolygon extends ActorProceduralPath {
 
   static ActorPolygon read(
       ActorArtboard artboard, StreamReader reader, ActorPolygon component) {
-    component ??= ActorPolygon();
-
     ActorNode.read(artboard, reader, component);
 
     component.width = reader.readFloat32("width");
@@ -54,6 +52,6 @@ class ActorPolygon extends ActorProceduralPath {
 
   bool get isClosed => true;
   bool get doesDraw => !renderCollapsed;
-  double get radiusX => width / 2;
-  double get radiusY => height / 2;
+  double get radiusX => width! / 2;
+  double get radiusY => height! / 2;
 }

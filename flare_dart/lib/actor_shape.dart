@@ -16,8 +16,8 @@ class ActorShape extends ActorDrawable {
   bool _transformAffectsStroke = false;
   bool get transformAffectsStroke => _transformAffectsStroke;
 
-  ActorFill get fill => _fills.isNotEmpty ? _fills.first : null;
-  ActorStroke get stroke => _strokes.isNotEmpty ? _strokes.first : null;
+  ActorFill? get fill => _fills.isNotEmpty ? _fills.first : null;
+  ActorStroke? get stroke => _strokes.isNotEmpty ? _strokes.first : null;
   List<ActorFill> get fills => _fills;
   List<ActorStroke> get strokes => _strokes;
   List<ActorBasePath> get paths => _paths;
@@ -31,7 +31,7 @@ class ActorShape extends ActorDrawable {
   static ActorShape read(
       ActorArtboard artboard, StreamReader reader, ActorShape component) {
     ActorDrawable.read(artboard, reader, component);
-    if (artboard.actor.version >= 22) {
+    if (artboard.actor!.version >= 22) {
       component._transformAffectsStroke =
           reader.readBool("transformAffectsStroke");
     }
@@ -41,7 +41,7 @@ class ActorShape extends ActorDrawable {
 
   @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ActorShape instanceShape = resetArtboard.actor.makeShapeNode(this);
+    ActorShape instanceShape = resetArtboard.actor!.makeShapeNode(this);
     instanceShape.copyShape(this, resetArtboard);
     return instanceShape;
   }
@@ -53,8 +53,8 @@ class ActorShape extends ActorDrawable {
 
   @override
   AABB computeAABB() {
-    AABB aabb;
-    for (final List<ClipShape> clips in clipShapes) {
+    AABB? aabb;
+    for (final List<ClipShape> clips in clipShapes!) {
       for (final ClipShape clipShape in clips) {
         AABB bounds = clipShape.shape.computeAABB();
         if (bounds == null) {
@@ -82,7 +82,7 @@ class ActorShape extends ActorDrawable {
       return aabb;
     }
 
-    for (final ActorComponent component in children) {
+    for (final ActorComponent component in children!) {
       if (component is! ActorBasePath) {
         continue;
       }

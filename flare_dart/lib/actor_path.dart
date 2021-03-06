@@ -11,19 +11,19 @@ import "path_point.dart";
 import "stream_reader.dart";
 
 abstract class ActorBasePath {
-  ActorShape _shape;
-  ActorShape get shape => _shape;
+  ActorShape? _shape;
+  ActorShape? get shape => _shape;
   bool _isRootPath = false;
   bool get isRootPath => _isRootPath;
-  List<PathPoint> get points;
-  ActorNode get parent;
+  List<PathPoint?>? get points;
+  ActorNode? get parent;
   void invalidatePath();
   bool get isPathInWorldSpace => false;
   Mat2D get pathTransform;
   Mat2D get transform;
   Mat2D get worldTransform;
-  List<List<ActorClip>> get allClips;
-  List<PathPoint> get deformedPoints => points;
+  List<List<ActorClip?>?> get allClips;
+  List<PathPoint?>? get deformedPoints => points;
 
   AABB getPathAABB() {
     double minX = double.maxFinite;
@@ -44,11 +44,11 @@ abstract class ActorBasePath {
     if (isPathInWorldSpace) {
       //  convert the path coordinates into local parent space.
       localTransform = Mat2D();
-      Mat2D.invert(localTransform, parent.worldTransform);
+      Mat2D.invert(localTransform, parent!.worldTransform);
     } else if (!_isRootPath) {
       localTransform = Mat2D();
       // Path isn't root, so get transform in shape space.
-      if (Mat2D.invert(localTransform, shape.worldTransform)) {
+      if (Mat2D.invert(localTransform, shape!.worldTransform)) {
         Mat2D.multiply(localTransform, localTransform, worldTransform);
       }
     } else {
@@ -77,7 +77,7 @@ abstract class ActorBasePath {
   void invalidateDrawable() {
     invalidatePath();
     if (shape != null) {
-      shape.invalidateShape();
+      shape!.invalidateShape();
     }
   }
 
@@ -87,9 +87,9 @@ abstract class ActorBasePath {
     double maxX = -double.maxFinite;
     double maxY = -double.maxFinite;
 
-    List<PathPoint> renderPoints = points;
-    for (final PathPoint point in renderPoints) {
-      Vec2D t = point.translation;
+    List<PathPoint?> renderPoints = points!;
+    for (final PathPoint? point in renderPoints) {
+      Vec2D t = point!.translation;
       double x = t[0];
       double y = t[1];
       if (x < minX) {
@@ -145,15 +145,15 @@ abstract class ActorBasePath {
 
   void updateShape() {
     if (_shape != null) {
-      _shape.removePath(this);
+      _shape!.removePath(this);
     }
-    ActorNode possibleShape = parent;
+    ActorNode? possibleShape = parent;
     while (possibleShape != null && possibleShape is! ActorShape) {
       possibleShape = possibleShape.parent;
     }
     if (possibleShape != null) {
       _shape = possibleShape as ActorShape;
-      _shape.addPath(this);
+      _shape!.addPath(this);
     } else {
       _shape = null;
     }
@@ -166,23 +166,23 @@ abstract class ActorBasePath {
 }
 
 abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
-  double _width;
-  double _height;
+  double? _width;
+  double? _height;
 
-  double get width => _width;
-  double get height => _height;
+  double? get width => _width;
+  double? get height => _height;
 
   @override
   Mat2D get pathTransform => worldTransform;
 
-  set width(double w) {
+  set width(double? w) {
     if (w != _width) {
       _width = w;
       invalidateDrawable();
     }
   }
 
-  set height(double w) {
+  set height(double? w) {
     if (w != _height) {
       _height = w;
       invalidateDrawable();
@@ -200,16 +200,16 @@ abstract class ActorProceduralPath extends ActorNode with ActorBasePath {
     super.onDirty(dirt);
     // We transformed, make sure parent is invalidated.
     if (shape != null) {
-      shape.invalidateShape();
+      shape!.invalidateShape();
     }
   }
 }
 
 class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
-  bool _isHidden;
-  bool _isClosed;
-  List<PathPoint> _points;
-  Float32List vertexDeform;
+  bool? _isHidden;
+  bool? _isClosed;
+  List<PathPoint?>? _points;
+  Float32List? vertexDeform;
 
   @override
   bool get isPathInWorldSpace => isConnectedToBones;
@@ -225,23 +225,23 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
   static const int vertexDeformDirty = 1 << 1;
 
   @override
-  List<PathPoint> get points => _points;
+  List<PathPoint?>? get points => _points;
 
   @override
-  List<PathPoint> get deformedPoints {
+  List<PathPoint?>? get deformedPoints {
     if (!isConnectedToBones || skin == null) {
       return _points;
     }
 
-    Float32List boneMatrices = skin.boneMatrices;
+    Float32List? boneMatrices = skin!.boneMatrices;
     List<PathPoint> deformed = <PathPoint>[];
-    for (final PathPoint point in _points) {
-      deformed.add(point.skin(worldTransform, boneMatrices));
+    for (final PathPoint? point in _points!) {
+      deformed.add(point!.skin(worldTransform, boneMatrices));
     }
     return deformed;
   }
 
-  bool get isClosed {
+  bool? get isClosed {
     return _isClosed;
   }
 
@@ -250,7 +250,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     super.onDirty(dirt);
     // We transformed, make sure parent is invalidated.
     if (shape != null) {
-      shape.invalidateShape();
+      shape!.invalidateShape();
     }
   }
 
@@ -258,13 +258,13 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     if (vertexDeform != null) {
       return;
     }
-    int length = points.fold<int>(0, (int previous, PathPoint point) {
-      return previous + 2 + (point.pointType == PointType.straight ? 1 : 4);
+    int length = points!.fold<int>(0, (int previous, PathPoint? point) {
+      return previous + 2 + (point!.pointType == PointType.straight ? 1 : 4);
     });
     Float32List vertices = Float32List(length);
     int readIdx = 0;
-    for (final PathPoint point in points) {
-      vertices[readIdx++] = point.translation[0];
+    for (final PathPoint? point in points!) {
+      vertices[readIdx++] = point!.translation[0];
       vertices[readIdx++] = point.translation[1];
       if (point.pointType == PointType.straight) {
         // radius
@@ -285,7 +285,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     if (artboard == null) {
       return;
     }
-    artboard.addDirt(this, vertexDeformDirty, false);
+    artboard!.addDirt(this, vertexDeformDirty, false);
   }
 
   @override
@@ -293,20 +293,20 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     if (vertexDeform != null &&
         (dirt & vertexDeformDirty) == vertexDeformDirty) {
       int readIdx = 0;
-      for (final PathPoint point in _points) {
-        point.translation[0] = vertexDeform[readIdx++];
-        point.translation[1] = vertexDeform[readIdx++];
+      for (final PathPoint? point in _points!) {
+        point!.translation[0] = vertexDeform![readIdx++];
+        point.translation[1] = vertexDeform![readIdx++];
         switch (point.pointType) {
           case PointType.straight:
-            (point as StraightPathPoint).radius = vertexDeform[readIdx++];
+            (point as StraightPathPoint).radius = vertexDeform![readIdx++];
             break;
 
           default:
             CubicPathPoint cubicPoint = point as CubicPathPoint;
-            cubicPoint.inPoint[0] = vertexDeform[readIdx++];
-            cubicPoint.inPoint[1] = vertexDeform[readIdx++];
-            cubicPoint.outPoint[0] = vertexDeform[readIdx++];
-            cubicPoint.outPoint[1] = vertexDeform[readIdx++];
+            cubicPoint.inPoint[0] = vertexDeform![readIdx++];
+            cubicPoint.inPoint[1] = vertexDeform![readIdx++];
+            cubicPoint.outPoint[0] = vertexDeform![readIdx++];
+            cubicPoint.outPoint[1] = vertexDeform![readIdx++];
             break;
         }
       }
@@ -318,7 +318,6 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
 
   static ActorPath read(
       ActorArtboard artboard, StreamReader reader, ActorPath component) {
-    component ??= ActorPath();
     ActorNode.read(artboard, reader, component);
     ActorSkinnable.read(artboard, reader, component);
 
@@ -327,11 +326,12 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
 
     reader.openArray("points");
     int pointCount = reader.readUint16Length();
-    component._points = List<PathPoint>(pointCount);
+    component._points =
+        List<PathPoint?>.filled(pointCount, null, growable: false);
     for (int i = 0; i < pointCount; i++) {
       reader.openObject("point");
       PathPoint point;
-      PointType type = pointTypeLookup[reader.readUint8("pointType")];
+      PointType? type = pointTypeLookup[reader.readUint8("pointType")];
       switch (type) {
         case PointType.straight:
           {
@@ -344,14 +344,9 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
             break;
           }
       }
-      if (point == null) {
-        throw UnsupportedError("Invalid point type " + type.toString());
-      } else {
-        point.read(reader, component.isConnectedToBones);
-      }
+      point.read(reader, component.isConnectedToBones);
       reader.closeObject();
-
-      component._points[i] = point;
+      component._points![i] = point;
     }
     reader.closeArray();
     return component;
@@ -365,7 +360,7 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
   }
 
   @override
-  void resolveComponentIndices(List<ActorComponent> components) {
+  void resolveComponentIndices(List<ActorComponent?> components) {
     super.resolveComponentIndices(components);
     resolveSkinnable(components);
   }
@@ -376,15 +371,15 @@ class ActorPath extends ActorNode with ActorSkinnable, ActorBasePath {
     _isHidden = node._isHidden;
     _isClosed = node._isClosed;
 
-    int pointCount = node._points.length;
+    int pointCount = node._points!.length;
 
-    _points = List<PathPoint>(pointCount);
+    _points = List<PathPoint?>.filled(pointCount, null, growable: false);
     for (int i = 0; i < pointCount; i++) {
-      _points[i] = node._points[i].makeInstance();
+      _points![i] = node._points![i]!.makeInstance();
     }
 
     if (node.vertexDeform != null) {
-      vertexDeform = Float32List.fromList(node.vertexDeform);
+      vertexDeform = Float32List.fromList(node.vertexDeform!);
     }
   }
 }

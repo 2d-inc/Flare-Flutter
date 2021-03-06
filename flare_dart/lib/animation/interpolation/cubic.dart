@@ -3,7 +3,7 @@ import "./interpolator.dart";
 import "cubic_ease.dart";
 
 class CubicInterpolator extends Interpolator {
-  CubicEase _cubic;
+  late CubicEase _cubic;
   @override
   double getEasedMix(double mix) {
     return _cubic.ease(mix);

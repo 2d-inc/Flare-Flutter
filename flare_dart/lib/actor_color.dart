@@ -54,13 +54,13 @@ abstract class ActorPaint extends ActorComponent {
 
   @override
   void completeResolve() {
-    artboard.addDependency(this, parent);
+    artboard!.addDependency(this, parent!);
   }
 
-  ActorShape get shape => parent as ActorShape;
+  ActorShape? get shape => parent as ActorShape?;
 
   void markPaintDirty() {
-    artboard.addDirt(this, DirtyFlags.paintDirty, false);
+    artboard!.addDirt(this, DirtyFlags.paintDirty, false);
   }
 }
 
@@ -111,8 +111,8 @@ abstract class ActorColor extends ActorPaint {
 }
 
 abstract class ActorFill {
-  FillRule _fillRule = FillRule.evenOdd;
-  FillRule get fillRule => _fillRule;
+  FillRule? _fillRule = FillRule.evenOdd;
+  FillRule? get fillRule => _fillRule;
 
   static void read(
       ActorArtboard artboard, StreamReader reader, ActorFill component) {
@@ -137,10 +137,10 @@ abstract class ActorStroke {
     markPaintDirty();
   }
 
-  StrokeCap _cap = StrokeCap.butt;
-  StrokeJoin _join = StrokeJoin.miter;
-  StrokeCap get cap => _cap;
-  StrokeJoin get join => _join;
+  StrokeCap? _cap = StrokeCap.butt;
+  StrokeJoin? _join = StrokeJoin.miter;
+  StrokeCap? get cap => _cap;
+  StrokeJoin? get join => _join;
 
   TrimPath _trim = TrimPath.off;
 
@@ -183,10 +183,10 @@ abstract class ActorStroke {
   static void read(
       ActorArtboard artboard, StreamReader reader, ActorStroke component) {
     component.width = reader.readFloat32("width");
-    if (artboard.actor.version >= 19) {
+    if (artboard.actor!.version >= 19) {
       component._cap = strokeCapLookup[reader.readUint8("cap")];
       component._join = strokeJoinLookup[reader.readUint8("join")];
-      if (artboard.actor.version >= 20) {
+      if (artboard.actor!.version >= 20) {
         component._trim =
             trimPathLookup[reader.readUint8("trim")] ?? TrimPath.off;
         if (component.isTrimmed) {
@@ -228,7 +228,7 @@ abstract class ColorFill extends ActorColor with ActorFill {
   void completeResolve() {
     super.completeResolve();
 
-    ActorNode parentNode = parent;
+    ActorNode? parentNode = parent;
     if (parentNode is ActorShape) {
       parentNode.addFill(this);
     }
@@ -252,7 +252,7 @@ abstract class ColorStroke extends ActorColor with ActorStroke {
   void completeResolve() {
     super.completeResolve();
 
-    ActorNode parentNode = parent;
+    ActorNode? parentNode = parent;
     if (parentNode is ActorShape) {
       parentNode.addStroke(this);
     }
@@ -331,7 +331,7 @@ abstract class GradientFill extends GradientColor with ActorFill {
   void completeResolve() {
     super.completeResolve();
 
-    ActorNode parentNode = parent;
+    ActorNode? parentNode = parent;
     if (parentNode is ActorShape) {
       parentNode.addFill(this);
     }
@@ -355,7 +355,7 @@ abstract class GradientStroke extends GradientColor with ActorStroke {
   void completeResolve() {
     super.completeResolve();
 
-    ActorNode parentNode = parent;
+    ActorNode? parentNode = parent;
     if (parentNode is ActorShape) {
       parentNode.addStroke(this);
     }
@@ -399,7 +399,7 @@ abstract class RadialGradientFill extends RadialGradientColor with ActorFill {
   void completeResolve() {
     super.completeResolve();
 
-    ActorNode parentNode = parent;
+    ActorNode? parentNode = parent;
     if (parentNode is ActorShape) {
       parentNode.addFill(this);
     }
@@ -425,7 +425,7 @@ abstract class RadialGradientStroke extends RadialGradientColor
   void completeResolve() {
     super.completeResolve();
 
-    ActorNode parentNode = parent;
+    ActorNode? parentNode = parent;
     if (parentNode is ActorShape) {
       parentNode.addStroke(this);
     }

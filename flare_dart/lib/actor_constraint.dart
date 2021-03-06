@@ -4,14 +4,14 @@ import "actor_node.dart";
 import "stream_reader.dart";
 
 abstract class ActorConstraint extends ActorComponent {
-  bool _isEnabled;
-  double _strength;
+  bool? _isEnabled;
+  double? _strength;
 
-  bool get isEnabled {
+  bool? get isEnabled {
     return _isEnabled;
   }
 
-  set isEnabled(bool value) {
+  set isEnabled(bool? value) {
     if (value == _isEnabled) {
       return;
     }
@@ -24,11 +24,11 @@ abstract class ActorConstraint extends ActorComponent {
     markDirty();
   }
 
-  double get strength {
+  double? get strength {
     return _strength;
   }
 
-  set strength(double value) {
+  set strength(double? value) {
     if (value == _strength) {
       return;
     }
@@ -37,18 +37,18 @@ abstract class ActorConstraint extends ActorComponent {
   }
 
   void markDirty() {
-    parent.markTransformDirty();
+    parent!.markTransformDirty();
   }
 
   void constrain(ActorNode node);
 
   @override
-  void resolveComponentIndices(List<ActorComponent> components) {
+  void resolveComponentIndices(List<ActorComponent?> components) {
     super.resolveComponentIndices(components);
     if (parent != null) {
       // This works because nodes are exported in hierarchy order, 
 	  // so we are assured constraints get added in order as we resolve indices.
-      parent.addConstraint(this);
+      parent!.addConstraint(this);
     }
   }
 

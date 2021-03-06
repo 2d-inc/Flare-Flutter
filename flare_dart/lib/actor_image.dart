@@ -24,26 +24,26 @@ class SequenceFrame {
 
 class ActorImage extends ActorDrawable with ActorSkinnable {
   @override
-  int drawOrder;
+  int? drawOrder;
 
   int _textureIndex = -1;
-  Float32List _vertices;
-  Float32List _dynamicUV;
-  Float32List get dynamicUV => _dynamicUV;
-  Uint16List _triangles;
+  Float32List? _vertices;
+  Float32List? _dynamicUV;
+  Float32List? get dynamicUV => _dynamicUV;
+  Uint16List? _triangles;
   int _vertexCount = 0;
   int _triangleCount = 0;
-  Float32List _animationDeformedVertices;
+  Float32List? _animationDeformedVertices;
 
-  List<SequenceFrame> _sequenceFrames;
-  Float32List _sequenceUVs;
+  List<SequenceFrame>? _sequenceFrames;
+  Float32List? _sequenceUVs;
   int _sequenceFrame = 0;
 
   int get sequenceFrame => _sequenceFrame;
 
-  Float32List get sequenceUVs => _sequenceUVs;
+  Float32List? get sequenceUVs => _sequenceUVs;
 
-  List<SequenceFrame> get sequenceFrames => _sequenceFrames;
+  List<SequenceFrame>? get sequenceFrames => _sequenceFrames;
 
   set sequenceFrame(int value) {
     _sequenceFrame = value;
@@ -61,11 +61,11 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     return _triangleCount;
   }
 
-  Uint16List get triangles {
+  Uint16List? get triangles {
     return _triangles;
   }
 
-  Float32List get vertices {
+  Float32List? get vertices {
     return _vertices;
   }
 
@@ -96,15 +96,15 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
   set doesAnimationVertexDeform(bool value) {
     if (value) {
       if (_animationDeformedVertices == null ||
-          _animationDeformedVertices.length != _vertexCount * 2) {
+          _animationDeformedVertices!.length != _vertexCount * 2) {
         _animationDeformedVertices = Float32List(vertexCount * 2);
         // Copy the deform verts from the rig verts.
         int writeIdx = 0;
         int readIdx = 0;
         int readStride = vertexStride;
         for (int i = 0; i < _vertexCount; i++) {
-          _animationDeformedVertices[writeIdx++] = _vertices[readIdx];
-          _animationDeformedVertices[writeIdx++] = _vertices[readIdx + 1];
+          _animationDeformedVertices![writeIdx++] = _vertices![readIdx];
+          _animationDeformedVertices![writeIdx++] = _vertices![readIdx + 1];
           readIdx += readStride;
         }
       }
@@ -113,7 +113,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     }
   }
 
-  Float32List get animationDeformedVertices {
+  Float32List? get animationDeformedVertices {
     return _animationDeformedVertices;
   }
 
@@ -129,12 +129,10 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 
   static ActorImage read(
       ActorArtboard artboard, StreamReader reader, ActorImage node) {
-    node ??= ActorImage();
-
     ActorDrawable.read(artboard, reader, node);
     ActorSkinnable.read(artboard, reader, node);
 
-    if (!node.isHidden) {
+    if (!node.isHidden!) {
       node._textureIndex = reader.readUint8("atlas");
 
       int numVertices = reader.readUint32("numVertices");
@@ -145,7 +143,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 
       // In version 24 we started packing the original UV coordinates if the
       // image was marked for dynamic runtime swapping.
-      if (artboard.actor.version >= 24) {
+      if (artboard.actor!.version >= 24) {
         bool isDynamic = reader.readBool("isDynamic");
         if (isDynamic) {
           node._dynamicUV = reader.readFloat32Array(numVertices * 2, "uv");
@@ -207,14 +205,14 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
 //   }
 
   @override
-  void resolveComponentIndices(List<ActorComponent> components) {
+  void resolveComponentIndices(List<ActorComponent?> components) {
     super.resolveComponentIndices(components);
     resolveSkinnable(components);
   }
 
   @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ActorImage instanceNode = resetArtboard.actor.makeImageNode();
+    ActorImage instanceNode = resetArtboard.actor!.makeImageNode();
     instanceNode.copyImage(this, resetArtboard);
     return instanceNode;
   }
@@ -228,10 +226,10 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     _triangleCount = node._triangleCount;
     _vertices = node._vertices;
     _triangles = node._triangles;
-	_dynamicUV = node._dynamicUV;
+    _dynamicUV = node._dynamicUV;
     if (node._animationDeformedVertices != null) {
       _animationDeformedVertices =
-          Float32List.fromList(node._animationDeformedVertices);
+          Float32List.fromList(node._animationDeformedVertices!);
     }
   }
 
@@ -257,11 +255,11 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       return;
     }
 
-    Float32List fv = _animationDeformedVertices;
+    Float32List? fv = _animationDeformedVertices;
 
     int vidx = 0;
     for (int j = 0; j < _vertexCount; j++) {
-      double x = fv[vidx];
+      double x = fv![vidx];
       double y = fv[vidx + 1];
 
       fv[vidx] = wt[0] * x + wt[2] * y + wt[4];
@@ -276,9 +274,9 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     int writeIdx = 0;
     int stride = vertexStride;
 
-    Float32List v = _vertices;
+    Float32List? v = _vertices;
     for (int i = 0; i < _vertexCount; i++) {
-      buffer[writeIdx++] = v[readIdx];
+      buffer[writeIdx++] = v![readIdx];
       buffer[writeIdx++] = v[readIdx + 1];
       readIdx += stride;
     }
@@ -290,13 +288,13 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
     int readIdx = 0;
     int writeIdx = 0;
 
-    Float32List v = _animationDeformedVertices != null
+    Float32List? v = _animationDeformedVertices != null
         ? _animationDeformedVertices
         : _vertices;
     int stride = _animationDeformedVertices != null ? 2 : vertexStride;
 
     if (skin != null) {
-      Float32List boneTransforms = skin.boneMatrices;
+      Float32List? boneTransforms = skin!.boneMatrices;
 
       //Mat2D inverseWorldTransform = Mat2D.Invert(new Mat2D(), worldTransform);
       Float32List influenceMatrix =
@@ -330,7 +328,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       int boneIndexOffset = vertexBoneIndexOffset;
       int weightOffset = vertexBoneWeightOffset;
       for (int i = 0; i < _vertexCount; i++) {
-        double x = v[readIdx];
+        double x = v![readIdx];
         double y = v[readIdx + 1];
 
         double px, py;
@@ -349,14 +347,14 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
             influenceMatrix[3] = influenceMatrix[4] = influenceMatrix[5] = 0.0;
 
         for (int wi = 0; wi < 4; wi++) {
-          int boneIndex = _vertices[boneIndexOffset + wi].toInt();
-          double weight = _vertices[weightOffset + wi];
+          int boneIndex = _vertices![boneIndexOffset + wi].toInt();
+          double weight = _vertices![weightOffset + wi];
 
           int boneTransformIndex = boneIndex * 6;
-          if (boneIndex <= connectedBones.length) {
+          if (boneIndex <= connectedBones!.length) {
             for (int j = 0; j < 6; j++) {
               influenceMatrix[j] +=
-                  boneTransforms[boneTransformIndex + j] * weight;
+                  boneTransforms![boneTransformIndex + j] * weight;
             }
           }
         }
@@ -377,7 +375,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
       }
     } else {
       for (int i = 0; i < _vertexCount; i++) {
-        buffer[writeIdx++] = v[readIdx];
+        buffer[writeIdx++] = v![readIdx];
         buffer[writeIdx++] = v[readIdx + 1];
         readIdx += stride;
       }
@@ -392,7 +390,7 @@ class ActorImage extends ActorDrawable with ActorSkinnable {
         worldTransform[4], worldTransform[5]);
   }
 
-  Mat2D get imageTransform => isConnectedToBones ? null : worldTransform;
+  Mat2D? get imageTransform => isConnectedToBones ? null : worldTransform;
 
   @override
   void initializeGraphics() {}

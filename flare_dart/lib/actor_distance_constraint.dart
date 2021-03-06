@@ -18,7 +18,7 @@ class ActorDistanceConstraint extends ActorTargetedConstraint {
   ActorDistanceConstraint() : super();
 
   static ActorDistanceConstraint read(ActorArtboard artboard,
-      StreamReader reader, ActorDistanceConstraint component) {
+      StreamReader reader, ActorDistanceConstraint? component) {
     component ??= ActorDistanceConstraint();
     ActorTargetedConstraint.read(artboard, reader, component);
 
@@ -44,12 +44,12 @@ class ActorDistanceConstraint extends ActorTargetedConstraint {
 
   @override
   void constrain(ActorNode node) {
-    ActorNode t = target as ActorNode;
+    ActorNode? t = target as ActorNode?;
     if (t == null) {
       return;
     }
 
-    ActorNode p = parent;
+    ActorNode p = parent!;
     Vec2D targetTranslation = t.getWorldTranslation(Vec2D());
     Vec2D ourTranslation = p.getWorldTranslation(Vec2D());
 
@@ -78,7 +78,7 @@ class ActorDistanceConstraint extends ActorTargetedConstraint {
 
     Mat2D world = p.worldTransform;
     Vec2D position = Vec2D.lerp(Vec2D(), ourTranslation,
-        Vec2D.add(Vec2D(), targetTranslation, toTarget), strength);
+        Vec2D.add(Vec2D(), targetTranslation, toTarget), strength!);
     world[4] = position[0];
     world[5] = position[1];
   }

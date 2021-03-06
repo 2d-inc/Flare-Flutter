@@ -29,8 +29,6 @@ class ActorStar extends ActorProceduralPath {
 
   static ActorStar read(
       ActorArtboard artboard, StreamReader reader, ActorStar component) {
-    component ??= ActorStar();
-
     ActorNode.read(artboard, reader, component);
 
     component.width = reader.readFloat32("width");
@@ -70,8 +68,8 @@ class ActorStar extends ActorProceduralPath {
 
   bool get isClosed => true;
   bool get doesDraw => !renderCollapsed;
-  double get radiusX => width / 2;
-  double get radiusY => height / 2;
+  double get radiusX => width! / 2;
+  double get radiusY => height! / 2;
   int get numPoints => _numPoints;
   int get sides => _numPoints * 2;
 }

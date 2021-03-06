@@ -19,8 +19,6 @@ class ActorTriangle extends ActorProceduralPath {
 
   static ActorTriangle read(
       ActorArtboard artboard, StreamReader reader, ActorTriangle component) {
-    component ??= ActorTriangle();
-
     ActorNode.read(artboard, reader, component);
 
     component.width = reader.readFloat32("width");
@@ -43,6 +41,6 @@ class ActorTriangle extends ActorProceduralPath {
 
   bool get isClosed => true;
   bool get doesDraw => !renderCollapsed;
-  double get radiusX => width / 2;
-  double get radiusY => height / 2;
+  double get radiusX => width! / 2;
+  double get radiusY => height! / 2;
 }

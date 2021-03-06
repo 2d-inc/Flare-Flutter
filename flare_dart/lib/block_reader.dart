@@ -3,7 +3,7 @@ import "binary_reader.dart";
 
 class BlockReader extends BinaryReader {
   @override
-  int blockType;
+  int? blockType;
 
   BlockReader(ByteData data) : super(data) {
     blockType = 0;
@@ -14,7 +14,7 @@ class BlockReader extends BinaryReader {
   // A block is defined as a TLV with type of one byte, length of 4 bytes,
   // and then the value following.
   @override
-  BlockReader readNextBlock(Map<String, int> types) {
+  BlockReader? readNextBlock(Map<String, int> types) {
     if (isEOF()) {
       return null;
     }

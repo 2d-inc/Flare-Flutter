@@ -21,10 +21,7 @@ class ActorEllipse extends ActorProceduralPath {
 
   static ActorEllipse read(
       ActorArtboard artboard, StreamReader reader, ActorEllipse component) {
-    component ??= ActorEllipse();
-
     ActorNode.read(artboard, reader, component);
-
     component.width = reader.readFloat32("width");
     component.height = reader.readFloat32("height");
     return component;
@@ -59,6 +56,6 @@ class ActorEllipse extends ActorProceduralPath {
     return !renderCollapsed;
   }
 
-  double get radiusX => width / 2;
-  double get radiusY => height / 2;
+  double get radiusX => width! / 2;
+  double get radiusY => height! / 2;
 }

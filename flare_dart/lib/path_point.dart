@@ -20,15 +20,15 @@ HashMap<int, PointType> pointTypeLookup =
 ]);
 
 abstract class PathPoint {
-  PointType _type;
+  PointType? _type;
   Vec2D _translation = Vec2D();
-  Float32List _weights;
+  Float32List? _weights;
 
-  PathPoint(PointType type) {
+  PathPoint(PointType? type) {
     _type = type;
   }
 
-  PointType get pointType {
+  PointType? get pointType {
     return _type;
   }
 
@@ -42,7 +42,7 @@ abstract class PathPoint {
     _type = from._type;
     Vec2D.copy(_translation, from._translation);
     if (from._weights != null) {
-      _weights = Float32List.fromList(from._weights);
+      _weights = Float32List.fromList(from._weights!);
     }
   }
 
@@ -63,7 +63,7 @@ abstract class PathPoint {
     return result;
   }
 
-  PathPoint skin(Mat2D world, Float32List bones);
+  PathPoint skin(Mat2D world, Float32List? bones);
 }
 
 class StraightPathPoint extends PathPoint {
@@ -103,7 +103,7 @@ class StraightPathPoint extends PathPoint {
   }
 
   @override
-  PathPoint skin(Mat2D world, Float32List bones) {
+  PathPoint skin(Mat2D world, Float32List? bones) {
     StraightPathPoint point = StraightPathPoint()..radius = radius;
 
     double px =
@@ -114,12 +114,12 @@ class StraightPathPoint extends PathPoint {
     double a = 0.0, b = 0.0, c = 0.0, d = 0.0, e = 0.0, f = 0.0;
 
     for (int i = 0; i < 4; i++) {
-      int boneIndex = _weights[i].floor();
-      double weight = _weights[i + 4];
+      int boneIndex = _weights![i].floor();
+      double weight = _weights![i + 4];
       if (weight > 0) {
         int bb = boneIndex * 6;
 
-        a += bones[bb] * weight;
+        a += bones![bb] * weight;
         b += bones[bb + 1] * weight;
         c += bones[bb + 2] * weight;
         d += bones[bb + 3] * weight;
@@ -140,7 +140,7 @@ class CubicPathPoint extends PathPoint {
   Vec2D _in = Vec2D();
   Vec2D _out = Vec2D();
 
-  CubicPathPoint(PointType type) : super(type);
+  CubicPathPoint(PointType? type) : super(type);
 
   Vec2D get inPoint {
     return _in;
@@ -189,7 +189,7 @@ class CubicPathPoint extends PathPoint {
   }
 
   @override
-  PathPoint skin(Mat2D world, Float32List bones) {
+  PathPoint skin(Mat2D world, Float32List? bones) {
     CubicPathPoint point = CubicPathPoint(pointType);
 
     double px =
@@ -201,12 +201,12 @@ class CubicPathPoint extends PathPoint {
       double a = 0.0, b = 0.0, c = 0.0, d = 0.0, e = 0.0, f = 0.0;
 
       for (int i = 0; i < 4; i++) {
-        int boneIndex = _weights[i].floor();
-        double weight = _weights[i + 4];
+        int boneIndex = _weights![i].floor();
+        double weight = _weights![i + 4];
         if (weight > 0) {
           int bb = boneIndex * 6;
 
-          a += bones[bb] * weight;
+          a += bones![bb] * weight;
           b += bones[bb + 1] * weight;
           c += bones[bb + 2] * weight;
           d += bones[bb + 3] * weight;
@@ -226,12 +226,12 @@ class CubicPathPoint extends PathPoint {
       py = world[1] * _in[0] + world[3] * _in[1] + world[5];
 
       for (int i = 8; i < 12; i++) {
-        int boneIndex = _weights[i].floor();
-        double weight = _weights[i + 4];
+        int boneIndex = _weights![i].floor();
+        double weight = _weights![i + 4];
         if (weight > 0) {
           int bb = boneIndex * 6;
 
-          a += bones[bb] * weight;
+          a += bones![bb] * weight;
           b += bones[bb + 1] * weight;
           c += bones[bb + 2] * weight;
           d += bones[bb + 3] * weight;
@@ -251,12 +251,12 @@ class CubicPathPoint extends PathPoint {
       py = world[1] * _out[0] + world[3] * _out[1] + world[5];
 
       for (int i = 16; i < 20; i++) {
-        int boneIndex = _weights[i].floor();
-        double weight = _weights[i + 4];
+        int boneIndex = _weights![i].floor();
+        double weight = _weights![i + 4];
         if (weight > 0) {
           int bb = boneIndex * 6;
 
-          a += bones[bb] * weight;
+          a += bones![bb] * weight;
           b += bones[bb + 1] * weight;
           c += bones[bb + 2] * weight;
           d += bones[bb + 3] * weight;

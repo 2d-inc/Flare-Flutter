@@ -3,18 +3,18 @@ import 'dart:typed_data';
 import 'mat2d.dart';
 
 class Vec2D {
-  Float32List _buffer;
+  Float32List? _buffer;
 
-  Float32List get values {
+  Float32List? get values {
     return _buffer;
   }
 
   double operator [](int index) {
-    return _buffer[index];
+    return _buffer![index];
   }
 
   void operator []=(int index, double value) {
-    _buffer[index] = value;
+    _buffer![index] = value;
   }
 
   Vec2D() {
@@ -22,11 +22,11 @@ class Vec2D {
   }
 
   Vec2D.clone(Vec2D copy) {
-    _buffer = Float32List.fromList(copy._buffer);
+    _buffer = Float32List.fromList(copy._buffer!);
   }
 
-  Vec2D.fromValues(double x, double y) {
-    _buffer = Float32List.fromList([x, y]);
+  Vec2D.fromValues(double? x, double y) {
+    _buffer = Float32List.fromList([x!, y]);
   }
 
   static void copy(Vec2D o, Vec2D a) {
@@ -112,13 +112,13 @@ class Vec2D {
     return result;
   }
 
-  static void normalize(Vec2D result, Vec2D a) {
+  static void normalize(Vec2D? result, Vec2D a) {
     double x = a[0];
     double y = a[1];
     double len = x * x + y * y;
     if (len > 0.0) {
       len = 1.0 / sqrt(len);
-      result[0] = a[0] * len;
+      result![0] = a[0] * len;
       result[1] = a[1] * len;
     }
   }
@@ -135,7 +135,7 @@ class Vec2D {
 
   @override
   String toString() {
-    String v = _buffer[0].toString() + ", ";
-    return v + _buffer[1].toString();
+    String v = _buffer![0].toString() + ", ";
+    return v + _buffer![1].toString();
   }
 }

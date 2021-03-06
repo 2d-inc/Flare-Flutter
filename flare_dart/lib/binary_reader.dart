@@ -3,11 +3,11 @@ import "stream_reader.dart";
 
 /// Implementation of StreamReader that reads binary data.
 abstract class BinaryReader implements StreamReader {
-  ByteData _raw;
-  int _readIndex;
+  ByteData? _raw;
+  late int _readIndex;
 
-  ByteData get raw => _raw;
-  int get readIndex => _readIndex;
+  ByteData? get raw => _raw;
+  int? get readIndex => _readIndex;
 
   BinaryReader(ByteData data) {
     _raw = data;
@@ -15,55 +15,55 @@ abstract class BinaryReader implements StreamReader {
   }
 
   ByteData readBytes(int length) {
-    int offset = _readIndex + raw.offsetInBytes;
+    int offset = _readIndex + raw!.offsetInBytes;
     _readIndex += length;
-    return raw.buffer.asByteData(offset, length);
+    return raw!.buffer.asByteData(offset, length);
   }
 
   @override
-  double readFloat32([String label]) {
-    double value = _raw.getFloat32(_readIndex, Endian.little);
+  double readFloat32([String? label]) {
+    double value = _raw!.getFloat32(_readIndex, Endian.little);
     _readIndex += 4;
 
     return value;
   }
 
   @override
-  double readFloat64([String label]) {
-    double value = _raw.getFloat64(_readIndex, Endian.little);
+  double readFloat64([String? label]) {
+    double value = _raw!.getFloat64(_readIndex, Endian.little);
     _readIndex += 8;
 
     return value;
   }
 
   @override
-  int readUint8([String label]) {
-    return _raw.getUint8(_readIndex++);
+  int readUint8([String? label]) {
+    return _raw!.getUint8(_readIndex++);
   }
 
   @override
   bool isEOF() {
-    return _readIndex >= _raw.lengthInBytes;
+    return _readIndex >= _raw!.lengthInBytes;
   }
 
   @override
-  int readInt8([String label]) {
-    return _raw.getInt8(_readIndex++);
+  int readInt8([String? label]) {
+    return _raw!.getInt8(_readIndex++);
   }
 
   @override
-  int readUint16([String label]) {
-    int value = _raw.getUint16(_readIndex, Endian.little);
+  int readUint16([String? label]) {
+    int value = _raw!.getUint16(_readIndex, Endian.little);
     _readIndex += 2;
 
     return value;
   }
 
   @override
-  Uint16List readUint16Array(int length, [String label]) {
+  Uint16List readUint16Array(int length, [String? label]) {
     Uint16List list = Uint16List(length);
     for (int i = 0; i < length; i++) {
-      list[i] = _raw.getUint16(_readIndex, Endian.little);
+      list[i] = _raw!.getUint16(_readIndex, Endian.little);
       _readIndex += 2;
     }
     return list;
@@ -74,31 +74,31 @@ abstract class BinaryReader implements StreamReader {
   }
 
   @override
-  int readInt16([String label]) {
-    int value = _raw.getInt16(_readIndex, Endian.little);
+  int readInt16([String? label]) {
+    int value = _raw!.getInt16(_readIndex, Endian.little);
     _readIndex += 2;
 
     return value;
   }
 
   @override
-  int readUint32([String label]) {
-    int value = _raw.getUint32(_readIndex, Endian.little);
+  int readUint32([String? label]) {
+    int value = _raw!.getUint32(_readIndex, Endian.little);
     _readIndex += 4;
 
     return value;
   }
 
   @override
-  int readInt32([String label]) {
-    int value = _raw.getInt32(_readIndex, Endian.little);
+  int readInt32([String? label]) {
+    int value = _raw!.getInt32(_readIndex, Endian.little);
     _readIndex += 4;
 
     return value;
   }
 
   @override
-  String readString([String label]) {
+  String readString([String? label]) {
     int length = readUint32();
     int end = _readIndex + length;
     StringBuffer stringBuffer = StringBuffer();
@@ -128,10 +128,10 @@ abstract class BinaryReader implements StreamReader {
   }
 
   @override
-  Uint8List readUint8Array(int length, [String label]) {
-    int offset = _readIndex + _raw.offsetInBytes;
+  Uint8List readUint8Array(int length, [String? label]) {
+    int offset = _readIndex + _raw!.offsetInBytes;
     _readIndex += length;
-    return _raw.buffer.asUint8List(offset, length);
+    return _raw!.buffer.asUint8List(offset, length);
   }
 
   @override
@@ -163,7 +163,7 @@ abstract class BinaryReader implements StreamReader {
   Float32List readFloat32Array(int length, String label) {
     Float32List list = Float32List(length);
     for (int i = 0; i < length; i++) {
-      list[i] = _raw.getFloat32(_readIndex, Endian.little);
+      list[i] = _raw!.getFloat32(_readIndex, Endian.little);
       _readIndex += 4;
     }
     return list;

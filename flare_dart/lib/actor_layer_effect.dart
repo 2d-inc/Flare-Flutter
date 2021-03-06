@@ -4,8 +4,8 @@ import 'actor_component.dart';
 import 'stream_reader.dart';
 
 abstract class ActorLayerEffect extends ActorComponent {
-  bool _isActive;
-  bool get isActive => _isActive;
+  bool? _isActive;
+  bool? get isActive => _isActive;
 
   static ActorLayerEffect read(
       ActorArtboard artboard, StreamReader reader, ActorLayerEffect component) {

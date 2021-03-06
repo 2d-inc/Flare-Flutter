@@ -14,7 +14,7 @@ class ActorScaleConstraint extends ActorAxisConstraint {
   ActorScaleConstraint() : super();
 
   static ActorScaleConstraint read(ActorArtboard artboard, StreamReader reader,
-      ActorScaleConstraint component) {
+      ActorScaleConstraint? component) {
     component ??= ActorScaleConstraint();
     ActorAxisConstraint.read(artboard, reader, component);
     return component;
@@ -29,11 +29,11 @@ class ActorScaleConstraint extends ActorAxisConstraint {
 
   @override
   void constrain(ActorNode node) {
-    ActorNode t = target as ActorNode;
-    ActorNode p = parent;
-    ActorNode grandParent = p.parent;
+    ActorNode? t = target as ActorNode?;
+    ActorNode p = parent!;
+    ActorNode? grandParent = p.parent;
 
-    Mat2D transformA = parent.worldTransform;
+    Mat2D transformA = parent!.worldTransform;
     Mat2D transformB = Mat2D();
     Mat2D.decompose(transformA, _componentsA);
     if (t == null) {
@@ -47,7 +47,7 @@ class ActorScaleConstraint extends ActorAxisConstraint {
     } else {
       Mat2D.copy(transformB, t.worldTransform);
       if (sourceSpace == TransformSpace.local) {
-        ActorNode sourceGrandParent = t.parent;
+        ActorNode? sourceGrandParent = t.parent;
         if (sourceGrandParent != null) {
           Mat2D inverse = Mat2D();
           Mat2D.invert(inverse, sourceGrandParent.worldTransform);
@@ -62,7 +62,7 @@ class ActorScaleConstraint extends ActorAxisConstraint {
       } else {
         _componentsB[2] *= scaleX;
         if (offset) {
-          _componentsB[2] *= parent.scaleX;
+          _componentsB[2] *= parent!.scaleX;
         }
       }
 
@@ -73,7 +73,7 @@ class ActorScaleConstraint extends ActorAxisConstraint {
         _componentsB[3] *= scaleY;
 
         if (offset) {
-          _componentsB[3] *= parent.scaleY;
+          _componentsB[3] *= parent!.scaleY;
         }
       }
 
@@ -118,16 +118,16 @@ class ActorScaleConstraint extends ActorAxisConstraint {
       Mat2D.decompose(transformB, _componentsB);
     }
 
-    double ti = 1.0 - strength;
+    double ti = 1.0 - strength!;
 
     _componentsB[4] = _componentsA[4];
     _componentsB[0] = _componentsA[0];
     _componentsB[1] = _componentsA[1];
-    _componentsB[2] = _componentsA[2] * ti + _componentsB[2] * strength;
-    _componentsB[3] = _componentsA[3] * ti + _componentsB[3] * strength;
+    _componentsB[2] = _componentsA[2] * ti + _componentsB[2] * strength!;
+    _componentsB[3] = _componentsA[3] * ti + _componentsB[3] * strength!;
     _componentsB[5] = _componentsA[5];
 
-    Mat2D.compose(parent.worldTransform, _componentsB);
+    Mat2D.compose(parent!.worldTransform, _componentsB);
   }
 
   @override

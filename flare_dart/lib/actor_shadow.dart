@@ -5,8 +5,8 @@ import 'actor_blur.dart';
 import 'stream_reader.dart';
 
 abstract class ActorShadow extends ActorBlur {
-  double offsetX;
-  double offsetY;
+  double? offsetX;
+  double? offsetY;
   Float32List _color = Float32List(4);
   int get blendModeId;
   set blendModeId(int value);

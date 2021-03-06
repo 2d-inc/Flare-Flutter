@@ -6,19 +6,19 @@ import "stream_reader.dart";
 
 abstract class JSONReader implements StreamReader {
   @override
-  int blockType;
+  int? blockType;
 
   dynamic _readObject;
-  ListQueue _context;
+  ListQueue? _context;
 
   JSONReader(Map object) {
     _readObject = object["container"];
     _context = ListQueue<dynamic>();
-    _context.addFirst(_readObject);
+    _context!.addFirst(_readObject);
   }
 
-  T readProp<T>(String label) {
-    dynamic head = _context.first;
+  T? readProp<T>(String label) {
+    dynamic head = _context!.first;
     if (head is Map) {
       dynamic prop = head[label];
       head.remove(label);
@@ -40,7 +40,7 @@ abstract class JSONReader implements StreamReader {
 
   @override
   double readFloat32(String label) {
-    num f = readProp<num>(label);
+    num? f = readProp<num>(label);
     return f?.toDouble() ?? 0.0;
   }
 
@@ -53,7 +53,7 @@ abstract class JSONReader implements StreamReader {
   }
 
   void _readArray(List ar, String label) {
-    List array = readProp<List>(label);
+    List? array = readProp<List>(label);
     if (array == null) {
       return;
     }
@@ -65,7 +65,7 @@ abstract class JSONReader implements StreamReader {
 
   @override
   double readFloat64(String label) {
-    num f = readProp<num>(label);
+    num? f = readProp<num>(label);
     return f?.toDouble() ?? 0;
   }
 
@@ -81,7 +81,7 @@ abstract class JSONReader implements StreamReader {
 
   @override
   bool isEOF() {
-    return _context.length <= 1 && _readObject.length == 0;
+    return _context!.length <= 1 && _readObject.length == 0;
   }
 
   @override
@@ -160,30 +160,30 @@ abstract class JSONReader implements StreamReader {
   @override
   void openArray(String label) {
     dynamic array = readProp<dynamic>(label);
-    _context.addFirst(array);
+    _context!.addFirst(array);
   }
 
   @override
   void closeArray() {
-    _context.removeFirst();
+    _context!.removeFirst();
   }
 
   @override
   void openObject(String label) {
     dynamic o = readProp<dynamic>(label);
-    _context.addFirst(o);
+    _context!.addFirst(o);
   }
 
   @override
   void closeObject() {
-    _context.removeFirst();
+    _context!.removeFirst();
   }
 
   int _readLength() {
-    if (_context.first is List) {
-      return (_context.first as List).length;
-    } else if (_context.first is Map) {
-      return (_context.first as Map).length;
+    if (_context!.first is List) {
+      return (_context!.first as List).length;
+    } else if (_context!.first is Map) {
+      return (_context!.first as Map).length;
     }
     return 0;
   }
@@ -197,5 +197,5 @@ abstract class JSONReader implements StreamReader {
 
   @override
   String get containerType => "json";
-  ListQueue get context => _context;
+  ListQueue? get context => _context;
 }

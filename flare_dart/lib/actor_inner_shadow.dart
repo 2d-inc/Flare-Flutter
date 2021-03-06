@@ -10,7 +10,7 @@ class ActorInnerShadow extends ActorShadow {
 
   @override
   ActorComponent makeInstance(ActorArtboard resetArtboard) {
-    ActorInnerShadow instanceShape = resetArtboard.actor.makeInnerShadow();
+    ActorInnerShadow instanceShape = resetArtboard.actor!.makeInnerShadow();
     instanceShape.copyShadow(this, resetArtboard);
     return instanceShape;
   }

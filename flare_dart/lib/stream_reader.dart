@@ -4,11 +4,11 @@ import "block_reader.dart";
 import "json_block_reader.dart";
 
 abstract class StreamReader {
-  int blockType = 0;
+  int? blockType = 0;
 
   // Instantiate the right type of Reader based on the input values
   factory StreamReader(dynamic data) {
-    StreamReader reader;
+    late StreamReader reader;
     if (data is ByteData) {
       reader = BlockReader(data);
       // Move the readIndex forward for the binary reader.
@@ -48,7 +48,7 @@ abstract class StreamReader {
 
   int readId(String label);
 
-  StreamReader readNextBlock(Map<String, int> types);
+  StreamReader? readNextBlock(Map<String, int> types);
 
   void openArray(String label);
   void closeArray();

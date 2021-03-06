@@ -1,3 +1,9 @@
+## [2.3.5-nullsafety.0] - 2021-03-007 12:44:50
+
+- Migrated package to Null-Safety
+- Bumped up version
+- Updated CHANGELOD.md file
+
 ## [2.3.4] - 2020-04-03 20:13:58
 
 - Fix issue with transform affects stroke and paths connected to bones.

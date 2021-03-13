@@ -1,17 +1,19 @@
+import 'package:flare_flutter/asset_provider.dart';
+import 'package:flare_flutter/flare_cache.dart';
+import 'package:flare_flutter/flare_cache_asset.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-
-import 'asset_provider.dart';
-import 'flare_cache.dart';
-import 'flare_cache_asset.dart';
 
 /// Create a mobile or tablet layout depending on the screen size.
 class FlareCacheBuilder extends StatefulWidget {
   final Widget Function(BuildContext, bool) builder;
   final List<AssetProvider> assetProviders;
 
-  const FlareCacheBuilder(this.assetProviders, {Key key, this.builder})
-      : super(key: key);
+  const FlareCacheBuilder(
+    this.assetProviders, {
+    required this.builder,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _FlareCacheBuilderState createState() => _FlareCacheBuilderState();
@@ -19,6 +21,9 @@ class FlareCacheBuilder extends StatefulWidget {
 
 class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
   bool _isWarm = false;
+  final Set<FlareCacheAsset> _assets = {};
+  AssetBundle get bundle => DefaultAssetBundle.of(context);
+
   bool get isWarm => _isWarm;
   set isWarm(bool value) {
     if (value == _isWarm) {
@@ -31,10 +36,19 @@ class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
     }
   }
 
-  final Set<FlareCacheAsset> _assets = {};
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
+    return widget.builder(context, isWarm);
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+  }
+
+  @override
+  void didUpdateWidget(FlareCacheBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _warmup();
   }
 
@@ -48,30 +62,9 @@ class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
   }
 
   @override
-  void didUpdateWidget(FlareCacheBuilder oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  void initState() {
+    super.initState();
     _warmup();
-  }
-
-  AssetBundle get bundle => DefaultAssetBundle.of(context);
-
-  void _warmup() {
-    if (_updateWarmth()) {
-      return;
-    }
-
-    for (final assetProvider in widget.assetProviders) {
-      if (getWarmActor(assetProvider) == null) {
-        cachedActor(assetProvider).then((FlareCacheAsset asset) {
-          if (mounted && asset != null) {
-            _assets.add(asset);
-            asset.ref();
-          }
-
-          _updateWarmth();
-        });
-      }
-    }
   }
 
   bool _updateWarmth() {
@@ -79,10 +72,7 @@ class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
       return true;
     }
     var assetProviders = widget.assetProviders;
-    if (assetProviders == null) {
-      isWarm = true;
-      return true;
-    }
+
     for (final assetProvider in assetProviders) {
       if (getWarmActor(assetProvider) == null) {
         isWarm = false;
@@ -93,13 +83,22 @@ class _FlareCacheBuilderState extends State<FlareCacheBuilder> {
     return true;
   }
 
-  @override
-  void deactivate() {
-    super.deactivate();
-  }
+  void _warmup() {
+    if (_updateWarmth()) {
+      return;
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return widget.builder(context, isWarm);
+    for (final assetProvider in widget.assetProviders) {
+      if (getWarmActor(assetProvider) == null) {
+        cachedActor(assetProvider).then((FlareCacheAsset asset) {
+          if (mounted) {
+            _assets.add(asset);
+            asset.ref();
+          }
+
+          _updateWarmth();
+        });
+      }
+    }
   }
 }

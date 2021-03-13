@@ -1,6 +1,13 @@
-library flare_flutter;
-
 import 'dart:ui';
+
+Path trimPath(Path path, double startT, double stopT, bool complement,
+    bool isSequential) {
+  if (isSequential) {
+    return _trimPathSequential(path, startT, stopT, complement);
+  } else {
+    return _trimPathSync(path, startT, stopT, complement);
+  }
+}
 
 double _appendPathSegmentSequential(Iterator<PathMetric> metricsIterator,
     Path to, double offset, double start, double stop) {
@@ -10,13 +17,14 @@ double _appendPathSegmentSequential(Iterator<PathMetric> metricsIterator,
     nextOffset = offset + metric.length;
     if (start < nextOffset) {
       Path extracted = metric.extractPath(start - offset, stop - offset);
-      if (extracted != null) {
-        to.addPath(extracted, Offset.zero);
-      }
+
+      to.addPath(extracted, Offset.zero);
+
       if (stop < nextOffset) {
         break;
       }
     }
+    // ignore: parameter_assignments
     offset = nextOffset;
   } while (metricsIterator.moveNext());
   return offset;
@@ -27,9 +35,7 @@ void _appendPathSegmentSync(
   double nextOffset = offset + metric.length;
   if (start < nextOffset) {
     Path extracted = metric.extractPath(start - offset, stop - offset);
-    if (extracted != null) {
-      to.addPath(extracted, Offset.zero);
-    }
+    to.addPath(extracted, Offset.zero);
   }
 }
 
@@ -94,13 +100,4 @@ Path _trimPathSync(Path path, double startT, double stopT, bool complement) {
     }
   }
   return result;
-}
-
-Path trimPath(Path path, double startT, double stopT, bool complement,
-    bool isSequential) {
-  if (isSequential) {
-    return _trimPathSequential(path, startT, stopT, complement);
-  } else {
-    return _trimPathSync(path, startT, stopT, complement);
-  }
 }

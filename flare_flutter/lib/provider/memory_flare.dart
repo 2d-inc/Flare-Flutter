@@ -1,26 +1,18 @@
 import 'dart:typed_data';
 
+import 'package:flare_flutter/asset_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
-
-import '../asset_provider.dart';
 
 /// Fetches a Flare from a [Uint8List].
 @immutable
 class MemoryFlare extends AssetProvider {
-  const MemoryFlare({@required this.bytes}) : assert(bytes != null);
-
   /// The bytes to decode into a Flare.
   final Uint8List bytes;
 
+  const MemoryFlare({required this.bytes});
+
   @override
-  Future<ByteData> load() async {
-    final data = ByteData.view(bytes.buffer);
-    assert(data != null);
-    return data;
-  }
+  int get hashCode => bytes.hashCode;
 
   @override
   bool operator ==(dynamic other) {
@@ -31,7 +23,7 @@ class MemoryFlare extends AssetProvider {
   }
 
   @override
-  int get hashCode => bytes.hashCode;
+  Future<ByteData> load() => Future.value(ByteData.view(bytes.buffer));
 
   @override
   String toString() => '$runtimeType(${describeIdentity(bytes)})';

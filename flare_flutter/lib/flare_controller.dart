@@ -1,5 +1,6 @@
-import 'package:flare_dart/math/mat2d.dart';
+import 'package:flare_flutter/base/math/mat2d.dart';
 import 'package:flutter/foundation.dart';
+
 import 'flare.dart';
 
 ///
@@ -25,6 +26,9 @@ import 'flare.dart';
 abstract class FlareController {
   ValueNotifier<bool> isActive = ValueNotifier<bool>(true);
 
+  /// Advances the animation of the current [artboard] by [elapsed].
+  bool advance(FlutterActorArtboard artboard, double elapsed);
+
   /// Useful to fetch references to animation components that will be affected
   /// by this controller.
   void initialize(FlutterActorArtboard artboard);
@@ -32,7 +36,4 @@ abstract class FlareController {
   /// Relays the information regarding the global Flutter [viewTransform] matrix
   /// of the [FlareActor] this controller is attached to.
   void setViewTransform(Mat2D viewTransform);
-
-  /// Advances the animation of the current [artboard] by [elapsed].
-  bool advance(FlutterActorArtboard artboard, double elapsed);
 }

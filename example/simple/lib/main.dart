@@ -1,6 +1,6 @@
-import "package:flare_flutter/flare_actor.dart";
-import "package:flare_flutter/flare_cache_builder.dart";
-import "package:flutter/material.dart";
+import 'package:flare_flutter/flare_actor.dart';
+import 'package:flare_flutter/flare_cache_builder.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flare_flutter/provider/asset_flare.dart';
 
@@ -19,7 +19,10 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({
+    required this.title,
+    Key? key,
+  }) : super(key: key);
   final String title;
 
   @override
@@ -28,8 +31,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool _useAA = true;
-  String _animationName = "idle";
-  final asset = AssetFlare(bundle: rootBundle, name: "assets/Filip.flr");
+  String _animationName = 'idle';
+  final asset = AssetFlare(bundle: rootBundle, name: 'assets/Filip.flr');
 
   /// Toggle antialiasing on [FlareActor]
   void _toggleAntialiasing() {
@@ -53,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 [asset],
                 builder: (BuildContext context, bool isWarm) {
                   return !isWarm
-                      ? Container(child: Text("NO"))
+                      ? Container(child: Text('NO'))
                       : FlareActor.asset(
                           asset,
                           alignment: Alignment.center,

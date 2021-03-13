@@ -1,5 +1,8 @@
 import 'dart:math';
-import 'package:flare_dart/math/mat2d.dart';
+
+import 'package:flare_flutter/base/animation/actor_animation.dart';
+import 'package:flare_flutter/base/math/mat2d.dart';
+
 import 'flare.dart';
 import 'flare_actor.dart';
 import 'flare_controller.dart';
@@ -11,10 +14,10 @@ import 'flare_controller.dart';
 /// playing at the same time, this controller will mix them.
 class FlareControls extends FlareController {
   /// The current [FlutterActorArtboard].
-  FlutterActorArtboard _artboard;
+  FlutterActorArtboard? _artboard;
 
   /// The current [ActorAnimation].
-  String _animationName;
+  late String _animationName;
   final double _mixSeconds = 0.1;
 
   /// The [FlareAnimationLayer]s currently active.
@@ -34,12 +37,10 @@ class FlareControls extends FlareController {
   /// to the end of the list of currently playing animation layers.
   void play(String name, {double mix = 1.0, double mixSeconds = 0.2}) {
     _animationName = name;
-    if (_animationName != null && _artboard != null) {
-      ActorAnimation animation = _artboard.getAnimation(_animationName);
+    if (_artboard != null) {
+      var animation = _artboard!.getAnimation(_animationName);
       if (animation != null) {
-        _animationLayers.add(FlareAnimationLayer()
-          ..name = _animationName
-          ..animation = animation
+        _animationLayers.add(FlareAnimationLayer(_animationName, animation)
           ..mix = mix
           ..mixSeconds = mixSeconds);
         isActive.value = true;
@@ -57,6 +58,8 @@ class FlareControls extends FlareController {
   /// the [onCompleted()] callback will be triggered.
   @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
+    assert(artboard == _artboard);
+
     /// List of completed animations during this frame.
     List<FlareAnimationLayer> completed = [];
 
@@ -68,9 +71,7 @@ class FlareControls extends FlareController {
       layer.mix += elapsed;
       layer.time += elapsed;
 
-      double mix = (_mixSeconds == null || _mixSeconds == 0.0)
-          ? 1.0
-          : min(1.0, layer.mix / _mixSeconds);
+      double mix = _mixSeconds == 0.0 ? 1.0 : min(1.0, layer.mix / _mixSeconds);
 
       /// Loop the time if needed.
       if (layer.animation.isLooping) {
@@ -78,7 +79,7 @@ class FlareControls extends FlareController {
       }
 
       /// Apply the animation with the current mix.
-      layer.animation.apply(layer.time, _artboard, mix);
+      layer.animation.apply(layer.time, artboard, mix);
 
       /// Add (non-looping) finished animations to the list.
       if (layer.time > layer.animation.duration) {

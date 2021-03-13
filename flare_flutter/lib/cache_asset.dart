@@ -1,19 +1,21 @@
 import 'dart:async';
 
-import 'asset_provider.dart';
-import 'cache.dart';
+import 'package:flare_flutter/asset_provider.dart';
+import 'package:flare_flutter/cache.dart';
 
 /// A reference counted asset in a cache.
 abstract class CacheAsset {
-  Cache _cache;
+  late Cache _cache;
   int _refCount = 0;
+  final List<Completer<CacheAsset>> _callbacks = [];
+
   bool get isAvailable;
 
-  void ref() {
-    _refCount++;
-    if (_refCount == 1) {
-      _cache.hold(this);
+  void completeLoad() {
+    for (final Completer<CacheAsset> callback in _callbacks) {
+      callback.complete(this);
     }
+    _callbacks.clear();
   }
 
   void deref() {
@@ -23,25 +25,21 @@ abstract class CacheAsset {
     }
   }
 
-  List<Completer<CacheAsset>> _callbacks;
+  void load(Cache cache, AssetProvider assetProvider) => _cache = cache;
+
   Future<CacheAsset> onLoaded() async {
     if (isAvailable) {
       return this;
     }
-    _callbacks ??= [];
     Completer<CacheAsset> completer = Completer<CacheAsset>();
     _callbacks.add(completer);
     return completer.future;
   }
 
-  void load(Cache cache, AssetProvider assetProvider) => _cache = cache;
-
-  void completeLoad() {
-    if (_callbacks != null) {
-      for (final Completer<CacheAsset> callback in _callbacks) {
-        callback.complete(this);
-      }
-      _callbacks = null;
+  void ref() {
+    _refCount++;
+    if (_refCount == 1) {
+      _cache.hold(this);
     }
   }
 }

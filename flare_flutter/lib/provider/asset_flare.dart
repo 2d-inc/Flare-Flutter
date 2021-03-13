@@ -1,16 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flare_flutter/asset_provider.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
-
-import '../asset_provider.dart';
 
 /// Fetches a Flare from an [AssetBundle].
 @immutable
 class AssetFlare extends AssetProvider {
-  const AssetFlare({@required this.bundle, @required this.name})
-      : assert(bundle != null),
-        assert(name != null);
-
   /// The bundle from which the Flare will be obtained.
   ///
   /// The Flare is obtained by calling [AssetBundle.load] on the given [bundle]
@@ -21,12 +16,13 @@ class AssetFlare extends AssetProvider {
   /// argument passed to [AssetBundle.load].
   final String name;
 
+  const AssetFlare({
+    required this.bundle,
+    required this.name,
+  });
+
   @override
-  Future<ByteData> load() async {
-    final data = await bundle.load(name);
-    assert(data != null);
-    return data;
-  }
+  int get hashCode => hashValues(bundle, name);
 
   @override
   bool operator ==(dynamic other) {
@@ -37,7 +33,7 @@ class AssetFlare extends AssetProvider {
   }
 
   @override
-  int get hashCode => hashValues(bundle, name);
+  Future<ByteData> load() => bundle.load(name);
 
   @override
   String toString() => '$runtimeType(bundle: $bundle, name: "$name")';

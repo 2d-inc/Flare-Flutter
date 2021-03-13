@@ -1,4 +1,3 @@
-import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_flutter/flare.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_cache.dart';
@@ -24,7 +23,7 @@ class TestController extends FlareController {
 }
 
 void main() {
-  AssetFlare asset;
+  late AssetFlare asset;
   setUp(() async {
     FlareCache.doesPrune = false;
     asset = AssetFlare(bundle: rootBundle, name: 'assets/Filip.flr');

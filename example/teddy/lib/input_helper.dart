@@ -4,8 +4,8 @@ import 'package:flutter/rendering.dart';
 // https://github.com/flutter/flutter/blob/master/packages/flutter/test/material/text_field_test.dart
 
 // Returns first render editable
-RenderEditable findRenderEditable(RenderObject root) {
-  RenderEditable renderEditable;
+RenderEditable? findRenderEditable(RenderObject root) {
+  RenderEditable? renderEditable;
   void recursiveFinder(RenderObject child) {
     if (child is RenderEditable) {
       renderEditable = child;
@@ -28,13 +28,15 @@ List<TextSelectionPoint> globalize(
   }).toList();
 }
 
-Offset getCaretPosition(RenderBox box) {
-  final RenderEditable renderEditable = findRenderEditable(box);
-  if (!renderEditable.hasFocus) {
+Offset? getCaretPosition(RenderBox box) {
+  final RenderEditable? renderEditable = findRenderEditable(box);
+  if (renderEditable == null ||
+      !renderEditable.hasFocus ||
+      renderEditable.selection == null) {
     return null;
   }
   final List<TextSelectionPoint> endpoints = globalize(
-    renderEditable.getEndpointsForSelection(renderEditable.selection),
+    renderEditable.getEndpointsForSelection(renderEditable.selection!),
     renderEditable,
   );
   return endpoints[0].point + const Offset(0.0, -2.0);

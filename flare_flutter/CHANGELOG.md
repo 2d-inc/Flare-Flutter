@@ -1,3 +1,7 @@
+## [3.0.0] - 2021-03-12 17:00:11
+
+- Implementing null safety.
+
 ## [2.0.6] - 2020-08-05 15:54:45
 
 - Fix timestep calculation based on feedback from #262.

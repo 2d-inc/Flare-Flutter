@@ -449,6 +449,8 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
   void initializeGraphics() {
     super.initializeGraphics();
     if (triangles == null) {
+      // Set the paint as it's late initialized.
+      _paint = ui.Paint();
       return;
     }
     _vertexBuffer = makeVertexPositionBuffer();

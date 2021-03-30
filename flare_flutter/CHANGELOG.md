@@ -1,3 +1,8 @@
+## [3.0.0] - 2021-03-29 17:05:59
+
+- Identical to [3.0.0-nullsafety.1] but has now been tested by users and is now ready for usage.
+
+
 ## [3.0.0-nullsafety.1] - 2021-03-17 15:33:25
 
 - Fix for nullsafety issue reported https://github.com/2d-inc/Flare-Flutter/issues/297 where the _paint object wasn't getting initialized.

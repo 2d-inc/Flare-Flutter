@@ -203,7 +203,7 @@ class ActorIKConstraint extends ActorTargetedConstraint {
     _invertDirection = node._invertDirection;
     if (node._influencedBones != null) {
       _influencedBones = <InfluencedBone>[];
-      for (int i = 0; i < _influencedBones!.length; i++) {
+      for (int i = 0; i < node._influencedBones!.length; i++) {
         _influencedBones!
             .add(InfluencedBone(node._influencedBones![i].boneIdx));
       }

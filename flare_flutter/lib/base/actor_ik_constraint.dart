@@ -64,7 +64,8 @@ class ActorIKConstraint extends ActorTargetedConstraint {
       for (int i = 0; i < _boneData.length - 1; i++) {
         BoneChain item = _boneData[i];
         item.included = true;
-        _fkChain[item.index + 1].included = true;
+        _fkChain.firstWhereOrNull((element) => element.index == item.index + 1)
+          ?.included = true;
       }
     }
 
@@ -203,7 +204,7 @@ class ActorIKConstraint extends ActorTargetedConstraint {
     _invertDirection = node._invertDirection;
     if (node._influencedBones != null) {
       _influencedBones = <InfluencedBone>[];
-      for (int i = 0; i < _influencedBones!.length; i++) {
+      for (int i = 0; i < node._influencedBones!.length; i++) {
         _influencedBones!
             .add(InfluencedBone(node._influencedBones![i].boneIdx));
       }
@@ -252,7 +253,9 @@ class ActorIKConstraint extends ActorTargetedConstraint {
   void solve2(BoneChain fk1, BoneChain fk2, Vec2D worldTargetTranslation) {
     ActorBone b1 = fk1.bone;
     ActorBone b2 = fk2.bone;
-    BoneChain firstChild = _fkChain[fk1.index + 1];
+    BoneChain firstChild = (_fkChain.firstWhereOrNull(
+      (chain) => chain.index == fk1.index + 1
+    ))!;
 
     Mat2D iworld = fk1.parentWorldInverse;
 

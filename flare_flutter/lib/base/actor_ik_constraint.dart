@@ -253,14 +253,14 @@ class ActorIKConstraint extends ActorTargetedConstraint {
   void solve2(BoneChain fk1, BoneChain fk2, Vec2D worldTargetTranslation) {
     ActorBone b1 = fk1.bone;
     ActorBone b2 = fk2.bone;
-    BoneChain? firstChild = _fkChain.firstWhereOrNull(
+    BoneChain firstChild = (_fkChain.firstWhereOrNull(
       (chain) => chain.index == fk1.index + 1
-    );
+    ))!;
 
     Mat2D iworld = fk1.parentWorldInverse;
 
     Vec2D pA = b1.getWorldTranslation(Vec2D());
-    Vec2D pC = firstChild!.bone.getWorldTranslation(Vec2D());
+    Vec2D pC = firstChild.bone.getWorldTranslation(Vec2D());
     Vec2D pB = b2.getTipWorldTranslation(Vec2D());
 
     Vec2D pBT = Vec2D.clone(worldTargetTranslation);

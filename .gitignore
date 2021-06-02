@@ -12,3 +12,5 @@ Generated.xcconfig
 /example/favorite/ios/Flutter/Flutter.podspec
 /flare_flutter/ios/Flutter
 /example/change_color/assets/change_color_example.flr
+
+flutter_export_environment.sh

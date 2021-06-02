@@ -1,7 +1,6 @@
 name: favorite
 description: A tappable Flare Widget.
-
-version: 1.0.0+1
+publish_to: 'none'
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"

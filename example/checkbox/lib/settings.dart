@@ -31,11 +31,11 @@ class _SettingsState extends State<Settings> {
                   .toList()
                   .cast<Widget>() +
               [
-                FlatButton(
+                TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  color: Colors.pinkAccent,
+                  style: TextButton.styleFrom(primary: Colors.pinkAccent),
                   child: const Text('Back'),
                 )
               ],

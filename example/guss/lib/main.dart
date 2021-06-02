@@ -1,4 +1,3 @@
-import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -39,7 +38,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final CharacterController _characterController =
       CharacterController(projectGaze: LoginCharacter.projectGaze);
-      
+
   String _password;
   @override
   Widget build(BuildContext context) {
@@ -52,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Positioned.fill(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   // Box decoration takes a gradient
                   gradient: LinearGradient(
                     // Where the linear gradient begins and ends
@@ -60,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     end: Alignment.bottomLeft,
                     // Add one stop for each color. Stops should increase from 0
                     // to 1
-                    stops: const [0.0, 1.0],
+                    stops: [0.0, 1.0],
                     colors: background,
                   ),
                 ),
@@ -76,9 +75,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: <Widget>[
                     LoginCharacter(controller: _characterController),
                     Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: Colors.white,
-                          borderRadius: const BorderRadius.all(
+                          borderRadius: BorderRadius.all(
                               Radius.circular(cornerRadius))),
                       child: Padding(
                         padding: const EdgeInsets.all(30.0),
@@ -107,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 },
                               ),
                               SigninButton(
-                                child: Text("Sign In",
+                                child: const Text("Sign In",
                                     style: TextStyle(
                                         fontFamily: "RobotoMedium",
                                         fontSize: 16,

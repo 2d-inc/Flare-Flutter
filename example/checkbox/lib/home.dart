@@ -9,11 +9,11 @@ class Home extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FlatButton(
+            TextButton(
               onPressed: () {
                 Navigator.of(context).pushNamed('/settings');
               },
-              color: Colors.pinkAccent,
+              style: TextButton.styleFrom(primary: Colors.pinkAccent),
               child: const Text('Settings'),
             )
           ],

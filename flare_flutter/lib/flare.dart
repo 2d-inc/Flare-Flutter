@@ -31,10 +31,11 @@ import 'package:flare_flutter/trim_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-export 'package:flare_flutter/base/math/vec2d.dart';
-export 'package:flare_flutter/base/math/mat2d.dart';
-export 'package:flare_flutter/base/actor_node.dart';
 export 'package:flare_flutter/base/actor_artboard.dart';
+export 'package:flare_flutter/base/actor_node.dart';
+export 'package:flare_flutter/base/animation/actor_animation.dart';
+export 'package:flare_flutter/base/math/mat2d.dart';
+export 'package:flare_flutter/base/math/vec2d.dart';
 
 ui.ImageFilter? _blurFilter(double x, double y) {
   double bx = x.abs() < 0.1 ? 0 : x;

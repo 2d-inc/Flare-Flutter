@@ -1,18 +1,16 @@
 name: teddy
 description: A new Flutter project.
-
-version: 1.0.0+1
+publish_to: 'none'
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
+  cupertino_icons: ^0.1.2
   flare_flutter:
     path: ../../flare_flutter
-
-  cupertino_icons: ^0.1.2
+  flutter:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

@@ -2,7 +2,6 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flare_flutter/flare.dart';
-import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_controller.dart';
 import 'package:flutter/animation.dart';
@@ -28,7 +27,6 @@ class HouseController extends FlareController {
 
   @override
   bool advance(FlutterActorArtboard artboard, double elapsed) {
-
     /// Advance the background animation every frame.
     _skyAnimation.time =
         (_skyAnimation.time + elapsed) % _skyAnimation.duration;
@@ -39,6 +37,7 @@ class HouseController extends FlareController {
     for (int i = len; i >= 0; i--) {
       FlareAnimationLayer layer = _roomAnimations[i];
       layer.time += elapsed;
+
       /// The mix quickly ramps up to 1, but interpolates for the first few frames.
       layer.mix = min(1.0, layer.time / 0.07);
       layer.apply(artboard);
@@ -61,6 +60,7 @@ class HouseController extends FlareController {
       _demoAnimation.time =
           (_demoAnimation.time + elapsed) % _demoAnimation.duration;
       _demoAnimation.apply(artboard);
+
       /// Check which number of rooms is currently visible.
       _checkRoom();
     }
@@ -73,11 +73,11 @@ class HouseController extends FlareController {
   @override
   void initialize(FlutterActorArtboard artboard) {
     _artboard = artboard;
-    _demoAnimation = FlareAnimationLayer()
-      ..animation = _artboard.getAnimation("Demo Mode");
-    _skyAnimation = FlareAnimationLayer()
-      ..animation = _artboard.getAnimation("Sun Rotate")
-      ..mix = 1.0;
+    _demoAnimation =
+        FlareAnimationLayer('Demo Mode', _artboard.getAnimation("Demo Mode"));
+    _skyAnimation =
+        FlareAnimationLayer('Sun Rotate', _artboard.getAnimation("Sun Rotate"))
+          ..mix = 1.0;
     ActorAnimation endAnimation = artboard.getAnimation("to 6");
     if (endAnimation != null) {
       endAnimation.apply(endAnimation.duration, artboard, 1.0);
@@ -88,7 +88,7 @@ class HouseController extends FlareController {
   void setViewTransform(Mat2D viewTransform) {}
 
   /// Use the [demoUpdated] callback to relay the current number of rooms
-  /// to the [Page] widget, so it can position the slider accordingly. 
+  /// to the [Page] widget, so it can position the slider accordingly.
   _checkRoom() {
     double demoFrame = _demoAnimation.time * FPS;
     double demoValue = 0.0;
@@ -117,6 +117,7 @@ class HouseController extends FlareController {
     if (_lastDemoValue != demoValue) {
       _lastDemoValue = demoValue;
       this._rooms = demoValue.toInt();
+
       /// Use the callback to let the [Page] widget know that the current value
       /// has been changed so that the Slider can be updated.
       if (demoUpdated != null) {
@@ -128,7 +129,7 @@ class HouseController extends FlareController {
   _enqueueAnimation(String name) {
     ActorAnimation animation = _artboard.getAnimation(name);
     if (animation != null) {
-      _roomAnimations.add(FlareAnimationLayer()..animation = animation);
+      _roomAnimations.add(FlareAnimationLayer(name, animation));
     }
   }
 

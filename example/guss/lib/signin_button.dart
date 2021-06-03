@@ -11,8 +11,8 @@ class SigninButton extends StatelessWidget {
   final PressCallback onPressed;
 
   const SigninButton({
-    Key key,
     @required this.child,
+    Key key,
     this.gradient,
     this.width = double.infinity,
     this.height = 50.0,

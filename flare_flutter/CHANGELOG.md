@@ -1,3 +1,6 @@
+## [3.0.1] - 2021-06-03 15:01:30
+
+- Maintenance release supporting upcoming changes to Flutter.
 ## [3.0.0] - 2021-03-29 17:05:59
 
 - Identical to [3.0.0-nullsafety.1] but has now been tested by users and is now ready for usage.

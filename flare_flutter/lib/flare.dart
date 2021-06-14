@@ -203,7 +203,7 @@ class FlutterActorArtboard extends ActorArtboard {
 }
 
 abstract class FlutterActorDrawable {
-  bool _antialias = false;
+  bool _antialias = true;
   ui.BlendMode _blendMode = ui.BlendMode.srcOver;
 
   bool get antialias => _antialias;

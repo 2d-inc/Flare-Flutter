@@ -96,14 +96,10 @@ abstract class FlareRenderBox extends RenderBox {
   Future<void> coldLoad() async {}
 
   @override
-  void detach() {
-    super.detach();
-    dispose();
-  }
-
   void dispose() {
     updatePlayState();
     _unload();
+    super.dispose();
   }
 
   /// Load a flare file from cache

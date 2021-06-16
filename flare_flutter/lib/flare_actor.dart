@@ -170,11 +170,6 @@ class FlareActor extends LeafRenderObjectWidget {
   }
 
   @override
-  void didUnmountRenderObject(covariant FlareActorRenderObject renderObject) {
-    renderObject.dispose();
-  }
-
-  @override
   void updateRenderObject(
       BuildContext context, covariant FlareActorRenderObject renderObject) {
     renderObject

@@ -203,7 +203,7 @@ class FlutterActorArtboard extends ActorArtboard {
 }
 
 abstract class FlutterActorDrawable {
-  bool _antialias = false;
+  bool _antialias = true;
   ui.BlendMode _blendMode = ui.BlendMode.srcOver;
 
   bool get antialias => _antialias;
@@ -225,6 +225,7 @@ abstract class FlutterActorDrawable {
     _blendMode = mode;
     onBlendModeChanged(_blendMode);
   }
+
   int get blendModeId {
     return _blendMode.index;
   }
@@ -232,6 +233,7 @@ abstract class FlutterActorDrawable {
   set blendModeId(int index) {
     blendMode = ui.BlendMode.values[index];
   }
+
   List<List<ClipShape>> get clipShapes;
 
   void clip(ui.Canvas canvas) {

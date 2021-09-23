@@ -310,7 +310,7 @@ class FlutterActorEllipse extends ActorEllipse with FlutterPathPointsPath {
 class FlutterActorImage extends ActorImage with FlutterActorDrawable {
   late Float32List _vertexBuffer;
   late Float32List _uvBuffer;
-  late ui.Paint _paint;
+  ui.Paint? _paint;
   ui.Vertices? _canvasVertices;
   late Uint16List _indices;
 
@@ -339,7 +339,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
         ..blendMode = blendMode
         ..shader = textureIndex >= 0 && textureIndex < images.length
             ? ui.ImageShader(images[textureIndex], ui.TileMode.clamp,
-                ui.TileMode.clamp, _identityMatrix)
+            ui.TileMode.clamp, _identityMatrix)
             : null
         ..filterQuality = ui.FilterQuality.low
         ..isAntiAlias = antialias;
@@ -366,7 +366,7 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
       idx += 2;
     }
 
-    _paint.shader = ui.ImageShader(
+    _paint?.shader = ui.ImageShader(
         image, ui.TileMode.clamp, ui.TileMode.clamp, _identityMatrix);
 
     _canvasVertices = ui.Vertices.raw(ui.VertexMode.triangles, _vertexBuffer,
@@ -435,14 +435,14 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
     canvas.save();
 
     clip(canvas);
-    _paint.color =
-        _paint.color.withOpacity(renderOpacity.clamp(0.0, 1.0).toDouble());
+    _paint?.color =
+        _paint!.color.withOpacity(renderOpacity.clamp(0.0, 1.0).toDouble());
 
     if (imageTransform != null) {
       canvas.transform(imageTransform!.mat4);
-      canvas.drawVertices(_canvasVertices!, ui.BlendMode.srcOver, _paint);
+      canvas.drawVertices(_canvasVertices!, ui.BlendMode.srcOver, _paint!);
     } else {
-      canvas.drawVertices(_canvasVertices!, ui.BlendMode.srcOver, _paint);
+      canvas.drawVertices(_canvasVertices!, ui.BlendMode.srcOver, _paint!);
     }
 
     canvas.restore();
@@ -496,17 +496,17 @@ class FlutterActorImage extends ActorImage with FlutterActorDrawable {
 
   @override
   void onAntialiasChanged(bool useAA) {
-    _paint.isAntiAlias = useAA;
+    _paint?.isAntiAlias = useAA;
     onPaintUpdated(_paint);
   }
 
   @override
   void onBlendModeChanged(ui.BlendMode mode) {
-    _paint.blendMode = mode;
+    _paint?.blendMode = mode;
     onPaintUpdated(_paint);
   }
 
-  void onPaintUpdated(ui.Paint paint) {}
+  void onPaintUpdated(ui.Paint? paint) {}
 
   @override
   void update(int dirt) {

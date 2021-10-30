@@ -1,3 +1,7 @@
+## [3.0.2] - 2021-07-29 14:39:32
+
+- Fixing an anti-aliasing bug introduced when migrating to null safety.
+
 ## [3.0.1] - 2021-06-03 15:01:30
 
 - Maintenance release supporting upcoming changes to Flutter.

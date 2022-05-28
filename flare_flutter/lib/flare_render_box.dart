@@ -167,7 +167,7 @@ abstract class FlareRenderBox extends RenderBox {
         SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
       }
       _frameCallbackID =
-          SchedulerBinding.instance.scheduleFrameCallback(_beginFrame) ?? -1;
+          SchedulerBinding.instance.scheduleFrameCallback(_beginFrame);
     }
 
     final Canvas canvas = context.canvas;

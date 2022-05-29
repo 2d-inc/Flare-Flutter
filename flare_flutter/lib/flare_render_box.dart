@@ -11,6 +11,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
+/// This allows a value of type T or T?
+/// to be treated as a value of type T?.
+///
+/// We use this so that APIs that have become
+/// non-nullable can still be used with `!` and `?`
+/// to support older versions of the API as well.
+T? _ambiguate<T>(T? value) => value;
+
 /// A render box for Flare content.
 abstract class FlareRenderBox extends RenderBox {
   static const double _notPlayingFlag = -1;
@@ -164,10 +172,12 @@ abstract class FlareRenderBox extends RenderBox {
     if (isPlaying) {
       // Paint again
       if (_frameCallbackID != -1) {
-        SchedulerBinding.instance?.cancelFrameCallbackWithId(_frameCallbackID);
+        _ambiguate(SchedulerBinding.instance)
+            ?.cancelFrameCallbackWithId(_frameCallbackID);
       }
-      _frameCallbackID =
-          SchedulerBinding.instance?.scheduleFrameCallback(_beginFrame) ?? -1;
+      _frameCallbackID = _ambiguate(SchedulerBinding.instance)
+              ?.scheduleFrameCallback(_beginFrame) ??
+          -1;
     }
 
     final Canvas canvas = context.canvas;
@@ -269,7 +279,8 @@ abstract class FlareRenderBox extends RenderBox {
     } else {
       _lastFrameTime = _notPlayingFlag;
       if (_frameCallbackID != -1) {
-        SchedulerBinding.instance?.cancelFrameCallbackWithId(_frameCallbackID);
+        _ambiguate(SchedulerBinding.instance)
+            ?.cancelFrameCallbackWithId(_frameCallbackID);
       }
     }
   }

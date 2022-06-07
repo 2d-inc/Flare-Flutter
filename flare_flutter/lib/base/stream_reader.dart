@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flare_flutter/base/block_reader.dart';
 import 'package:flare_flutter/base/json_block_reader.dart';
-import 'package:flutter/services.dart';
 
 abstract class StreamReader {
   int blockType = 0;

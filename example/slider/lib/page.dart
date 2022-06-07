@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:slider/house_controller.dart';
 

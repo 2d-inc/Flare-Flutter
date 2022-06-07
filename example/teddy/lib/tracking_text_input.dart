@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:teddy/input_helper.dart';
 
 typedef void CaretMoved(Offset? globalCaretPosition);
@@ -64,7 +63,9 @@ class _TrackingTextInputState extends State<TrackingTextInput> {
           key: _fieldKey,
           controller: _textController,
           obscureText: widget.isObscured,
-          validator: (value) {}),
+          validator: (value) {
+            return null;
+          }),
     );
   }
 }

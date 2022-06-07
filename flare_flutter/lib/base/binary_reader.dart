@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:flare_flutter/base/stream_reader.dart';
-import 'package:flutter/services.dart';
 
 /// Implementation of StreamReader that reads binary data.
 abstract class BinaryReader implements StreamReader {

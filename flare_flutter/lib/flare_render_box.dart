@@ -1,13 +1,12 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:math';
 
 import 'package:flare_flutter/asset_provider.dart';
 import 'package:flare_flutter/base/math/aabb.dart';
-import 'package:flare_flutter/base/math/mat2d.dart';
-import 'package:flare_flutter/base/math/vec2d.dart';
 import 'package:flare_flutter/flare.dart';
 import 'package:flare_flutter/flare_cache.dart';
 import 'package:flare_flutter/flare_cache_asset.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -101,9 +100,11 @@ abstract class FlareRenderBox extends RenderBox {
     dispose();
   }
 
+  @override
   void dispose() {
     updatePlayState();
     _unload();
+    super.dispose();
   }
 
   /// Load a flare file from cache
@@ -164,10 +165,9 @@ abstract class FlareRenderBox extends RenderBox {
     if (isPlaying) {
       // Paint again
       if (_frameCallbackID != -1) {
-        SchedulerBinding.instance?.cancelFrameCallbackWithId(_frameCallbackID);
+        SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
       }
-      _frameCallbackID =
-          SchedulerBinding.instance?.scheduleFrameCallback(_beginFrame) ?? -1;
+      _frameCallbackID = SchedulerBinding.instance.scheduleFrameCallback(_beginFrame);
     }
 
     final Canvas canvas = context.canvas;
@@ -175,12 +175,8 @@ abstract class FlareRenderBox extends RenderBox {
     AABB bounds = aabb;
     double contentWidth = bounds[2] - bounds[0];
     double contentHeight = bounds[3] - bounds[1];
-    double x = -1 * bounds[0] -
-        contentWidth / 2.0 -
-        (_alignment.x * contentWidth / 2.0);
-    double y = -1 * bounds[1] -
-        contentHeight / 2.0 -
-        (_alignment.y * contentHeight / 2.0);
+    double x = -1 * bounds[0] - contentWidth / 2.0 - (_alignment.x * contentWidth / 2.0);
+    double y = -1 * bounds[1] - contentHeight / 2.0 - (_alignment.y * contentHeight / 2.0);
 
     double scaleX = 1.0, scaleY = 1.0;
 
@@ -193,13 +189,11 @@ abstract class FlareRenderBox extends RenderBox {
         scaleY = size.height / contentHeight;
         break;
       case BoxFit.contain:
-        double minScale =
-            min(size.width / contentWidth, size.height / contentHeight);
+        double minScale = min(size.width / contentWidth, size.height / contentHeight);
         scaleX = scaleY = minScale;
         break;
       case BoxFit.cover:
-        double maxScale =
-            max(size.width / contentWidth, size.height / contentHeight);
+        double maxScale = max(size.width / contentWidth, size.height / contentHeight);
         scaleX = scaleY = maxScale;
         break;
       case BoxFit.fitHeight:
@@ -214,17 +208,14 @@ abstract class FlareRenderBox extends RenderBox {
         scaleX = scaleY = 1.0;
         break;
       case BoxFit.scaleDown:
-        double minScale =
-            min(size.width / contentWidth, size.height / contentHeight);
+        double minScale = min(size.width / contentWidth, size.height / contentHeight);
         scaleX = scaleY = minScale < 1.0 ? minScale : 1.0;
         break;
     }
 
     Mat2D transform = Mat2D();
-    transform[4] =
-        offset.dx + size.width / 2.0 + (_alignment.x * size.width / 2.0);
-    transform[5] =
-        offset.dy + size.height / 2.0 + (_alignment.y * size.height / 2.0);
+    transform[4] = offset.dx + size.width / 2.0 + (_alignment.x * size.width / 2.0);
+    transform[5] = offset.dy + size.height / 2.0 + (_alignment.y * size.height / 2.0);
     Mat2D.scale(transform, transform, Vec2D.fromValues(scaleX, scaleY));
     Mat2D center = Mat2D();
     center[4] = x;
@@ -269,7 +260,7 @@ abstract class FlareRenderBox extends RenderBox {
     } else {
       _lastFrameTime = _notPlayingFlag;
       if (_frameCallbackID != -1) {
-        SchedulerBinding.instance?.cancelFrameCallbackWithId(_frameCallbackID);
+        SchedulerBinding.instance.cancelFrameCallbackWithId(_frameCallbackID);
       }
     }
   }
@@ -281,8 +272,7 @@ abstract class FlareRenderBox extends RenderBox {
   void _beginFrame(Duration timestamp) {
     _frameCallbackID = -1;
     final double t = timestamp.inMicroseconds / Duration.microsecondsPerSecond;
-    double elapsedSeconds =
-        _lastFrameTime == _notPlayingFlag ? 0.0 : t - _lastFrameTime;
+    double elapsedSeconds = _lastFrameTime == _notPlayingFlag ? 0.0 : t - _lastFrameTime;
     _lastFrameTime = t;
 
     advance(elapsedSeconds);

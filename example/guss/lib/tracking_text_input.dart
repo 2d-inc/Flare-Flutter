@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:teddy/input_helper.dart';
 
 typedef void CaretMoved(Offset globalCaretPosition);

@@ -3,10 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flare_flutter/asset_provider.dart';
 import 'package:flare_flutter/base/actor_drawable.dart';
-import 'package:flare_flutter/base/actor_node.dart';
-import 'package:flare_flutter/base/animation/actor_animation.dart';
 import 'package:flare_flutter/base/math/aabb.dart';
-import 'package:flare_flutter/base/math/mat2d.dart';
 import 'package:flare_flutter/flare.dart';
 import 'package:flare_flutter/flare_controller.dart';
 import 'package:flare_flutter/flare_render_box.dart';

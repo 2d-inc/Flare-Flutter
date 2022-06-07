@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:flare_flutter/base/animation/actor_animation.dart';
-import 'package:flare_flutter/base/math/mat2d.dart';
 
 import 'flare.dart';
 import 'flare_actor.dart';
